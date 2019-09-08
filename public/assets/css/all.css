@@ -1,0 +1,28 @@
+.fa,
+.fas,
+.far,
+.fal,
+.fab{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:inline-block;font-style:normal;font-variant:normal;text-rendering:auto;line-height:1;}
+.fa-angle-up:before{content:"\f106";}
+.fa-bars:before{content:"\f0c9";}
+.fa-facebook-f:before{content:"\f39e";}
+.fa-linkedin:before{content:"\f08c";}
+.fa-twitter:before{content:"\f099";}
+@font-face{font-family:'Font Awesome 5 Brands';font-style:normal;font-weight:normal;src:url("../fonts/fontawesome/fa-brands-400.eot");src:url("../fonts/fontawesome/fa-brands-400.eot?#iefix") format("embedded-opentype"), url("../fonts/fontawesome/fa-brands-400.woff2") format("woff2"), url("../fonts/fontawesome/fa-brands-400.woff") format("woff"), url("../fonts/fontawesome/fa-brands-400.ttf") format("truetype"), url("../fonts/fontawesome/fa-brands-400.svg#fontawesome") format("svg");}
+.fab{font-family:'Font Awesome 5 Brands';}
+@font-face{font-family:'Font Awesome 5 Free';font-style:normal;font-weight:400;src:url("../fonts/fontawesome/fa-regular-400.eot");src:url("../fonts/fontawesome/fa-regular-400.eot?#iefix") format("embedded-opentype"), url("../fonts/fontawesome/fa-regular-400.woff2") format("woff2"), url("../fonts/fontawesome/fa-regular-400.woff") format("woff"), url("../fonts/fontawesome/fa-regular-400.ttf") format("truetype"), url("../fonts/fontawesome/fa-regular-400.svg#fontawesome") format("svg");}
+.far{font-family:'Font Awesome 5 Free';font-weight:400;}
+@font-face{font-family:'Font Awesome 5 Free';font-style:normal;font-weight:900;src:url("../fonts/fontawesome/fa-solid-900.eot");src:url("../fonts/fontawesome/fa-solid-900.eot?#iefix") format("embedded-opentype"), url("../fonts/fontawesome/fa-solid-900.woff2") format("woff2"), url("../fonts/fontawesome/fa-solid-900.woff") format("woff"), url("../fonts/fontawesome/fa-solid-900.ttf") format("truetype"), url("../fonts/fontawesome/fa-solid-900.svg#fontawesome") format("svg");}
+.fa,
+.fas{font-family:'Font Awesome 5 Free';font-weight:900;}
+@import url('https://fonts.googleapis.com/css?family=Montserrat');#container{height:10vh;display:flex;justify-content:center;align-items:center;}
+#container p{font-size:2rem;padding:0.5rem;font-weight:bold;letter-spacing:0.1rem;text-align:center;overflow:hidden;}
+#container p span.typed-text{font-weight:bold;color:#21C87A;}
+#container p span.cursor{display:inline-block;background-color:#ccc;margin-left:0.1rem;width:3px;animation:blink 1s infinite;}
+#container p span.cursor.typing{animation:none;}
+@keyframes blink{0%{background-color:#ccc;}
+49%{background-color:#ccc;}
+50%{background-color:transparent;}
+99%{background-color:transparent;}
+100%{background-color:#ccc;}
+}

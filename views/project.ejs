@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Admin Dashboard - Project</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <style>
+  
+  
+  </style>
+</head>
+<body>
+  <br><br><br>
+  <button type="button" class="btn btn-primary show">Show</button>
+  <button type="button" class="btn btn-default back" style="float:right">Back</button>
+  <button type="button" class="btn btn-default back1" style="float:right">Back</button>
+  <div id="result"></div>
+
+  
+<div class="container insertdiv">
+
+
+<br><br><br>
+<form action="/project/insert" class="uploadImage" method="post" enctype="multipart/form-data">
+     <div class="form-group">
+      <label for="email">Project Name</label>
+      <input type="text" class="form-control" name="name" placeholder="Project Name">
+    </div>
+    <div class="form-group">
+        <label for="email">Aim</label>
+        <input type="text" class="form-control" name="aim" placeholder="Project Aim">
+      </div>
+      <div class="form-group">
+        <label for="email">Objective</label>
+        <input type="text" class="form-control" name="objective" placeholder="Project Objective">
+      </div>
+      <div class="form-group">
+        <label for="email">Overview</label>
+        <input type="text" class="form-control" name="overview" placeholder="Project Overview">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Short Description</label>
+        <input type="text" class="form-control" name="short_description" placeholder="Project Overview">
+      </div>
+
+      
+     
+
+      <div class="form-group">
+        <label for="email">Advantage</label>
+        <input type="text" class="form-control" name="advantage" placeholder="Advantage....">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Advantage 1</label>
+        <input type="text" class="form-control" name="advantage1" placeholder="Advantage....">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Advantage 2</label>
+        <input type="text" class="form-control" name="advantage2" placeholder="Advantage.... ">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Advantag 3</label>
+        <input type="text" class="form-control" name="advantage3" placeholder="Advantage.... ">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Advantage 4</label>
+        <input type="text" class="form-control" name="advantage4" placeholder="Advantage....">
+      </div>
+     
+     
+
+
+
+      <div class="form-group">
+        <label for="email">Working Modules</label>
+        <input type="text" class="form-control" name="working_modules" placeholder="Working Modules....">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Working Modules1</label>
+        <input type="text" class="form-control" name="working_modules1" placeholder="Working Modules....">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Working Modules2</label>
+        <input type="text" class="form-control" name="working_modules2" placeholder="Working Modules.... ">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Working Modules3</label>
+        <input type="text" class="form-control" name="working_modules3" placeholder="Working Modules.... ">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Working Modules4</label>
+        <input type="text" class="form-control" name="working_modules4" placeholder="Working Modules....">
+      </div>
+
+
+      <div class="form-group">
+        <label for="email">Index Page</label>
+        <input type="file" class="form-control" name="index_page" >
+      </div>
+
+      <div class="form-group">
+        <label for="email">Database Page</label>
+        <input type="file" class="form-control" name="database_page" >
+      </div>
+
+
+      <div class="form-group">
+        <label for="email">Front End Code</label>
+        <input type="file" class="form-control" name="front_page" >
+      </div>
+
+
+      <div class="form-group">
+        <label for="email">Admin Login</label>
+        <input type="file" class="form-control" name="admin_page" >
+      </div>
+
+
+      <div class="form-group">
+        <label for="email">Admin Dashboard</label>
+        <input type="file" class="form-control" name="dashboard_page" >
+      </div>
+
+      <div class="form-group">
+        <label for="email">USer's Page</label>
+        <input type="file" class="form-control" name="user_page" >
+      </div>
+    
+    <button type="submit" class="btn btn-default ">Submit</button>
+  
+  </form>
+
+</div>
+
+
+
+<div class="container editdiv">
+
+
+  <br><br><br>
+
+  <div class="form-group">
+    <label for="email">Project Name</label>
+    <input type="text" readonly class="form-control" id="pid" placeholder="Project Name">
+  </div>
+
+
+  <div class="form-group">
+    <label for="email">Project Name</label>
+    <input type="text" class="form-control" id="pseo_name" readonly placeholder="Project Name">
+  </div>
+
+  <div class="form-group">
+    <label for="email">Project Name</label>
+    <input type="text" class="form-control" id="pname" placeholder="Project Name">
+  </div>
+  <div class="form-group">
+      <label for="email">Aim</label>
+      <input type="text" class="form-control" id="paim" placeholder="Project Aim">
+    </div>
+    <div class="form-group">
+      <label for="email">Objective</label>
+      <input type="text" class="form-control" id="pobjective" placeholder="Project Objective">
+    </div>
+    <div class="form-group">
+      <label for="email">Overview</label>
+      <input type="text" class="form-control" id="poverview" placeholder="Project Overview">
+    </div>
+
+    
+    <div class="form-group">
+      <label for="email">Short Description</label>
+      <input type="text" class="form-control" id="pshort_description" placeholder="Project Overview">
+    </div>
+   
+
+    <div class="form-group">
+      <label for="email">Advantage</label>
+      <input type="text" class="form-control" id="padvantage" placeholder="Advantage....">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Advantage 1</label>
+      <input type="text" class="form-control" id="padvantage1" placeholder="Advantage....">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Advantage 2</label>
+      <input type="text" class="form-control" id="padvantage2" placeholder="Advantage.... ">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Advantag 3</label>
+      <input type="text" class="form-control" id="padvantage3" placeholder="Advantage.... ">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Advantage 4</label>
+      <input type="text" class="form-control" id="padvantage4" placeholder="Advantage....">
+    </div>
+   
+   
+
+
+
+    <div class="form-group">
+      <label for="email">Working Modules</label>
+      <input type="text" class="form-control" id="pworking_modules" placeholder="Working Modules....">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Working Modules1</label>
+      <input type="text" class="form-control" id="pworking_modules1" placeholder="Working Modules....">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Working Modules2</label>
+      <input type="text" class="form-control" id="pworking_modules2" placeholder="Working Modules.... ">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Working Modules3</label>
+      <input type="text" class="form-control" id="pworking_modules3" placeholder="Working Modules.... ">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Working Modules4</label>
+      <input type="text" class="form-control" id="pworking_modules4" placeholder="Working Modules....">
+    </div>
+
+      
+      <button type="button" class="btn btn-default update">Update</button>
+  </div>
+
+
+</body>
+<script src="/javascripts/jquery.js"></script>
+<script src="/javascripts/project.js"></script>
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+<script>
+$('.uploadImage').submit(function(e){
+    e.preventDefault();
+     $(this).ajaxSubmit({
+      contentType: 'application/json',
+      success: function(response){
+     alert("Successfully")
+    
+      
+      }
+  });
+    return false;
+});
+</script>
+
+</html>
