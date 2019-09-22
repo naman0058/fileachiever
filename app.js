@@ -17,6 +17,7 @@ var allprojects = require('./routes/allprojects');
 var userlogin = require('./routes/user-login');
 var customization = require('./routes/customization');
 var userverification = require('./routes/user-verification');
+var ownproject = require('./routes/ownproject');
 var htaccess = require('./routes/htaccess');
 var robot = require('./routes/robot');
 //var facebooklogin = require('./routes/facebooklogin');
@@ -71,6 +72,7 @@ app.use('/all-projects',allprojects);
 app.use('/user-login',userlogin);
 app.use('/customization',customization);
 app.use('/user-verification',userverification);
+app.use('/make-your-own-project',ownproject);
 app.use('/.htaccess',htaccess);
 app.use('/robots.txt',robot);
 

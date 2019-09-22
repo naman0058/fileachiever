@@ -10,6 +10,12 @@ router.get('/', (req, res) => { pool.query(`select name,seo_name,short_descripti
 })
 
 
+router.get('/synopsis', (req, res) => { pool.query(`select name,seo_name,short_description from project`,
+(err,result)=>err ? console.log(err) : res.render('synopsis',{result:result}))
+})
+
+
+
 router.get('/cse/:name',(req,res)=>{
     var query = `select * from project where seo_name = "${req.params.name}";`
     var query1 = `select * from programming_language where name = 'PHP' || name = 'JavaScript' || name = 'HTML' || name='CSS' || name = 'Jquery' || name = 'JSON';`
@@ -19,11 +25,34 @@ router.get('/cse/:name',(req,res)=>{
 })
 
 
+
+
+router.get('/cse/synopsis/:name',(req,res)=>{
+    var query = `select * from project where seo_name = "${req.params.name}";`
+    var query1 = `select * from programming_language where name = 'PHP' || name = 'JavaScript' || name = 'HTML' || name='CSS' || name = 'Jquery' || name = 'JSON';`
+    pool.query(query+query1,(err,result)=>{
+        err ? console.log(err) : res.render('synopsis-preview',{result:result})
+    })
+})
+
+
+
 router.get('/cse/:name/customization',(req,res)=>{
     var query = `select name,seo_name,id from project where id = '${req.session.customizationid}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('customization',{result : result})
+    })
+    
+})
+
+
+
+router.get('/cse/synopsis/:name/customization',(req,res)=>{
+    var query = `select name,seo_name,id from project where id = '${req.session.customizationid}';`
+    var query1 = `select name,id from programming_language;`
+    pool.query(query+query1,(err,result)=>{
+        err ? console.log(err) : res.render('synopis_customization',{result : result})
     })
     
 })

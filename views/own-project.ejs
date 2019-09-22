@@ -194,14 +194,14 @@
       </div>
 
       <nav class="main-nav float-right d-none d-lg-block">
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li class="active"><a href="/all-projects">Project File</a></li>
-            <li><a href="/synopsis">Synopsis</a></li>
-            <li><a href="/make-your-own-project" class="btn-get-started scrollto">Make your own project</a></li>
-            
-          </ul>
-        </nav><!-- .main-nav -->
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/all-projects">Project File</a></li>
+              <li><a href="/synopsis">Synopsis</a></li>
+              <li class="active"><a href="/make-your-own-project" class="btn-get-started scrollto">Make your own project</a></li>
+              
+            </ul>
+          </nav><!-- .main-nav -->
            
     </div>
   </header><!-- #header -->
@@ -220,7 +220,7 @@
 
         <header class="section-header">
           
- <br><br><br><br><br><br>
+<br><br><br><br>
 
 
 <!-- Font Awesome -->
@@ -232,47 +232,265 @@
 
 
 <!-- Search Form -->
-<div id="search"> 
-	<span class="close" style="float:left">X</span>
-	<form role="search" id="searchform" action="/search" method="get">
-
-<input list=text_editors type="search" name="service"  placeholder="Search For a Service">
-<datalist id="text_editors">
-<select multiple size=8>
-  <% for(i=0;i<result.length;i++){ %>
-<option value="<%=result[i].name%>"><%=result[i].name%></option>
-<% } %>
-<option><%=result[0].name%></option>
-</select>
-</datalist>
-	</form>
-</div>
-
-
- <h3>Choose Your Projects</h3>
-          <p></p>
         </header>
 
-        <div class="row">
 
-          <% for(i=0;i<result.length;i++){ %>
-            <div class="col-md-6 col-lg-4 wow bounceInUp" data-wow-duration="1.4s">
-              <div class="box">
 
-                <h4 class="title"><a href="/cse/<%=result[i].seo_name%>"><%=result[i].name%></a></h4>
 
-                <p class="description"><%=result[i].short_description%></p>
+    <!--==========================
+      Pricing Section
+    ============================-->
+    <section id="pricing" class="wow fadeInUp section-bg">
+
+            <div class="container">
+      
+              <header class="section-header">
+                <h3>Academic / College Website Project</h3>
+                <p></p>  
+            </header>
+      
+              <div class="row flex-items-xs-middle flex-items-xs-center">
+            
+                <!-- Basic Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>500<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Basic Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Regular Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>1000<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Regular Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Premium Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>1500<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Premium Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
               </div>
             </div>
-            <% } %>
-         
-        </div>
+      
+          </section><!-- #pricing -->
 
-      </div>
-    </section><!-- #services -->
+          
 
 
 
+
+    <!--==========================
+      Pricing Section
+    ============================-->
+    <section id="pricing" class="wow fadeInUp section-bg">
+
+            <div class="container">
+      
+              <header class="section-header">
+                <h3>Academic / College App Project</h3>
+                <p></p>  
+            </header>
+      
+              <div class="row flex-items-xs-middle flex-items-xs-center">
+            
+                <!-- Basic Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>1500<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Basic Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Regular Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>3000<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Regular Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Premium Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>4500<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Premium Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+              </div>
+            </div>
+      
+          </section><!-- #pricing -->
+
+          
+
+
+              <!--==========================
+      Pricing Section
+    ============================-->
+    <section id="pricing" class="wow fadeInUp section-bg">
+
+            <div class="container">
+      
+              <header class="section-header">
+                <h3>Professional Project</h3>
+                <p></p>
+              </header>
+      
+              <div class="row flex-items-xs-middle flex-items-xs-center">
+            
+                <!-- Basic Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>2500<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Basic Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Regular Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>5000<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Regular Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Premium Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>10000<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Premium Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#sendmessage" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+              </div>
+            </div>
+      
+          </section><!-- #pricing -->
+      
 
   <!--==========================
       Frequently Asked Questions Section
