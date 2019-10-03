@@ -77,6 +77,7 @@ $('#result').on('click', '.edit', function() {
 
  })
 $('.update').click(function(){  //data insert in database
+    
     let updateobj = {
         id: $('#pid').val(),
         name: $('#pname').val(),
@@ -88,17 +89,18 @@ $('.update').click(function(){  //data insert in database
         advantage2 : $('#padvantage2').val(),
         advantage3 : $('#padvantage3').val(),
         advantage4 : $('#padvantage4').val(),
-        short_description : $('#pshort_description'),
+        short_description : $('#pshort_description').val(),
         working_modules : $('#pworking_modules').val(),
-        working_modules1 : $('#pworking_modules').val(),
-        working_modules2 : $('#pworking_modules').val(),
-        working_modules3 : $('#pworking_modules').val(),
-        working_modules4 : $('#pworking_modules').val(),
+        working_modules1 : $('#pworking_modules1').val(),
+        working_modules2 : $('#pworking_modules2').val(),
+        working_modules3 : $('#pworking_modules3').val(),
+        working_modules4 : $('#pworking_modules4').val(),
         seo_name :  ($('#pname').val().split(' ').join('-')).toLowerCase()
         }
-
-    $.post(`${routes}/update`, updateobj , function(data) {                         
-       update()
+console.log(updateobj)
+    $.post(`${routes}/update`, updateobj , function(data) {  
+update()                  
+       
     })
 })
 //////////////////////Function Starts//////////////////////////////////////
