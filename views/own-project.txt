@@ -1,41 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name=description content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
-    <meta name="abstract" content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
-    <meta name=keywords content="project file,<% for(i=0;i<result.length;i++){ %> <%=result[i].name%>, <%}%> top 100 projects"/>
-    <meta name=google-site-verification content=ZzEbFDLsqn9amFyvwSr6dM0vw0hHNOVmQ-Y3fIjUM6Y />
-    <meta name=robots content="all,follow"/>
-    <meta name=googlebot content="index, follow"/>
-    <meta name=classification content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
-    <link rel="shortcut icon" type="images/x-icon" href="/images/filemakr-project-file-creator-favicon.png" style="width:80px;" />
-    <meta name=distribution content=Global />
-    <meta name=author content="http://www.filemakr.com"/>
-    <meta name=Language content=English />
-    <meta name=rating content=general />
-    <meta name=owner content=FileMakr />
-    <meta http-equiv=refresh content=300>
-    <meta name=document-type content=public />
-    <meta name=revisit-after content=daily />
-    <meta name=country content=India />
-    <meta name=DC.title content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
-    <meta property=og:title content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
-    <meta property=og:type content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
-    <meta property=og:url content="http://www.filemakr.com"/>
-    <meta property=og:image content="http://www.filemakr.com/images/filemakr-project-file-creator-favicon.png" style="width:80px;"/>
-    <meta property=og:site_name content="http://www.filemakr.com"/>
-    <meta property=og:description content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
-    <meta property=og:locale content="en IN"/>
-    <meta name="HandheldFriendly" content="true"/>
-    <meta name="MobileOptimized" content="width"/>
-    <meta property="og:site_name" content="Filemakr"/>
-    <meta property="og:phone_number" content="+91-8319339945"/>
-    <meta property="og:email" content="filemakr@gmail.com"/>
-    <meta property="og:country-name" content="India"/>
-    <meta property="og:description" content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
-   <link rel=canonical href="http://www.filemakr.com">
-    <title>FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files.</title>
+  <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name=description content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta name=keywords content="project file,<% for(i=0;i<result.length;i++){ %> <%=result[i].name%>, <%}%> top 100 projects"/>
+  <meta name=google-site-verification content=ZzEbFDLsqn9amFyvwSr6dM0vw0hHNOVmQ-Y3fIjUM6Y />
+  <meta name=robots content="all,follow"/>
+  <meta name=googlebot content="index, follow"/>
+  <meta name=classification content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <link rel="shortcut icon" type="images/x-icon" href="/images/filemakr-project-file-creator-favicon.png" style="width:80px;" />
+  <meta name=distribution content=Global />
+  <meta name=author content="http://www.filemakr.com"/>
+  <meta name=Language content=English />
+  <meta name=rating content=general />
+  <meta name=owner content=FileMakr. />
+  <meta http-equiv=refresh content=300>
+  <meta name=document-type content=public />
+  <meta name=revisit-after content=daily />
+  <meta name=country content=India />
+  <meta name=DC.title content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta property=og:title content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta property=og:type content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta property=og:url content="http://www.filemakr.com"/>
+  <meta property=og:image content="http://www.filemakr.com/images/filemakr-project-file-creator-favicon.png" style="width:80px;"/>
+  <meta property=og:site_name content="http://www.filemakr.com"/>
+  <meta property=og:description content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta property=og:locale content="en IN"/>
+  <link rel=canonical href="http://www.filemakr.com">
+  <title>FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files.</title>
 
 <!-- Favicons -->
 <link href="/images/filemakr-project-file-creator-favicon.png" rel="icon">
@@ -253,7 +245,7 @@
             <div class="container">
       
               <header class="section-header">
-                <h3 style="font-size:25px">CHOOSE HOW YOU WANT TO CREATED YOUR PROJECT FILE</h3>
+                <h3>Academic / College Website Project</h3>
                 <p></p>  
             </header>
       
@@ -262,15 +254,20 @@
                 <!-- Basic Plan  -->
                 <div class="col-xs-12 col-lg-4">
                   <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>500<span class="period"></span></h3>
+                    </div>
                     <div class="card-block">
-                      <h4 class="card-title" style="color:black;font-weight: bold"> 
-                        Create your Project's File  with your hands
+                      <h4 class="card-title"> 
+                        Basic Plan
                       </h4>
                       <ul class="list-group">
-                        <li class="list-group-item" style="color:black;font-weight:500">Answer a few simple questions and automatically get a project file designed just for you in minutes.</li>
-                       
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
                       </ul>
-                      <a href="#contact" class="btn">Start Now</a>
+                      <a href="#contact" class="btn">Contact Us</a>
                     </div>
                   </div>
                 </div>
@@ -278,13 +275,18 @@
                 <!-- Regular Plan  -->
                 <div class="col-xs-12 col-lg-4">
                   <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>1000<span class="period"></span></h3>
+                        </div>
                     <div class="card-block">
-                      <h4 class="card-title" style="color:black;font-weight: bold"> 
-                        Let FileMakr create a Project File for You
+                      <h4 class="card-title"> 
+                        Regular Plan
                       </h4>
                       <ul class="list-group">
-                        <li class="list-group-item" style="color:black;font-weight:500">Filemakr provide the facality to create a project file according to your project within 3-5 business days.</li>
-                       
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
                       </ul>
                       <a href="#contact" class="btn">Contact Us</a>
                     </div>
@@ -294,14 +296,20 @@
                 <!-- Premium Plan  -->
                 <div class="col-xs-12 col-lg-4">
                   <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>1500<span class="period"></span></h3>
+                        </div>
                     <div class="card-block">
-                      <h4 class="card-title" style="color:black;font-weight: bold"> 
-                        Create  Website  and Applications  for You
+                      <h4 class="card-title"> 
+                        Premium Plan
                       </h4>
                       <ul class="list-group">
-                        <li class="list-group-item" style="color:black;font-weight:500">Filemakr provide the facality to develop a web and apps projects  according to your desire requirements. </li>
-                       </ul>
-                      <a href="/make-your-own-project-pricing-list" class="btn">See More...</a>
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
                     </div>
                   </div>
                 </div>
@@ -312,7 +320,177 @@
           </section><!-- #pricing -->
 
           
-   
+
+
+
+
+    <!--==========================
+      Pricing Section
+    ============================-->
+    <section id="pricing" class="wow fadeInUp section-bg">
+
+            <div class="container">
+      
+              <header class="section-header">
+                <h3>Academic / College App Project</h3>
+                <p></p>  
+            </header>
+      
+              <div class="row flex-items-xs-middle flex-items-xs-center">
+            
+                <!-- Basic Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>1500<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Basic Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Regular Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>3000<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Regular Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Premium Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>4500<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Premium Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+              </div>
+            </div>
+      
+          </section><!-- #pricing -->
+
+          
+
+
+              <!--==========================
+      Pricing Section
+    ============================-->
+    <section id="pricing" class="wow fadeInUp section-bg">
+
+            <div class="container">
+      
+              <header class="section-header">
+                <h3>Professional Project</h3>
+                <p></p>
+              </header>
+      
+              <div class="row flex-items-xs-middle flex-items-xs-center">
+            
+                <!-- Basic Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>2500<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Basic Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Regular Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>5000<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Regular Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Premium Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>10000<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Premium Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+              </div>
+            </div>
+      
+          </section><!-- #pricing -->
+      
 
   <!--==========================
       Frequently Asked Questions Section

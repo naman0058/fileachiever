@@ -57,4 +57,10 @@ router.get('/cse/synopsis/:name/customization',(req,res)=>{
     
 })
 
+
+
+
+router.get('/make-your-own-project-pricing-list', (req, res) => { pool.query(`select name,seo_name,short_description from project`,
+(err,result)=>err ? console.log(err) : res.render('make-your-own-project-pricing-list',{result:result}))
+})
 module.exports = router;
