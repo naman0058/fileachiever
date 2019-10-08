@@ -85,7 +85,7 @@ router.get('/projects',(req,res)=>{
            var query = `select * from customize_project where roll_number = "${req.session.roll_number}" order by id desc limit 1;`
            var query1 = `select * from programming_language where id = "${result[0].php}";`
            var query2 = `select * from programming_language where id = "${result[0].nodejs}";`
-           var query3 = `select * from programming_language where id = "${result[0].android}";`
+           var query3 = `select * from programming_language where id = "${result[0].angular}";`
            var query4 = `select * from programming_language where id = "${result[0].react}";`
            var query5 = `select * from programming_language where id = "${result[0].java}";`
            var query6 = `select * from programming_language where id = "${result[0].html}";`
@@ -93,11 +93,10 @@ router.get('/projects',(req,res)=>{
            var query8 = `select * from programming_language where id = "${result[0].javascript}";`
            var query9 = `select * from programming_language where id = "${result[0].jquery}";`
            var query10 = `select * from programming_language where id = "${result[0].json}";`
-           var query11 = `select * from programming_language where id = "${result[0].ajax}";`
-           var query12 = `select * from programming_language where id = "${result[0].xml}";`
-           var query13 = `select * from programming_language where id = "${result[0].native}";`
-           var query14 = `select * from project where id = "${result[0].projectid}";`
-           pool.query(query+query1+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11+query12+query13+query14,(err,result)=>{
+           var query11 = `select * from programming_language where id = "${result[0].css}";`
+           var query12 = `select * from programming_language where id = "${result[0].bootstrap}";`
+         var query14 = `select * from project where id = "${result[0].projectid}";`
+           pool.query(query+query1+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11+query12+query14,(err,result)=>{
                if(err) throw err;
                else res.render(`project-preview`,{result})
            })
@@ -124,7 +123,7 @@ router.get('/synopsis',(req,res)=>{
            var query = `select * from customize_synopsis_project where roll_number = "${req.session.roll_number}" order by id desc limit 1;`
            var query1 = `select * from programming_language where id = "${result[0].php}";`
            var query2 = `select * from programming_language where id = "${result[0].nodejs}";`
-           var query3 = `select * from programming_language where id = "${result[0].android}";`
+           var query3 = `select * from programming_language where id = "${result[0].angular}";`
            var query4 = `select * from programming_language where id = "${result[0].react}";`
            var query5 = `select * from programming_language where id = "${result[0].java}";`
            var query6 = `select * from programming_language where id = "${result[0].html}";`
@@ -132,11 +131,10 @@ router.get('/synopsis',(req,res)=>{
            var query8 = `select * from programming_language where id = "${result[0].javascript}";`
            var query9 = `select * from programming_language where id = "${result[0].jquery}";`
            var query10 = `select * from programming_language where id = "${result[0].json}";`
-           var query11 = `select * from programming_language where id = "${result[0].ajax}";`
-           var query12 = `select * from programming_language where id = "${result[0].xml}";`
-           var query13 = `select * from programming_language where id = "${result[0].native}";`
-           var query14 = `select * from project where id = "${result[0].projectid}";`
-           pool.query(query+query1+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11+query12+query13+query14,(err,result)=>{
+           var query11 = `select * from programming_language where id = "${result[0].css}";`
+           var query12 = `select * from programming_language where id = "${result[0].bootstrap}";`
+          var query14 = `select * from project where id = "${result[0].projectid}";`
+           pool.query(query+query1+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11+query12+query14,(err,result)=>{
                if(err) throw err;
                else res.render(`synopsis-project-preview`,{result})
            })

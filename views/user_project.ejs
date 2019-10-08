@@ -109,7 +109,7 @@
           <h3></h3>
           <p></p>
         </header>
-		<form action="/customization/insert" method="post" enctype="multipart/form-data">
+		<form action="/user-project/insert" method="post" enctype="multipart/form-data">
 			<div class="form-row">
                     <div class="form-group">
                             <label for="email">Project Name</label>
@@ -155,7 +155,7 @@
                            
                             <div class="form-group">
                               <label for="email">Conclusion</label>
-                              <input type="text" class="form-control" name="working_modules" required placeholder="Working Modules....">
+                              <input type="text" class="form-control" name="conclusion" required placeholder="Conclusion....">
                             </div>
                       
                            
@@ -238,7 +238,7 @@
 			  <div class="form-check">
           <label class="checkbox-inline"><input type="checkbox" name="php"  value="<%=result[0].id%>">      <%=result[0].name%></label>
           <label class="checkbox-inline"><input type="checkbox" name="nodejs"  value="<%=result[1].id%>">   <%=result[1].name%></label>
-          <label class="checkbox-inline"><input type="checkbox" name="android"  value="<%=result[2].id%>">   <%=result[2].name%></label> 
+          <label class="checkbox-inline"><input type="checkbox" name="angular"  value="<%=result[2].id%>">   <%=result[2].name%></label> 
           <label class="checkbox-inline"><input type="checkbox" name="react"  value="<%=result[3].id%>">   <%=result[3].name%></label>
           <label class="checkbox-inline"><input type="checkbox" name="java"  value="<%=result[4].id%>">   <%=result[4].name%></label>
           <label class="checkbox-inline"><input type="checkbox" name="html"  value="<%=result[5].id%>">   <%=result[5].name%></label>
@@ -246,12 +246,8 @@
           <label class="checkbox-inline"><input type="checkbox" name="javascript"  value="<%=result[7].id%>">   <%=result[7].name%></label>
           <label class="checkbox-inline"><input type="checkbox" name="jquery"  value="<%=result[8].id%>">   <%=result[8].name%></label>
           <label class="checkbox-inline"><input type="checkbox" name="json"  value="<%=result[9].id%>">   <%=result[9].name%></label>
-          <label class="checkbox-inline"><input type="checkbox" name="ruby"  value="<%=result[10].id%>">   <%=result[10].name%></label>
-          <label class="checkbox-inline"><input type="checkbox" name="csharp"  value="<%=result[11].id%>">   <%=result[11].name%></label>
-          <label class="checkbox-inline"><input type="checkbox" name="ajax"  value="<%=result[12].id%>">   <%=result[12].name%></label>
-          <label class="checkbox-inline"><input type="checkbox" name="xml"  value="<%=result[13].id%>">   <%=result[13].name%></label>
-          <label class="checkbox-inline"><input type="checkbox" name="objectivec"  value="<%=result[14].id%>">   <%=result[14].name%></label>
-          <label class="checkbox-inline"><input type="checkbox" name="native"  value="<%=result[15].id%>">   <%=result[15].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="css"  value="<%=result[10].id%>">   <%=result[10].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="bootstrap"  value="<%=result[11].id%>">   <%=result[11].name%></label>
         </div>
         
 			</div>
@@ -270,13 +266,13 @@
 
               <div class="form-group col-md-6">
                     <label for="inputState">College_code (Optional)</label>
-                    <input type="text" class="form-control" name="college_code" id="affilated_college_logo" required>  </div>
+                    <input type="text" class="form-control" name="key" id="affilated_college_logo" required>  </div>
                 </div>
  
                 
-                <div class="form-group col-md-6">
+                      <div class="form-group col-md-6">
                         <label for="inputState">Mobile Number</label>
-                        <input type="file" class="form-control" name="mobile_number" id="affilated_college_logo" required>  </div>
+                        <input type="number" class="form-control" name="mobile_number" id="affilated_college_logo" required>  </div>
                     </div>
        
 
