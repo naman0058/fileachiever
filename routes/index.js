@@ -9,6 +9,11 @@ router.get('/', (req, res) => { pool.query(`select name,seo_name,short_descripti
 (err,result)=>err ? console.log(err) : res.render('index',{result:result}))
 })
 
+router.post('/contactus',(req,res)=>{
+    let body = req.body
+    console.log(body)
+    pool.query(`insert into contactus set ?`,body,(err,result)=>err ? console.log(err) : res.send('OK'))
+})
 
 router.get('/synopsis', (req, res) => { pool.query(`select name,seo_name,short_description from project`,
 (err,result)=>err ? console.log(err) : res.render('synopsis',{result:result}))
