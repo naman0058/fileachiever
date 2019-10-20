@@ -1519,6 +1519,7 @@ h6 {
     -ms-flex-pack: end;
     justify-content: flex-end;
   }
+ 
 }
 
 @media (min-width: 992px) {
@@ -1620,5 +1621,8 @@ h6 {
 @media (max-width: 574px) {
   #footer .footer-top .social-links a {
     margin-bottom: 25px;
+  }
+  .module_image{
+    display : none
   }
 }
