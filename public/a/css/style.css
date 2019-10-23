@@ -1616,6 +1616,9 @@ h6 {
   #testimonials .testimonial-item p {
     margin-left: 0;
   }
+  .module_image{
+    display : none
+  }
 }
 
 @media (max-width: 574px) {
