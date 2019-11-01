@@ -77,7 +77,21 @@
   ======================================================= -->
 
 
-
+  <style>
+    table, td, th {  
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    th, td {
+      padding: 15px;
+    }
+    </style>
   <style>
     h5 {
       text-align: left;
@@ -322,12 +336,9 @@
             <span style="font-size:18px; color:black;">
               <center>
                 <strong>
-                  <p>Bachelor Of Engineering</p>
-                  <p>IN</p>
-                  <p>Computer Science & Engineering</p>
-                </strong>
-              </center>
-            </span>&nbsp;
+                  <p>BACHELOR OF ENGINEERING</p>
+                  <p>IN</p><p>COMPUTER SCIENCE & ENGINEERING</p></strong></center></span>&nbsp;
+               
 
             <span style="font-size:18px; color:black;">
               <center>Submitted to</center>
@@ -505,7 +516,7 @@
                   <strong><%=result[0][0].professor_name%> </strong> who helped me often and with whom I was able to share numerous enlightening discussions.</p>
 
                 <p>I extend a special word to my friends who encouraged me throughout my work. Last but not the least I must
-                  expss thanks to all my friends and family for their moral support, which led to the successful completion
+                  express thanks to all my friends and family for their moral support, which led to the successful completion
                   of this work.</p>
 
 
@@ -555,12 +566,12 @@
                 <p>
 
 
-                  We hereby declare that the work psented in this project entitled <strong>“
+                  We hereby declare that the work presented in this project entitled <strong>“
                   <%=result[14][0].name%>”</strong> in partial fulfilment for the award of the degree of <strong>Bachelor of Engineering </strong>in <strong>Computer Science and
                     Engineering </strong> is record of my own work carried out under the guidance of Prof.
-                    <strong><%=result[0][0].professor_name%></strong> in Department of Computer Science & Engineering,
+                    <strong><%=result[0][0].professor_name%></strong>, Professor in Department of Computer Science & Engineering,
                     <strong><%=result[0][0].college_name%> , <%=result[0][0].college_address%></strong>
-                        . We have not submitted the matter psented in this project report for any other degree or diploma.
+                        . We have not submitted the matter presented in this project report for any other degree or diploma.
                 </p>
 
 
@@ -589,7 +600,7 @@
               <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif">
              <strong> 
 <p>Table of Contents:</p>
-<p>  &#10004;  Objectives</p>
+<p>  &#10004;  Objective</p>
 <p>  &#10004;  Overview</p>
 <p>  &#10004;  Aim</p>
 <p>  &#10004;  Programming language used</p>
@@ -616,7 +627,7 @@
                   <center>
                     <strong>
                       <u>
-                        <p>Objective</p>
+                        <p>Objective of  <%=result[13][0].name%></p>
                       </u>
 
                     </strong>
@@ -628,13 +639,7 @@
 
 
 
-                  The Project entitled “=result[0][0].name” is a web-based application Software developed in Node.js. The main aim of “Dental
-                  Management System “is to improve the services of patients and supplier. It maintains the details of the
-                  Dental Product, Doctors details, Patient Services, Procedures and Treatment available. The primary features
-                  of the project entitled “Dental Management System” are high accuracy, design flexibility and easy availability.
-                  And also it uses database tables Repsenting entities and relationships between them.Modules use in that
-                  project. Dental management, Laboratory management, Supplier management, Product services, Students, Users,
-                  and Admin manages all the modules.
+                  <%=result[13][0].objective%>
 
 
 
@@ -662,14 +667,7 @@
                 <br>
                 <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
 
-                  The central concept of the application is to allow the customer to virtually using the Internet and got the details of the
-                  services and treatment available related to dental. The information pertaining to the products are stores
-                  on an RDBMS at the server side (store). A person can easily get Appointment online and also got the details
-                  about the service and treatment available in the hospital and got the details about the medical Service,
-                  Patient Services.Details of the dental product available in Product Services where we can easily buy a
-                  dental product we can easily got all details by the help of login. A patient also got an appointment easily
-                  online .And got their reports by the help of their account login which is provided by the hospital. And
-                  dentist easily purchased all the dental products by the help of supplier directly.
+                  <%=result[13][0].overview%>
 
                 </span>
 <br><br>
@@ -696,21 +694,7 @@
                 <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
 
 
-                  “Dental Management System” is a web-based application Software developed in Node.js. The main aim of “Dental Management System
-                  “is to improve the services of patients and supplier. It maintains the details of the Dental Product, Doctors
-                  details, Patient Services, Procedures and Treatment available. The primary features of the project entitled
-                  “Dental Management System”is high accuracy, design flexibility and easy availability. And also it uses
-                  database tables Repsenting entities and relationships between them. There are 7 modules use in that project.
-                  Dental management, Laboratory management, Supplier management, Product services, Students, Users, Admin
-                  manages all the modulesThe central concept of the application is to allow the customer to virtually using
-                  the Internet and got the details of the services and treatment available related to dental. The information
-                  pertaining to the products are stores on an RDBMS at the server side (store). A person can easily get Appointment
-                  online and also got the details about the service and treatment available in the hospital and got the details
-                  about the medical Service, Patient Services.Details of the dental product available in Product Services
-                  where we can easily buy a dental product we can easily got all details by the help of login. A patient
-                  also got an appointment easily online .And got their reports by the help of their account login which is
-                  provided by the hospital. And dentist easily purchased all the dental products by the help of supplier
-                  directly.
+                  <%=result[13][0].aim%>
 
 
                   </span>
@@ -726,6 +710,7 @@
 
               </div>
 
+              
 
               <div style="page-break-before: always; page-break-after: always;">
 
@@ -1195,6 +1180,113 @@
                                         
 <% } %>
 
+
+<div style="page-break-before: always; page-break-after: always;">
+
+                    
+  <span style="font-size:18px; color:black;"><strong>
+      <u><p>
+          
+        
+  MySQL</p></u>
+     
+  </strong></span>
+  
+  <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
+  
+    <p>  MySQL is an open source relational database management system (RDBMS) based on Structured Query Language (SQL). It is one part of the very popular LAMP platform consisting of Linux, Apache, My SQL, and PHP. Currently My SQL is owned by Oracle. My SQL database is available on most important OS platforms. It runs on BSD Unix, Linux, Windows, or Mac OS. Wikipedia and YouTube use My SQL. These sites manage millions of queries each day. My SQL comes in two versions: My SQL server system and My SQL embedded system.
+  </p>
+ <strong><p> RDBMS TERMINOLOGY</p></strong>
+
+ <p> Before we proceed to explain MySQL database system, let's revise few definitions related to database.</p>
+
+ <ul>
+  <li><strong>Database: </strong> A database is a collection of tables, with related data.</li>
+  <li><strong>Table: </strong> A table is a matrix with data. A table in a database looks like a simple spadsheet.</li>
+  <li><strong>Column: </strong>One column (data element) contains data of one and the same kind, for example the column postcode.</li>
+  <li><strong>Row: </strong> A row (= tuple, entry or record) is a group of related data, for example the data of one subscription.</li>
+  <li><strong>Redundancy: </strong> Storing data twice, redundantly to make the system faster.</li>
+  <li><strong>Primary Key: </strong> A primary key is unique. A key value cannot occur twice in one table. With a key, you can find at most one row.</li>
+  <li><strong>Foreign Key: </strong> A foreign key is the linking pin between two tables.</li>
+  <li><strong>Compound Key: </strong> A compound key (composite key) is a key that consists of multiple columns, because one column is not sufficiently unique.</li>
+  <li><strong>Index: </strong> An index in a database resembles an index at the back of a book.</li>
+  <li><strong>Referential Integrity: </strong>Referential Integrity makes sure that a foreign key value always points to an existing row.</li>
+</ul>
+  
+
+<h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+          
+</div>
+
+
+<div style="page-break-before: always; page-break-after: always;">
+<span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
+ <strong><p>Hardware requirements</p></strong> 
+  <table>
+      <tr>
+          <th>Number</th>
+          <th>Description</th>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>PC with 250 GB or more Hard disk.</td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td>PC with 2 GB RAM.</td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td>PC with Pentium 1 and Above.</td>
+      </tr>
+  </table>
+   
+ <br> 
+
+  <strong><p>Software requirements</p></strong>  
+
+  <table>
+      <tr>
+          <th>Number</th>
+          <th>Description</th>
+          <th>Type</th>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td> Operating System</td>
+          <td>Windows XP / Windows</td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td>Language</td>
+          <td>PHP</td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td>Database</td>
+          <td>MySQL</td>
+      </tr>
+      <tr>
+          <td>4</td>
+          <td>IDE</td>
+          <td>Visual Code</td>
+      </tr>
+      <tr>
+          <td>5</td>
+          <td>Browser</td>
+          <td>Google Chrome</td>
+      </tr>
+  </table>
+  
+  
+
+  
+  </span><br><br>
+  
+
+          
+  </div>
+
                                                       <div style="page-break-before: always; page-break-after: always;">
 
 
@@ -1214,19 +1306,19 @@
 
                                                           <ul>
                                                             <li>
-                                                              <%=result[14][0].advantage%>
+                                                              <%=result[13][0].advantage%>
                                                             </li>
                                                             <li>
-                                                              <%=result[14][0].advantage1%>
+                                                              <%=result[13][0].advantage1%>
                                                             </li>
                                                             <li>
-                                                              <%=result[14][0].advantage2%>
+                                                              <%=result[13][0].advantage2%>
                                                             </li>
                                                             <li>
-                                                              <%=result[14][0].advantage3%>
+                                                              <%=result[13][0].advantage3%>
                                                             </li>
                                                             <li>
-                                                              <%=result[14][0].advantage4%>
+                                                              <%=result[13][0].advantage4%>
                                                             </li>
                                                           </ul>
 
@@ -1256,16 +1348,7 @@
 
                                                         <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
 
-                                                          The central concept of the application is to provide all the medical service online. a patient easily got an appointment
-                                                          online so there is no need to wait. You easily get an appointment
-                                                          online and it is also helpful for dentist .dentist easily order
-                                                          a dental product online according their requirement by the help
-                                                          of supplier. A patient also got their report online by the help
-                                                          of login account that is provided at the time of appointment. Doctor
-                                                          also got the details of patient tat take appointment. A supplier
-                                                          also adds a product in supplier management module where he got
-                                                          the details of dental order and the ledger book available online.
-
+                                                          <%=result[13][0].working_modules%>  
                                                         </span>
 <br><br>
                                             
