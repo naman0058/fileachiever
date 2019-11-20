@@ -21,6 +21,7 @@ var user_project  = require('./routes/user_project');
 var ownproject = require('./routes/ownproject');
 var htaccess = require('./routes/htaccess');
 var robot = require('./routes/robot');
+var terms = require('./routes/terms');
 //var facebooklogin = require('./routes/facebooklogin');
 var app = express();
 app.use(compression())
@@ -70,7 +71,8 @@ app.use('/programming_language',programming_language);
 app.use('/project',project);
 app.use('/preview',preview);
 app.use('/all-projects',allprojects);
-app.use('/user-login',userlogin);
+app.use('/privacy-policy',userlogin);
+app.use('/terms-and-conditions',terms);
 app.use('/customization',customization);
 app.use('/user-verification',userverification);
 app.use('/make-your-own-project',ownproject);
