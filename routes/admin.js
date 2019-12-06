@@ -14,7 +14,6 @@ router.get('/', (req, res) => {
 router.post('/login',(req,res)=>{
     let body = req.body;
     console.log("body",body.key)
-    console.log(process.env.key)
    if(process.env.key == body.key) {
  pool.query(`select * from ${table} where username ="${body.username}" and password = "${body.password}"`,(err,result)=>{
     
