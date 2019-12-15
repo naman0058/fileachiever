@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-150389922-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-150389922-1');
+</script>
+
+    <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name=description content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+    <meta name=keywords content="project file,<% for(i=0;i<result.length;i++){ %> <%=result[i].name%>, <%}%> top 100 projects"/>
+  
+    <meta name=robots content="all,follow"/>
+    <meta name=googlebot content="index, follow"/>
+    <meta name=classification content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+    <link rel="shortcut icon" type="images/x-icon" href="/images/filemakr-project-file-creator-favicon.png" style="width:80px;" />
+    <meta name=distribution content=Global />
+    <meta name=author content="http://www.filemakr.com"/>
+    <meta name=Language content=English />
+    <meta name=rating content=general />
+    <meta name=owner content=FileMakr. />
+    <meta http-equiv=refresh content=300>
+    <meta name=document-type content=public />
+    <meta name=revisit-after content=daily />
+    <meta name=country content=India />
+    <meta name=DC.title content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+    <meta property=og:title content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+    <meta property=og:type content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+    <meta property=og:url content="http://www.filemakr.com"/>
+    <meta property=og:image content="http://www.filemakr.com/images/filemakr-project-file-creator-favicon.png" style="width:80px;"/>
+    <meta property=og:site_name content="http://www.filemakr.com"/>
+    <meta property=og:description content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+    <meta property=og:locale content="en IN"/>
+    <link rel=canonical href="http://www.filemakr.com">
+    <title>FileMakr - Customize Your Project File </title>
+
+  <!-- Favicons -->
+  <link href="/images/filemakr-project-file-creator-favicon.png" rel="icon">
+  <link href="/a/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
+ <!-- Bootstrap CSS File -->
+ <link href="/a/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" async>
+
+ <!-- /a/libraries CSS Files -->
+ <link href="/all.css" rel="preload" as="style" async>
+ <link href="/a/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" async>
+ <link href="/a/lib/ionicons/css/ionicons.min.css" rel="preload" as="style" async>
+ <link href="/a/lib/lightbox/css/lightbox.min.css" rel="preload" as="style" async>
+
+ <!-- Main Stylesheet File -->
+ <link href="/a/css/style.css" rel="stylesheet" async>
+  <!-- =======================================================
+    Theme Name: Rapid
+    Theme URL: https://bootstrapmade.com/rapid-multipurpose-bootstrap-business-template/
+    Author: BootstrapMade.com
+    License: https://bootstrapmade.com/license/
+  ======================================================= -->
+</head>
+
+<body>
+  <!--==========================
+  Header
+  ============================-->
+  <header id="header">
+
+    <div id="topbar">
+      <div class="container">
+        <div class="social-links">
+          <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
+          <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
+          <a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>
+          <a href="#" class="instagram"><i class="fa fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="logo float-left">
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <h1 class="text-light"><a href="/" class="scrollto"><span>FileMakr</span></a></h1>
+        <!-- <a href="#header" class="scrollto"></a/img src="/a/img/logo.png" alt="" class="/a/img-fluid"></a> -->
+      </div>
+
+      <nav class="main-nav float-right d-none d-lg-block">
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/all-projects">Project File</a></li>
+            <li><a href="/synopsis">Synopsis</a></li>
+            <li><a href="/make-your-own-project" class="btn-get-started scrollto">Make your own project</a></li>
+            
+          </ul>
+        </nav><!-- .main-nav -->
+          
+    </div>
+  </header><!-- #header -->
+
+  <main id="main">
+
+    <!--==========================
+      Services Section
+    ============================-->
+    <section id="services" class="section-bg">
+      <div class="container">
+
+        <header class="section-header">
+          
+ <br><br><br><br>
+          <h3></h3>
+          <p></p>
+        </header>
+		<form action="/user-project/insert" method="post" enctype="multipart/form-data">
+			<div class="form-row">
+                    <div class="form-group">
+                            <label for="email">Project Name</label>
+                            <input type="text" class="form-control" name="project_name" required placeholder="Project Name">
+                          </div>
+                          <div class="form-group">
+                              <label for="email">Aim</label>
+                              <input type="text" class="form-control" name="aim" required placeholder="Project Aim">
+                            </div>
+                            <div class="form-group">
+                              <label for="email">Objective</label>
+                              <input type="text" class="form-control" name="objective" required placeholder="Project Objective">
+                            </div>
+                            <div class="form-group">
+                              <label for="email">Overview</label>
+                              <input type="text" class="form-control" name="overview" required placeholder="Project Overview">
+                            </div>
+                      
+                            <div class="form-group">
+                              <label for="email">Advantage</label>
+                              <input type="text" class="form-control" name="advantage" required placeholder="Advantage....">
+                            </div>
+                      
+                            <div class="form-group">
+                              <label for="email">Advantage 1</label>
+                              <input type="text" class="form-control" name="advantage1" required placeholder="Advantage....">
+                            </div>
+                      
+                            <div class="form-group">
+                              <label for="email">Advantage 2</label>
+                              <input type="text" class="form-control" name="advantage2"  placeholder="Advantage.... ">
+                            </div>
+                      
+                            <div class="form-group">
+                              <label for="email">Advantag 3</label>
+                              <input type="text" class="form-control" name="advantage3"  placeholder="Advantage.... ">
+                            </div>
+                      
+                            <div class="form-group">
+                              <label for="email">Advantage 4</label>
+                              <input type="text" class="form-control" name="advantage4"  placeholder="Advantage....">
+                            </div>
+                           
+                            <div class="form-group">
+                              <label for="email">Conclusion</label>
+                              <input type="text" class="form-control" name="conclusion" required placeholder="Conclusion....">
+                            </div>
+                      
+                           
+                      
+                            <div class="form-group">
+                              <label for="email">Index Page</label>
+                              <input type="file" class="form-control" name="index_page" >
+                            </div>
+                      
+                            <div class="form-group">
+                              <label for="email">Database Page</label>
+                              <input type="file" class="form-control" name="database_page" >
+                            </div>
+                      
+                      
+                            <div class="form-group">
+                              <label for="email">Front End Code</label>
+                              <input type="file" class="form-control" name="front_page" >
+                            </div>
+                      
+                      
+                            <div class="form-group">
+                              <label for="email">Admin Login</label>
+                              <input type="file" class="form-control" name="admin_page" >
+                            </div>
+                      
+                      
+                            <div class="form-group">
+                              <label for="email">Admin Dashboard</label>
+                              <input type="file" class="form-control" name="dashboard_page" >
+                            </div>
+                      
+                            <div class="form-group">
+                              <label for="email">USer's Page</label>
+                              <input type="file" class="form-control" name="user_page" >
+                            </div>
+                          
+			  <div class="form-group col-md-4">
+				<label for="inputEmail4">Full Name</label>
+				<input type="text" class="form-control" name="student_name" required placeholder="Full Name" required>
+			  </div>
+			  <div class="form-group col-md-4">
+				<label for="inputPassword4">College Name</label>
+				<input type="text" class="form-control" name="college_name" required placeholder="College Name" required>
+			  </div>
+			  <div class="form-group col-md-4">
+				<label for="inputEmail4">Roll Number</label>
+				<input type="text" class="form-control" name="roll_number" required placeholder="Roll Number" required>
+			  </div>
+			</div>
+			<div class="form-group">
+			  <label for="inputAddress">College Address</label>
+			  <input type="text" class="form-control" name="college_address" required placeholder="1234 Main St" required>
+			</div>
+			<div class="form-row">
+			  <div class="form-group col-md-4">
+				<label for="inputCity">Director Name</label>
+				<input type="text" class="form-control" name="director_name" required>
+			  </div>
+			  <div class="form-group col-md-4">
+				<label for="inputState">Professor Name</label>
+				<input type="text" class="form-control" name="professor_name" required>  </div>
+			  <div class="form-group col-md-4">
+				<label for="inputZip">HOD Name</label>
+				<input type="text" class="form-control" name="hod_name" required>
+			  </div>
+			</div>
+
+			<div class="form-row">
+				<div class="form-group col-md-6">
+				  <label for="inputCity">Affilated College Name</label>
+				  <input type="text" class="form-control" name="affilated_college_name" required>
+				</div>
+				<div class="form-group col-md-6">
+				  <label for="inputState">Affilated College Address</label>
+				  <input type="text" class="form-control" name="affilated_college_address" required>  </div>
+			  </div>
+
+			<div class="form-group">
+			  <div class="form-check">
+          <label class="checkbox-inline"><input type="checkbox" name="php"  value="<%=result[0].id%>">      <%=result[0].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="nodejs"  value="<%=result[1].id%>">   <%=result[1].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="angular"  value="<%=result[2].id%>">   <%=result[2].name%></label> 
+          <label class="checkbox-inline"><input type="checkbox" name="react"  value="<%=result[3].id%>">   <%=result[3].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="java"  value="<%=result[4].id%>">   <%=result[4].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="html"  value="<%=result[5].id%>">   <%=result[5].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="python"  value="<%=result[6].id%>">   <%=result[6].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="javascript"  value="<%=result[7].id%>">   <%=result[7].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="jquery"  value="<%=result[8].id%>">   <%=result[8].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="json"  value="<%=result[9].id%>">   <%=result[9].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="css"  value="<%=result[10].id%>">   <%=result[10].name%></label>
+          <label class="checkbox-inline"><input type="checkbox" name="bootstrap"  value="<%=result[11].id%>">   <%=result[11].name%></label>
+        </div>
+        
+			</div>
+			
+			<div class="form-row">
+				<div class="form-group col-md-6">
+				  <label for="inputCity">Upload College Logo</label>
+				  <input type="file" class="form-control" name="college_logo" id="college_logo" required>
+				</div>
+				<div class="form-group col-md-6">
+				  <label for="inputState">Upload Affilated College Logo</label>
+				  <input type="file" class="form-control" name="affilated_college_logo" id="affilated_college_logo" required>  </div>
+			  </div>
+ 
+      
+
+              <div class="form-group col-md-6">
+                    <label for="inputState">College_code (Optional)</label>
+                    <input type="text" class="form-control" name="key" id="affilated_college_logo" required>  </div>
+                </div>
+ 
+                
+                      <div class="form-group col-md-6">
+                        <label for="inputState">Mobile Number</label>
+                        <input type="number" class="form-control" name="mobile_number" id="affilated_college_logo" required>  </div>
+                    </div>
+       
+
+
+      
+			<button type="submit" class="btn btn-primary customize">Customize</button>
+		  </form>
+      </div>
+    </section><!-- #services -->
+
+    <%include ./footer.ejs %>  
+</body>
+
+
+</html>

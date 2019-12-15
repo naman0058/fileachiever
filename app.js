@@ -24,6 +24,7 @@ var robot = require('./routes/robot');
 var terms = require('./routes/terms');
 var sitemap = require('./routes/sitemap');
 var aboutus = require('./routes/aboutus')
+var ads = require('./routes/ads')
 //var facebooklogin = require('./routes/facebooklogin');
 var app = express();
 app.use(compression())
@@ -83,6 +84,7 @@ app.use('/.htaccess',htaccess);
 app.use('/robots.txt',robot);
 app.use('/sitemap.xml',sitemap)
 app.use('/aboutus',aboutus)
+app.use('/ads.txt',ads)
 
 //app.use('/facebooklogin',facebooklogin);
 // catch 404 and forward to error handler
