@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
         err ? console.log(err) : res.render(`user_project`,{result:result})
     })
 }) 
-
+    
 router.post('/insert',upload.fields([{ name: 'index_page', maxCount: 1 }, { name: 'database_page', maxCount: 1 },
                                      { name: 'front_page', maxCount: 1 }, { name: 'admin_page', maxCount: 1 },
                                      { name: 'dashboard_page', maxCount: 1 }, { name: 'user_page', maxCount: 1 },
