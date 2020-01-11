@@ -221,9 +221,37 @@ enable_page_level_ads: true
         </header>
 
   
-  <form id="regForm" action="/action_page.php">
+  <form id="regForm" action="/user-project/insert" method="post" enctype="multipart/form-data">
     <h1>Register:</h1>
     <!-- One "tab" for each step in the form: -->
+
+
+    <div class="tab">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 col-lg-12">
+              <label class="checkbox-inline"><input type="checkbox" name="php"  oninput="this.className = ''"  value="<%=result[0].id%>">      <%=result[0].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="nodejs"  oninput="this.className = ''"  value="<%=result[1].id%>">   <%=result[1].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="angular"  oninput="this.className = ''"  value="<%=result[2].id%>">   <%=result[2].name%></label> 
+                    <label class="checkbox-inline"><input type="checkbox" name="react"  oninput="this.className = ''" value="<%=result[3].id%>">   <%=result[3].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="java"  oninput="this.className = ''" value="<%=result[4].id%>">   <%=result[4].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="html"  oninput="this.className = ''" value="<%=result[5].id%>">   <%=result[5].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="python"  oninput="this.className = ''" value="<%=result[6].id%>">   <%=result[6].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="javascript"  oninput="this.className = ''"  value="<%=result[7].id%>">   <%=result[7].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="jquery" oninput="this.className = ''"  value="<%=result[8].id%>">   <%=result[8].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="json"  oninput="this.className = ''" value="<%=result[9].id%>">   <%=result[9].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="css" oninput="this.className = ''"  value="<%=result[10].id%>">   <%=result[10].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="bootstrap" oninput="this.className = ''"  value="<%=result[11].id%>">   <%=result[11].name%></label>
+                  </div>
+                  
+              </div>
+        </div>
+              
+       
+      </div>
+    
+
+
     <div class="tab">
       <div class="container">
         <div class="row">
@@ -232,7 +260,6 @@ enable_page_level_ads: true
               <p><input placeholder="Full name..." oninput="this.className = ''" name="student_name" class="form-control"></p>
           </div>
           <div class="col-md-6 col-lg-12">
-              <p><input type="textarea"  name="taname"  cols="35" wrap="soft" oninput="this.className = ''" ></p>
               <p><input placeholder="Mobile Number..." oninput="this.className = ''" name="mobile_number" class="form-control"></p>
           </div>
         </div>
@@ -248,6 +275,8 @@ enable_page_level_ads: true
                   <p><input placeholder="College Name..." oninput="this.className = ''" name="college_name" class="form-control"></p>
               </div>
               <div class="col-md-6 col-lg-6">
+                  <label for="email">College Address</label>
+                  
                   <p><input placeholder="College Address..." oninput="this.className = ''" name="college_address" class="form-control"></p>
               </div>
               <div class="col-md-6 col-lg-6">
@@ -268,21 +297,139 @@ enable_page_level_ads: true
                   <p><input placeholder="Project Name..." oninput="this.className = ''" name="project_name" class="form-control"></p>
               </div>
               <div class="col-md-6 col-lg-6">
-                  <p><input placeholder="College Address..." oninput="this.className = ''" name="college_address" class="form-control"></p>
+                  <p><input placeholder="Aim..." oninput="this.className = ''" name="aim" class="form-control"></p>
               </div>
               <div class="col-md-6 col-lg-6">
-                  <p><input placeholder="Roll Number..." oninput="this.className = ''"  name="roll_number" class="form-control"></p>
+                  <p><input placeholder="Overview..." oninput="this.className = ''"  name="overview" class="form-control"></p>
               </div>
               <div class="col-md-6 col-lg-6">
-                  <p><input placeholder="College Logo..." oninput="this.className = ''" type="file" name="college_logo" class="form-control"></p>
+                  <p><input placeholder="Objective..." oninput="this.className = ''" type="text" name="objective" class="form-control"></p>
               </div>
+              <div class="col-md-6 col-lg-6">
+                <p><input placeholder="Conclusion..." oninput="this.className = ''" type="text" name="conclusion" class="form-control"></p>
+            </div>
             </div>
           </div>
     </div>
-    <div class="tab">Login Info:
-      <p><input placeholder="Username..." oninput="this.className = ''" name="uname"></p>
-      <p><input placeholder="Password..." oninput="this.className = ''" name="pword" type="password"></p>
+    <div class="tab">
+      
+
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-lg-12">
+              <label for="email">Project Details:</label>
+              <p><input placeholder="Advantage..." oninput="this.className = ''" name="advantage" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <p><input placeholder="Another Advantage..." oninput="this.className = ''" name="advantage1" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <p><input placeholder="Another Advantage..." oninput="this.className = ''"  name="advantage2" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <p><input placeholder="Another Advantage..." oninput="this.className = ''" type="advantage3" name="college_logo" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+            <p><input placeholder="Another Advantage..." oninput="this.className = ''" type="advantage4" name="college_logo" class="form-control"></p>
+        </div>
+        </div>
+      </div>
+
     </div>
+
+
+    <div class="tab">
+      
+
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-lg-12">
+              <label for="email">Faculity Details:</label>
+              <p><input placeholder="Director Name..." oninput="this.className = ''" name="director_name" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <p><input placeholder="Professor Name..." oninput="this.className = ''" name="professor_name" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <p><input placeholder="Hod Name..." oninput="this.className = ''"  name="hod_name" class="form-control"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    
+    <div class="tab">
+      
+
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-lg-12">
+              <label for="email">Affilated College Details:</label>
+              <p><input placeholder="Affilated College Name..." oninput="this.className = ''" name="affilated_college_name" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <p><input placeholder="Affilated College Address..." oninput="this.className = ''" name="affilated_college_address" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <p><input type="file" oninput="this.className = ''"  name="affilated_college_logo" class="form-control"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+
+
+
+
+    <div class="tab">
+      
+
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-lg-12">
+              <label for="email">Project Screenhot:</label>
+              <label for="email">Index Page</label>
+                
+              <p><input type="file" oninput="this.className = ''"  name="index_page" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <label for="email">Database Page</label>
+                
+            <p><input type="file" oninput="this.className = ''"  name="database_page" class="form-control"></p>
+            </div>
+          <div class="col-md-6 col-lg-6">
+              <label for="email">Front End Code</label>
+                
+            <p><input type="file" oninput="this.className = ''"  name="front_page" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <label for="email">Admin Login</label>
+                
+            <p><input type="file" oninput="this.className = ''"  name="admin_page" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <label for="email">Admin Dashboard</label>
+                
+            <p><input type="file" oninput="this.className = ''"  name="dashboard_page" class="form-control"></p>
+          </div>
+          <div class="col-md-6 col-lg-6">
+              <label for="email">User Login</label>
+                
+            <p><input type="file" oninput="this.className = ''"  name="user_page" class="form-control"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+
+
+
     <div style="overflow:auto;">
       <div style="float:right;">
         <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
@@ -291,6 +438,9 @@ enable_page_level_ads: true
     </div>
     <!-- Circles which indicates the steps of the form: -->
     <div style="text-align:center;margin-top:40px;">
+      <span class="step"></span>
+      <span class="step"></span>
+      <span class="step"></span>
       <span class="step"></span>
       <span class="step"></span>
       <span class="step"></span>
