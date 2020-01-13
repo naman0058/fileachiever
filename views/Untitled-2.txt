@@ -209,3 +209,18 @@ function fixStepIndicator(n) {
 
 </body>
 </html>
+
+
+ <label class="checkbox-inline"><input type="checkbox" name="php"  oninput="this.className = ''"  value="<%=result[0].id%>">      <%=result[0].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="nodejs"  oninput="this.className = ''"  value="<%=result[1].id%>">   <%=result[1].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="angular"  oninput="this.className = ''"  value="<%=result[2].id%>">   <%=result[2].name%></label> 
+                    <label class="checkbox-inline"><input type="checkbox" name="react"  oninput="this.className = ''" value="<%=result[3].id%>">   <%=result[3].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="java"  oninput="this.className = ''" value="<%=result[4].id%>">   <%=result[4].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="html"  oninput="this.className = ''" value="<%=result[5].id%>">   <%=result[5].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="python"  oninput="this.className = ''" value="<%=result[6].id%>">   <%=result[6].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="javascript"  oninput="this.className = ''"  value="<%=result[7].id%>">   <%=result[7].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="jquery" oninput="this.className = ''"  value="<%=result[8].id%>">   <%=result[8].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="json"  oninput="this.className = ''" value="<%=result[9].id%>">   <%=result[9].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="css" oninput="this.className = ''"  value="<%=result[10].id%>">   <%=result[10].name%></label>
+                    <label class="checkbox-inline"><input type="checkbox" name="bootstrap" oninput="this.className = ''"  value="<%=result[11].id%>">   <%=result[11].name%></label>
+             
