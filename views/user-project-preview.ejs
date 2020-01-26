@@ -4,6 +4,14 @@
 <head>
   <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-150389922-1"></script>
+<script async src="//pagead2.googlesyndication.com/
+pagead/js/adsbygoogle.js"></script>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({
+google_ad_client: "pub-7230981653683251",
+enable_page_level_ads: true
+});
+</script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -11,11 +19,11 @@
 
   gtag('config', 'UA-150389922-1');
 </script>
-
+<script data-ad-client="ca-pub-7230981653683251" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name=description content="FileMakr - Download Your Project File - <%=result[0][0].project_name%> - <%=result[0][0].short_description%>"/>
     <meta name=keywords content="project file, top 100 projects"/>
- 
+  
     <meta name=robots content="all,follow"/>
     <meta name=googlebot content="index, follow"/>
     <meta name=classification content="FileMakr - Download Your Project File - <%=result[0][0].project_name%> - <%=result[0][0].short_description%>"/>
@@ -45,9 +53,9 @@
     <meta property="og:country-name" content="India"/>
     <meta property="og:description" content="FileMakr - Download Your Project File - <%=result[0][0].project_name%> - <%=result[0][0].short_description%>"/>
    
-    <link rel=canonical href="http://www.filemakr.com">
+    <link rel=canonical href="https://www.filemakr.com/customization/projects">
 
-    <title>FileMakr - Download Your Project File - <%=result[0][0].project_name%> - <%=result[0][0].short_description%></title>
+    <title>FileMakr — Download Project File — <%=result[0][0].project_name%> </title>
 
   <!-- Favicons -->
   <link href="/images/filemakr-project-file-creator-favicon.png" rel="icon">
@@ -57,18 +65,17 @@
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700"
     rel="stylesheet">
 
-  <!-- Bootstrap CSS File -->
-  <link href="/a/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" async>
+   <!-- Bootstrap CSS File -->
+   <link href="/a/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" async>
 
-  <!-- /a/libraries CSS Files -->
-  <link href="/all.css" rel="preload" as="style" async>
-  <link href="/a/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" async>
-  <link href="/a/lib/ionicons/css/ionicons.min.css" rel="preload" as="style" async>
-  <link href="/a/lib/lightbox/css/lightbox.min.css" rel="preload" as="style" async>
-
-  <!-- Main Stylesheet File -->
-  <link href="/a/css/style.css" rel="stylesheet" async>
-
+   <!-- /a/libraries CSS Files -->
+   <link href="/all.css" rel="preload" as="style" async>
+   <link href="/a/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" async>
+   <link href="/a/lib/ionicons/css/ionicons.min.css" rel="preload" as="style" async>
+   <link href="/a/lib/lightbox/css/lightbox.min.css" rel="preload" as="style" async>
+ 
+   <!-- Main Stylesheet File -->
+   <link href="/a/css/style.css" rel="stylesheet" async>
   <!-- =======================================================
     Theme Name: Rapid
     Theme URL: https://bootstrapmade.com/rapid-multipurpose-bootstrap-business-template/
@@ -76,7 +83,21 @@
     License: https://bootstrapmade.com/license/
   ======================================================= -->
 
-
+  <style>
+    table, td, th {  
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    th, td {
+      padding: 15px;
+    }
+    </style>
 
   <style>
     h5 {
@@ -235,18 +256,10 @@
     <div id="topbar">
       <div class="container">
         <div class="social-links">
-          <a href="#" class="twitter">
-            <i class="fa fa-twitter"></i>
-          </a>
-          <a href="#" class="facebook">
-            <i class="fa fa-facebook"></i>
-          </a>
-          <a href="#" class="linkedin">
-            <i class="fa fa-linkedin"></i>
-          </a>
-          <a href="#" class="instagram">
-            <i class="fa fa-instagram"></i>
-          </a>
+          <a href="https://twitter.com/FileMakr" class="twitter"><i class="fa fa-twitter"></i></a>
+          <a href="https://www.facebook.com/FileMakr" class="facebook"><i class="fa fa-facebook"></i></a>
+          <a href="https://www.instagram.com/filemakr" class="instagram"><i class="fa fa-instagram"></i></a>
+          <!--<a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>-->
         </div>
       </div>
     </div>
@@ -331,13 +344,9 @@
             <span style="font-size:18px; color:black;">
               <center>
                 <strong>
-                  <p>Bachelor Of Engineering</p>
-                  <p>IN</p>
-                  <p>Computer Science & Engineering</p>
-                </strong>
-              </center>
-            </span>&nbsp;
-
+                  <p>BACHELOR OF ENGINEERING</p>
+                  <p>IN</p><p>COMPUTER SCIENCE & ENGINEERING</p></strong></center></span>&nbsp;
+               
             <span style="font-size:18px; color:black;">
               <center>Submitted to</center>
             </span>&nbsp;&nbsp;
@@ -352,7 +361,7 @@
                   <p>
                     <%=result[0][0].affilated_college_address%>
                   </p>
-                  <p><img src="/images/<%=result[0][0].affilated_college_logo%>" style="width: 100px;height:100px"></p>
+                  <p><img src="/images/<%=result[0][0].affilated_college_logo%>" alt="<%=result[0][0].project_name%> affilated college logo" style="width: 100px;height:100px"></p>
                 </strong>
               </center>
             </span>&nbsp;
@@ -401,7 +410,7 @@
             </span>
 
             <br>
-            <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+          
 
 
 
@@ -417,7 +426,7 @@
                       <%=result[0][0].college_address%>
                     </p>
                     <br>
-                    <p><img src="/images/<%=result[0][0].college_logo%>" style="width: 100px;height:100px"></p>
+                    <p><img src="/images/<%=result[0][0].college_logo%>" alt="<%=result[0][0].project_name%> college logo" style="width: 100px;height:100px"></p>
                   </strong>
                 </center>
               </span>
@@ -460,16 +469,27 @@
 
               <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif">
 
-                <pre>
-    <strong>Prof. <%=result[0][0].professor_name%>            Prof. <%=result[0][0].hod_name%>            Prof. <%=result[0][0].director_name%> </strong>
-                                 
-    <strong>Guide                              Head                              Director </strong>
-                                 
-    Department of                      Department of                     <%=result[0][0].college_name%>
-                                    
-    Computer Science & Engineering     Computer Science & Engineering                    
-    </pre>
+                  <table>
+                      <tr>
+                          <th>Prof. <%=result[0][0].professor_name%></th>
+                          <th>Prof. <%=result[0][0].hod_name%></th>
+                          <th> Prof. <%=result[0][0].director_name%></th>
+                      </tr>
+                      <tr>
+                          <td>Guide</td>
+                          <td>Head</td>
+                          <td>Director</td>
+                      </tr>
+                      <tr>
+                          <td>Department of Branch Name</td>
+                          <td>Department of Branch Name</td>
+                          <td>College Name</td>
+                      </tr>
+                     </table>
+                  
+                
 
+               
 
               </span>
 
@@ -477,7 +497,7 @@
               <br>
 
 
-              <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+            
 
             </div>
 
@@ -514,7 +534,7 @@
                   <strong><%=result[0][0].professor_name%> </strong> who helped me often and with whom I was able to share numerous enlightening discussions.</p>
 
                 <p>I extend a special word to my friends who encouraged me throughout my work. Last but not the least I must
-                  expss thanks to all my friends and family for their moral support, which led to the successful completion
+                  express thanks to all my friends and family for their moral support, which led to the successful completion
                   of this work.</p>
 
 
@@ -537,7 +557,7 @@
 
               <br>
 
-              <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+            
 
             </div>
 
@@ -564,12 +584,12 @@
                 <p>
 
 
-                  We hereby declare that the work psented in this project entitled <strong>“
+                  We hereby declare that the work presented in this project entitled <strong>“
                   <%=result[0][0].project_name%>”</strong> in partial fulfilment for the award of the degree of <strong>Bachelor of Engineering </strong>in <strong>Computer Science and
                     Engineering </strong> is record of my own work carried out under the guidance of Prof.
-                    <strong><%=result[0][0].professor_name%></strong> in Department of Computer Science & Engineering,
+                    <strong><%=result[0][0].professor_name%></strong>, Professor in Department of Computer Science & Engineering,
                     <strong><%=result[0][0].college_name%> , <%=result[0][0].college_address%></strong>
-                        . We have not submitted the matter psented in this project report for any other degree or diploma.
+                        . We have not submitted the matter presented in this project report for any other degree or diploma.
                 </p>
 
 
@@ -588,7 +608,7 @@
 
                   <p>
 
-                    <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                  
                   </p>
             </div>
 
@@ -598,7 +618,7 @@
               <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif">
              <strong> 
 <p>Table of Contents:</p>
-<p>  &#10004;  Objectives</p>
+<p>  &#10004;  Objective</p>
 <p>  &#10004;  Overview</p>
 <p>  &#10004;  Aim</p>
 <p>  &#10004;  Modules</p>
@@ -617,7 +637,7 @@
 
               </span>
 
-              <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+            
 
             </div>
 
@@ -628,7 +648,7 @@
                   <center>
                     <strong>
                       <u>
-                        <p>Objective</p>
+                        <p>Objective of  <%=result[0][0].project_name%> </p>
                       </u>
 
                     </strong>
@@ -639,21 +659,14 @@
                 <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height:2">
 
 
-
-                  The Project entitled “=result[0][0].student_name” is a web-based application Software developed in Node.js. The main aim of “Dental
-                  Management System “is to improve the services of patients and supplier. It maintains the details of the
-                  Dental Product, Doctors details, Patient Services, Procedures and Treatment available. The primary features
-                  of the project entitled “Dental Management System” are high accuracy, design flexibility and easy availability.
-                  And also it uses database tables Repsenting entities and relationships between them.Modules use in that
-                  project. Dental management, Laboratory management, Supplier management, Product services, Students, Users,
-                  and Admin manages all the modules.
+                  <%=result[0][0].objective%>
 
 
 
 <br><br>
                 </span>
 
-                <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+              
 
               </div>
 <br>
@@ -674,18 +687,11 @@
                 <br>
                 <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
 
-                  The central concept of the application is to allow the customer to virtually using the Internet and got the details of the
-                  services and treatment available related to dental. The information pertaining to the products are stores
-                  on an RDBMS at the server side (store). A person can easily get Appointment online and also got the details
-                  about the service and treatment available in the hospital and got the details about the medical Service,
-                  Patient Services.Details of the dental product available in Product Services where we can easily buy a
-                  dental product we can easily got all details by the help of login. A patient also got an appointment easily
-                  online .And got their reports by the help of their account login which is provided by the hospital. And
-                  dentist easily purchased all the dental products by the help of supplier directly.
+                  <%=result[0][0].overview%>
 
                 </span>
 <br><br>
-                <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+              
 
               </div>
 
@@ -707,22 +713,7 @@
                 <br>
                 <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
 
-
-                  “Dental Management System” is a web-based application Software developed in Node.js. The main aim of “Dental Management System
-                  “is to improve the services of patients and supplier. It maintains the details of the Dental Product, Doctors
-                  details, Patient Services, Procedures and Treatment available. The primary features of the project entitled
-                  “Dental Management System”is high accuracy, design flexibility and easy availability. And also it uses
-                  database tables Repsenting entities and relationships between them. There are 7 modules use in that project.
-                  Dental management, Laboratory management, Supplier management, Product services, Students, Users, Admin
-                  manages all the modulesThe central concept of the application is to allow the customer to virtually using
-                  the Internet and got the details of the services and treatment available related to dental. The information
-                  pertaining to the products are stores on an RDBMS at the server side (store). A person can easily get Appointment
-                  online and also got the details about the service and treatment available in the hospital and got the details
-                  about the medical Service, Patient Services.Details of the dental product available in Product Services
-                  where we can easily buy a dental product we can easily got all details by the help of login. A patient
-                  also got an appointment easily online .And got their reports by the help of their account login which is
-                  provided by the hospital. And dentist easily purchased all the dental products by the help of supplier
-                  directly.
+                  <%=result[0][0].aim%>
 
 
                   </span>
@@ -734,44 +725,96 @@
                       
                           <p>
 
-                            <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                          
 
               </div>
 
 
-              <div style="page-break-before: always; page-break-after: always;">
+              <div style="page-break-before: always; page-break-after: always;" class="module_image">
+               <strong> <p>Working Modules</p>
+                                    <u>Admin Login Page</p></u></strong>
+                                       
+                                    <img src="/images/<%=result[0][0].admin_page%>" alt="<%=result[0][0].project_name%> admin login" style="width:700px;height:450px;">
+                                    </strong></center></span>
+                                    <br>
+                                   <br>
+                                  
+                
+                                    </div>
+                
+                
+                                  
+                    
+                                            <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                    
+                                        <strong><p><u>Dashboard</u></p></strong> 
+                                           
+                                        <img src="/images/<%=result[0][0].dashboard_page%>" alt="<%=result[0][0].project_name%> dashboard page" style="width:700px;height:450px;">
+                                        </strong></center></span>
+                                        <br>
+                                       <br>
+                                      
+                    
+                                        </div>
+                    
 
 
-                <span style="font-size:18px; color:black;">
-                  <center>
-                    <strong>
-                      <u>
-                        <p>
 
-                               Working of Modules</p>
-                      </u>
+                                        <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                    
+                                          <strong><p><u>Css Code</u></p></strong> 
+                                             
+                                          <img src="/images/<%=result[0][0].front_page%>" alt="<%=result[0][0].project_name%> css code" style="width:700px;height:450px;">
+                                          </strong></center></span>
+                                          <br>
+                                         <br>
+                                        
+                      
+                                          </div>
+                    
+                                          
+                                          <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                    
+                                            <strong><p><u>Backend Code</u></p></strong> 
+                                               
+                                            <img src="/images/<%=result[0][0].user_page%>" alt="<%=result[0][0].project_name%> backend code" style="width:700px;height:450px;">
+                                            </strong></center></span>
+                                            <br>
+                                           <br>
+                                          
+                        
+                                            </div>
+                    
+                                            
+                                                                    <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                    
+                                        <strong><p><u>Users Login</u></p></strong> 
+                                           
+                                        <img src="/images/<%=result[0][0].index_page%>" alt="<%=result[0][0].project_name%> user login page" style="width:700px;height:450px;">
+                                        </strong></center></span>
+                                        <br>
+                                       <br>
+                                      
+                    
+                                        </div>
+                    
 
-                    </strong>
-                  </center>
-                </span>
-              
-                <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif">
 
-                  Admin- This is the main module in this project because all the modules are connecting with each other. In the admin module
-                  admin manage the entire database. And manage all the modules database related to it. Supplier Management-
-                  In a Supplier management module a supplier got the details about dental products that dentist order. A
-                  supplier can also add the product in this. And the ledgers book that show dental ledger, billing system,
-                  and lab ledger. Dental Management- In this module a dental get the details of the appointment of the patient.
-                  And dental also purchased the dental product from the supplier
-
-
-                </span>
+                                        <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                    
+                                          <strong><p><u>Database</u></p></strong> 
+                                             
+                                          <img src="/images/<%=result[0][0].database_page%>" alt="<%=result[0][0].project_name%> database page" style="width:700px;height:450px;">
+                                          </strong></center></span>
+                                          <br>
+                                         <br>
+                                        
+                      
+                                          </div>
+                  
 
 
-                <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
-
-              </div>
-
+                
               <div style="page-break-before: always; page-break-after: always;">
 
 
@@ -817,7 +860,7 @@
                   The time horizon dimension specifies the time range of the plan, where as the focus dimension relates whether
                   the primary concern is strategic, managerial, or operational. The system i.e. pLIMINARY INVESTIGATION The
                   initial investigation has the objective of determining the validity of the user’s request for a candidate
-                  system and whether a feasibility study should be conducted. The objectives of the problem posed by the
+                  system and whether a feasibility study should be conducted. The Objective of the problem posed by the
                   user must be understood within the framework of the organization’s MIS plan. I had investigated from the
                   concerned authority about the project INFORMATION GATHERING A key part of feasibility analysis is gathering
                   information about the psent system. The analyst must know what information to gather, where to find it,
@@ -831,7 +874,7 @@
 
                 </span>
 <br><br>
-                <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+              
               </div>
 
               <div style="page-break-before: always; page-break-after: always;">
@@ -883,7 +926,7 @@
 
                   </span>
 <br><br>
-                  <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                
 
 
 
@@ -920,7 +963,7 @@
         
                       </span>
         <br><br>
-                      <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                    
 
                 </div>
                 <% }  if(result[3][0]) {%>
@@ -953,7 +996,7 @@
 
                     </span>
 <br><br>
-                    <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                  
 
 
                   </div>
@@ -988,7 +1031,7 @@
                       </span>
 
 <br><br>
-                      <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                    
 
 
                     </div>
@@ -1022,7 +1065,7 @@
 
                         </span>
                         <br><br>
-                        <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                      
 
                       </div>
 
@@ -1057,7 +1100,7 @@
 
                           </span>
 <br><br>
-                          <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                        
 
                         </div>
 
@@ -1091,7 +1134,7 @@
 
                             </span>
                             <br><br>
-                            <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                          
 
                           </div>
                           <% }  if(result[8][0]) {%>
@@ -1124,7 +1167,7 @@
 
                               </span>
 <br><br>
-                              <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                            
 
 
                             </div>
@@ -1159,7 +1202,7 @@
                                 </span>
 
 <br><br><br>
-                                <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                              
 
 
                               </div>
@@ -1193,7 +1236,7 @@
 
                                   </span>
             <br><br>
-                                  <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                                
 
                                 </div>
 
@@ -1228,7 +1271,7 @@
 
                                     </span>
 <br><br>
-                                    <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                                  
 
                                   </div>
 
@@ -1262,45 +1305,119 @@
 
                                       </span>
                                       <br><br>
-                                      <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                                    
 
                                     </div>
-                                    <% }  if(result[0][0]) {%>
-                                      <div style="page-break-before: always; page-break-after: always;">
-
-
-                                        <span style="font-size:18px; color:black;">
-                                          <strong>
-                                            <u>
-                                              <p>
-
-
-                                                <%=result[0][0].project_name%>
-                                              </p>
-                                            </u>
-
-                                          </strong>
-                                        </span>
-
-                                        <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
-
-                                          <%=result[0][0].description%>
-                                            <br>
-                                            <br>
-                                            <%=result[0][0].description2%>
-                                              <br>
-                                              <br>
-                                              <%=result[0][0].description3%>
-
-
-                                        </span>
-<br><br>
-                                        <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
-
-
-                                      </div>
                                         
 <% } %>
+
+
+
+<div style="page-break-before: always; page-break-after: always;">
+
+                    
+  <span style="font-size:18px; color:black;"><strong>
+      <u><p>
+          
+        
+  MySQL</p></u>
+     
+  </strong></span>
+  
+  <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
+  
+    <p>  MySQL is an open source relational database management system (RDBMS) based on Structured Query Language (SQL). It is one part of the very popular LAMP platform consisting of Linux, Apache, My SQL, and PHP. Currently My SQL is owned by Oracle. My SQL database is available on most important OS platforms. It runs on BSD Unix, Linux, Windows, or Mac OS. Wikipedia and YouTube use My SQL. These sites manage millions of queries each day. My SQL comes in two versions: My SQL server system and My SQL embedded system.
+  </p>
+ <strong><p> RDBMS TERMINOLOGY</p></strong>
+
+ <p> Before we proceed to explain MySQL database system, let's revise few definitions related to database.</p>
+
+ <ul>
+  <li><strong>Database: </strong> A database is a collection of tables, with related data.</li>
+  <li><strong>Table: </strong> A table is a matrix with data. A table in a database looks like a simple spadsheet.</li>
+  <li><strong>Column: </strong>One column (data element) contains data of one and the same kind, for example the column postcode.</li>
+  <li><strong>Row: </strong> A row (= tuple, entry or record) is a group of related data, for example the data of one subscription.</li>
+  <li><strong>Redundancy: </strong> Storing data twice, redundantly to make the system faster.</li>
+  <li><strong>Primary Key: </strong> A primary key is unique. A key value cannot occur twice in one table. With a key, you can find at most one row.</li>
+  <li><strong>Foreign Key: </strong> A foreign key is the linking pin between two tables.</li>
+  <li><strong>Compound Key: </strong> A compound key (composite key) is a key that consists of multiple columns, because one column is not sufficiently unique.</li>
+  <li><strong>Index: </strong> An index in a database resembles an index at the back of a book.</li>
+  <li><strong>Referential Integrity: </strong>Referential Integrity makes sure that a foreign key value always points to an existing row.</li>
+</ul>
+  
+
+<h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+          
+</div>
+
+
+<div style="page-break-before: always; page-break-after: always;">
+<span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
+ <strong><p>Hardware requirements</p></strong> 
+  <table>
+      <tr>
+          <th>Number</th>
+          <th>Description</th>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td>PC with 250 GB or more Hard disk.</td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td>PC with 2 GB RAM.</td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td>PC with Pentium 1 and Above.</td>
+      </tr>
+  </table>
+   
+ <br> 
+
+  <strong><p>Software requirements</p></strong>  
+
+  <table>
+      <tr>
+          <th>Number</th>
+          <th>Description</th>
+          <th>Type</th>
+      </tr>
+      <tr>
+          <td>1</td>
+          <td> Operating System</td>
+          <td>Windows XP / Windows</td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td>Language</td>
+          <td>PHP</td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td>Database</td>
+          <td>MySQL</td>
+      </tr>
+      <tr>
+          <td>4</td>
+          <td>IDE</td>
+          <td>Visual Code</td>
+      </tr>
+      <tr>
+          <td>5</td>
+          <td>Browser</td>
+          <td>Google Chrome</td>
+      </tr>
+  </table>
+  
+  
+
+  
+  </span><br><br>
+  
+
+          
+  </div>
 
                                                       <div style="page-break-before: always; page-break-after: always;">
 
@@ -1340,7 +1457,7 @@
 
 
                                                           <span>
-                                                            <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                                                          
 
                                                           </span>
                                                       </div>
@@ -1362,20 +1479,10 @@
                                                         </span>
 
                                                         <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2">
-
-                                                          The central concept of the application is to provide all the medical service online. a patient easily got an appointment
-                                                          online so there is no need to wait. You easily get an appointment
-                                                          online and it is also helpful for dentist .dentist easily order
-                                                          a dental product online according their requirement by the help
-                                                          of supplier. A patient also got their report online by the help
-                                                          of login account that is provided at the time of appointment. Doctor
-                                                          also got the details of patient tat take appointment. A supplier
-                                                          also adds a product in supplier management module where he got
-                                                          the details of dental order and the ledger book available online.
-
+                                                          <%=result[0][0].conclusion%>  
                                                         </span>
 <br><br>
-                                                        <h5>🕑 5-15 minutes &mdash; To Create your file with &mdash; FileMakr</h5>
+                                                      
 
                                                       </div>
 
@@ -1395,8 +1502,8 @@
 
 
                                                           <ul>
-                                                            <li>https://en.m.wikipedia.org/wiki/node.js</li>
-                                                            <li>https://nodejs.org</li>
+                                                            <li>https://www.tutorialspoint.com/index.htm</li>
+                                                            <li>https://www.javatpoint.com</li>
                                                             <li>https://www.w3schools.com</li>
                                                             <li>https://html.com</li>
                                                           </ul>
@@ -1409,237 +1516,13 @@
             </div>
     </section>
     <!-- #services -->
-    <!--==========================
-      Frequently Asked Questions Section
-    ============================-->
-    <section id="faq">
-      <div class="container">
-        <header class="section-header">
-          <h3>Frequently Asked Questions</h3>
-          <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque</p>
-        </header>
-
-        <ul id="faq-list" class="wow fadeInUp">
-          <li>
-            <a data-toggle="collapse" class="collapsed" href="#faq1">Non consectetur a erat nam at lectus urna duis?
-              <i class="ion-android-remove"></i>
-            </a>
-            <div id="faq1" class="collapse" data-parent="#faq-list">
-              <p>
-                Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus
-                magna fringilla urna porttitor rhoncus dolor purus non.
-              </p>
-            </div>
-          </li>
-
-          <li>
-            <a data-toggle="collapse" href="#faq2" class="collapsed">Feugiat scelerisque varius morbi enim nunc faucibus a pellentesque?
-              <i class="ion-android-remove"></i>
-            </a>
-            <div id="faq2" class="collapse" data-parent="#faq-list">
-              <p>
-                Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla
-                phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris
-                ultrices eros in cursus turpis massa tincidunt dui.
-              </p>
-            </div>
-          </li>
-
-          <li>
-            <a data-toggle="collapse" href="#faq3" class="collapsed">Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi?
-              <i class="ion-android-remove"></i>
-            </a>
-            <div id="faq3" class="collapse" data-parent="#faq-list">
-              <p>
-                Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus pulvinar elementum integer enim. Sem nulla
-                pharetra diam sit amet nisl suscipit. Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis
-                convallis tellus. Urna molestie at elementum eu facilisis sed odio morbi quis
-              </p>
-            </div>
-          </li>
-
-          <li>
-            <a data-toggle="collapse" href="#faq4" class="collapsed">Ac odio tempor orci dapibus. Aliquam eleifend mi in nulla?
-              <i class="ion-android-remove"></i>
-            </a>
-            <div id="faq4" class="collapse" data-parent="#faq-list">
-              <p>
-                Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla
-                phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris
-                ultrices eros in cursus turpis massa tincidunt dui.
-              </p>
-            </div>
-          </li>
-
-          <li>
-            <a data-toggle="collapse" href="#faq5" class="collapsed">Tempus quam pellentesque nec nam aliquam sem et tortor consequat?
-              <i class="ion-android-remove"></i>
-            </a>
-            <div id="faq5" class="collapse" data-parent="#faq-list">
-              <p>
-                Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in est ante in. Nunc vel risus commodo
-                viverra maecenas accumsan. Sit amet nisl suscipit adipiscing bibendum est. Purus gravida quis blandit turpis
-                cursus in
-              </p>
-            </div>
-          </li>
-
-          <li>
-            <a data-toggle="collapse" href="#faq6" class="collapsed">Tortor vitae purus faucibus ornare. Varius vel pharetra vel turpis nunc eget lorem dolor?
-              <i class="ion-android-remove"></i>
-            </a>
-            <div id="faq6" class="collapse" data-parent="#faq-list">
-              <p>
-                Laoreet sit amet cursus sit amet dictum sit amet justo. Mauris vitae ultricies leo integer malesuada nunc vel. Tincidunt
-                eget nullam non nisi est sit amet. Turpis nunc eget lorem dolor sed. Ut venenatis tellus in metus vulputate
-                eu scelerisque. Pellentesque diam volutpat commodo sed egestas egestas fringilla phasellus faucibus. Nibh
-                tellus molestie nunc non blandit massa enim nec.
-              </p>
-            </div>
-          </li>
-
-        </ul>
-
-      </div>
-    </section>
-    <!-- #faq -->
-
-  </main>
-   <!--==========================
-      Footer
-    ============================-->
-    <footer id="footer" class="section-bg">
-        <div class="footer-top">
-          <div class="container">
-    
-            <div class="row">
-    
-              <div class="col-lg-6">
-    
-                <div class="row">
-    
-                    <div class="col-sm-6">
-    
-                      <div class="footer-info">
-                        <h3>FileMakr</h3>
-                        <p>The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files.</p>
-                      </div>
-    
-                     
-                    </div>
-    
-                    <div class="col-sm-6">
-                      <div class="footer-links">
-                        <h4>Useful Links</h4>
-                        <ul>
-                          <li><a href="/all-projects">Project File</a></li>
-                          <li><a href="/synopsis">Synopsis</a></li>
-                          <li><a href="/make-your-own-project">Make Your Own Project</a></li>
-                        </ul>
-                      </div>
-    
-                      <div class="footer-links">
-                        <h4>Contact Us</h4>
-                        <p>
-                          <strong>Phone:</strong>  <a href="tel:8319339945" style="color:black">+91 8319339945</a><br>
-                          <strong>Email:</strong>  <a href="mailto:filemakr@gmail.com" style="color:black">filemakr@gmail.com</a><br>
-                        </p>
-                      </div>
-    
-                      <div class="social-links">
-                        <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
-                        <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
-                        <a href="#" class="instagram"><i class="fa fa-instagram"></i></a>
-                        <a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>
-                      </div>
-    
-                    </div>
-    
-                </div>
-    
-              </div>
-    
-              <div class="col-lg-6">
-    
-                <div class="form">
-                  
-                  <h4>Send us a message</h4>
-                  <p></p>
-                  <form action="" method="post" role="form" class="contactForm">
-                    <div class="form-group">
-                      <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
-                      <div class="validation"></div>
-                    </div>
-                    <div class="form-group">
-                      <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email" />
-                      <div class="validation"></div>
-                    </div>
-                    <div class="form-group">
-                      <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
-                      <div class="validation"></div>
-                    </div>
-                    <div class="form-group">
-                      <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message"></textarea>
-                      <div class="validation"></div>
-                    </div>
-    
-                    <div id="sendmessage">Your message has been sent. Thank you!</div>
-                    <div id="errormessage">Not Send</div>
-    
-                    <div class="text-center"><button type="submit" title="Send Message">Send Message</button></div>
-                  </form>
-                </div>
-    
-              </div>
-    
-              
-    
-            </div>
-    
-          </div>
-        </div>
-    
-        <div class="container">
-          <div class="copyright">
-            &copy; 2019 Copyright <strong>FileMakr</strong>. 
-          </div>
-         <!-- <div class="credits">
-          
-              All the links in the footer should remain intact.
-              You can delete the links only if you purchased the pro version.
-              Licensing information: https://bootstrapmade.com/license/
-              Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Rapid
-          
-            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
-          </div>-->
-        </div>
-      </footer><!-- #footer -->
    
 
   <a href="" class="back-to-top edit" id="=result[0][0].id" seo_name="=result[0][0].seo_name">
     <i class="fa fa-download" onclick="printDiv('section-to-print')"></i>
   </a>
-  <!-- Uncomment below i you want to use a preloader -->
-  <!-- <div id="preloader"></div> -->
-
-  <!-- JavaScript /a/libraries -->
-  <script src="/a/lib/jquery/jquery.min.js"></script>
-  <script src="/a/lib/jquery/jquery-migrate.min.js"></script>
-  <script src="/a/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="/a/lib/easing/easing.min.js"></script>
-  <script src="/a/lib/mobile-nav/mobile-nav.js"></script>
-  <script src="/a/lib/wow/wow.min.js"></script>
-  <script src="/a/lib/waypoints/waypoints.min.js"></script>
-  <script src="/a/lib/counterup/counterup.min.js"></script>
-  <script src="/a/lib/owlcarousel/owl.carousel.min.js"></script>
-  <script src="/a/lib/isotope/isotope.pkgd.min.js"></script>
-  <script src="/a/lib/lightbox/js/lightbox.min.js"></script>
-  <!-- Contact Form JavaScript File -->
-  <script src="/a/contactform/contactform.js"></script>
-
-  <!-- Template Main Javascript File -->
-  <script src="/a/js/main.js"></script>
-
+  
+  <%include ./footer.ejs %>
 </body>
 
 <script>

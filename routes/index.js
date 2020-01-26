@@ -5,13 +5,25 @@ var mysql = require('mysql')
 var pool = require('./pool')
 
 
+
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+
+today = yyyy + '-' + mm + '-' + dd;
+
+
+
+
+
 router.get('/', (req, res) => { pool.query(`select name,seo_name,short_description from project`,
 (err,result)=>err ? console.log(err) : res.render('index',{result:result}))
 })
 
 router.post('/contactus',(req,res)=>{
     let body = req.body
-    console.log(body)
+    body['date'] = today
     pool.query(`insert into contactus set ?`,body,(err,result)=>err ? console.log(err) : res.send('OK'))
 })
 

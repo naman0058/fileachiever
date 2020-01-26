@@ -4,6 +4,17 @@ var pool = require('./pool')
 var table = 'programming_language'
 var upload = require('./multer');
 
+
+
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+
+today = yyyy + '-' + mm + '-' + dd;
+
+
+
 router.post('/',(req,res)=>{
     req.session.customizationid = req.body.id
     res.send('perfect-run')
@@ -16,6 +27,7 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
     let body = req.body
     body['college_logo'] = req.files['college_logo'][0].filename
     body['affilated_college_logo'] = req.files['affilated_college_logo'][0].filename
+    body['date'] = today
     req.session.roll_number = body.roll_number
     console.log(req.body)
     pool.query(`insert into customize_project set ?`,body,(err,result)=>{
@@ -33,6 +45,7 @@ router.post('/insert/synopsis',upload.fields([{ name: 'college_logo', maxCount: 
     let body = req.body
     body['college_logo'] = req.files['college_logo'][0].filename
     body['affilated_college_logo'] = req.files['affilated_college_logo'][0].filename
+    body['date'] = today
     req.session.roll_number = body.roll_number
     console.log(req.body)
     pool.query(`insert into customize_synopsis_project set ?`,body,(err,result)=>{

@@ -5,6 +5,17 @@ var upload = require('./multer');
 var table = 'user_project';
 var table1 = 'paid_project';
 
+
+
+
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+
+today = yyyy + '-' + mm + '-' + dd;
+
+
 router.get('/', (req, res) => {
     var query = `select name,id from programming_language;`
     pool.query(query,(err,result)=>{
@@ -25,6 +36,7 @@ router.post('/insert',upload.fields([{ name: 'index_page', maxCount: 1 }, { name
                                          body['user_page'] = req.files['user_page'][0].filename
                                          body['college_logo'] = req.files['college_logo'][0].filename
                                          body['affilated_college_logo'] = req.files['affilated_college_logo'][0].filename
+                                         body['date'] = today
                                          req.session.roll_number = body.roll_number
                                        
                                          if(process.env.key==body.key){
@@ -81,3 +93,4 @@ router.get('/delete', (req, res) => pool.query(`delete from ${table} where id = 
 router.post('/update', (req, res) => pool.query(`update ${table} set ? where id = ?`, [req.body, req.body.id], (err, result) => err ? console.log(err) : res.json(result)))
 
 module.exports = router;
+
