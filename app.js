@@ -73,7 +73,7 @@ app.use('/admin',admin)
 app.use('/programming_language',programming_language);
 app.use('/project',project);
 app.use('/preview',preview);
-app.use('/all-projects',allprojects);
+app.use('/readymade-project-file',allprojects);
 app.use('/privacy-policy',userlogin);
 app.use('/terms-and-conditions',terms);
 app.use('/customization',customization);

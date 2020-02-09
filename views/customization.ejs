@@ -111,7 +111,7 @@ enable_page_level_ads: true
       <nav class="main-nav float-right d-none d-lg-block">
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/all-projects">Project File</a></li>
+            <li><a href="/readymade-project-file">Readymade Project File</a></li>
             <li><a href="/synopsis">Synopsis</a></li>
             <li><a href="/make-your-own-project" class="btn-get-started scrollto">Make your own project</a></li>
             
@@ -210,9 +210,70 @@ enable_page_level_ads: true
 				  <input type="file" class="form-control" name="affilated_college_logo" id="affilated_college_logo" required>  </div>
 			  </div>
 
+<br>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+          <p style="color:red">*Note : If you create this file for group then fill friend name</p>
+          </div>
+
+        </div>
+        
+        <div class="form-row">
+
+
+          <div class="form-group col-md-3">
+            <label for="inputCity">First Friend Name </label>
+            <input type="text" class="form-control" name="friend" placeholder="Optional">
+          </div>
+          <div class="form-group col-md-3">
+            <label for="inputState">First Friend Roll Number</label>
+            <input type="text" class="form-control" name="roll_number1" placeholder="Optional">  </div>
+
+
+            <div class="form-group col-md-3">
+              <label for="inputCity">Second Friend Name </label>
+              <input type="text" class="form-control" name="friend1" placeholder="Optional">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="inputState">Second Friend Roll Number </label>
+              <input type="text" class="form-control" name="roll_number2" placeholder="Optional">  </div>
+
+          </div>
+        
+        
+        
+
+
+                 
+        <div class="form-row">
+
+
+          <div class="form-group col-md-3">
+            <label for="inputCity">Third Friend Name </label>
+            <input type="text" class="form-control" name="friend2" placeholder="Optional">
+          </div>
+          <div class="form-group col-md-3">
+            <label for="inputState">Third Friend Roll Number</label>
+            <input type="text" class="form-control" name="roll_number3" placeholder="Optional">  </div>
+
+
+            <div class="form-group col-md-3">
+              <label for="inputCity">Fourth Friend Name </label>
+              <input type="text" class="form-control" name="friend3" placeholder="Optional">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="inputState">Fourth Friend Roll Number </label>
+              <input type="text" class="form-control" name="roll_number4" placeholder="Optional">  </div>
+
+          </div>
+        
         <input type="hidden" class="form-control" name="projectid" value="<%=result[0][0].id%>">  
         <input type="hidden" class="form-control" name="seo_name" value="<%=result[0][0].seo_name%>">  
       
+
+
+
+
       
 			<button type="submit" class="btn btn-primary customize">Customize</button>
 		  </form>

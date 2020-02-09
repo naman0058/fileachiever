@@ -279,7 +279,7 @@ enable_page_level_ads: true
       <nav class="main-nav float-right d-none d-lg-block">
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/all-projects">Project File</a></li>
+            <li><a href="/readymade-project-file">Readymade Project File</a></li>
             <li><a href="/synopsis">Synopsis</a></li>
             <li><a href="/make-your-own-project" class="btn-get-started scrollto">Make your own project</a></li>
             
@@ -372,18 +372,83 @@ enable_page_level_ads: true
             </span>&nbsp;&nbsp;
 
 
+            <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
+
+              <span style="font-size:18px; color:black;">
+                <center>
+                  <strong>
+                    <p>
+                      <%=result[0][0].name%>
+                    </p>
+                    <p>(
+                      <%=result[0][0].roll_number%>)</p>
+                  </strong>
+                </center>
+              </span>
+  
+        <%    } else { %>
+
             <span style="font-size:18px; color:black;">
               <center>
                 <strong>
                   <p>
-                    <%=result[0][0].name%>
+                    <%=result[0][0].name%> (<%=result[0][0].roll_number%>)
                   </p>
-                  <p>(
-                    <%=result[0][0].roll_number%>)</p>
+                   </strong>
+              </center>
+            </span>
+
+
+
+
+            <span style="font-size:18px; color:black;">
+              <center>
+                <strong>
+                  <p>
+                    <%=result[0][0].friend%> ( <%=result[0][0].roll_number1%>)
+                  </p>
+                 
                 </strong>
               </center>
             </span>
 
+
+            <span style="font-size:18px; color:black;">
+              <center>
+                <strong>
+                  <p>
+                    <%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%>)
+                  </p>
+                
+                </strong>
+              </center>
+            </span>
+
+
+            <span style="font-size:18px; color:black;">
+              <center>
+                <strong>
+                  <p>
+                    <%=result[0][0].friend2%> ( <%=result[0][0].roll_number3%>)
+                  </p>
+                
+                </strong>
+              </center>
+            </span>
+
+
+            <span style="font-size:18px; color:black;">
+              <center>
+                <strong>
+                  <p>
+                    <%=result[0][0].friend3%> ( <%=result[0][0].roll_number4%>)
+                  </p>
+
+                </strong>
+              </center>
+            </span>
+
+<%  } %>
 
             <span style="font-size:18px; color:black;">
               <center>Under the Guidance of</center>
@@ -455,9 +520,19 @@ enable_page_level_ads: true
                   <strong>“
                     <%=result[13][0].name%>
                   </strong> being submitted by
+                  <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
+
                   <strong>
                     <%=result[0][0].name%>
-                  </strong> in partial fulfillment of the requirements for the award of B.E. Degree in
+                  </strong> 
+                  
+                  <% } else {%>
+
+                    <strong>
+                      <%=result[0][0].name%> and His/Her Friend
+                    </strong>
+                    <% } %>
+                  in partial fulfillment of the requirements for the award of B.E. Degree in
                   <strong>Computer Science & Engineering</strong> to <%=result[0][0].affilated_college_name%> , <%=result[0][0].affilated_college_address%> is a record of bonafide work
                   done by him under my supervision.
                 </p>
@@ -538,12 +613,30 @@ enable_page_level_ads: true
                   of this work.</p>
 
 
-                <p>
-                  <%=result[0][0].name%>
-                </p>
-                <p>Enrollment No.:
-                  <%=result[0][0].roll_number%>
-                </p>
+
+
+                  <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
+
+
+                    <p><%=result[0][0].name%> </p>
+                    <p>Enrolment No: <%=result[0][0].roll_number%>
+                    </p>
+                    
+                    
+                    <% } else { %>
+                    
+                    
+                      <p><%=result[0][0].name%> (<%=result[0][0].roll_number%>) </p>
+                      <p><%=result[0][0].friend%> (<%=result[0][0].roll_number1%>) </p>
+                      <p><%=result[0][0].friend1%> (<%=result[0][0].roll_number2%>) </p>
+                      <p><%=result[0][0].friend2%> (<%=result[0][0].roll_number3%>) </p>
+                      <p><%=result[0][0].friend3%> (<%=result[0][0].roll_number4%>) </p>
+                    
+                     <% } %>
+                    
+
+
+               
                 <p>
                   <%=result[0][0].college_name%>
                 </p>
@@ -595,9 +688,27 @@ enable_page_level_ads: true
 
                 
 <p>Signature</p> 
-<p><%=result[0][0].name%></p>
+
+
+
+<% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
+
+
+<p><%=result[0][0].name%> </p>
 <p>Enrolment No: <%=result[0][0].roll_number%>
 </p>
+
+
+<% } else { %>
+
+
+  <p><%=result[0][0].name%> (<%=result[0][0].roll_number%>) </p>
+  <p><%=result[0][0].friend%> (<%=result[0][0].roll_number1%>) </p>
+  <p><%=result[0][0].friend1%> (<%=result[0][0].roll_number2%>) </p>
+  <p><%=result[0][0].friend2%> (<%=result[0][0].roll_number3%>) </p>
+  <p><%=result[0][0].friend3%> (<%=result[0][0].roll_number4%>) </p>
+
+ <% } %>
 
 
                 </p>
@@ -1462,7 +1573,7 @@ enable_page_level_ads: true
     <!-- #services -->
    
 
-  <a href="" class="back-to-top edit" id="=result[0][0].id" seo_name="=result[0][0].seo_name">
+  <a class="back-to-top edit" id="=result[0][0].id" seo_name="=result[0][0].seo_name">
     <i class="fa fa-download" onclick="printDiv('section-to-print')"></i>
   </a>
   
