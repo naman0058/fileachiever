@@ -85,7 +85,7 @@ enable_page_level_ads: true
 
 <body>
  
-    <%include ./navbar.ejs %>  
+    <%include ../navbar.ejs %>  
   <main id="main">
 
     <!--==========================
@@ -100,7 +100,7 @@ enable_page_level_ads: true
           <h3>Customize <%=result[0][0].name%> File</h3>
           <p></p>
         </header>
-		<form action="/customization/insert" method="post" enctype="multipart/form-data">
+		<form action="/ieee-standard-project-report/insert" method="post" enctype="multipart/form-data">
 			<div class="form-row">
 			  <div class="form-group col-md-6">
 				<label for="inputEmail4">Full Name</label>
@@ -245,7 +245,7 @@ enable_page_level_ads: true
       </div>
     </section><!-- #services -->
 
-    <%include ./footer.ejs %>  
+    <%include ../footer.ejs %>  
 </body>
 
 

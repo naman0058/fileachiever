@@ -25,6 +25,8 @@ var terms = require('./routes/terms');
 var sitemap = require('./routes/sitemap');
 var aboutus = require('./routes/aboutus')
 var ads = require('./routes/ads')
+
+var ieee = require('./routes/ieee/ieeeproject') 
 //var facebooklogin = require('./routes/facebooklogin');
 var app = express();
 app.use(compression())
@@ -85,6 +87,7 @@ app.use('/robots.txt',robot);
 app.use('/sitemap.xml',sitemap)
 app.use('/aboutus',aboutus)
 app.use('/ads.txt',ads)
+app.use('/ieee-standard-project-report',ieee)
 
 //app.use('/facebooklogin',facebooklogin);
 // catch 404 and forward to error handler
