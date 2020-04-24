@@ -274,7 +274,7 @@ enable_page_level_ads: true
             <div class="col-md-6 col-lg-4 wow bounceInUp" data-wow-duration="1.4s">
               <div class="box">
 
-                <h4 class="title"><a href="/notes/physics/unit1.docx" alt="Download class 12th pysics unit 1 notes">Electrostatics</a></h4>
+                <h4 class="title"><a href="/notes/physics/unit1.docx" alt="Download class 12th pysics unit 1 notes" id="hii">Electrostatics</a></h4>
 
                 <p class="description">Chapter 1 - Electic Charges and Fiels</p>
               </div>
@@ -312,5 +312,17 @@ $(document).ready(function(){
 });
 
 </script>
+
+
+<script>
+
+$('#hii').click(function(){
+  $.post('/class-12-physics-notes-download/insert',data=>{
+
+  })
+})
+
+</script>
+
 
 </html>
