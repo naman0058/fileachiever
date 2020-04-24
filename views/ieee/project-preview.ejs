@@ -345,7 +345,7 @@ enable_page_level_ads: true
                   <p>
                     <%=result[0][0].affilated_college_address%>
                   </p>
-                  <p><img src="/images/<%=result[0][0].affilated_college_logo%>" alt="<%=result[13][0].name%> affilated college logo" style="width: 100px;height:100px"></p>
+                  <p><img src="/images/<%=result[0][0].affilated_college_logo%>" alt="<%=result[13][0].name%> affilated college logo" style="width: 200px"></p>
                 </strong>
               </center>
             </span>&nbsp;
@@ -370,6 +370,126 @@ enable_page_level_ads: true
                 </center>
               </span>
   
+
+
+<% } else if(result[0][0].friend1 == "null" || result[0][0].friend1 == null || result[0][0].friend1 == "" || result[0][0].friend1 == []) { %>
+
+  <span style="font-size:18px; color:black;">
+    <center>
+      <strong>
+        <p>
+          <%=result[0][0].name%> (<%=result[0][0].roll_number%>)
+        </p>
+         </strong>
+    </center>
+  </span>
+
+
+
+
+  <span style="font-size:18px; color:black;">
+    <center>
+      <strong>
+        <p>
+          <%=result[0][0].friend%> ( <%=result[0][0].roll_number1%>)
+        </p>
+       
+      </strong>
+    </center>
+  </span>
+
+  <% } else if(result[0][0].friend2 == "null" || result[0][0].friend2 == null || result[0][0].friend2 == "" || result[0][0].friend2 == []) { %>
+
+
+    <span style="font-size:18px; color:black;">
+      <center>
+        <strong>
+          <p>
+            <%=result[0][0].name%> (<%=result[0][0].roll_number%>)
+          </p>
+           </strong>
+      </center>
+    </span>
+
+
+
+
+    <span style="font-size:18px; color:black;">
+      <center>
+        <strong>
+          <p>
+            <%=result[0][0].friend%> ( <%=result[0][0].roll_number1%>)
+          </p>
+         
+        </strong>
+      </center>
+    </span>
+
+
+    <span style="font-size:18px; color:black;">
+      <center>
+        <strong>
+          <p>
+            <%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%>)
+          </p>
+        
+        </strong>
+      </center>
+    </span>
+
+
+
+    <% } else if(result[0][0].friend3 == "null" || result[0][0].friend3 == null || result[0][0].friend3 == "" || result[0][0].friend3 == []) { %>
+
+      <span style="font-size:18px; color:black;">
+        <center>
+          <strong>
+            <p>
+              <%=result[0][0].name%> (<%=result[0][0].roll_number%>)
+            </p>
+             </strong>
+        </center>
+      </span>
+
+
+
+
+      <span style="font-size:18px; color:black;">
+        <center>
+          <strong>
+            <p>
+              <%=result[0][0].friend%> ( <%=result[0][0].roll_number1%>)
+            </p>
+           
+          </strong>
+        </center>
+      </span>
+
+
+      <span style="font-size:18px; color:black;">
+        <center>
+          <strong>
+            <p>
+              <%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%>)
+            </p>
+          
+          </strong>
+        </center>
+      </span>
+
+
+      <span style="font-size:18px; color:black;">
+        <center>
+          <strong>
+            <p>
+              <%=result[0][0].friend2%> ( <%=result[0][0].roll_number3%>)
+            </p>
+          
+          </strong>
+        </center>
+      </span>
+
+
         <%    } else { %>
 
             <span style="font-size:18px; color:black;">
@@ -475,7 +595,7 @@ enable_page_level_ads: true
                       <%=result[0][0].college_address%>
                     </p>
                     <br>
-                    <p><img src="/images/<%=result[0][0].college_logo%>" alt="<%=result[13][0].name%> college logo" style="width: 100px;height:100px"></p>
+                    <p><img src="/images/<%=result[0][0].college_logo%>" alt="<%=result[13][0].name%> college logo" style="width: 200px"></p>
                   </strong>
                 </center>
               </span>
@@ -606,7 +726,26 @@ enable_page_level_ads: true
                     <p>Enrolment No: <%=result[0][0].roll_number%>
                     </p>
                     
-                    
+                    <% } else if(result[0][0].friend1 == "null" || result[0][0].friend1 == null || result[0][0].friend1 == "" || result[0][0].friend1 == []) { %>
+
+                      <p><%=result[0][0].name%> (<%=result[0][0].roll_number%>) </p>
+                      <p><%=result[0][0].friend%> (<%=result[0][0].roll_number1%>) </p>
+                   
+                      
+                      <% } else if(result[0][0].friend2 == "null" || result[0][0].friend2 == null || result[0][0].friend2 == "" || result[0][0].friend2 == []) { %>
+
+                        <p><%=result[0][0].name%> (<%=result[0][0].roll_number%>) </p>
+                        <p><%=result[0][0].friend%> (<%=result[0][0].roll_number1%>) </p>
+                        <p><%=result[0][0].friend1%> (<%=result[0][0].roll_number2%>) </p>
+                       
+
+                        <% } else if(result[0][0].friend3 == "null" || result[0][0].friend3 == null || result[0][0].friend3 == "" || result[0][0].friend3 == []) { %>
+                          <p><%=result[0][0].name%> (<%=result[0][0].roll_number%>) </p>
+                          <p><%=result[0][0].friend%> (<%=result[0][0].roll_number1%>) </p>
+                          <p><%=result[0][0].friend1%> (<%=result[0][0].roll_number2%>) </p>
+                          <p><%=result[0][0].friend2%> (<%=result[0][0].roll_number3%>) </p>
+                        
+
                     <% } else { %>
                     
                     
@@ -683,6 +822,28 @@ enable_page_level_ads: true
 </p>
 
 
+<% } else if(result[0][0].friend1 == "null" || result[0][0].friend1 == null || result[0][0].friend1 == "" || result[0][0].friend1 == []) { %>
+
+  
+  <p><%=result[0][0].name%> (<%=result[0][0].roll_number%>) </p>
+  <p><%=result[0][0].friend%> (<%=result[0][0].roll_number1%>) </p>
+ 
+  <% } else if(result[0][0].friend2 == "null" || result[0][0].friend2 == null || result[0][0].friend2 == "" || result[0][0].friend2 == []) { %>
+
+
+    <p><%=result[0][0].name%> (<%=result[0][0].roll_number%>) </p>
+  <p><%=result[0][0].friend%> (<%=result[0][0].roll_number1%>) </p>
+  <p><%=result[0][0].friend1%> (<%=result[0][0].roll_number2%>) </p>
+  
+
+
+  <% } else if(result[0][0].friend3== "null" || result[0][0].friend3 == null || result[0][0].friend3== "" || result[0][0].friend3 == []) { %>
+
+    <p><%=result[0][0].name%> (<%=result[0][0].roll_number%>) </p>
+    <p><%=result[0][0].friend%> (<%=result[0][0].roll_number1%>) </p>
+    <p><%=result[0][0].friend1%> (<%=result[0][0].roll_number2%>) </p>
+    <p><%=result[0][0].friend2%> (<%=result[0][0].roll_number3%>) </p>
+   
 <% } else { %>
 
 

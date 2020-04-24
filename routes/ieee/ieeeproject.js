@@ -46,6 +46,7 @@ router.get('/projects',(req,res)=>{
     pool.query(`select * from ieee_project where roll_number = "${req.session.roll_number}" order by id desc limit 1`,(err,result)=>{
         if(err) throw err;
         else {
+            console.log(req.session.roll_number)
             console.log(result[0].php)
            var query = `select * from ieee_project where roll_number = "${req.session.roll_number}" order by id desc limit 1;`
            var query1 = `select * from programming_language where id = "${result[0].php}";`
