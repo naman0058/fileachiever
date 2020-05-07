@@ -1019,7 +1019,7 @@ enable_page_level_ads: true
 
             </div>
 
-
+<br>
 
 
 
@@ -1049,7 +1049,7 @@ enable_page_level_ads: true
                 </div>
 
 
-
+<br>
 
                 <div style="page-break-before: always; page-break-after: always;">
 
@@ -1109,7 +1109,7 @@ enable_page_level_ads: true
 
 
 
-
+<br>
                 
             <div style="page-break-before: always; page-break-after: always;">
 
@@ -1135,7 +1135,7 @@ enable_page_level_ads: true
 
                 </div>
 
-
+<br>
 
                 
             <div style="page-break-before: always; page-break-after: always;">
@@ -1203,7 +1203,7 @@ enable_page_level_ads: true
 
                                         <div style="page-break-before: always; page-break-after: always;" class="module_image">
                     
-                                          <strong><p><u>Css Code</u></p></strong> 
+                                          <strong><p><u>ER Diagram</u></p></strong> 
                                              
                                           <img src="/er_diagram/<%=result[13][0].er_diagram%>" alt="<%=result[13][0].name%> ER Diagram">
                                           </strong></center></span>
@@ -1214,6 +1214,147 @@ enable_page_level_ads: true
                                           </div>
 
                 
+                                          <%if(result[13][0].id == 10){%>
+
+
+                                            <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                
+                                                </p>
+                                                 </u>
+                 
+                                                 <img src="/dfd_diagram/<%=result[13][0].basic_dfd%>" alt="<%=result[13][0].name%> basic level data flow diagram">
+                 
+                                                 </strong>
+                                                 </center>
+                                                 </span>
+                                                 <br>
+                                                 <br>
+                                              
+                 
+                                             </div>
+                
+                                             
+                                             <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                
+                                               </p>
+                                                 </u>
+                 
+                                                 <img src="/dfd_diagram/<%=result[13][0].one_dfd%>" alt="<%=result[13][0].name%> admin data flow diagram">
+                 
+                                                 </strong>
+                                                 </center>
+                                                 </span>
+                                                 <br>
+                                                 <br>
+                                              
+                 
+                                             </div>
+                
+                                             
+                                             <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                
+                                               </p>
+                                                 </u>
+                 
+                                                 <img src="/dfd_diagram/<%=result[13][0].two_dfd%>" alt="<%=result[13][0].name%> user data flow diagram ">
+                 
+                                                 </strong>
+                                                 </center>
+                                                 </span>
+                                                 <br>
+                                                 <br>
+                                              
+                 
+                                             </div>
+                
+                                             
+                                             <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                
+                                               </p>
+                                                 </u>
+                 
+                                                 <img src="/dfd_diagram/<%=result[13][0].three_dfd%>" alt="<%=result[13][0].name%> users data flow diagram">
+                 
+                                                 </strong>
+                                                 </center>
+                                                 </span>
+                                                 <br>
+                                                 <br>
+                                              
+                 
+                                             </div>
+                
+                                             
+                                             <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                
+                                                </p>
+                                                 </u>
+                 
+                                                 <img src="/dfd_diagram/<%=result[13][0].zero_level_dfd%>" alt="<%=result[13][0].name%> zero level data flow diagram">
+                 
+                                                 </strong>
+                                                 </center>
+                                                 </span>
+                                                 <br>
+                                                 <br>
+                                              
+                 
+                                             </div>
+                
+                                             
+                                             <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                
+                                                </p>
+                                                 </u>
+                 
+                                                 <img src="/dfd_diagram/<%=result[13][0].first_level_dfd%>" alt="<%=result[13][0].name%> first level data flow diagram">
+                 
+                                                 </strong>
+                                                 </center>
+                                                 </span>
+                                                 <br>
+                                                 <br>
+                                              
+                 
+                                             </div>
+                
+                                             
+                                             <div style="page-break-before: always; page-break-after: always;" class="module_image">
+                
+                                                </p>
+                                                 </u>
+                 
+                                                 <img src="/dfd_diagram/<%=result[13][0].second_level_dfd%>" alt="<%=result[13][0].name%> second level data flow diagram">
+                 
+                                                 </strong>
+                                                 </center>
+                                                 </span>
+                                                 <br>
+                                                 <br>
+                                              
+                 
+                                             </div>
+                 
+                <% } %>
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
               <div style="page-break-before: always; page-break-after: always;">
 
 
@@ -1304,6 +1445,9 @@ enable_page_level_ads: true
 
 
                           <%=result[1][0].name%>
+                          &nbsp;&nbsp;
+                          <img src="/programming_logo/<%=result[1][0].logo%>" alt="<%=result[1][0].name%> icon" style="width:50px">
+                  
                         </p>
                       </u>
 
@@ -1342,6 +1486,9 @@ enable_page_level_ads: true
 
 
                           <%=result[2][0].name%>
+                          &nbsp;&nbsp;
+                          <img src="/programming_logo/<%=result[2][0].logo%>" alt="<%=result[2][0].name%> icon" style="width:50px">
+                  
                         </p>
                       </u>
 
@@ -1376,6 +1523,9 @@ enable_page_level_ads: true
 
 
                             <%=result[3][0].name%>
+                            &nbsp;&nbsp;
+                            <img src="/programming_logo/<%=result[3][0].logo%>" alt="<%=result[3][0].name%> icon" style="width:50px">
+                    
                           </p>
                         </u>
 
@@ -1410,6 +1560,9 @@ enable_page_level_ads: true
 
 
                               <%=result[4][0].name%>
+                              &nbsp;&nbsp;
+                              <img src="/programming_logo/<%=result[4][0].logo%>" alt="<%=result[4][0].name%> icon" style="width:50px">
+                      
                             </p>
                           </u>
 
@@ -1444,6 +1597,9 @@ enable_page_level_ads: true
 
 
                                 <%=result[5][0].name%>
+                                &nbsp;&nbsp;
+                                <img src="/programming_logo/<%=result[5][0].logo%>" alt="<%=result[5][0].name%> icon" style="width:50px">
+                        
                               </p>
                             </u>
 
@@ -1479,6 +1635,9 @@ enable_page_level_ads: true
 
 
                                   <%=result[6][0].name%>
+                                  &nbsp;&nbsp;
+                                  <img src="/programming_logo/<%=result[6][0].logo%>" alt="<%=result[6][0].name%> icon" style="width:50px">
+                          
                                 </p>
                               </u>
 
@@ -1514,6 +1673,9 @@ enable_page_level_ads: true
 
 
                                     <%=result[7][0].name%>
+                                    &nbsp;&nbsp;
+                                    <img src="/programming_logo/<%=result[7][0].logo%>" alt="<%=result[7][0].name%> icon" style="width:50px">
+                            
                                   </p>
                                 </u>
 
@@ -1547,6 +1709,9 @@ enable_page_level_ads: true
 
 
                                       <%=result[8][0].name%>
+                                      &nbsp;&nbsp;
+                                      <img src="/programming_logo/<%=result[8][0].logo%>" alt="<%=result[8][0].name%> icon" style="width:50px">
+                              
                                     </p>
                                   </u>
 
@@ -1581,6 +1746,9 @@ enable_page_level_ads: true
 
 
                                         <%=result[9][0].name%>
+                                        &nbsp;&nbsp;
+                                        <img src="/programming_logo/<%=result[9][0].logo%>" alt="<%=result[9][0].name%> icon" style="width:50px">
+                                
                                       </p>
                                     </u>
 
@@ -1615,6 +1783,9 @@ enable_page_level_ads: true
 
 
                                           <%=result[10][0].name%>
+                                          &nbsp;&nbsp;
+                                          <img src="/programming_logo/<%=result[10][0].logo%>" alt="<%=result[10][0].name%> icon" style="width:50px">
+                                  
                                         </p>
                                       </u>
 
@@ -1650,6 +1821,9 @@ enable_page_level_ads: true
 
 
                                             <%=result[11][0].name%>
+                                            &nbsp;&nbsp;
+                                            <img src="/programming_logo/<%=result[11][0].logo%>" alt="<%=result[11][0].name%> icon" style="width:50px">
+                                    
                                           </p>
                                         </u>
 
@@ -1685,6 +1859,9 @@ enable_page_level_ads: true
 
 
                                               <%=result[12][0].name%>
+                                              &nbsp;&nbsp;
+                                                <img src="/programming_logo/<%=result[12][0].logo%>" alt="<%=result[12][0].name%> icon" style="width:50px">
+                                        
                                             </p>
                                           </u>
 
@@ -1719,7 +1896,11 @@ enable_page_level_ads: true
       <u><p>
           
         
-  MySQL</p></u>
+  MySQL
+  &nbsp;&nbsp;
+  <img src="/programming_logo/mysql.png" alt="mysql icon" style="width:50px">
+
+</p></u>
      
   </strong></span>
   
