@@ -300,19 +300,19 @@ enable_page_level_ads: true
       <div class="container">
         <div class="row">
 
-          <div class="col-lg-2 col-md-3">
+          <div class="col-lg-2 col-md-2">
            
           </div>
 
 
 <!-- Start Here -->
 
-          <div class="col-lg-8 col-md-7"  id="section-to-print">
+          <div class="col-lg-8 col-md-8 col-sm-12"  id="section-to-print">
 
 
 <!-- First Page -->
 
-     <div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1000px">
+     <div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;">
 
         <div style="page-break-before: always; page-break-after: always;">
 
@@ -329,12 +329,12 @@ enable_page_level_ads: true
 <p class="text-center fifth">Under the guidance of</p> 
 
 <div class="row" style="margin-top: 10%">
-<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+<div class="col-6">
   <p class="text-center second"> <%=result[0][0].professor_name%></p>
   <p class="text-center second">Professor </p>
 
 </div>
-<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+<div class="col-6">
   <p class="text-center second"> <%=result[0][0].hod_name%> </p>
   <p class="text-center second">HOD </p>
 
@@ -357,7 +357,7 @@ enable_page_level_ads: true
 
 <!-- Second Page -->
 
-<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1000px">
+<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 10%">
   <div style="page-break-before: always; page-break-after: always;">
 <div class="text-center">
 <img src="/images/<%=result[0][0].college_logo%>" alt=" <%=result[0][0].college_name%> collge logo" class="img-thumbnail rounded" style="height: 125px">
@@ -366,17 +366,17 @@ enable_page_level_ads: true
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; margin-top: 5%"><%=result[0][0].college_name%> </p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; ">Department of <%=result[0][0].department%></p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:14px;font-weight: bold;"><u>Certificate</u></p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-left: 70px;margin-right:70px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
   This is to certify that <%=result[0][0].name%> (<%=result[0][0].roll_number%>), student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the Major Project titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
 
 
 <div class="row" style="margin-top: 10%">
-<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+<div class="col-6">
   <p class="text-center second"><%=result[0][0].professor_name%></p>
   <p class="text-center second">Professor </p>
 
 </div>
-<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+<div class="col-6">
   <p class="text-center second"><%=result[0][0].hod_name%></p>
   <p class="text-center second">HOD </p>
 
@@ -393,7 +393,7 @@ enable_page_level_ads: true
 
 <!-- Third Page -->
 
-<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1000px">
+<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 10%">
   <div style="page-break-before: always; page-break-after: always;">
 <div class="text-center">
 <img src="/images/<%=result[0][0].college_logo%>" alt="<%=result[0][0].college_name%> college logo" class="img-thumbnail rounded" style="height: 125px">
@@ -401,18 +401,18 @@ enable_page_level_ads: true
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;margin-top: 5% "><%=result[0][0].college_name%></p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; ">Department of <%=result[0][0].department%></p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:14px;font-weight: bold;"><u>Certificate</u></p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-left: 70px;margin-right:70px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
   This is to certify that <%=result[0][0].name%> (<%=result[0][0].roll_number%>), student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the Major Project titled “<%=result[0][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
 
 
 <div class="row" style="margin-top: 10%">
-<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+<div class="col-6">
   <p class="text-center second">External Examiner</p>
   <p class="text-center second">Signature</p>
 
 </div>
-<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-  <p class="text-center second">Inter Examiner</p>
+<div class="col-6">
+  <p class="text-center second">Internal Examiner</p>
   <p class="text-center second">Signature</p>
 
 </div>
