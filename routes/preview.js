@@ -7,4 +7,10 @@ router.get('/', (req, res) =>  res.render(`preview`));
 
 router.get('/all',(req,res)=>pool.query(`select * from ${table}`,(err,result)=> err ? console.log(err) : res.json(result)))
 
+
+
+
+
+
+
 module.exports = router;

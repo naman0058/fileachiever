@@ -25,6 +25,7 @@ router.post('/',(req,res)=>{
 
 router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { name: 'affilated_college_logo', maxCount: 1 }]),(req,res)=>{
     let body = req.body
+    console.log("body",req.body)
     body['college_logo'] = req.files['college_logo'][0].filename
     body['affilated_college_logo'] = req.files['affilated_college_logo'][0].filename
     body['date'] = today

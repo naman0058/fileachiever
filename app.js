@@ -27,8 +27,13 @@ var aboutus = require('./routes/aboutus')
 var ads = require('./routes/ads')
 var notes = require('./routes/notes')
 
-
-
+// newchanges
+var BTech = require('./routes/B.Tech')
+var MTech = require('./routes/M.Tech')
+var BCA = require('./routes/BCA')
+var MCA = require('./routes/MCA')
+var BE = require('./routes/BE')
+var ME = require('./routes/ME')
 
 var ieee = require('./routes/ieee/ieeeproject') 
 //var facebooklogin = require('./routes/facebooklogin');
@@ -94,6 +99,14 @@ app.use('/ads.txt',ads)
 app.use('/ieee-standard-project-report',ieee)
 app.use('/class-12-physics-notes-download',notes)
 
+// new work
+
+app.use('/btech-final-year-project-report',BTech)
+app.use('/mtech-final-year-project-report',MTech)
+app.use('/bca-final-year-project-report',BCA)
+app.use('/mca-final-year-project-report',MCA)
+app.use('/be-final-year-project-report',BE)
+app.use('/me-final-year-project-report',ME)
 //app.use('/facebooklogin',facebooklogin);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
