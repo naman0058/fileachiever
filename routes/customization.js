@@ -16,7 +16,9 @@ today = yyyy + '-' + mm + '-' + dd;
 
 
 router.post('/',(req,res)=>{
-    req.session.customizationid = req.body.id
+    req.session.customizationid = req.body.id;
+    req.session.deviceInfo = req.body.deviceInfo
+
     res.send('perfect-run')
 })
 

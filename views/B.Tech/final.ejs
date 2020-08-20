@@ -357,7 +357,7 @@ enable_page_level_ads: true
 
 <!-- Second Page -->
 
-<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 10%">
+<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1000px">
   <div style="page-break-before: always; page-break-after: always;">
 <div class="text-center">
 <img src="/images/<%=result[0][0].college_logo%>" alt=" <%=result[0][0].college_name%> collge logo" class="img-thumbnail rounded" style="height: 125px">
@@ -366,7 +366,7 @@ enable_page_level_ads: true
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; margin-top: 5%"><%=result[0][0].college_name%> </p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; ">Department of <%=result[0][0].department%></p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:14px;font-weight: bold;"><u>Certificate</u></p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;margin-left: 70px;margin-right:70px;">
   This is to certify that <%=result[0][0].name%> (<%=result[0][0].roll_number%>), student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the Major Project titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
 
 
@@ -393,7 +393,7 @@ enable_page_level_ads: true
 
 <!-- Third Page -->
 
-<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 10%">
+<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1000px">
   <div style="page-break-before: always; page-break-after: always;">
 <div class="text-center">
 <img src="/images/<%=result[0][0].college_logo%>" alt="<%=result[0][0].college_name%> college logo" class="img-thumbnail rounded" style="height: 125px">
@@ -401,7 +401,7 @@ enable_page_level_ads: true
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;margin-top: 5% "><%=result[0][0].college_name%></p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; ">Department of <%=result[0][0].department%></p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:14px;font-weight: bold;"><u>Certificate</u></p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-left: 70px;margin-right:70px;line-height: 50px;">
   This is to certify that <%=result[0][0].name%> (<%=result[0][0].roll_number%>), student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the Major Project titled “<%=result[0][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
 
 
@@ -1719,7 +1719,7 @@ Unit testing may reduce uncertainty in the units themselves and can be used in a
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-left: 70px;margin-right:70px;line-height: 35px"> 
 <strong>4 ) Documentation : </strong>
- Unit testing provides a sort of living documentation of the system. Developers looking to learn what functionality is provided by a unit, and how to use it, can look at the unit tests to gain a basic understanding of the unit's interface (API).Unit test cases embody characteristics that are critical to the success of the unit. These characteristics can indicate appropriate/inappropriate use of a unit as well as negative behaviors that are to be trapped by the unit. A unit test case, in and of itself, documents these critical characteristics, although many software development environments do not rely solely upon code to document the product in development.
+ Unit testing provides a sort of living documentation of the system. Developers looking to learn what functionality is provided by a unit, and how to use it, can look at the unit tests to gain a basic understanding of the unit's interface (API).Unit test cases embody characteristics that are critical to the success of the unit. These characteristics can indicate appropriate/inappropriate use of a unit as well as negative behaviors that are to be trapped by the unit.
 </p>
 
 
@@ -1791,8 +1791,7 @@ Unit testing may reduce uncertainty in the units themselves and can be used in a
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-left: 70px;margin-right:70px;line-height: 35px"> 
-In the big-bang approach, most of the developed modules are coupled together to form a complete software system or major part of the system and then used for integration testing. This method is very effective for saving time in the integration testing process. However, if the test cases and their results are not recorded properly, the entire integration process will be more complicated and may prevent the testing team from achieving the goal of integration testing.A type of big-bang integration testing is called "usage model testing" which can be used in both software and hardware integration testing. The basis behind this type of integration testing is to run user-like workloads in integrated user-like environments. In doing the testing in this manner, the environment is proofed, while the individual components are proofed indirectly through their use. Usage Model testing takes an optimistic approach to testing, because it expects to have few problems with the individual components. The strategy relies heavily on the component developers to do the isolated unit testing for their product. The goal of the strategy is to avoid redoing the testing done by the developers, and instead flesh-out problems caused by the interaction of the components in the environment. For integration testing, Usage Model testing can be more efficient and provides better test coverage than traditional focused functional integration testing. To be more efficient and accurate, care must be used in defining the user-like workloads for creating realistic scenarios in exercising the environment. This gives confidence that the integrated environment will work as expected for the target customers.
-
+In the big-bang approach, most of the developed modules are coupled together to form a complete software system or major part of the system and then used for integration testing. This method is very effective for saving time in the integration testing process. However, if the test cases and their results are not recorded properly, the entire integration process will be more complicated and may prevent the testing team from achieving the goal of integration testing.A type of big-bang integration testing is called "usage model testing" which can be used in both software and hardware integration testing. The basis behind this type of integration testing is to run user-like workloads in integrated user-like environments. In doing the testing in this manner, the environment is proofed, while the individual components are proofed indirectly through their use. Usage Model testing takes an optimistic approach to testing, because it expects to have few problems with the individual components. The strategy relies heavily on the component developers to do the isolated unit testing for their product. The goal of the strategy is to avoid redoing the testing done by the developers, and instead flesh-out problems caused by the interaction of the components in the environment.
 </p>
 
 

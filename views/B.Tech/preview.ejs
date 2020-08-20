@@ -889,7 +889,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
    
 <div class="text-center">
-<img src="/er_diagram/<%=result[0][0].er_diagram%>" class="img-thumbnail rounded" style="height: 400px">
+<img src="/a/3.jpeg" class="img-thumbnail rounded">
 </div>
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-top: 10px;color:red;"> * All ER-Diagram Images will be shown after edit project report</p>
@@ -1804,7 +1804,14 @@ White-box testing's basic procedures involves the tester having a deep level of 
 $('.edit').click(function(){
   const id = $(this).attr('id')
   const seo_name = $(this).attr('seo_name')
-  $.post('/customization',{id},data=>{
+  let deviceInfo = '';
+  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+     deviceInfo = 'mobile'
+    } else {
+      deviceInfo ='Desktop'
+    }
+  $.post('/customization',{id , deviceInfo},data=>{
     window.location.href='/btech-final-year-project-report-'+seo_name+'/edit';
   })
 })
