@@ -45,7 +45,37 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
 
 router.get('/projects',(req,res)=>{
     if(req.session.roll_number){
-    pool.query(`select * from ${table} where roll_number = "${req.session.roll_number}" order by id desc limit 1`,(err,result)=>{
+
+
+if(req.session.deviceInfo == 'mobile'){
+
+
+
+
+  pool.query(`select * from ${table} where roll_number = "${req.session.roll_number}" order by id desc limit 1`,(err,result)=>{
+        if(err) throw err;
+        else {
+            console.log(req.session.roll_number)
+            console.log(result[0].php)
+           var query = `select * from ${table} where roll_number = "${req.session.roll_number}" order by id desc limit 1;`
+           var query1 = `select * from programming_language where id = "${result[0].html}" || id = "${result[0].css}" || id = "${result[0].bootstrap}" || id = "${result[0].javascript}" || id = "${result[0].jquery}" || id = "${result[0].json}" || id = "${result[0].react}" || id = "${result[0].angular}"  ;`
+           var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
+           var query3 = `select * from project where id = "${result[0].projectid}";`
+           pool.query(query+query1+query2+query3,(err,result)=>{
+               if(err) throw err;
+               else res.render('B.Tech/mobile_view',{result:result})
+           })
+
+        }
+    })
+
+
+
+}
+else{
+
+
+  pool.query(`select * from ${table} where roll_number = "${req.session.roll_number}" order by id desc limit 1`,(err,result)=>{
         if(err) throw err;
         else {
             console.log(req.session.roll_number)
@@ -61,6 +91,10 @@ router.get('/projects',(req,res)=>{
 
         }
     })
+
+}
+
+  
 }
 else{
     res.redirect('/')
