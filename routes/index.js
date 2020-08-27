@@ -37,7 +37,7 @@ router.get('/cse/:name',(req,res)=>{
     var query = `select * from project where seo_name = "${req.params.name}";`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
     pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('preview',{result:result})
+        err ? console.log(err) : res.render('B.Tech/preview',{result:result})
     })
 })
 
