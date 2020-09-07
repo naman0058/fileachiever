@@ -810,23 +810,26 @@ let indexpageno = 14
 
 
 
+
+
+
                                         <tr>
                                             <td class="text-center font-weight-bold">Chapter 6</td>
-                                            <td class="text-center font-weight-bold ">ADVANTAGES</td>
+                                            <td class="text-center font-weight-bold ">RESULTS</td>
                                               <% 
                                    
                                             oldpageno = indexpageno + 2 
                                             
                                           %>
-                                             <td class="text-center font-weight-bold "><%=oldpageno%></td>
+                                             <td class="text-center font-weight-bold "><%=oldpageno%> - <%=oldpageno+2%></td>
                                         </tr>
                                          
                                           <tr>
                                             <td class="text-center font-weight-bold">Chapter 7</td>
-                                            <td class="text-center font-weight-bold ">CONCLUSION</td>
+                                            <td class="text-center font-weight-bold ">ADVANTAGES</td>
                                               <% 
                                    
-                                            oldpageno = indexpageno + 3 
+                                            oldpageno = indexpageno + 5 
                                             
                                           %>
                                              <td class="text-center font-weight-bold "><%=oldpageno%></td>
@@ -834,15 +837,26 @@ let indexpageno = 14
                                          
                                           <tr>
                                             <td class="text-center font-weight-bold">Chapter 8</td>
-                                            <td class="text-center font-weight-bold ">BIBLIOGRAPHY</td>
+                                            <td class="text-center font-weight-bold ">CONCLUSION</td>
                                               <% 
                                    
-                                            oldpageno = indexpageno + 4 
+                                            oldpageno = indexpageno + 6
                                             
                                           %>
                                              <td class="text-center font-weight-bold "><%=oldpageno%></td>
                                         </tr>
 
+
+                                          <tr>
+                                            <td class="text-center font-weight-bold"></td>
+                                            <td class="text-center font-weight-bold ">BIBLIOGRAPHY</td>
+                                              <% 
+                                   
+                                            oldpageno = indexpageno + 7
+                                            
+                                          %>
+                                             <td class="text-center font-weight-bold "><%=oldpageno%></td>
+                                        </tr>
                                     </table>
 
 
@@ -1025,91 +1039,20 @@ let indexpageno = 14
 
 
 <div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
-    <div style="page-break-before: always; page-break-after: always;">
+     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">1.6 GIANT CHART</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">1.6 Giant Chart</p>
 
+   
+<div class="text-center">
+<img src="/a/img/thumbnail/giant_chart.png"  style="width:100%;height:100%">
+</div>
 
-<div class="wrapper">
-
-  <div class="gantt">
-    <div class="gantt__row gantt__row--months">
-      <div class="gantt__row-first"></div>
-      <span>Jan</span><span>Feb</span><span>Mar</span>
-      <span>Apr</span>
-      
-    </div>
-    <div class="gantt__row gantt__row--lines" data-month="5">
-      <span></span><span></span><span></span>
-      <span></span>
-     
-    </div>
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-       Literature Survey & Planning
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 4/11; background-color: #2ecaac;">Even longer project</li>
-      </ul>
-    </div>
-    <div class="gantt__row gantt__row--empty">
-      <div class="gantt__row-first">
-       Feature Finalisation with Mock-up
-      </div>
-      <ul class="gantt__row-bars"></ul>
-    </div>
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-       Front-End Development
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 2/5; background-color: #2ecaac;">Start Februar 🙌</li>
-        <li style="grid-column: 1/6; background-color: #ff6252;" class="stripes"></li>
-        <li style="grid-column: 7/11; background-color: #54c6f9;">Same line</li>
-      </ul>
-    </div>
-    <div class="gantt__row gantt__row--empty">
-      <div class="gantt__row-first">
-       Back-end Development
-      </div>
-      <ul class="gantt__row-bars"></ul>
-    </div>
-    <div class="gantt__row gantt__row--empty">
-      <div class="gantt__row-first">
-        Testing & Fault Detection
-      </div>
-      <ul class="gantt__row-bars"></ul>
-    </div>
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-        Project Report
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 2/5; background-color: #2ecaac;"></li>
-      </ul>
-    </div>
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-        Ky Verick
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 3/8; background-color: #54c6f9;">Long project</li>
-      </ul>
-    </div>
-
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-        Ketti Waterworth
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 4/9; background-color: #ff6252;" class="stripes">A title</li>
-      </ul>
-    </div>
-  </div>
 
 <div>
 <p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 5</p>
 </div>
+
 
 </div>
 
@@ -1356,7 +1299,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
    
 <div class="text-center col-12" style="margin-top: 5%">
-<img src="/a/img/thumbnail/waterfall.png" class="img" style="height: 300px;width: 70%">
+<img src="/a/img/thumbnail/waterfall.png" class="img" style="height: 700px;width: 80%">
 </div>
 
 <div>
@@ -1394,11 +1337,8 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div class="text-center">
-<img src="/a/img/thumbnail/erp.jpeg" class="img-thumbnail rounded" style="height: 400px">
+<img src="/general_overview/<%=result[3][0].general_overview_diagram%>" alt="<%=result[3][0].general_overview_diagram%>" style="width:100%;height:100%">
 </div>
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-top: 10px;color:red;"> * General Diagram will be shown after edit project report</p>
-
 
 <div>
 <p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 9</p>
@@ -1419,7 +1359,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Fifteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
 
     <div style="page-break-before: always; page-break-after: always;">
 
@@ -1427,12 +1367,10 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
+
 <div class="text-center">
-<img src="/a/img/thumbnail/erp.jpeg" class="img-thumbnail rounded" style="height: 400px">
+<img src="/use_case_diagram1/<%=result[3][0].use_case_diagram%>" alt="<%=result[3][0].use_case_diagram%>" style="width:100%;height: 100%">
 </div>
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-top: 10px;color:red;"> * Flow-Chart Images will be shown after edit project report</p>
-
 
 
 
@@ -1457,7 +1395,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Sixteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">3.4 ER Diagram</p>
@@ -1466,7 +1404,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
    
 <div class="text-center">
-<img src="/er_diagram/<%=result[3][0].er_diagram%>" class="img-thumbnail rounded" style="height: 400px">
+<img src="/er_diagram/<%=result[3][0].er_diagram%>"  style="width: 100%;height:100%">
 </div>
 
 
@@ -1490,29 +1428,82 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Seventeen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">3.5 DFD Diagram</p>
 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.5.1 Zero-Level DFD Diagram</p>
 
 
 <div class="text-center">
-<img src="/a/img/thumbnail/dfd.jpeg" class="img-thumbnail rounded" style="height: 400px">
+<img src="/dfd_diagram/<%=result[3][0].zero_level_dfd%>" alt="<%=result[3][0].zero_level_dfd%>" style="width:100%;height:100%">
 </div>
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;margin-top: 10px;color:red;"> * All DFD-Diagram Images will be shown after edit project report</p>
-
 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 12-14</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 12</p>
 </div>
 
 </div>
 
 </div>
+
+
+
+
+
+
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+
+  <div style="page-break-before: always; page-break-after: always;">
+
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.5.2 First-Level DFD Diagram</p>
+
+
+<div class="text-center">
+<img src="/dfd_diagram/<%=result[3][0].first_level_dfd%>" alt="<%=result[3][0].first_level_dfd%>" style="width:100%;height:100%">
+</div>
+
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 13</p>
+</div>
+
+</div>
+
+</div>
+
+
+
+
+
+
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+
+  <div style="page-break-before: always; page-break-after: always;">
+
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.5.3 Second-Level DFD Diagram</p>
+
+
+
+
+<div class="text-center">
+<img src="/dfd_diagram/<%=result[3][0].second_level_dfd%>" alt="<%=result[3][0].second_level_dfd%>" style="width:100%;height:100%">
+</div>
+
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 14</p>
+</div>
+
+</div>
+
+</div>
+
 
 
 <!-- Seventeen Page End -->
@@ -2343,13 +2334,88 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 
+<!-- Screenshots Start -->
+
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+    <div style="page-break-before: always; page-break-after: always;">
+
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 6 : RESULTS </p>
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.1 Css Code</p>
+
+   
+<div class="text-center">
+<img src="/images/<%=result[3][0].front_page%>" alt="<%=result[3][0].front_page%>" style="width:100%;height: 100%">
+</div>
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+</div>
+<% pageno = pageno+1%>
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+    <div style="page-break-before: always; page-break-after: always;">
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.2 User Login</p>
+
+   
+<div class="text-center">
+<img src="/images/<%=result[3][0].user_page%>"  alt="<%=result[3][0].user_page%>" style="width:100%;height: 100%">
+</div>
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+</div>
+<% pageno = pageno+1%>
+
+</div>
+
+
+</div>
+
+
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+    <div style="page-break-before: always; page-break-after: always;">
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.3 Admin Login</p>
+
+   
+<div class="text-center">
+<img src="/images/<%=result[3][0].admin_page%>" alt="<%=result[3][0].admin_page%>" style="width:100%;height: 100%">
+</div>
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+</div>
+<% pageno = pageno+1%>
+
+</div>
+
+
+</div>
+
+
+
+<!-- Screenshots End -->
+
+
+
+
 <!-- Thirty Five Page Start -->
 
 
 <div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 6 : ADVANTAGES</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 7 : ADVANTAGES</p>
 
 
 <ul>
@@ -2384,7 +2450,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 7 : CONCLUSION</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 8 : CONCLUSION</p>
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"><%=result[3][0].working_modules%>

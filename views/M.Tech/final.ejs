@@ -4,21 +4,6 @@
 <head>
   <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-150389922-1"></script>
-<script async src="//pagead2.googlesyndication.com/
-pagead/js/adsbygoogle.js"></script>
-<script>
-(adsbygoogle = window.adsbygoogle || []).push({
-google_ad_client: "pub-7230981653683251",
-enable_page_level_ads: true
-});
-</script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-150389922-1');
-</script>
 
 
 
@@ -41,7 +26,6 @@ enable_page_level_ads: true
   <!-- End Facebook Pixel Code -->
 
 
-<script data-ad-client="ca-pub-7230981653683251" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name=description content="FileMakr - Download Your Project File - <%=result[3][0].name%> - <%=result[3][0].short_description%>"/>
     <meta name=keywords content="project file, top 100 projects"/>
@@ -130,128 +114,6 @@ enable_page_level_ads: true
 
 @import url("https://fonts.googleapis.com/css?family=Roboto:100,400,700");
 
-.gantt {
-  display: grid;
-  border: 0;
-  border-radius: 12px;
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-  box-shadow: 0 75px 125px -57px #7e8f94;
-}
-.gantt__row {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  background-color: #fff;
-}
-.gantt__row:nth-child(odd) {
-  background-color: #f5f5f5;
-}
-.gantt__row:nth-child(odd) .gantt__row-first {
-  background-color: #f5f5f5;
-}
-.gantt__row:nth-child(3) .gantt__row-bars {
-  border-top: 0;
-}
-.gantt__row:nth-child(3) .gantt__row-first {
-  border-top: 0;
-}
-.gantt__row--empty {
-  background-color: #ffd6d2 !important;
-  z-index: 1;
-}
-.gantt__row--empty .gantt__row-first {
-  border-width: 1px 1px 0 0;
-}
-.gantt__row--lines {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: transparent;
-  grid-template-columns: 150px repeat(12, 1fr);
-}
-.gantt__row--lines span {
-  display: block;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-}
-.gantt__row--lines span.marker {
-  background-color: rgba(10, 52, 68, 0.13);
-  z-index: 2;
-}
-.gantt__row--lines:after {
-  grid-row: 1;
-  grid-column: 0;
-  background-color: #1688b345;
-  z-index: 2;
-  height: 100%;
-}
-.gantt__row--months {
-  color: #fff;
-  background-color: #0a3444 !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  grid-template-columns: 150px repeat(12, 1fr);
-}
-.gantt__row--months .gantt__row-first {
-  border-top: 0 !important;
-  background-color: #0a3444 !important;
-}
-.gantt__row--months span {
-  text-align: center;
-  font-size: 13px;
-  align-self: center;
-  font-weight: bold;
-  padding: 20px 0;
-}
-.gantt__row-first {
-  background-color: #fff;
-  border-width: 1px 0 0 0;
-  border-color: rgba(0, 0, 0, 0.1);
-  border-style: solid;
-  padding: 15px 0;
-  font-size: 13px;
-  font-weight: bold;
-  text-align: center;
-}
-.gantt__row-bars {
-  list-style: none;
-  display: grid;
-  padding: 9px 0;
-  margin: 0;
-  grid-template-columns: repeat(12, 1fr);
-  grid-gap: 8px 0;
-  border-top: 1px solid rgba(221, 221, 221, 0.8);
-}
-.gantt__row-bars li {
-  font-weight: 500;
-  text-align: left;
-  font-size: 14px;
-  min-height: 15px;
-  background-color: #55de84;
-  padding: 5px 12px;
-  color: #fff;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-  border-radius: 20px;
-}
-.gantt__row-bars li.stripes {
-  background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255, 255, 255, 0.1) 5px, rgba(255, 255, 255, 0.1) 12px);
-}
-.gantt__row-bars li:before, .gantt__row-bars li:after {
-  content: "";
-  height: 100%;
-  top: 0;
-  z-index: 4;
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.3);
-}
-.gantt__row-bars li:before {
-  left: 0;
-}
-.gantt__row-bars li:after {
-  right: 0;
-}
-
 tr{
   font-family:'Times New Roman', Times, serif;
     font-size:24px;
@@ -260,6 +122,10 @@ th{
  font-family:'Times New Roman', Times, serif;
     font-size:24px;
 }
+
+
+
+
 
 </style>
 
@@ -274,7 +140,8 @@ th{
 
     <%include ../navbar.ejs %>  
   
- <main id="main">
+
+  <main id="main">
 
 
    <section id="services" class="section-bg">
@@ -331,7 +198,6 @@ th{
 <!-- Start Here -->
 
           <div class="col-lg-8 col-md-8 col-sm-12"  id="section-to-print" style="display: none">
-
 
 
 
@@ -396,7 +262,7 @@ th{
 <p class="text-center third"> <%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%> )</p>
 <% } %>
 <p class="text-center fourth">In partial fulfillment of requirements for the award of the degree  </p>
-<p class="text-center third">Master of Technology (<%=result[0][0].department%>)  </p>    
+<p class="text-center third">Bachelor of Technology (<%=result[0][0].department%>)  </p>    
 <p class="text-center third">(2020) </p>    
 <p class="text-center fifth">Under the guidance of</p> 
 
@@ -712,7 +578,7 @@ We express our sincere regard and indebtedness to our project internal guide <%=
                                         </tr>
                                          <tr>
                                             <td class="text-center">3.3</td>
-                                            <td class="text-center"> Flow Chart</td>
+                                            <td class="text-center">User Flow Diagram</td>
                                              <td class="text-center">10</td>
                                         </tr>
                                          <tr>
@@ -757,7 +623,7 @@ let indexpageno = 14
 
  <tr>
                                             <td class="text-center font-weight-bold">Chapter 5</td>
-                                            <td class="text-center font-weight-bold ">TESTING AND IMPLEMENTATION</td>
+                                            <td class="text-center font-weight-bold ">TESTING </td>
                                              <% 
                                             let oldpageno = 0
                                             let endpageno = 0
@@ -854,21 +720,21 @@ let indexpageno = 14
 
                                         <tr>
                                             <td class="text-center font-weight-bold">Chapter 6</td>
-                                            <td class="text-center font-weight-bold ">ADVANTAGES</td>
+                                            <td class="text-center font-weight-bold ">RESULTS</td>
                                               <% 
                                    
                                             oldpageno = indexpageno + 2 
                                             
                                           %>
-                                             <td class="text-center font-weight-bold "><%=oldpageno%></td>
+                                             <td class="text-center font-weight-bold "><%=oldpageno%> - <%=oldpageno+2%></td>
                                         </tr>
                                          
                                           <tr>
                                             <td class="text-center font-weight-bold">Chapter 7</td>
-                                            <td class="text-center font-weight-bold ">CONCLUSION</td>
+                                            <td class="text-center font-weight-bold ">ADVANTAGES</td>
                                               <% 
                                    
-                                            oldpageno = indexpageno + 3 
+                                            oldpageno = indexpageno + 5 
                                             
                                           %>
                                              <td class="text-center font-weight-bold "><%=oldpageno%></td>
@@ -876,10 +742,22 @@ let indexpageno = 14
                                          
                                           <tr>
                                             <td class="text-center font-weight-bold">Chapter 8</td>
+                                            <td class="text-center font-weight-bold ">CONCLUSION</td>
+                                              <% 
+                                   
+                                            oldpageno = indexpageno + 6
+                                            
+                                          %>
+                                             <td class="text-center font-weight-bold "><%=oldpageno%></td>
+                                        </tr>
+
+
+                                          <tr>
+                                            <td class="text-center font-weight-bold"></td>
                                             <td class="text-center font-weight-bold ">BIBLIOGRAPHY</td>
                                               <% 
                                    
-                                            oldpageno = indexpageno + 4 
+                                            oldpageno = indexpageno + 7
                                             
                                           %>
                                              <td class="text-center font-weight-bold "><%=oldpageno%></td>
@@ -1057,93 +935,21 @@ let indexpageno = 14
 
 <!-- TENTH Page Start -->
 
-
-<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1400px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">1.6 GIANT CHART</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">1.6 Giant Chart</p>
 
+   
+<div class="text-center">
+<img src="/a/img/thumbnail/giant_chart.png"  style="width:100%;height:100%">
+</div>
 
-<div class="wrapper">
-
-  <div class="gantt">
-    <div class="gantt__row gantt__row--months">
-      <div class="gantt__row-first"></div>
-      <span>Jan</span><span>Feb</span><span>Mar</span>
-      <span>Apr</span>
-      
-    </div>
-    <div class="gantt__row gantt__row--lines" data-month="5">
-      <span></span><span></span><span></span>
-      <span></span>
-     
-    </div>
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-       Literature Survey & Planning
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 4/11; background-color: #2ecaac;">Even longer project</li>
-      </ul>
-    </div>
-    <div class="gantt__row gantt__row--empty">
-      <div class="gantt__row-first">
-       Feature Finalisation with Mock-up
-      </div>
-      <ul class="gantt__row-bars"></ul>
-    </div>
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-       Front-End Development
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 2/5; background-color: #2ecaac;">Start Februar 🙌</li>
-        <li style="grid-column: 1/6; background-color: #ff6252;" class="stripes"></li>
-        <li style="grid-column: 7/11; background-color: #54c6f9;">Same line</li>
-      </ul>
-    </div>
-    <div class="gantt__row gantt__row--empty">
-      <div class="gantt__row-first">
-       Back-end Development
-      </div>
-      <ul class="gantt__row-bars"></ul>
-    </div>
-    <div class="gantt__row gantt__row--empty">
-      <div class="gantt__row-first">
-        Testing & Fault Detection
-      </div>
-      <ul class="gantt__row-bars"></ul>
-    </div>
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-        Project Report
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 2/5; background-color: #2ecaac;"></li>
-      </ul>
-    </div>
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-        Ky Verick
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 3/8; background-color: #54c6f9;">Long project</li>
-      </ul>
-    </div>
-
-    <div class="gantt__row">
-      <div class="gantt__row-first">
-        Ketti Waterworth
-      </div>
-      <ul class="gantt__row-bars">
-        <li style="grid-column: 4/9; background-color: #ff6252;" class="stripes">A title</li>
-      </ul>
-    </div>
-  </div>
 
 <div>
 <p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 5</p>
 </div>
+
 
 </div>
 
@@ -1403,7 +1209,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
    
 <div class="text-center col-12" style="margin-top: 5%">
-<img src="/a/img/thumbnail/waterfall.png" class="img" style="height:700px">
+<img src="/a/img/thumbnail/waterfall.png" class="img" style="height:700px;width:700px;">
 </div>
 
 
@@ -1441,10 +1247,9 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div class="text-center">
-<img src="/a/img/thumbnail/erp.jpeg" class="img-thumbnail rounded" style="height: 400px">
+<img src="/general_overview/<%=result[3][0].general_overview_diagram%>" alt="<%=result[3][0].general_overview_diagram%>" style="width:100%;height:100%">
 </div>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-top: 10px;color:red;"> * General Diagram will be shown after edit project report</p>
 
 
 <div>
@@ -1470,18 +1275,13 @@ This section has screenshots of all the implementation i.e. user interface and t
 
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.3 Flow Chart</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.3 Use Case Diagram</p>
 
 
 
 <div class="text-center">
-<img src="/a/img/thumbnail/erp.jpeg" class="img-thumbnail rounded" style="height: 400px">
+<img src="/use_case_diagram1/<%=result[3][0].use_case_diagram%>" alt="<%=result[3][0].use_case_diagram%>" style="width:100%;height: 100%">
 </div>
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-top: 10px;color:red;"> * Flow-Chart Images will be shown after edit project report</p>
-
-
-
 
 
 <div>
@@ -1500,20 +1300,17 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
-
 <!-- Sixteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1400px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.4 ER Diagram</p>
 
-
-
    
 <div class="text-center">
-<img src="/er_diagram/<%=result[3][0].er_diagram%>" class="img-thumbnail rounded" style="height: 400px">
+<img src="/er_diagram/<%=result[3][0].er_diagram%>"  style="width: 100%;height:100%">
 </div>
 
 
@@ -1542,19 +1339,16 @@ This section has screenshots of all the implementation i.e. user interface and t
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.5 DFD Diagram</p>
 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.5.1 Zero-Level DFD Diagram</p>
 
 
 <div class="text-center">
-<img src="/a/img/thumbnail/dfd.jpeg" class="img-thumbnail rounded" style="height: 400px">
+<img src="/dfd_diagram/<%=result[3][0].zero_level_dfd%>" alt="<%=result[3][0].zero_level_dfd%>" style="width:100%;height:100%">
 </div>
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-top: 10px;color:red;"> * All DFD-Diagram Images will be shown after edit project report</p>
-
-
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 12-14</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 12</p>
 </div>
 
 </div>
@@ -1566,6 +1360,61 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
+<!-- Seventeen Page Start -->
+
+
+<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
+
+  <div style="page-break-before: always; page-break-after: always;">
+
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.5.2 First-Level DFD Diagram</p>
+
+
+<div class="text-center">
+<img src="/dfd_diagram/<%=result[3][0].first_level_dfd%>" alt="<%=result[3][0].first_level_dfd%>" style="width:100%;height:100%">
+</div>
+
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 13</p>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- Seventeen Page End -->
+
+
+
+<!-- Seventeen Page Start -->
+
+
+<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
+
+  <div style="page-break-before: always; page-break-after: always;">
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.5.3 Second-Level DFD Diagram</p>
+
+
+
+<div class="text-center">
+<img src="/dfd_diagram/<%=result[3][0].second_level_dfd%>" alt="<%=result[3][0].second_level_dfd%>" style="width:100%;height:100%">
+</div>
+
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 14</p>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- Seventeen Page End -->
 
 
 
@@ -1833,21 +1682,15 @@ MySQL is a component of the LAMP web application software stack (and others), wh
 
 
 
-
-
-
-
 <!-- Twenty Three Page Start -->
 
 
 <div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 5 : TESTING AND IMPLEMENTATION</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 5 : TESTING </p>
 
 
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px">  The term implementation has different meanings ranging from the conversation of a basic application to a complete replacement of a computer system. The procedures however, are virtually the same. Implementation includes all those activities that take place to convert from old system to new. The new system may be totally new replacing an existing manual or automated system or it may be major modification to an existing system. The method of implementation and time scale to be adopted is found out initially. Proper implementation is essential to provide a reliable system to meet organization requirement.</p>
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;margin-left: 70px;margin-right:70px;">5.1 : UNIT TESTING</p>
@@ -2392,13 +2235,92 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 
+
+
+<!-- Screenshots Start -->
+
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1400px">
+    <div style="page-break-before: always; page-break-after: always;">
+
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 6 : RESULTS </p>
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.1 Css Code</p>
+
+   
+<div class="text-center">
+<img src="/images/<%=result[3][0].front_page%>" alt="<%=result[3][0].front_page%>" style="width:100%;height: 100%">
+</div>
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+</div>
+<% pageno = pageno+1%>
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1400px">
+    <div style="page-break-before: always; page-break-after: always;">
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.2 User Login</p>
+
+   
+<div class="text-center">
+<img src="/images/<%=result[3][0].user_page%>"  alt="<%=result[3][0].user_page%>" style="width:100%;height: 100%">
+</div>
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+</div>
+<% pageno = pageno+1%>
+
+</div>
+
+
+</div>
+
+
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1400px">
+    <div style="page-break-before: always; page-break-after: always;">
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.3 Admin Login</p>
+
+   
+<div class="text-center">
+<img src="/images/<%=result[3][0].admin_page%>" alt="<%=result[3][0].admin_page%>" style="width:100%;height: 100%">
+</div>
+
+<div>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+</div>
+<% pageno = pageno+1%>
+
+</div>
+
+
+</div>
+
+
+
+<!-- Screenshots End -->
+
+
+
+
+
+
 <!-- Thirty Five Page Start -->
 
 
 <div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 6 : ADVANTAGES</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 7 : ADVANTAGES</p>
 
 
 <ul>
@@ -2433,7 +2355,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 7 : CONCLUSION</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 8 : CONCLUSION</p>
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"><%=result[3][0].working_modules%>
@@ -2462,7 +2384,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 8 : BIBLIOGRAPHY </p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;"> BIBLIOGRAPHY </p>
 
 
 <ul>

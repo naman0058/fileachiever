@@ -61,7 +61,9 @@ if(req.session.deviceInfo == 'mobile'){
            var query1 = `select * from programming_language where id = "${result[0].html}" || id = "${result[0].css}" || id = "${result[0].bootstrap}" || id = "${result[0].javascript}" || id = "${result[0].jquery}" || id = "${result[0].json}" || id = "${result[0].react}" || id = "${result[0].angular}"  ;`
            var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
            var query3 = `select * from project where id = "${result[0].projectid}";`
-           pool.query(query+query1+query2+query3,(err,result)=>{
+           //For Testing
+             var query4 = `select name ,er_diagram , general_overview_diagram , use_case_diagram from project where er_diagram is not null;`
+           pool.query(query+query1+query2+query3+query4,(err,result)=>{
                if(err) throw err;
                else res.render('B.Tech/mobile_view',{result:result})
            })
@@ -84,7 +86,9 @@ else{
            var query1 = `select * from programming_language where id = "${result[0].html}" || id = "${result[0].css}" || id = "${result[0].bootstrap}" || id = "${result[0].javascript}" || id = "${result[0].jquery}" || id = "${result[0].json}" || id = "${result[0].react}" || id = "${result[0].angular}"  ;`
            var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
            var query3 = `select * from project where id = "${result[0].projectid}";`
-           pool.query(query+query1+query2+query3,(err,result)=>{
+         //For Testing
+           var query4 = `select name ,er_diagram , general_overview_diagram , use_case_diagram from project where er_diagram is not null;`
+           pool.query(query+query1+query2+query3+query4,(err,result)=>{
                if(err) throw err;
                else res.render('B.Tech/final',{result:result})
            })
