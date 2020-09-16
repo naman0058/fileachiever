@@ -16,8 +16,7 @@ today = yyyy + '-' + mm + '-' + dd;
 
 
 
-router.get('/', (req, res) => { pool.query(`select name,seo_name,short_description from project where er_diagram is not null`,
-(err,result)=>err ? console.log(err) : res.render('ieee/ieeeproject',{result:result}))
+router.get('/', (req, res) => { res.redirect('/btech-final-year-project-report')
 })
 
 

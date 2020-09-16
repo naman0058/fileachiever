@@ -27,18 +27,15 @@ router.post('/contactus',(req,res)=>{
     pool.query(`insert into contactus set ?`,body,(err,result)=>err ? console.log(err) : res.send('OK'))
 })
 
-router.get('/synopsis', (req, res) => { pool.query(`select name,seo_name,short_description from project`,
-(err,result)=>err ? console.log(err) : res.render('synopsis',{result:result}))
+router.get('/synopsis', (req, res) => { 
+    res.redirect('/btech-final-year-project-report')
 })
+
 
 
 //old route
 router.get('/cse/:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
-    var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
-    pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('B.Tech/preview',{result:result})
-    })
+    res.redirect(`/btech-final-year-project-report-${req.params.name}`)
 })
 
 
@@ -106,11 +103,7 @@ router.get('/mca-final-year-project-report-:name',(req,res)=>{
 
 
 router.get('/cse/synopsis/:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
-    var query1 = `select * from programming_language where name = 'PHP' || name = 'JavaScript' || name = 'HTML' || name='CSS' || name = 'Jquery' || name = 'JSON';`
-    pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('synopsis-preview',{result:result})
-    })
+    res.redirect(`/btech-final-year-project-report-${req.params.name}`)
 })
 
 
@@ -118,11 +111,7 @@ router.get('/cse/synopsis/:name',(req,res)=>{
 
 
 router.get('/ieee-standard-project-report-:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
-    var query1 = `select * from programming_language where name = 'PHP' || name = 'JavaScript' || name = 'HTML' || name='CSS' || name = 'Jquery' || name = 'JSON';`
-    pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('ieee/preview',{result:result})
-    })
+   res.redirect(`/btech-final-year-project-report-${req.params.name}`)
 })
 
 
