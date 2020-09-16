@@ -27,6 +27,7 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
     body['college_logo'] = req.files['college_logo'][0].filename
     body['affilated_college_logo'] = req.files['affilated_college_logo'][0].filename
     body['date'] = today
+    body['view'] = req.session.deviceInfo
     req.session.roll_number = body.roll_number
     console.log(req.body)
     pool.query(`insert into ${table} set ?`,body,(err,result)=>{

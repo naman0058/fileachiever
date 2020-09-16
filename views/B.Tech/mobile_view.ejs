@@ -93,16 +93,16 @@
   }
   .second{
     font-family:'Times New Roman', Times, serif;
-    font-size:18px;
+    font-size:20px;
   }
   .third{
    font-family:'Times New Roman', Times, serif;
-    font-size:18px;
+    font-size:20px;
     font-weight: bold; 
   }
   .fourth{
    font-family:'Times New Roman', Times, serif;
-   font-size:18px;
+   font-size:20px;
    font-style: italic;
   }
    .fifth{
@@ -238,11 +238,11 @@
 
 tr{
   font-family:'Times New Roman', Times, serif;
-    font-size:18px;
+    font-size:20px;
 }
 th{
  font-family:'Times New Roman', Times, serif;
-    font-size:18px;
+    font-size:20px;
 }
 
 
@@ -327,7 +327,7 @@ th{
 <!-- First Page -->
 
 
-     <div class="col-12"  style="margin-left: 0px;margin-right: 20px;margin-top: 10%;">
+     <div class="col-12"  style="margin-left: 0px;margin-right: 20px;margin-top: 15%;">
 
         <div style="page-break-before: always; page-break-after: always;">
 
@@ -349,7 +349,7 @@ th{
 <p class="text-center third">(2020) </p>    
 <p class="text-center fifth">Under the guidance of</p> 
 
-<div class="row" style="margin-top: 10%">
+<div class="row" style="margin-top: 15%">
 <div class="col-6">
   <p class="text-center second"> <%=result[0][0].professor_name%></p>
   <p class="text-center second">Professor </p>
@@ -363,18 +363,18 @@ th{
 </div>
  <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
 <div style="margin-top: 30%">
-<p class="text-center" style=" font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;"> <%=result[0][0].college_name%> </p>  
+<p class="text-center" style=" font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;"> <%=result[0][0].college_name%> </p>  
  
-<p class="text-center" style=" font-family:'Times New Roman', Times, serif;font-size:18px;"> <%=result[0][0].college_address%></p> 
+<p class="text-center" style=" font-family:'Times New Roman', Times, serif;font-size:20px;"> <%=result[0][0].college_address%></p> 
 
 </div>
 
 
 <% } else { %>
 <div style="margin-top: 15%">
-<p class="text-center" style=" font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;"> <%=result[0][0].college_name%> </p>  
+<p class="text-center" style=" font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;"> <%=result[0][0].college_name%> </p>  
  
-<p class="text-center" style=" font-family:'Times New Roman', Times, serif;font-size:18px;"> <%=result[0][0].college_address%></p> 
+<p class="text-center" style=" font-family:'Times New Roman', Times, serif;font-size:20px;"> <%=result[0][0].college_address%></p> 
 
 </div>
 
@@ -393,22 +393,22 @@ th{
 
 <!-- Second Page -->
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;">
   <div style="page-break-before: always; page-break-after: always;">
 <div class="text-center">
 <img src="/images/<%=result[0][0].college_logo%>" alt=" <%=result[0][0].college_name%> collge logo" class="img" style="height: 190px">
 </div>
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; margin-top: 5%"><%=result[0][0].college_name%> </p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold; margin-top: 5%"><%=result[0][0].college_name%> </p>
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; ">Department of <%=result[0][0].department%></p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold; ">Department of <%=result[0][0].department%></p>
 
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:22px;font-weight: bold;"><u>Certificate</u></p>
 
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
   This is to certify that
 <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
    <%=result[0][0].name%> (<%=result[0][0].roll_number%>),
@@ -418,7 +418,7 @@ th{
     student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the Major Project titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
 
 
-<div class="row" style="margin-top: 10%">
+<div class="row" style="margin-top: 15%">
 <div class="col-6">
   <p class="text-center second"><%=result[0][0].professor_name%></p>
   <p class="text-center second">Professor </p>
@@ -443,16 +443,16 @@ th{
 
 <!-- Third Page -->
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;">
   <div style="page-break-before: always; page-break-after: always;">
 <div class="text-center">
 <img src="/images/<%=result[0][0].college_logo%>" alt=" <%=result[0][0].college_name%> collge logo" class="img" style="height: 190px">
 
 </div>
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;margin-top: 5% "><%=result[0][0].college_name%></p>
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold; ">Department of <%=result[0][0].department%></p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;margin-top: 5% "><%=result[0][0].college_name%></p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold; ">Department of <%=result[0][0].department%></p>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:22px;font-weight: bold;"><u>Certificate</u></p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
   This is to certify that
 <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
    <%=result[0][0].name%> (<%=result[0][0].roll_number%>),
@@ -462,7 +462,7 @@ th{
  student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the Major Project titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
 
 
-<div class="row" style="margin-top: 10%">
+<div class="row" style="margin-top: 15%">
 <div class="col-6">
   <p class="text-center second">External Examiner</p>
   <p class="text-center second">Signature</p>
@@ -493,10 +493,10 @@ th{
 
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;">
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">ACKNOWLEDGEMENT</p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">ACKNOWLEDGEMENT</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
 
 
 <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
@@ -504,7 +504,7 @@ th{
  I express my sincere regard and indebtedness to my project internal guide <%=result[0][0].professor_name%>, for his valuable time, guidance, encouragement, support and cooperation throughout the duration of our project. I would sincerely like to thank IT Department for giving me the opportunity to work on enhancing my technical skills while undergoing this project. This project was done under the guidance of <%=result[0][0].professor_name%>, Head of Department. This project helped in understanding the various parameters which are involved in the development of a web application and the working and integration of front end along with the back end to create a fully functional web application.</p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
  I would like to thank <%=result[0][0].hod_name%>, Head of Department and whole of department for their constant support.
 </p>
 
@@ -525,7 +525,7 @@ We express our sincere regard and indebtedness to our project internal guide <%=
 
 
 
-<div class="row" style="margin-top: 10%">
+<div class="row" style="margin-top: 15%">
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
 <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
@@ -558,10 +558,10 @@ We express our sincere regard and indebtedness to our project internal guide <%=
 <!-- Fifth Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;">
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">ABSTRACT</p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">ABSTRACT</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
  <%=result[3][0].objective%>      
 </p>
 
@@ -587,7 +587,7 @@ We express our sincere regard and indebtedness to our project internal guide <%=
 <div class="col-lg-12" style="margin-right: 20px;margin-top: 5%;">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">INDEX</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">INDEX</p>
 
 
  <table class="table table-bordered">
@@ -873,27 +873,27 @@ let indexpageno = 14
 <!-- Sixth Page Start -->
 
     <div style="page-break-before: always; page-break-after: always;">
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px;">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px;">
 
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 1 : INTRODUCTION</p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;margin-top: 5%">1.1 INTRODUCTION</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 1 : INTRODUCTION</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;margin-top: 5%">1.1 INTRODUCTION</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px">
  <%=result[3][0].overview%>      
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">
 1.2 AIM</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
  <%=result[3][0].aim%>      
 </p>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 1</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 1</p>
 </div>
 </div>
 
@@ -910,24 +910,24 @@ let indexpageno = 14
 <!-- Seventh Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">1.3 SCOPE</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">1.3 SCOPE</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
  <%=result[3][0].overview%>      
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">
 1.4 EXISTING SYSTEM</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
  <%=result[3][0].aim%>      
 </p>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 2</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 2</p>
 </div>
 </div>
 
@@ -944,30 +944,30 @@ let indexpageno = 14
 <!-- EIGHT Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">1.5 FEASIBILITY STUDY</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">1.5 FEASIBILITY STUDY</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
   A feasibility study is a high-level capsule version of the entire System analysis and Design Process. The study begins by classifying the problem definition. Feasibility is to determine if it’s worth doing. Once an acceptance problem definition has been generated, the analyst develops a logical model of the system. A search for alternatives is analyzed carefully. There are 3 parts in feasibility study.
 </p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
  1) Operational Feasibility
 </p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
 2) Technical Feasibility
 </p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
  3) Economical Feasibility
 </p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">
 1.5.1 OPERATIONAL FEASIBILITY</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px;">
  Operational feasibility is the measure of how well a proposed system solves the problems, and takes advantage of the opportunities identified during scope definition and how it satisfies the requirements identified in the requirements analysis phase of system development.The operational feasibility assessment focuses on the degree to which the proposed development projects fits in with the existing business environment and objectives with regard to development schedule, delivery date, corporate culture and existing business processes.To ensure success, desired operational outcomes must be imparted during design and development. These include such design-dependent parameters as reliability, maintainability, supportability, usability, producibility, disposability, sustainability, affordability and others. These parameters are required to be considered at the early stages of design if desired operational behaviours are to be realised. A system design and development requires appropriate and timely application of engineering and management efforts to meet the previously mentioned parameters. A system may serve its intended purpose most effectively when its technical and operating characteristics are engineered into the design. Therefore, operational feasibility is a critical aspect of systems engineering that needs to be an integral part of the early design phases.    
 </p>
 
@@ -975,7 +975,7 @@ let indexpageno = 14
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 3</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 3</p>
 </div>
 
 </div>
@@ -997,25 +997,25 @@ let indexpageno = 14
 <!-- NINTH Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">1.5.2 TECHNICAL FEASIBILITY</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">1.5.2 TECHNICAL FEASIBILITY</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
   This involves questions such as whether the technology needed for the system exists, how difficult it will be to build, and whether the firm has enough experience using that technology. The assessment is based on outline design of system requirements in terms of input, processes, output, fields, programs and procedures. This can be qualified in terms of volume of data, trends, frequency of updating inorder to give an introduction to the technical system. The application is the fact that it has been developed on windows XP platform and a high configuration of 1GB RAM on Intel Pentium Dual core processor. This is technically feasible .The technical feasibility assessment is focused on gaining an understanding of the present technical resources of the organization and their applicability to the expected needs of the proposed system. It is an evaluation of the hardware and software and how it meets the need of the proposed system.
 </p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">
 1.5.3 ECONOMICAL FEASIBILITY</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
  Establishing the cost-effectiveness of the proposed system i.e. if the benefits do not outweigh the costs then it is not worth going ahead. In the fast paced world today there is a great need of online social networking facilities. Thus the benefits of this project in the current scenario make it economically feasible. The purpose of the economic feasibility assessment is to determine the positive economic benefits to the organization that the proposed system will provide. It includes quantification and identification of all the benefits expected. This assessment typically involves a cost/benefits analysis.
 </p>
 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 4</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 4</p>
 </div>
 
 
@@ -1038,7 +1038,7 @@ let indexpageno = 14
 <!-- TENTH Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
      <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">1.6 Giant Chart</p>
@@ -1050,7 +1050,7 @@ let indexpageno = 14
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 5</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 5</p>
 </div>
 
 
@@ -1068,50 +1068,50 @@ let indexpageno = 14
 <!-- Eleven Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">1.7 ORGANISATION OF THE REPORT</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">1.7 ORGANISATION OF THE REPORT</p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
 1.7.1 INTRODUCTION
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 This section includes the overall view of the project i.e. the basic problem definition and the general overview of the problem which describes the problem in layman terms. It also specifies the software used and the proposed solution strategy. 
 </p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
 1.7.2 SOFTWARE REQUIREMENTS SPECIFICATION
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 This section includes the Software and hardware requirements for the smooth running of the application.
 </p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
 1.7.3 DESIGN & PLANNING
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 This section consists of the Software Development Life Cycle model. It also contains technical diagrams like the Data Flow Diagram and the Entity Relationship diagram.
 </p>
 
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
 1.7.4 IMPLEMENTATION DETAILS
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 This section describes the different technologies used for the entire development process of the Front-end as well as the Back-end development of the application.
 </p>
 
@@ -1120,12 +1120,12 @@ This section describes the different technologies used for the entire developmen
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
 1.7.5 RESULTS AND DISCUSSION
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 This section has screenshots of all the implementation i.e. user interface and their description.
 </p>
 
@@ -1133,19 +1133,19 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
 1.7.6 SUMMARY AND CONCLUSION
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 This section has screenshots of all the implementation i.e. user interface and their description.
 </p>
 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 6</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 6</p>
 </div>
 
 
@@ -1170,9 +1170,9 @@ This section has screenshots of all the implementation i.e. user interface and t
 <div class="col-lg-12" style="margin-left: 10px;margin-right: 0px;margin-top: 5%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 2 : SOFTWARE REQUIREMENTS SPECIFICATION</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 2 : SOFTWARE REQUIREMENTS SPECIFICATION</p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;margin-top: 10%">2.1 Hardware Requirements</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;margin-top: 15%">2.1 Hardware Requirements</p>
 
 
 
@@ -1202,7 +1202,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;margin-top: 10%">2.2 Software Requirements</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;margin-top: 15%">2.2 Software Requirements</p>
 
  <table class="table table-bordered">
                                     <tr>
@@ -1242,7 +1242,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 7</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 7</p>
 </div>
 
 
@@ -1262,48 +1262,48 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Thirteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 3 : DESIGN & PLANNING</p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">3.1 Software Development Life Cycle Model</p>
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">3.1.1 WATERFALL MODEL</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 3 : DESIGN & PLANNING</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.1 Software Development Life Cycle Model</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.1.1 WATERFALL MODEL</p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">The waterfall model was selected as the SDLC model due to the following reasons:</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">The waterfall model was selected as the SDLC model due to the following reasons:</p>
 
-<ul class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Requirements were very well documented, clear and fixed.</li>
-
-
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Technology was adequately understood.</li>
+<ul class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Requirements were very well documented, clear and fixed.</li>
 
 
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Simple and easy to understand and use.</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Technology was adequately understood.</li>
 
 
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">There were no ambiguous requirements.</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Simple and easy to understand and use.</li>
 
 
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Easy to manage due to the rigidity of the model. Each phase has specific deliverables and a review process.</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">There were no ambiguous requirements.</li>
 
 
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Clearly defined stages.</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Easy to manage due to the rigidity of the model. Each phase has specific deliverables and a review process.</li>
+
+
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Clearly defined stages.</li>
 
 
 
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Well understood milestones.Easy to arrange tasks.</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Well understood milestones.Easy to arrange tasks.</li>
 
 </ul>
 
 
    
 <div class="text-center col-12" style="margin-top: 5%">
-<img src="/a/img/thumbnail/waterfall.png" class="img" style="height: 700px;width: 80%">
+<img src="/a/img/thumbnail/waterfall.png" class="img" style="height: 700px;width: 70%">
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 8</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 8</p>
 </div>
 
 </div>
@@ -1327,11 +1327,11 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Fourteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">3.2 GENERAL OVERVIEW</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.2 GENERAL OVERVIEW</p>
 
 
 
@@ -1341,7 +1341,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 9</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 9</p>
 </div>
 
 </div>
@@ -1359,11 +1359,11 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Fifteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">3.3 Flow Chart</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.3 Flow Chart</p>
 
 
 
@@ -1376,7 +1376,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 10</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 10</p>
 </div>
 
 </div>
@@ -1395,10 +1395,10 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Sixteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">3.4 ER Diagram</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.4 ER Diagram</p>
 
 
 
@@ -1409,7 +1409,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 11</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 11</p>
 </div>
 
 
@@ -1428,10 +1428,10 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Seventeen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">3.5 DFD Diagram</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.5 DFD Diagram</p>
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">3.5.1 Zero-Level DFD Diagram</p>
 
@@ -1443,7 +1443,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 12</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 12</p>
 </div>
 
 </div>
@@ -1455,7 +1455,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
@@ -1469,7 +1469,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 13</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 13</p>
 </div>
 
 </div>
@@ -1481,7 +1481,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
@@ -1497,7 +1497,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 14</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 14</p>
 </div>
 
 </div>
@@ -1517,17 +1517,17 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Eighteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
   <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 4 : IMPLEMENTATION DETAILS</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 4 : IMPLEMENTATION DETAILS</p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;">In this Section we will do Analysis of Technologies to use for implementing the project.</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;">In this Section we will do Analysis of Technologies to use for implementing the project.</p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">4.1 : FRONT END</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">4.1 : FRONT END</p>
 
 
 <% let j = 0
@@ -1536,24 +1536,24 @@ This section has screenshots of all the implementation i.e. user interface and t
 <% for(i=0;i<1;i++) { %>
 <% j = j+1; %>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">4.1.<%=j%>   <%=result[1][i].name%> &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">4.1.<%=j%>   <%=result[1][i].name%> &nbsp;&nbsp;
 <img src="/programming_logo/<%=result[1][i].logo%>" alt="<%=result[1][i].name%> icon" style="width:50px">
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[1][i].description%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[1][i].description%></p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[1][i].description2%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[1][i].description2%></p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[1][i].description3%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[1][i].description3%></p>
 
 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 
 
@@ -1581,33 +1581,33 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 <% for(i=1;i<result[1].length;i++) { %>
 <% j = j+1; %>
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
 
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">4.1.<%=j%>   <%=result[1][i].name%> &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">4.1.<%=j%>   <%=result[1][i].name%> &nbsp;&nbsp;
 <img src="/programming_logo/<%=result[1][i].logo%>" alt="<%=result[1][i].name%> icon" style="width:50px">
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[1][i].description%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[1][i].description%></p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[1][i].description2%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[1][i].description2%></p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[1][i].description3%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[1][i].description3%></p>
 
 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno + 1 %>
 </div>
@@ -1628,32 +1628,32 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Twenty Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
   <div style="page-break-before: always; page-break-after: always;">
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">4.2 : BACK END</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">4.2 : BACK END</p>
 
 
 <% for(i=0;i<1;i++) { %>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">4.2.1   <%=result[2][i].name%> &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">4.2.1   <%=result[2][i].name%> &nbsp;&nbsp;
 <img src="/programming_logo/<%=result[2][i].logo%>" alt="<%=result[2][i].name%> icon" style="width:50px">
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[2][i].description%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[2][i].description%></p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[2][i].description2%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[2][i].description2%></p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[2][i].description3%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[2][i].description3%></p>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 
 <% pageno = pageno+1%>
@@ -1677,29 +1677,29 @@ This section has screenshots of all the implementation i.e. user interface and t
 <% if(result[2].length>1) {
 
 for(i=1;i<result[2].length;i++) { %>
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
  <div style="page-break-before: always; page-break-after: always;">
 
 
 
  
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;margin-left: 70px;margin-right:70px">4.2.1   <%=result[2][i].name%> &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;margin-left: 70px;margin-right:70px">4.2.1   <%=result[2][i].name%> &nbsp;&nbsp;
 <img src="/programming_logo/<%=result[2][i].logo%>" alt="<%=result[2][i].name%> icon" style="width:50px">
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[2][i].description%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[2][i].description%></p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[2][i].description2%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[2][i].description2%></p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> <%=result[2][i].description3%></p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> <%=result[2][i].description3%></p>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 
 <% pageno = pageno+1%>
@@ -1719,22 +1719,22 @@ for(i=1;i<result[2].length;i++) { %>
 <!-- Twenty Two Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">4.2.2   MySQL &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">4.2.2   MySQL &nbsp;&nbsp;
 <img src="/programming_logo/mysql.png" alt="mysql icon" style="width:50px">
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 
 MySQL is an open-source relational database management system (RDBMS) based on Structured Query Language (SQL).Its name is a combination of "My", the name of co-founder Michael Widenius's daughter, and "SQL", the abbreviation for Structured Query Language. A relational database organizes data into one or more data tables in which data types may be related to each other; these relations help structure the data. SQL is a language programmers use to create, modify and extract data from the relational database, as well as control user access to the database. In addition to relational databases and SQL, an RDBMS like MySQL works with an operating system to implement a relational database in a computer's storage system, manages users, allows for network access and facilitates testing database integrity and creation of backups.
 
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 
 MySQL is pretty easy to master in comparison with other database software like Oracle Database, or Microsoft SQL Server.
 
@@ -1747,14 +1747,14 @@ The official way to pronounce MySQL is My Ess Que Ell, not My Sequel. However, y
 <p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 
 MySQL is free and open-source software under the terms of the GNU General Public License, and is also available under a variety of proprietary licenses. MySQL was owned and sponsored by the Swedish company MySQL AB, which was bought by Sun Microsystems (now Oracle Corporation).In 2010, when Oracle acquired Sun, Widenius forked the open-source MySQL project to create MariaDB.
 
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">
 
 MySQL is a component of the LAMP web application software stack (and others), which is an acronym for Linux, Apache, MySQL, Perl/PHP/Python. MySQL is used by many database-driven web applications, including Drupal, Joomla, phpBB, and WordPress. MySQL is also used by many popular websites, including Facebook, Youtube, Twitter and so on.
 
@@ -1765,7 +1765,7 @@ MySQL is a component of the LAMP web application software stack (and others), wh
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1784,31 +1784,31 @@ MySQL is a component of the LAMP web application software stack (and others), wh
 <!-- Twenty Three Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 5 : TESTING AND IMPLEMENTATION</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 5 : TESTING AND IMPLEMENTATION</p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">  The term implementation has different meanings ranging from the conversation of a basic application to a complete replacement of a computer system. The procedures however, are virtually the same. Implementation includes all those activities that take place to convert from old system to new. The new system may be totally new replacing an existing manual or automated system or it may be major modification to an existing system. The method of implementation and time scale to be adopted is found out initially. Proper implementation is essential to provide a reliable system to meet organization requirement.</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">  The term implementation has different meanings ranging from the conversation of a basic application to a complete replacement of a computer system. The procedures however, are virtually the same. Implementation includes all those activities that take place to convert from old system to new. The new system may be totally new replacing an existing manual or automated system or it may be major modification to an existing system. The method of implementation and time scale to be adopted is found out initially. Proper implementation is essential to provide a reliable system to meet organization requirement.</p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.1 : UNIT TESTING</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.1 : UNIT TESTING</p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.1.1   Introduction &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.1.1   Introduction &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 In computer programming, unit testing is a software testing method by which individual units of source code, sets of one or more computer program modules together with associated control data, usage procedures, and operating procedures, are tested to determine whether they are fit for use. Intuitively, one can view a unit as the smallest testable part of an application. In procedural programming, a unit could be an entire module, but it is more commonly an individual function or procedure. In object-oriented programming, a unit is often an entire interface, such as a class, but could be an individual method. Unit tests are short code fragments created by programmers or occasionally by white box testers during the development process. It forms the basis for component testing. Ideally, each test case is independent from the others. Substitutes such as method stubs, mock objects, fakes, and test harnesses can be used to assist testing a module in isolation. Unit tests are typically written and run by software developers to ensure that code meets its design and behaves as intended.
 
 </p>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1824,14 +1824,14 @@ In computer programming, unit testing is a software testing method by which
 <!-- Twenty Four Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.1.2   Benifits &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.1.2   Benifits &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 The goal of unit testing is to isolate each part of the program and show that the individual parts are correct. A unit test provides a strict, written contract that the piece of code must satisfy. As a result, it affords several benefits.
 
 </p>
@@ -1839,33 +1839,33 @@ The goal of unit testing is to isolate each part of the program and show that th
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
    <strong>  1) Find problems early :  </strong>
 Unit testing finds problems early in the development cycle. In test-driven development (TDD), which is frequently used in both extreme programming and scrum, unit tests are created before the code itself is written. When the tests pass, that code is considered complete. The same unit tests are run against that function frequently as the larger code base is developed either as the code is changed or via an automated process with the build. If the unit tests fail, it is considered to be a bug either in the changed code or the tests themselves. The unit tests then allow the location of the fault or failure to be easily traced. Since the unit tests alert the development team of the problem before handing the code off to testers or clients, it is still early in the development process.
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 <strong>2 ) Facilitates Change : </strong>
  Unit testing allows the programmer to refactor code or upgrade system libraries at a later date, and make sure the module still works correctly (e.g., in regression testing). The procedure is to write test cases for all functions and methods so that whenever a change causes a fault, it can be quickly identified. Unit tests detect changes which may break a design contract.
 
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 <strong>3 ) Simplifies Integration : </strong>
 Unit testing may reduce uncertainty in the units themselves and can be used in a bottom-up testing style approach. By testing the parts of a program first and then testing the sum of its parts, integration testing becomes much easier.
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 <strong>4 ) Documentation : </strong>
  Unit testing provides a sort of living documentation of the system. Developers looking to learn what functionality is provided by a unit, and how to use it, can look at the unit tests to gain a basic understanding of the unit's interface (API).Unit test cases embody characteristics that are critical to the success of the unit. These characteristics can indicate appropriate/inappropriate use of a unit as well as negative behaviors that are to be trapped by the unit.
 </p>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1886,30 +1886,30 @@ Unit testing may reduce uncertainty in the units themselves and can be used in a
 <!-- Twenty Five Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.2 : INTEGRATION TESTING</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.2 : INTEGRATION TESTING</p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Integration testing (sometimes called integration and testing, abbreviated I&T) is the phase in software testing in which individual software modules are combined and tested as a group. It occurs after unit testing and before validation testing. Integration testing takes as its input modules that have been unit tested, groups them in larger aggregates, applies tests defined in an integration test plan to those aggregates, and delivers as its output the integrated system ready for system testing.
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Integration testing (sometimes called integration and testing, abbreviated I&T) is the phase in software testing in which individual software modules are combined and tested as a group. It occurs after unit testing and before validation testing. Integration testing takes as its input modules that have been unit tested, groups them in larger aggregates, applies tests defined in an integration test plan to those aggregates, and delivers as its output the integrated system ready for system testing.
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.2.1   Purpose &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.2.1   Purpose &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
    The purpose of integration testing is to verify functional, performance, and reliability requirements placed on major design items. These "design items", i.e., assemblages (or groups of units), are exercised through their interfaces using black-box testing, success and error cases being simulated via appropriate parameter and data inputs. Simulated usage of shared data areas and inter-process communication is tested and individual subsystems are exercised through their input interface. Test cases are constructed to test whether all the components within assemblages interact correctly, for example across procedure calls or process activations, and this is done after testing individual modules, i.e., unit testing. The overall idea is a "building block" approach, in which verified assemblages are added to a verified base which is then used to support the integration testing of further assemblages.Software integration testing is performed according to the software development life cycle (SDLC) after module and functional tests. The cross-dependencies for software integration testing are: schedule for integration testing, strategy and selection of the tools used for integration, define the cyclomatical complexity of the software and software architecture, reusability of modules and life-cycle and versioning management.Some different types of integration testing are big-bang, top-down, and bottom-up, mixed (sandwich) and risky-hardest. Other Integration Patterns[2] are: collaboration integration, backbone integration, layer integration, client-server integration, distributed services integration and high-frequency integration.
 
 </p>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1927,23 +1927,23 @@ Unit testing may reduce uncertainty in the units themselves and can be used in a
 <!-- Twenty SIX Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
   <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.2.1.1   Big Bang &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.2.1.1   Big Bang &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 In the big-bang approach, most of the developed modules are coupled together to form a complete software system or major part of the system and then used for integration testing. This method is very effective for saving time in the integration testing process. However, if the test cases and their results are not recorded properly, the entire integration process will be more complicated and may prevent the testing team from achieving the goal of integration testing.A type of big-bang integration testing is called "usage model testing" which can be used in both software and hardware integration testing. The basis behind this type of integration testing is to run user-like workloads in integrated user-like environments. In doing the testing in this manner, the environment is proofed, while the individual components are proofed indirectly through their use. Usage Model testing takes an optimistic approach to testing, because it expects to have few problems with the individual components. The strategy relies heavily on the component developers to do the isolated unit testing for their product. The goal of the strategy is to avoid redoing the testing done by the developers, and instead flesh-out problems caused by the interaction of the components in the environment.
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.2.1.2  Top-down And Bottom-up
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.2.1.2  Top-down And Bottom-up
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
  Bottom-up testing is an approach to integrated testing where the lowest level components are tested first, then used to facilitate the testing of higher level components. The process is repeated until the component at the top of the hierarchy is tested.All the bottom or low-level modules, procedures or functions are integrated and then tested. After the integration testing of lower level integrated modules, the next level of modules will be formed and can be used for integration testing. This approach is helpful only when all or most of the modules of the same development level are ready. This method also helps to determine the levels of software developed and makes it easier to report testing progress in the form of a percentage.Top-down testing is an approach to integrated testing where the top integrated modules are tested and the branch of the module is tested step by step until the end of the related module.Sandwich testing is an approach to combine top down testing with bottom up testing.
 </p>
 
@@ -1951,7 +1951,7 @@ In the big-bang approach, most of the developed modules are coupled together to 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1969,53 +1969,53 @@ In the big-bang approach, most of the developed modules are coupled together to 
 <!-- Twenty Eight Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.3 : SOFTWARE VERIFICATION AND VALIDATION </p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.3 : SOFTWARE VERIFICATION AND VALIDATION </p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.3.1   Introduction &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.3.1   Introduction &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
  In software project management, software testing, and software engineering, verification and validation (V&V) is the process of checking that a software system meets specifications and that it fulfills its intended purpose. It may also be referred to as software quality control. It is normally the responsibility of software testers as part of the software development lifecycle. Validation checks that the product design satisfies or fits the intended use (high-level checking), i.e., the software meets the user requirements.This is done through dynamic testing and other forms of review.Verification and validation are not the same thing, although they are often confused. Boehm succinctly expressed the difference between
 </p>
 
 
 <ul>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Validation : Are we building the right product?</li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Verification : Are we building the product right?</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Validation : Are we building the right product?</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Verification : Are we building the product right?</li>
 </ul>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
   According to the Capability Maturity Model (CMMI-SW v1.1)
 </p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
   Software Verification: The process of evaluating software to determine whether the products of a given development phase satisfy the conditions imposed at the start of that phase.
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
   Software Validation: The process of evaluating software during or at the end of the development process to determine whether it satisfies specified requirements. 
 </p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
   In other words, software verification is ensuring that the product has been built according to the requirements and design specifications, while software validation ensures that the product meets the user's needs, and that the specifications were correct in the first place. Software verification ensures that "you built it right". Software validation ensures that "you built the right thing". Software validation confirms that the product, as provided, will fulfill its intended use.
 </p>
 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2036,36 +2036,36 @@ In the big-bang approach, most of the developed modules are coupled together to 
 <!-- Twenty NINE Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;"> 
  From Testing Perspective
 </p>
 
 
 <ul>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Fault – wrong or missing function in the code.</li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Failure – the manifestation of a fault during execution.</li>
-    <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Malfunction – according to its specification the system does not meet its specified functionality</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Fault – wrong or missing function in the code.</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Failure – the manifestation of a fault during execution.</li>
+    <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Malfunction – according to its specification the system does not meet its specified functionality</li>
 </ul>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
   Both verification and validation are related to the concepts of quality and of software quality assurance. By themselves, verification and validation do not guarantee software quality; planning, traceability, configuration management and other aspects of software engineering are required.Within the modeling and simulation (M&S) community, the definitions of verification, validation and accreditation are similar:
 </p>
 
 
 
 <ul>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">M&S Verification is the process of determining that a ⦁ computer model, simulation, or federation of models and simulations implementations and their associated data accurately represent the developer's conceptual description and specifications. </li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">M&S Validation is the process of determining the degree to which a model, simulation, or federation of models and simulations, and their associated data are accurate representations of the real world from the perspective of the intended use(s).</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">M&S Verification is the process of determining that a ⦁ computer model, simulation, or federation of models and simulations implementations and their associated data accurately represent the developer's conceptual description and specifications. </li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">M&S Validation is the process of determining the degree to which a model, simulation, or federation of models and simulations, and their associated data are accurate representations of the real world from the perspective of the intended use(s).</li>
     
 </ul>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2084,29 +2084,29 @@ In the big-bang approach, most of the developed modules are coupled together to 
 <!-- Thirty Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.3.2   Classification of Methods &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.3.2   Classification of Methods &nbsp;&nbsp;
 </p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
  In mission-critical software systems, where flawless performance is absolutely necessary, formal methods may be used to ensure the correct operation of a system. However, often for non-mission-critical software systems, formal methods prove to be very costly and an alternative method of software V&V must be sought out. In such cases, syntactic methods are often used.
 </p>
 
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.3.3   Test Cases &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.3.3   Test Cases &nbsp;&nbsp;
 </p>
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 A test case is a tool used in the process. Test cases may be prepared for software verification and software validation to determine if the product was built according to the requirements of the user. Other methods, such as reviews, may be used early in the life cycle to provide for software validation.
 </p>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2125,26 +2125,26 @@ A test case is a tool used in the process. Test cases may be prepared for softwa
 
 <!-- Thirty One Page Start -->
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.4   Black-Box Testing &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.4   Black-Box Testing &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 Black-box testing is a method of software testing that examines the functionality of an application without peering into its internal structures or workings.
 </p>
 
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.4.1   Test Procedures &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.4.1   Test Procedures &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
   Specific knowledge of the application's code/internal structure and programming knowledge in general is not required. The tester is aware of what the software is supposed to do but is not aware of how it does it. For instance, the tester is aware that a particular input returns a certain, invariable output but is not aware of how the software produces the output in the first place. 
 </p>
 
@@ -2152,18 +2152,18 @@ Black-box testing is a method of software testing that examines the functiona
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.4.2   Test Cases &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.4.2   Test Cases &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
   Test cases are built around specifications and requirements, i.e., what the application is supposed to do. Test cases are generally derived from external descriptions of the software, including specifications, requirements and design parameters. Although the tests used are primarily functional in nature, non-functional tests may also be used. The test designer selects both valid and invalid inputs and determines the correct output, often with the help of an oracle or a previous result that is known to be good, without any knowledge of the test object's internal structure. 
 </p>
 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2183,37 +2183,37 @@ Black-box testing is a method of software testing that examines the functiona
 <!-- Thirty Two Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.5 : White-Box Testing</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.5 : White-Box Testing</p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> White-box testing (also known as clear box testing, glass box testing, transparent box testing, and structural testing) is a method of testing software that tests internal structures or workings of an application, as opposed to its functionality (i.e. black-box testing). In white-box testing an internal perspective of the system, as well as programming skills, are used to design test cases. The tester chooses inputs to exercise paths through the code and determine the appropriate outputs. This is analogous to testing nodes in a circuit, e.g. in-circuit testing (ICT). White-box testing can be applied at the unit, integration and system levels of the software testing process. Although traditional testers tended to think of white-box testing as being done at the unit level, it is used for integration and system testing more frequently today. It can test paths within a unit, paths between units during integration, and between subsystems during a system–level test. Though this method of test design can uncover many errors or problems, it has the potential to miss unimplemented parts of the specification or missing requirements.
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> White-box testing (also known as clear box testing, glass box testing, transparent box testing, and structural testing) is a method of testing software that tests internal structures or workings of an application, as opposed to its functionality (i.e. black-box testing). In white-box testing an internal perspective of the system, as well as programming skills, are used to design test cases. The tester chooses inputs to exercise paths through the code and determine the appropriate outputs. This is analogous to testing nodes in a circuit, e.g. in-circuit testing (ICT). White-box testing can be applied at the unit, integration and system levels of the software testing process. Although traditional testers tended to think of white-box testing as being done at the unit level, it is used for integration and system testing more frequently today. It can test paths within a unit, paths between units during integration, and between subsystems during a system–level test. Though this method of test design can uncover many errors or problems, it has the potential to miss unimplemented parts of the specification or missing requirements.
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.5.1   Levels &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.5.1   Levels &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
  <strong>1 ) Unit testing : </strong>
  White-box testing is done during unit testing to ensure that the code is working as intended, before any integration happens with previously tested code. White-box testing during unit testing catches any defects early on and aids in any defects that happen later on after the code is integrated with the rest of the application and therefore prevents any type of errors later on.
 
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
  <strong>2 ) Integration testing : </strong>
 White-box testing at this level are written to test the interactions of each interface with each other. The Unit level testing made sure that each code was tested and working accordingly in an isolated environment and integration examines the correctness of the behaviour in an open environment through the use of white-box testing for any interactions of interfaces that are known to the programmer. 
 
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
  <strong>3 ) Regression testing : </strong>
 White-box testing during regression testing is the use of recycled white-box test cases at the unit and integration testing levels.
 
@@ -2222,7 +2222,7 @@ White-box testing during regression testing is the use of recycled white-box tes
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2242,25 +2242,25 @@ White-box testing during regression testing is the use of recycled white-box tes
 <!-- Thirty Three Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
 
   <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.5.2   Procedures &nbsp;&nbsp;
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.5.2   Procedures &nbsp;&nbsp;
 </p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> 
 White-box testing's basic procedures involves the tester having a deep level of understanding of the source code being tested. The programmer must have a deep understanding of the application to know what kinds of test cases to create so that every visible path is exercised for testing. Once the source code is understood then the source code can be analyzed for test cases to be created. These are the three basic steps that white-box testing takes in order to create test cases:
 </p>
 
 
 <ul>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Input involves different types of requirements, functional specifications, detailed designing of documents, proper source code, security specifications. This is the preparation stage of white-box testing to layout all of the basic information.
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Input involves different types of requirements, functional specifications, detailed designing of documents, proper source code, security specifications. This is the preparation stage of white-box testing to layout all of the basic information.
 </li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Processing involves performing risk analysis to guide whole testing process, proper test plan, execute test cases and communicate results. This is the phase of building test cases to make sure they thoroughly test the application the given results are recorded accordingly.</li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">Output involves preparing final report that encompasses all of the above preparations and results.</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Processing involves performing risk analysis to guide whole testing process, proper test plan, execute test cases and communicate results. This is the phase of building test cases to make sure they thoroughly test the application the given results are recorded accordingly.</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">Output involves preparing final report that encompasses all of the above preparations and results.</li>
 </ul>
 
 
@@ -2272,7 +2272,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2300,25 +2300,25 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <!-- Thirty Four Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;font-weight: bold;">5.6 : SYSTEM TESTING</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.6 : SYSTEM TESTING</p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> System testing of software or hardware is testing conducted on a complete, integrated system to evaluate the system's compliance with its specified requirements. System testing falls within the scope of black-box testing, and as such, should require no knowledge of the inner design of the code or logic. As a rule, system testing takes, as its input, all of the "integrated" software components that have passed integration testing and also the software system itself integrated with any applicable hardware system(s). The purpose of integration testing is to detect any inconsistencies between the software units that are integrated together (called assemblages) or between any of the assemblages and the hardware. System testing is a more limited type of testing; it seeks to detect defects both within the "inter-assemblages" and also within the system as a whole.
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> System testing of software or hardware is testing conducted on a complete, integrated system to evaluate the system's compliance with its specified requirements. System testing falls within the scope of black-box testing, and as such, should require no knowledge of the inner design of the code or logic. As a rule, system testing takes, as its input, all of the "integrated" software components that have passed integration testing and also the software system itself integrated with any applicable hardware system(s). The purpose of integration testing is to detect any inconsistencies between the software units that are integrated together (called assemblages) or between any of the assemblages and the hardware. System testing is a more limited type of testing; it seeks to detect defects both within the "inter-assemblages" and also within the system as a whole.
 </p>
 
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"> System testing is performed on the entire system in the context of a Functional Requirement Specification(s) (FRS) and/or a System Requirement Specification (SRS). System testing tests not only the design, but also the behavior and even the believed expectations of the customer. It is also intended to test up to and beyond the bounds defined in the software/hardware requirements specification(s). 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"> System testing is performed on the entire system in the context of a Functional Requirement Specification(s) (FRS) and/or a System Requirement Specification (SRS). System testing tests not only the design, but also the behavior and even the believed expectations of the customer. It is also intended to test up to and beyond the bounds defined in the software/hardware requirements specification(s). 
 </p>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2336,10 +2336,10 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 <!-- Screenshots Start -->
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 6 : RESULTS </p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 6 : RESULTS </p>
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.1 Css Code</p>
 
@@ -2349,7 +2349,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2361,7 +2361,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.2 User Login</p>
@@ -2372,7 +2372,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2382,7 +2382,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </div>
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.3 Admin Login</p>
@@ -2393,7 +2393,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2412,23 +2412,23 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <!-- Thirty Five Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 7 : ADVANTAGES</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 7 : ADVANTAGES</p>
 
 
 <ul>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"><%=result[3][0].advantage%></li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"><%=result[3][0].advantage1%></li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"><%=result[3][0].advantage2%></li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"><%=result[3][0].advantage3%></li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"><%=result[3][0].advantage4%></li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"><%=result[3][0].advantage%></li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"><%=result[3][0].advantage1%></li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"><%=result[3][0].advantage2%></li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"><%=result[3][0].advantage3%></li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"><%=result[3][0].advantage4%></li>
 </ul>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2447,17 +2447,17 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <!-- Thirty Six Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 8 : CONCLUSION</p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 8 : CONCLUSION</p>
 
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px"><%=result[3][0].working_modules%>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px"><%=result[3][0].working_modules%>
 </p>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2476,22 +2476,22 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <!-- Thirty Seven Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 10%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
 
   <div style="page-break-before: always; page-break-after: always;">
-<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">CHAPTER 8 : BIBLIOGRAPHY </p>
+<p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 8 : BIBLIOGRAPHY </p>
 
 
 <ul>
  
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">https://www.javatpoint.com</li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">https://www.w3schools.com</li>
-  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:18px;line-height: 35px">https://html.com</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">https://www.javatpoint.com</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">https://www.w3schools.com</li>
+  <li class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 35px">https://html.com</li>
   </ul>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
