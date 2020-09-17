@@ -285,8 +285,7 @@ th{
 
       <div class="container">
         <div class="row">
-  <h3>Download Your Project Report Here..</h3>
-         <h3 class="text-center">  <button class="btn btn-link " onclick="printDiv('section-to-print')">Click Here To Download Project Report</button></h3>
+
           <div class="col-12" id="section-to-print">
 
 
@@ -308,6 +307,9 @@ th{
       <div class="col-lg-6 col-md-4">
         <h3>Download Your Project Report Here..</h3>
          <h3 class="text-center">  <button class="btn btn-link " onclick="printDiv('section-to-print')">Click Here To Download Project Report</button></h3>
+         <ul>
+           <li>Wait For 30 seconds to load all diagram</li>
+         </ul>
       </div>
       <div class="col-lg-2 col-md-4">
         
@@ -563,12 +565,12 @@ We express our sincere regard and indebtedness to our project internal guide <%=
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">ABSTRACT</p>
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
- <%=result[0][0].abstract%>      
+ <%=result[3][0].abstract%>      
 </p>
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;line-height: 50px;">
- <%=result[0][0].objective%>      
+ <%=result[3][0].objective%>      
 </p>
 
 
@@ -878,7 +880,7 @@ let indexpageno = 14
 <!-- Sixth Page Start -->
 
     <div style="page-break-before: always; page-break-after: always;">
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px;">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px;">
 
 
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 1 : INTRODUCTION</p>
@@ -915,7 +917,7 @@ let indexpageno = 14
 <!-- Seventh Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">1.3 EXISTING SYSTEM</p>
 
@@ -949,7 +951,7 @@ let indexpageno = 14
 <!-- EIGHT Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">1.5 FEASIBILITY STUDY</p>
 
@@ -1002,7 +1004,7 @@ let indexpageno = 14
 <!-- NINTH Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">1.5.2 TECHNICAL FEASIBILITY</p>
 
@@ -1043,7 +1045,7 @@ let indexpageno = 14
 <!-- TENTH Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
      <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">1.6 Giant Chart</p>
@@ -1073,7 +1075,7 @@ let indexpageno = 14
 <!-- Eleven Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">1.7 ORGANISATION OF THE REPORT</p>
@@ -1172,7 +1174,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
-<div class="col-lg-12" style="margin-left: 10px;margin-right: 0px;margin-top: 5%;height: 1300px">
+<div class="col-lg-12" style="margin-left: 10px;margin-right: 0px;margin-top: 5%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 2 : SOFTWARE REQUIREMENTS SPECIFICATION</p>
@@ -1267,7 +1269,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Thirteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 3 : DESIGN & PLANNING</p>
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.1 Software Development Life Cycle Model</p>
@@ -1332,7 +1334,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Fourteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
     <div style="page-break-before: always; page-break-after: always;">
 
@@ -1364,7 +1366,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Fifteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
     <div style="page-break-before: always; page-break-after: always;">
 
@@ -1400,7 +1402,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Sixteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.4 ER Diagram</p>
@@ -1433,7 +1435,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Seventeen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">3.5 DFD Diagram</p>
@@ -1460,7 +1462,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
@@ -1486,7 +1488,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
@@ -1522,7 +1524,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Eighteen Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
   <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 4 : IMPLEMENTATION DETAILS</p>
@@ -1586,7 +1588,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 <% for(i=1;i<result[1].length;i++) { %>
 <% j = j+1; %>
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
 
 
@@ -1633,7 +1635,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <!-- Twenty Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
   <div style="page-break-before: always; page-break-after: always;">
 
 
@@ -1682,7 +1684,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <% if(result[2].length>1) {
 
 for(i=1;i<result[2].length;i++) { %>
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
  <div style="page-break-before: always; page-break-after: always;">
 
 
@@ -1724,7 +1726,7 @@ for(i=1;i<result[2].length;i++) { %>
 <!-- Twenty Two Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">4.2.2   MySQL &nbsp;&nbsp;
@@ -1789,7 +1791,7 @@ MySQL is a component of the LAMP web application software stack (and others), wh
 <!-- Twenty Three Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 5 : TESTING AND IMPLEMENTATION</p>
@@ -1829,7 +1831,7 @@ In computer programming, unit testing is a software testing method by which
 <!-- Twenty Four Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.1.2   Benifits &nbsp;&nbsp;
@@ -1891,7 +1893,7 @@ Unit testing may reduce uncertainty in the units themselves and can be used in a
 <!-- Twenty Five Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
@@ -1932,7 +1934,7 @@ Unit testing may reduce uncertainty in the units themselves and can be used in a
 <!-- Twenty SIX Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
   <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.2.1.1   Big Bang &nbsp;&nbsp;
@@ -1974,7 +1976,7 @@ In the big-bang approach, most of the developed modules are coupled together to 
 <!-- Twenty Eight Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
@@ -2041,7 +2043,7 @@ In the big-bang approach, most of the developed modules are coupled together to 
 <!-- Twenty NINE Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
@@ -2089,7 +2091,7 @@ In the big-bang approach, most of the developed modules are coupled together to 
 <!-- Thirty Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:20px;font-weight: bold;">5.3.2   Classification of Methods &nbsp;&nbsp;
@@ -2130,7 +2132,7 @@ A test case is a tool used in the process. Test cases may be prepared for softwa
 
 <!-- Thirty One Page Start -->
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 
@@ -2188,7 +2190,7 @@ Black-box testing is a method of software testing that examines the functiona
 <!-- Thirty Two Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 
@@ -2247,7 +2249,7 @@ White-box testing during regression testing is the use of recycled white-box tes
 <!-- Thirty Three Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
 
   <div style="page-break-before: always; page-break-after: always;">
@@ -2305,7 +2307,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <!-- Thirty Four Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
 
   <div style="page-break-before: always; page-break-after: always;">
@@ -2341,7 +2343,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 <!-- Screenshots Start -->
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 6 : RESULTS </p>
@@ -2366,7 +2368,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.2 User Login</p>
@@ -2387,7 +2389,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </div>
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
     <div style="page-break-before: always; page-break-after: always;">
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">6.3 Admin Login</p>
@@ -2417,7 +2419,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <!-- Thirty Five Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 7 : ADVANTAGES</p>
@@ -2452,7 +2454,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <!-- Thirty Six Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 8 : CONCLUSION</p>
@@ -2481,7 +2483,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <!-- Thirty Seven Page Start -->
 
 
-<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1300px">
+<div class="col-lg-12" style="margin-right: 20px;margin-top: 15%;height: 1350px">
 
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:26px;font-weight: bold;">CHAPTER 8 : BIBLIOGRAPHY </p>
