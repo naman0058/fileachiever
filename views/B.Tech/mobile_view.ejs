@@ -331,7 +331,7 @@ th{
 
         <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-center first">Major Project Report On</p>
+<p class="text-center first"><%=result[0][0].project_type%> Report On</p>
 <p class="text-center first"> <%=result[3][0].name%></p>
 <div class="text-center">
 <img src="/images/<%=result[0][0].affilated_college_logo%>" alt=" <%=result[0][0].affilated_college_name%> collge logo" class="img" style="height: 190px">
@@ -415,7 +415,7 @@ th{
 <% } else { %>
   <%=result[0][0].name%> (<%=result[0][0].roll_number%>) and His/Her Friend,
 <% } %>
-    student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the Major Project titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
+    student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the <%=result[0][0].project_type%> titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
 
 
 <div class="row" style="margin-top: 15%">
@@ -459,7 +459,7 @@ th{
 <% } else { %>
   <%=result[0][0].name%> (<%=result[0][0].roll_number%>) and His/Her Friend,
 <% } %>
- student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the Major Project titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
+ student of  Bachelor of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the <%=result[0][0].project_type%> titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Bachelor of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
 
 
 <div class="row" style="margin-top: 15%">
@@ -893,7 +893,7 @@ let indexpageno = 14
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 1</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 1</p>
 </div>
 </div>
 
@@ -927,7 +927,7 @@ let indexpageno = 14
 </p>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 2</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 2</p>
 </div>
 </div>
 
@@ -975,7 +975,7 @@ let indexpageno = 14
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 3</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 3</p>
 </div>
 
 </div>
@@ -1015,7 +1015,7 @@ let indexpageno = 14
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 4</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 4</p>
 </div>
 
 
@@ -1050,7 +1050,7 @@ let indexpageno = 14
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 5</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 5</p>
 </div>
 
 
@@ -1145,7 +1145,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 6</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 6</p>
 </div>
 
 
@@ -1242,7 +1242,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 7</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 7</p>
 </div>
 
 
@@ -1303,7 +1303,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 8</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 8</p>
 </div>
 
 </div>
@@ -1341,7 +1341,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 9</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 9</p>
 </div>
 
 </div>
@@ -1376,7 +1376,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 10</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 10</p>
 </div>
 
 </div>
@@ -1409,7 +1409,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 11</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 11</p>
 </div>
 
 
@@ -1443,7 +1443,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 12</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 12</p>
 </div>
 
 </div>
@@ -1469,7 +1469,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 13</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 13</p>
 </div>
 
 </div>
@@ -1497,7 +1497,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. 14</p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. 14</p>
 </div>
 
 </div>
@@ -1553,7 +1553,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 
 
@@ -1603,11 +1603,11 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno + 1 %>
 </div>
@@ -1653,7 +1653,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 
 <% pageno = pageno+1%>
@@ -1699,7 +1699,7 @@ for(i=1;i<result[2].length;i++) { %>
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 
 <% pageno = pageno+1%>
@@ -1765,7 +1765,7 @@ MySQL is a component of the LAMP web application software stack (and others), wh
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1808,7 +1808,7 @@ In computer programming, unit testing is a software testing method by which
 </p>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1865,7 +1865,7 @@ Unit testing may reduce uncertainty in the units themselves and can be used in a
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1909,7 +1909,7 @@ Unit testing may reduce uncertainty in the units themselves and can be used in a
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -1951,7 +1951,7 @@ In the big-bang approach, most of the developed modules are coupled together to 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2015,7 +2015,7 @@ In the big-bang approach, most of the developed modules are coupled together to 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2065,7 +2065,7 @@ In the big-bang approach, most of the developed modules are coupled together to 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2106,7 +2106,7 @@ A test case is a tool used in the process. Test cases may be prepared for softwa
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2163,7 +2163,7 @@ Black-box testing is a method of software testing that examines the functiona
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2222,7 +2222,7 @@ White-box testing during regression testing is the use of recycled white-box tes
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2272,7 +2272,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2318,7 +2318,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2349,7 +2349,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2372,7 +2372,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2393,7 +2393,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </div>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2428,7 +2428,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2457,7 +2457,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 </p>
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
@@ -2491,7 +2491,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 
 <div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 70px">Page No. <%=pageno%></p>
+<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
 </div>
 <% pageno = pageno+1%>
 
