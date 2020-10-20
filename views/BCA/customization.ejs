@@ -25,19 +25,19 @@ enable_page_level_ads: true
   
     <meta name=robots content="all,follow"/>
     <meta name=googlebot content="index, follow"/>
-    <meta name=classification content="Edit BCA Final Year Project Report of <%=result[0][0].name%> — <%=result[0][0].short_description%>"/>
+    <meta name=classification content="Customize — <%=result[0][0].name%> Project FileEdit BCA Final Year Project Report of <%=result[0][0].name%> — <%=result[0][0].short_description%>"/>
     <link rel="shortcut icon" type="images/x-icon" href="/images/filemakr-project-file-creator-favicon.png" style="width:80px;" />
     <meta name=distribution content=Global />
     <meta name=author content="http://www.filemakr.com"/>
     <meta name=Language content=English />
     <meta name=rating content=general />
     <meta name=owner content=FileMakr. />
-      <meta name=document-type content=public />
+    <meta name=document-type content=public />
     <meta name=revisit-after content=daily />
     <meta name=country content=India />
     <meta name=DC.title content="Edit BCA Final Year Project Report of <%=result[0][0].name%> — <%=result[0][0].short_description%>"/>
     <meta property=og:title content="Edit BCA Final Year Project Report of <%=result[0][0].name%> — <%=result[0][0].short_description%>"/>
-    <meta property=og:type content="Customize — <%=result[0][0].name%> Project FilEdit BCA Final Year Project Report of <%=result[0][0].name%>e — <%=result[0][0].short_description%>"/>
+    <meta property=og:type content="Edit BCA Final Year Project Report of <%=result[0][0].name%> — <%=result[0][0].short_description%>"/>
     <meta property=og:url content="http://www.filemakr.com"/>
     <meta property=og:image content="http://www.filemakr.com/images/filemakr-project-file-creator-favicon.png" style="width:80px;"/>
     <meta property=og:site_name content="http://www.filemakr.com"/>
@@ -239,6 +239,171 @@ enable_page_level_ads: true
 
 
 
+#select{
+  border : none ;
+  border-bottom: 1px solid rgba(0,0,0, 0.12);
+}
+
+
+
+
+
+
+
+
+
+
+/*--- Bottom Sticky Bar---*/
+.btm-sticky {position:fixed; bottom:0; width:100%; height:50px; line-height:50px; background:#2c2926; z-index:9999; -webkit-transition:all .3s;-moz-transition:all .3s;transition:all .3s;}
+
+.pull-left {position:absolute; display:block; left:0;}
+.pull-right {position:absolute; display:block; right:0;}
+.pull-center {position:absolute; display:block; margin:auto; left:0; right:0; float:none; text-align:center;}
+
+img.responsive {
+    max-width:100%;
+    height:auto;
+    display:block;
+}
+
+.btm-sticky .container {position:relative !important;}
+
+.btm-sticky .pull-left img {position:relative; max-width:240px; top:4px; left:0;}
+.btm-sticky .pull-left img.small {display:none;}
+
+
+.btm-sticky .pull-center p {font:italic 20px 'Arapey', serif; color:#fcbd28; line-height:50px; -webkit-transition:all .3s;-moz-transition:all .3s;transition:all .3s;}
+.pull-right img {position:relative; max-width:185px; top:-51px; right:0;}
+
+.btm-sticky:hover {background:#312d28;}
+.btm-sticky:hover .pull-center p {color:#f4972c;}
+
+
+.price {position:absolute; display:block; width:185px; right:40px; bottom:0; text-align:center;
+background: rgba(44,41,38,1);
+background: -moz-linear-gradient(left, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+background: -webkit-gradient(left top, right top, color-stop(0%, rgba(44,41,38,1)), color-stop(42%, rgba(26,24,22,0.96)), color-stop(100%, rgba(0,0,0,0.19)));
+background: -webkit-linear-gradient(left, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+background: -o-linear-gradient(left, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+background: -ms-linear-gradient(left, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+background: linear-gradient(to right, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2c2926', endColorstr='#000000', GradientType=1 );
+   -webkit-transition:all .3s;-moz-transition:all .3s;transition:all .3s;
+}
+
+.price p {font: 16px 'Arapey', serif; color:#fff; height:25px; line-height:25px;}
+.price span {position:relative; top:1px;font-size:12px !important;}
+
+.btm-sticky:hover .price {background: -moz-linear-gradient(left, rgba(49,45,40,1) 50%, rgba(49,45,40,0) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(left, rgba(49,45,40,1) 50%,rgba(49,45,40,0) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to right, rgba(49,45,40,1) 50%,rgba(49,45,40,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#312d28', endColorstr='#00312d28',GradientType=1 ); /* IE6-9 */}
+
+
+@media (max-width:960px) {
+  .btm-sticky .pull-left img {max-width:220px; top:5px; left:10px;}
+  .btm-sticky .pull-right img {max-width:145px; top:-28px; right:10px;}
+  .btm-sticky .pull-center p {display:none;}
+}
+
+@media (max-width:420px) {
+  .btm-sticky .pull-left img.big {display:none;}
+  .btm-sticky .pull-left img.small {display:inline;}
+  .btm-sticky .pull-left img {max-width:180px; left:10px; top:5px; }
+  .btm-sticky .pull-right img {max-width:140px; top:-24px; right:10px;}
+}
+
+
+/*-- Container like Bootstrap --*/
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+@media (min-width: 768px) {
+  .container {
+    width: 750px;
+  }
+}
+@media (min-width: 992px) {
+  .container {
+    width: 970px;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    width: 1170px;
+  }
+}
+.container-fluid {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.container:before,
+.container:after,
+.container-fluid:before,
+.container-fluid:after {
+  display: table;
+  content: " ";
+}
+
+.container:after,
+.container-fluid:after {
+  clear: both;
+}
+
+
+
+/*---DON'T COPY the Below Codes---*/
+
+/*----------------- RESET CSS ------------*/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
 
 
 </style>
@@ -302,7 +467,7 @@ enable_page_level_ads: true
     <form action="/bca-final-year-project-report/insert" method="post" enctype="multipart/form-data" class="text-center" style="color: #757575;">
 
 
-        <div class="form-row">
+             <div class="form-row">
                 <div class="col-12">
                     <!-- First name -->
                     <div class="md-form">
@@ -319,7 +484,10 @@ enable_page_level_ads: true
 
 
 
+
+
             <div class="form-row">
+
                 <div class="col-xs-12 col-md-6 col-lg-6">
                     <!-- First name -->
                     <div class="md-form">
@@ -354,7 +522,9 @@ enable_page_level_ads: true
                 </div>
             </div>
 
-  <div class="form-row">
+
+
+            <div class="form-row">
                 <div class="col-xs-12 col-md-6 col-lg-6">
                     <!-- First name -->
                     <div class="md-form">
@@ -383,6 +553,7 @@ enable_page_level_ads: true
                     </div>
                 </div>
             </div>
+
 
             <!-- E-mail -->
             <div class="md-form mt-0">
@@ -755,15 +926,6 @@ enable_page_level_ads: true
 
     </section><!-- #about -->
 
-  <div class="container-fluid" >
-     <div class="row">
-<div id="footer" style="position: fixed;bottom: 0px;width:100%" class="bg-light">
-  
-        <p class="text-center">Want Final Year Project ?</p>
-      </div>
-    </div>
-  </div>
-  
 </div>
    
 </body>
