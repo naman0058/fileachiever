@@ -1807,18 +1807,9 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 <script>
 $('.edit').click(function(){
-  const id = $(this).attr('id')
-  const seo_name = $(this).attr('seo_name')
-  let deviceInfo = '';
-  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-     deviceInfo = 'mobile'
-    } else {
-      deviceInfo ='Desktop'
-    }
-  $.post('/customization',{id , deviceInfo},data=>{
+    const seo_name = $(this).attr('seo_name')
     window.location.href='/btech-final-year-project-report-'+seo_name+'/edit';
-  })
+  
 })
 </script>
 

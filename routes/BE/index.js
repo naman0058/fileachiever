@@ -24,7 +24,9 @@ router.get('/', (req, res) => { pool.query(`select name,seo_name,short_descripti
 
 router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { name: 'affilated_college_logo', maxCount: 1 }]),(req,res)=>{
     let body = req.body
-    body['college_logo'] = req.files['college_logo'][0].filename
+
+    if(req.body.html){
+      body['college_logo'] = req.files['college_logo'][0].filename
     body['affilated_college_logo'] = req.files['affilated_college_logo'][0].filename
     body['date'] = today
     body['view'] = req.session.deviceInfo
@@ -36,6 +38,11 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
         res.redirect('/be-final-year-project-report/projects')
     }
     })
+    }
+    else if(!req.body.html){
+res.redirect(`/be-final-year-project-report-${req.body.seo_name}/edit`)
+    }
+   
 })
 
 

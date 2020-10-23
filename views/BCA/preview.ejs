@@ -1801,11 +1801,8 @@ White-box testing's basic procedures involves the tester having a deep level of 
 
 <script>
 $('.edit').click(function(){
-  const id = $(this).attr('id')
   const seo_name = $(this).attr('seo_name')
-  $.post('/customization',{id},data=>{
     window.location.href='/bca-final-year-project-report-'+seo_name+'/edit';
-  })
 })
 </script>
 

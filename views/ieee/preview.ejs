@@ -2574,11 +2574,8 @@ From testing perspective :
 
 <script>
     $('.edit').click(function () {
-        const id = $(this).attr('id')
-        const seo_name = $(this).attr('seo_name')
-        $.post('/customization', { id }, data => {
-            window.location.href = 'ieee-standard-project-report-'+seo_name + '/customization';
-        })
+      const seo_name = $(this).attr('seo_name')
+    window.location.href='/btech-final-year-project-report-'+seo_name+'/edit';
     })
 </script>
 

@@ -26,7 +26,8 @@ router.get('/', (req, res) => { pool.query(`select name,seo_name,short_descripti
 
 router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { name: 'affilated_college_logo', maxCount: 1 }]),(req,res)=>{
     let body = req.body
-    body['college_logo'] = req.files['college_logo'][0].filename
+    if(req.body.html){
+      body['college_logo'] = req.files['college_logo'][0].filename
     body['affilated_college_logo'] = req.files['affilated_college_logo'][0].filename
     body['date'] = today
     body['view'] = req.session.deviceInfo
@@ -38,6 +39,11 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
         res.redirect('/btech-final-year-project-report/projects')
     }
     })
+    }
+    else if(!req.body.html){
+res.redirect(`/btech-final-year-project-report-${req.body.seo_name}/edit`)
+    }
+   
 })
 
 
@@ -45,6 +51,7 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
 
 
 router.get('/projects',(req,res)=>{
+
     if(req.session.roll_number){
 
 
@@ -63,10 +70,11 @@ if(req.session.deviceInfo == 'mobile'){
            var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
            var query3 = `select * from project where id = "${result[0].projectid}";`
            //For Testing
-             var query4 = `select name ,er_diagram , general_overview_diagram , use_case_diagram from project where er_diagram is not null;`
-           pool.query(query+query1+query2+query3+query4,(err,result)=>{
+           
+           pool.query(query+query1+query2+query3,(err,result)=>{
                if(err) throw err;
-               else res.render('B.Tech/mobile_view',{result:result})
+               //else res.json(result)
+                else res.render('B.Tech/mobile_view',{result:result})
            })
 
         }
@@ -88,8 +96,8 @@ else{
            var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
            var query3 = `select * from project where id = "${result[0].projectid}";`
          //For Testing
-           var query4 = `select name ,er_diagram , general_overview_diagram , use_case_diagram from project where er_diagram is not null;`
-           pool.query(query+query1+query2+query3+query4,(err,result)=>{
+          
+           pool.query(query+query1+query2+query3,(err,result)=>{
                if(err) throw err;
                else res.render('B.Tech/final',{result:result})
            })

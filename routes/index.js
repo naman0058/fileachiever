@@ -118,10 +118,10 @@ router.get('/ieee-standard-project-report-:name',(req,res)=>{
 
 
 router.get('/ieee-standard-project-report-:name/customization',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('ieee/customization',{result : result})
+        err ? console.log(err) : res.render('ieee/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
     
 })
@@ -130,7 +130,7 @@ router.get('/ieee-standard-project-report-:name/customization',(req,res)=>{
 //old route
 
 router.get('/cse/:name/customization',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('customization',{result : result})
@@ -146,10 +146,11 @@ router.get('/cse/:name/customization',(req,res)=>{
 
 
 router.get('/btech-final-year-project-report-:name/edit',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+
+    var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('B.Tech/customization',{result : result})
+        err ? console.log(err) : res.render('B.Tech/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
     
 })
@@ -158,10 +159,10 @@ router.get('/btech-final-year-project-report-:name/edit',(req,res)=>{
 //new mtech edit route
 
 router.get('/mtech-final-year-project-report-:name/edit',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('M.Tech/customization',{result : result})
+        err ? console.log(err) : res.render('M.Tech/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
     
 })
@@ -170,10 +171,10 @@ router.get('/mtech-final-year-project-report-:name/edit',(req,res)=>{
 //new be edit route
 
 router.get('/be-final-year-project-report-:name/edit',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('BE/customization',{result : result})
+        err ? console.log(err) : res.render('BE/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
     
 })
@@ -183,10 +184,10 @@ router.get('/be-final-year-project-report-:name/edit',(req,res)=>{
 
 
 router.get('/me-final-year-project-report-:name/edit',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('ME/customization',{result : result})
+        err ? console.log(err) : res.render('ME/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
     
 })
@@ -197,10 +198,10 @@ router.get('/me-final-year-project-report-:name/edit',(req,res)=>{
 //new bca edit route
 
 router.get('/bca-final-year-project-report-:name/edit',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('BCA/customization',{result : result})
+        err ? console.log(err) : res.render('BCA/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
     
 })
@@ -210,10 +211,10 @@ router.get('/bca-final-year-project-report-:name/edit',(req,res)=>{
 //new mca edit route
 
 router.get('/mca-final-year-project-report-:name/edit',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('MCA/customization',{result : result})
+        err ? console.log(err) : res.render('MCA/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
     
 })
@@ -222,7 +223,7 @@ router.get('/mca-final-year-project-report-:name/edit',(req,res)=>{
 
 
 router.get('/cse/synopsis/:name/customization',(req,res)=>{
-    var query = `select * from project where id = '${req.session.customizationid}';`
+     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select name,id from programming_language;`
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('synopis_customization',{result : result})

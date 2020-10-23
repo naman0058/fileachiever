@@ -446,14 +446,17 @@ table {
 
       <div class="container">
         <div class="row">
-
+ 
           <div class="col-lg-2 col-md-2">
             
           </div>
 
           <div class="col-lg-8 col-md-8">
+
             <!-- Material form register -->
 <div class="card">
+
+
 
     <h5 class="card-header info-color white-text text-center py-4">
         <strong>Edit Report</strong>
@@ -646,9 +649,9 @@ table {
     <span class="title">
         Upload College Logo
     </span>
-    <input class="FileUpload1" id="FileInput" name="college_logo" type="file"/>
+    <input class="FileUpload1" id="FileInput" name="college_logo" type="file" required="" />
 </label>
-
+<span style="color: red">Required</span>
 </div>
            
                 
@@ -658,11 +661,11 @@ table {
     <i class="fa fa-paperclip">
     </i>
     <span class="title">
-        Upload Affilated College Logo
+        Upload Affilated College Logo 
     </span>
-    <input class="FileUpload2" id="FileInput1" name="affilated_college_logo" type="file"/>
+    <input class="FileUpload2" id="FileInput1" name="affilated_college_logo" type="file" required="" />
 </label>
-
+<span style="color: red">Required</span>
                 </div>
 
               
@@ -739,7 +742,7 @@ table {
 
 
   <small id="materialRegisterFormPasswordHelpBlock" class="form-text text-muted mb-4" style="margin-top: 15px;">
-                    Choose Front-End Language
+                    Choose Front-End Language (<%=msg%>)
 
                 </small>
 
@@ -1093,5 +1096,24 @@ window.WDS_Chosen_Multiple_Dropdown = {};
 
 
 </script>
+
+
+<script>
+
+  $( document ).ready(function() {
+     let deviceInfo = '';
+  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+     deviceInfo = 'mobile'
+    } else {
+      deviceInfo ='Desktop'
+    }
+  $.post('/customization',{deviceInfo},data=>{
+  })
+});
+
+</script>
+
+
 
 </html>
