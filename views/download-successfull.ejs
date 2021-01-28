@@ -1,0 +1,124 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>FileMakr | Download Successful</title>
+<style>
+      body {
+        text-align: center;
+        padding: 40px 0;
+        background: #EBF0F5;
+      }
+        h1 {
+          color: #88B04B;
+          font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+          font-weight: 900;
+          font-size: 40px;
+          margin-bottom: 10px;
+        }
+        p {
+          color: #404F5E;
+          font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+          font-size:20px;
+          margin: 0;
+        }
+      i {
+        color: #9ABC66;
+        font-size: 100px;
+        line-height: 200px;
+        margin-left:-15px;
+      }
+      .card {
+        background: white;
+        padding: 60px;
+        border-radius: 4px;
+        box-shadow: 0 2px 3px #C8D0D8;
+        display: inline-block;
+        margin: 0 auto;
+      }
+    </style>
+
+
+</head>
+<body oncontextmenu="return false">
+
+ <div class="card">
+      <div style="border-radius:200px; height:200px; width:200px; background: #F8FAF5; margin:0 auto;">
+        <i class="checkmark">✓</i>
+      </div>
+        <h1>Success</h1> 
+        <p>Your downloading will be start shortly.<br/><br/> <a href='/'>Click Here To Go BacK Home.</a></p>
+      </div>
+
+
+    <script type="text/javascript">
+        window.onload = function () {
+            setTimeout(function () {
+                DownloadFile("<%=result[0].source_code%>");
+            }, 1000);
+        };
+        function DownloadFile(fileName) {
+            //Set the File URL.
+            var url = "/images/" + fileName;
+ 
+            //Create XMLHTTP Request.
+            var req = new XMLHttpRequest();
+            req.open("GET", url, true);
+            req.responseType = "blob";
+            req.onload = function () {
+                //Convert the Byte Data to BLOB object.
+                var blob = new Blob([req.response], { type: "application/octetstream" });
+ 
+                //Check the Browser type and download the File.
+                var isIE = false || !!document.documentMode;
+                if (isIE) {
+                    window.navigator.msSaveBlob(blob, fileName);
+                } else {
+                    var url = window.URL || window.webkitURL;
+                    link = url.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.setAttribute("download", fileName);
+                    a.setAttribute("href", link);
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            };
+            req.send();
+        };
+
+
+
+
+
+
+
+
+
+
+document.onkeydown = function(e) {
+    if(e.keyCode == 123) {
+     return false;
+    }
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
+     return false;
+    }
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
+     return false;
+    }
+    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
+     return false;
+    }
+
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
+     return false;
+    }      
+ }
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>

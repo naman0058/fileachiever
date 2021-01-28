@@ -27,7 +27,7 @@ router.post('/contactus',(req,res)=>{
     pool.query(`insert into contactus set ?`,body,(err,result)=>err ? console.log(err) : res.send('OK'))
 })
 
-router.get('/synopsis', (req, res) => { 
+router.get('/synopsis', (req, res) => {
     res.redirect('/btech-final-year-project-report')
 })
 
@@ -123,7 +123,7 @@ router.get('/ieee-standard-project-report-:name/customization',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('ieee/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
-    
+
 })
 
 
@@ -135,7 +135,7 @@ router.get('/cse/:name/customization',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('customization',{result : result})
     })
-    
+
 })
 
 
@@ -152,7 +152,7 @@ router.get('/btech-final-year-project-report-:name/edit',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('B.Tech/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
-    
+
 })
 
 
@@ -164,7 +164,7 @@ router.get('/mtech-final-year-project-report-:name/edit',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('M.Tech/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
-    
+
 })
 
 
@@ -176,7 +176,7 @@ router.get('/be-final-year-project-report-:name/edit',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('BE/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
-    
+
 })
 
 
@@ -189,7 +189,7 @@ router.get('/me-final-year-project-report-:name/edit',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('ME/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
-    
+
 })
 
 
@@ -203,7 +203,7 @@ router.get('/bca-final-year-project-report-:name/edit',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('BCA/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
-    
+
 })
 
 
@@ -216,7 +216,7 @@ router.get('/mca-final-year-project-report-:name/edit',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('MCA/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
     })
-    
+
 })
 
 
@@ -228,7 +228,7 @@ router.get('/cse/synopsis/:name/customization',(req,res)=>{
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('synopis_customization',{result : result})
     })
-    
+
 })
 
 
@@ -237,4 +237,28 @@ router.get('/cse/synopsis/:name/customization',(req,res)=>{
 router.get('/make-your-own-project-pricing-list', (req, res) => { pool.query(`select name,seo_name,short_description from project`,
 (err,result)=>err ? console.log(err) : res.render('make-your-own-project-pricing-list',{result:result}))
 })
+
+
+
+
+router.get('/:name/source-code',(req,res)=>{
+    pool.query(`select id from add_project where seo_name = '${req.params.name}'`,(err,result)=>{
+        if(err) throw err;
+        else {
+            let projectid = result[0].id
+var query = `select * from add_project where seo_name = '${req.params.name}';`
+    var query1 = `select * from add_project order by name;`
+    var query2 = `select * from admin_features where projectid = '${projectid}';`
+    var query3 = `select * from user_features where projectid = '${projectid}';`
+    pool.query(query+query1+query2+query3,(err,result)=>{
+        if(err) throw err;
+        else res.render('download-source-code',{result})
+
+    })
+
+        }
+    })
+    
+})
+
 module.exports = router;

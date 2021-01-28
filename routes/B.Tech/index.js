@@ -16,6 +16,9 @@ today = yyyy + '-' + mm + '-' + dd;
 
 
 
+
+
+
 router.get('/', (req, res) => { pool.query(`select name,seo_name,short_description from project where er_diagram is not null`,
 (err,result)=>err ? console.log(err) : res.render('B.Tech/index',{result:result}))
 })
@@ -43,7 +46,7 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
     else if(!req.body.html){
 res.redirect(`/btech-final-year-project-report-${req.body.seo_name}/edit`)
     }
-   
+
 })
 
 
@@ -51,6 +54,8 @@ res.redirect(`/btech-final-year-project-report-${req.body.seo_name}/edit`)
 
 
 router.get('/projects',(req,res)=>{
+
+  req.session.roll_number = '1vi17cs108'
 
     if(req.session.roll_number){
 
@@ -70,7 +75,7 @@ if(req.session.deviceInfo == 'mobile'){
            var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
            var query3 = `select * from project where id = "${result[0].projectid}";`
            //For Testing
-           
+
            pool.query(query+query1+query2+query3,(err,result)=>{
                if(err) throw err;
                //else res.json(result)
@@ -96,7 +101,7 @@ else{
            var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
            var query3 = `select * from project where id = "${result[0].projectid}";`
          //For Testing
-          
+
            pool.query(query+query1+query2+query3,(err,result)=>{
                if(err) throw err;
                else res.render('B.Tech/final',{result:result})
@@ -107,7 +112,7 @@ else{
 
 }
 
-  
+
 }
 else{
     res.redirect('/')
