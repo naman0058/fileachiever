@@ -80,7 +80,7 @@ router.get('/demo1',(req,res)=>{
 })
 
 
-
+    
 
 
 
@@ -88,7 +88,7 @@ router.get('/demo1',(req,res)=>{
 router.post('/sportzkeeda-create',(req,res)=>{
   const url = `https://rzp_live_2AYlv8GRAaT63p:iIzpixX7YsDSUVPtAtbO5SMn@api.razorpay.com/v1/orders/`;
     const data = {
-        amount:req.body.amount*100,  // amount in the smallest currency unit
+        amount:req.body.amount,  // amount in the smallest currency unit
       //amount:100,
       currency: 'INR',
         payment_capture: true
