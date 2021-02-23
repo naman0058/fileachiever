@@ -40,6 +40,46 @@ router.post('/checkout-data',(req,res)=>{
 
 
 
+router.get('/demo1',(req,res)=>{
+    console.log(req.query)
+    res.send(req.query)
+})
+
+
+
+
+
+
+
+router.post('/sportzkeeda-create',(req,res)=>{
+  const url = `https://rzp_live_2AYlv8GRAaT63p:iIzpixX7YsDSUVPtAtbO5SMn@api.razorpay.com/v1/orders/`;
+    const data = {
+        amount:req.body.amount*100,  // amount in the smallest currency unit
+      //amount:100,
+      currency: 'INR',
+        payment_capture: true
+    }
+    console.log('data',data)
+    const options = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    fetch(url, options)
+        .then(res => res.json())
+        .then(
+            resu => res.send(resu)
+        );
+ })
+
+
+
+
+
+
+
 
 router.post('/razorpay',(req,res)=>{
   const url = `https://rzp_live_2AYlv8GRAaT63p:iIzpixX7YsDSUVPtAtbO5SMn@api.razorpay.com/v1/orders/`;
