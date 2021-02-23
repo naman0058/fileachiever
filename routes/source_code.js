@@ -40,6 +40,10 @@ router.post('/checkout-data',(req,res)=>{
 
 
 
+router.get('/demo',(req,res)=>{
+    res.render('sportzkeeda')
+})
+
 router.get('/demo1',(req,res)=>{
     console.log(req.query)
     res.send(req.query)
