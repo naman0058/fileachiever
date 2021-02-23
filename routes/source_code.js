@@ -40,6 +40,36 @@ router.post('/checkout-data',(req,res)=>{
 
 
 
+
+router.get('/success_razorpay',(req,res)=>{
+  res.json({
+    msg : 'success'
+  })
+})
+
+router.post('/success_razorpay',(req,res)=>{
+  res.json({
+    msg : 'success'
+  })
+})
+
+
+
+router.get('/failed_payment',(req,res)=>{
+  res.json({
+    msg : 'failed'
+  })
+})
+
+
+
+router.post('/failed_payment',(req,res)=>{
+  res.json({
+    msg : 'failed'
+  })
+})
+
+
 router.get('/demo',(req,res)=>{
     res.render('sportzkeeda')
 })
