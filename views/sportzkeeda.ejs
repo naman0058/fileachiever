@@ -17,13 +17,8 @@
     "description": '',
     "image": "",
     "order_id": data.param,//This is a sample Order ID. Create an Order using Orders API. (https://razorpay.com/docs/payment-gateway/orders/integration/#step-1-create-an-order). Refer the Checkout form table given below
-   "handler": function (response){
-      $.post('/final-year-projects-source-code/razorpay-response',response,data=>{
-      console.log('data aaya',data)
-      if(data=='success') window.location.href='/final-year-projects-source-code/success_razorpay'
-      else if(data=='failed') window.location.href='/final-year-projects-source-code/failed_payment'
-      else window.location.href='/final-year-projects-source-code/failed_payment'
-      })
+     "callback_url" : "https://www.filemakr.com/final-year-projects-source-code/razorpay-response",
+   
     },  "redirect": true,
      "modal": {
         "ondismiss": function(){
