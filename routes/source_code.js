@@ -50,18 +50,20 @@ router.get('/success_razorpay',(req,res)=>{
   })
 })
 
+
+
+
+
 router.post('/razorpay-response',(req,res)=>{
  let body = req.body;
  console.log('response recieve',body);
 
-
-
 if(body.razorpay_signature){
-   res.send('success')
+   res.redirect('/final-year-projects-source-code/success_razorpay')
 }
   else{
-    res.send('failed')
-  }
+    res.redirect('/final-year-projects-source-code/failed_payment') 
+     }
 
 })
 
