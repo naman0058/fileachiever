@@ -13,6 +13,9 @@ var instance = new Razorpay({
 
 
 
+var hash = require('sha256')
+
+
 var today = new Date();
 var dd = String(today.getDate()).padStart(2, '0');
 var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -47,10 +50,19 @@ router.get('/success_razorpay',(req,res)=>{
   })
 })
 
-router.post('/success_razorpay',(req,res)=>{
-  res.json({
-    msg : 'success'
-  })
+router.post('/razorpay-response',(req,res)=>{
+ let body = req.body;
+ console.log('response recieve',body);
+
+
+
+if(body.razorpay_signature){
+   res.send('success')
+}
+  else{
+    res.send('failed')
+  }
+
 })
 
     
@@ -110,6 +122,30 @@ router.post('/sportzkeeda-create',(req,res)=>{
 
 
 
+
+
+// router.get('/sportzkeeda-create',(req,res)=>{
+//   const url = `https://rzp_live_2AYlv8GRAaT63p:iIzpixX7YsDSUVPtAtbO5SMn@api.razorpay.com/v1/orders/`;
+//     const data = {
+//     //    amount:req.body.amount,  // amount in the smallest currency unit
+//       amount:100,
+//       currency: 'INR',
+//         payment_capture: true
+//     }
+//     console.log('data',data)
+//     const options = {
+//         method: 'POST',
+//         body: JSON.stringify(data),
+//         headers: {
+//             'Content-Type': 'application/json'
+//         }
+//     }
+//     fetch(url, options)
+//         .then(res => res.json())
+//         .then(
+//             resu => res.send(resu)
+//         );
+//  })
 
 
 
