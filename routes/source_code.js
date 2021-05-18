@@ -13,6 +13,9 @@ var instance = new Razorpay({
 
 
 
+var hash = require('sha256')
+
+
 var today = new Date();
 var dd = String(today.getDate()).padStart(2, '0');
 var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -37,6 +40,115 @@ router.post('/checkout-data',(req,res)=>{
     req.session.useremail = req.body.email
     res.send('done')
 })
+
+
+
+
+router.get('/success_razorpay',(req,res)=>{
+  res.json({
+    msg : 'success'
+  })
+})
+
+
+
+
+
+router.post('/razorpay-response',(req,res)=>{
+ let body = req.body;
+ console.log('response recieve',body);
+
+if(body.razorpay_signature){
+   res.redirect('/final-year-projects-source-code/success_razorpay')
+}
+  else{
+    res.redirect('/final-year-projects-source-code/failed_payment') 
+     }
+
+})
+
+    
+
+router.get('/failed_payment',(req,res)=>{
+  res.json({
+    msg : 'failed'
+  })
+})
+
+
+
+router.post('/failed_payment',(req,res)=>{
+  res.json({
+    msg : 'failed'
+  })
+})
+
+
+router.get('/demo',(req,res)=>{
+    res.render('sportzkeeda')
+})
+
+router.get('/demo1',(req,res)=>{
+    console.log(req.query)
+    res.send(req.query)
+})
+
+
+    
+
+
+
+
+router.post('/sportzkeeda-create',(req,res)=>{
+  const url = `https://rzp_live_2AYlv8GRAaT63p:iIzpixX7YsDSUVPtAtbO5SMn@api.razorpay.com/v1/orders/`;
+    const data = {
+        amount:req.body.amount,  // amount in the smallest currency unit
+      //amount:100,
+      currency: 'INR',
+        payment_capture: true
+    }
+    console.log('data',data)
+    const options = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    fetch(url, options)
+        .then(res => res.json())
+        .then(
+            resu => res.send(resu)
+        );
+ })
+
+
+
+
+
+router.get('/sportzkeeda-create',(req,res)=>{
+  const url = `https://rzp_live_2AYlv8GRAaT63p:iIzpixX7YsDSUVPtAtbO5SMn@api.razorpay.com/v1/orders/`;
+    const data = {
+    //    amount:req.body.amount,  // amount in the smallest currency unit
+      amount:100,
+      currency: 'INR',
+        payment_capture: true
+    }
+    console.log('data',data)
+    const options = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    fetch(url, options)
+        .then(res => res.json())
+        .then(
+            resu => res.send(resu)
+        );
+ })
+
 
 
 
