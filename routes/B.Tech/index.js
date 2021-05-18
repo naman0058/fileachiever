@@ -55,12 +55,6 @@ res.redirect(`/btech-final-year-project-report-${req.body.seo_name}/edit`)
 
 router.get('/projects',(req,res)=>{
 
-<<<<<<< HEAD
- 
-=======
-
->>>>>>> a850096baeb7babdee64dda39e10228134e41613
-
     if(req.session.roll_number){
 
 
