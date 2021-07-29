@@ -7,6 +7,8 @@
         $( document ).ready(function(e) {
             let searchParams = new URLSearchParams(window.location.search)
     let param = searchParams.get('a')
+    let param1 = searchParams.get('number')
+    // alert("+91" + param1)
     $.get('/final-year-projects-source-code/demo1',{param},data=>{
         console.log("datahai",data.param)
         var options1 = {
@@ -29,7 +31,8 @@
 
 "name": "Sportzkeeda",
 "email": "info.sportzkeeda@gmail.com",
-"contact": "+919988776655"
+// "contact": "+91" + param1
+"contact" : "+918877994455"
 
 
 
