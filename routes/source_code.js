@@ -161,7 +161,7 @@ router.post('/razorpay',(req,res)=>{
       currency: 'INR',
         payment_capture: true
     }
-    console.log('data',data)
+    console.log('data fast',data)
     const options = {
         method: 'POST',
         body: JSON.stringify(data),
@@ -172,7 +172,7 @@ router.post('/razorpay',(req,res)=>{
     fetch(url, options)
         .then(res => res.json())
         .then(
-            resu => res.send(resu)
+            resu =>console.log(resu)
         );
  })
 

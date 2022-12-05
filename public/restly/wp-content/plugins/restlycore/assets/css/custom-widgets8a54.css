@@ -1,0 +1,3495 @@
+/* ==================================
+===== RESTLY SECTION TITLE CSS ======
+================================== */
+
+.tran-04 {
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-section-stitle {
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+    color: #104cba;
+    font-family: 'Rubik';
+    line-height: 46px;
+    margin: 0;
+    padding: 0;
+}
+
+.restly-section-title {
+    font-size: 36px;
+    font-weight: 800;
+    margin: 0;
+    line-height: 46px;
+}
+
+.restly-section-title {
+    text-align: center;
+    padding: 0 135px;
+}
+
+
+/* ==================================
+========= HOME BANNER CSS ===========
+================================== */
+
+.restly-home-banner-btn {
+    display: block;
+    clear: both;
+    margin-top: 35px;
+}
+
+.restly-home-banner-contents {
+    padding: 200px 0;
+}
+
+.restly-banner-stitle {
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.restly-banner-title {
+    font-size: 72px;
+    font-weight: bolder;
+    font-family: 'Nunito';
+    line-height: 82px;
+    color: #ffffff;
+}
+
+.restly-home-banner {
+    background-position: center center;
+    background-size: cover;
+    z-index: 1;
+    position: relative;
+}
+
+.video-button {
+    width: 57px;
+    height: 57px;
+    background: #fff;
+    display: inline-block;
+    border-radius: 100%;
+    color: #104cba;
+    line-height: 1;
+    padding: 21px 0;
+    text-align: center;
+    margin-left: 20px;
+    transition: box-shadow 400ms cubic-bezier(0.2, 0, 0.7, 1), transform 200ms cubic-bezier(0.2, 0, 0.7, 1);
+}
+
+.video-button:hover {
+    box-shadow: 0 0 1px 15px rgb(255 255 255 / 40%), 0 0 1px 30px rgb(255 255 255 / 10%), 0 0 1px 45px rgb(255 255 255 / 6%);
+}
+
+.restly-home-banner:after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgb(16 76 186 / 24%);
+    z-index: -1;
+}
+
+
+/*** Home Four Banner */
+
+a.theme-btns.no-bg {
+    background-color: transparent;
+    border: 1px solid #ffffff;
+    padding: 19px 34px;
+    margin-left: 15px;
+}
+
+a.theme-btns.no-bg:hover {
+    background-color: #ffffff;
+    color: #1d2c38;
+}
+
+.restly-home-banner-forms {
+    background: #ffffff;
+    padding: 50px;
+}
+
+.restly-home-banner-forms .restly-banner-form-title {
+    font-size: 35px;
+    line-height: 1;
+    margin: 0;
+    font-family: 'Nunito';
+}
+
+.restly-home-banner-forms .restly-banner-form-stitle {
+    font-size: 16px;
+    line-height: 24px;
+    margin: 20px 0;
+    color: #454545;
+    font-family: 'Rubik';
+    font-weight: 400;
+}
+
+.restly-home-banner-forms .form-shortcode label {
+    font-size: 18px;
+    font-weight: bolder;
+    color: #001d23;
+    font-family: 'Nunito';
+    margin-bottom: 13px;
+}
+
+.restly-home-banner-forms .form-input.inputlist {
+    margin-bottom: 20px;
+}
+
+.restly-home-banner-forms input {
+    vertical-align: middle;
+    min-width: 100%;
+    border: 2px solid #dddddd;
+    outline: 0!important;
+    max-height: calc(12.2em + 18px);
+    height: calc(2.2em + 19px);
+    padding: 13px 10px 10px;
+    -webkit-appearance: none;
+    background-size: 12px;
+    max-width: 100%;
+    background: transparent;
+}
+
+.restly-home-banner-forms .wpcf7-submit.theme-btns {
+    min-width: auto;
+}
+
+.restly-home-banner-forms .wpcf7-response-output {
+    margin: 0 !important;
+}
+
+.restly-home-banner-wrapper.banner-two .restly-home-banner-contents {
+    padding: 300px 0;
+}
+
+.restly-home-banner-forms span.ajax-loader {
+    display: inline;
+}
+
+.restly-home-banner-wrapper.banner-two .restly-home-banner-contents {
+    margin-right: 50px;
+}
+
+
+/* ==================================
+========= SERVICE BOX CSS ===========
+================================== */
+
+.service-normal-hover {
+    border: 2px solid #e7edf8;
+    border-radius: 5px;
+    padding: 30px 20px;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.service-title {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+    margin-top: 30px;
+    font-family: 'Rubik';
+}
+
+.service-dec p {
+    line-height: 28px;
+    margin-top: 14px;
+    margin-bottom: 30px;
+}
+
+.service-nbtn .theme-btns {
+    width: 35px;
+    height: 35px;
+    border-radius: 100%;
+    padding: 0;
+    display: inline-block;
+    text-align: center;
+    line-height: 37px;
+    background-color: #e5eef6;
+    color: #104cba;
+}
+
+.service-nbtn .theme-btns:hover {
+    background-color: #104cba;
+    color: #fff;
+}
+
+.restly-service-icon i {
+    font-size: 70px;
+}
+
+.restly-service-normal .service-dec p {
+    margin-bottom: 25px;
+}
+
+.restly-service-normal .service-title {
+    margin-top: 25px;
+}
+
+.restly-service-normal {
+    padding: 28px 20px;
+}
+
+
+/*=================================
+========== Service hover ==========
+=================================*/
+
+.restly-service-hover {
+    background-color: #104cba;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.service-htitle {
+    font-size: 22px;
+    line-height: 34px;
+    font-family: 'Nunito';
+    font-weight: bolder;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+}
+
+.service-hbtn a {
+    clear: both;
+    display: block;
+    text-align: center;
+    background-color: #285ec1;
+}
+
+.restly-service-hover.service-normal-hover {
+    padding: 37px 27px;
+    position: absolute;
+    top: 0;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+    width: 100%;
+    left: 0;
+    opacity: 0;
+    transform: scale(1.4);
+    border-color: transparent;
+    height: 100%;
+}
+
+.restly-service-hover .service-dec p {
+    margin-top: 16px;
+    color: #ffffff;
+    margin-bottom: 21px;
+}
+
+.restly-service-box {
+    position: relative;
+    overflow: hidden;
+}
+
+.restly-service-tow-btn {
+    line-height: 0;
+}
+
+.restly-service-box:hover .restly-service-hover.service-normal-hover {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+/* ==================================
+======== SERVICE BOX TWO CSS ========
+================================== */
+
+.service-two-left .restly-service-two-icon {
+    margin-right: 30px;
+    float: left;
+}
+
+.restly-service-two-box {
+    border: 2px solid #e6ecf7;
+    border-radius: 5px;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+    padding: 30px;
+}
+
+.service-two-content {
+    overflow: hidden;
+}
+
+.service-two-title {
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Nunito';
+    line-height: 1;
+    margin: 0;
+}
+
+.service-two-dec p {
+    margin: 13px 0;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+a.theme-btns2 {
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Nunito';
+    color: #1d2c38;
+    line-height: 1;
+}
+
+a.theme-btns2 i {
+    font-size: 14px;
+}
+
+.restly-service-two-box:hover a.theme-btns2.two i {
+    color: #104cba;
+}
+
+.restly-service-two-box:hover {
+    border-color: transparent;
+    background-color: #fff;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+    box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 8%);
+}
+
+.restly-service-two-contents.service-two-center {
+    text-align: center;
+}
+
+.service-two-center .restly-service-two-icon {
+    margin-bottom: 20px;
+}
+
+.restly-service-two-contents.service-two-right .restly-service-two-icon {
+    float: right;
+    margin-left: 30px;
+}
+
+.service-two-right .service-two-content {
+    text-align: right;
+}
+
+.restly-service-two-icon i {
+    display: block;
+}
+
+
+/*=================================
+== RESTLY SERVICE BOX THREE CSS ===
+=================================*/
+
+.service-box-three-icon {
+    width: 106px;
+    height: 106px;
+    background: #ffffff;
+    text-align: center;
+    padding: 14px;
+    border-radius: 5px;
+    font-size: 75px;
+    display: block;
+}
+
+.restly-service-box-three-inner {
+    text-align: left;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.service-three-title {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    font-family: 'Nunito';
+    margin-top: 35px;
+    margin-bottom: 16px;
+    color: #fff;
+}
+
+.service-three-title a {
+    color: #fff;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.service-three-title a:hover {
+    color: #104cba;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.service-three-dec p {
+    color: #818a90;
+    margin-bottom: 0;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.serveice3-right .service-box-three-icon {
+    margin: 0 0 0 auto;
+}
+
+.serveice3-center .service-box-three-icon {
+    margin: auto;
+}
+
+
+/*=================================
+== RESTLY SERVICE BOX FOUR CSS ===
+=================================*/
+
+.restly-service-four-item {
+    box-shadow: 0px 0px 30px 0px hsl(0deg 0% 0% / 7%);
+    padding: 25px;
+    border-radius: 5px;
+}
+
+.service-four-image {
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: -67px;
+    margin-bottom: 35px;
+}
+
+.service-four-contnts {
+    display: flex;
+}
+
+.service-four-title-area .service-stitle-four {
+    font-size: 16px;
+    color: #104cba;
+    font-weight: bold;
+    font-family: 'Nunito';
+    line-height: 1.5;
+    margin: 0;
+}
+
+.service-four-title-area .service-title-four {
+    font-size: 24px;
+    font-weight: 600;
+    font-family: 'Nunito';
+    line-height: 1.5;
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.service-four-title-area {
+    width: 100%;
+}
+
+.service-four-icons i {
+    font-size: 60px;
+}
+
+.service-four-icons.service-icon-left {
+    margin-right: 20px;
+}
+
+.service-four-icons.service-icon-right {
+    margin-left: 20px;
+}
+
+
+/*=================================
+== RESTLY SERVICE BOX Five CSS ===
+=================================*/
+
+.restly-service-two-box.service-style-5 {
+    position: relative;
+}
+
+.restly-service-two-box.service-style-5 .restly-service-tow-btn {
+    position: absolute;
+    right: 30px;
+    top: -25px;
+}
+
+.restly-service-two-box.service-style-5 .restly-service-tow-btn a {
+    width: 45px;
+    height: 45px;
+    display: block;
+    background: #ffffff;
+    box-shadow: 10px 0px 60px 0px rgb(16 76 186 / 30%);
+    border-radius: 100%;
+    text-align: center;
+    line-height: 21px;
+    padding: 14px 0;
+}
+
+.restly-service-two-box.service-style-5 .service-two-dec p {
+    margin-bottom: 0;
+}
+
+
+/*=================================
+== RESTLY SERVICE BOX Six CSS ===
+=================================*/
+
+.restly-service-six-contents {
+    border: 1px solid #273540;
+    border-top: unset;
+    padding: 30px;
+}
+
+.service-six-title {
+    font-size: 22px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    line-height: 24px;
+}
+
+.restly-service-six-icon i {
+    font-size: 55px;
+}
+
+.service-six-dec p {
+    margin-bottom: 20px;
+}
+
+
+/*=================================
+== RESTLY IMAGE WITH EFFECT CSS ===
+=================================*/
+
+.image-shape {
+    background: #104cba;
+    animation: morph 8s ease-in-out infinite;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    height: 70%;
+    -webkit-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -ms-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+    width: 86%;
+    position: absolute;
+    bottom: 42px;
+    z-index: 0;
+    left: -9px;
+}
+
+.image-shape2 {
+    background: #273540;
+    animation: morph2 8s ease-in-out infinite;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    height: 97%;
+    -webkit-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -ms-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+    width: 76%;
+    position: absolute;
+    top: 13px;
+    z-index: 0;
+    left: 13px;
+}
+
+.restly-image {
+    position: relative;
+}
+
+@keyframes morph {
+    0% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    50% {
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+    100% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+}
+
+@keyframes morph2 {
+    0% {
+        border-radius: 60% 30% 70% 40% / 60% 40% 30% 70%;
+    }
+    50% {
+        border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%;
+    }
+    100% {
+        border-radius: 60% 30% 70% 40% / 60% 40% 30% 70%;
+    }
+}
+
+
+/*=================================
+======= RESTLY ABOUT US CSS =======
+=================================*/
+
+.restly-about-stitle {
+    font-size: 16px;
+    color: #fff;
+    font-family: 'Rubik';
+    font-weight: 600;
+    line-height: 46px;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 5px;
+}
+
+.restly-about-content .restly-about-title {
+    font-size: 36px;
+    line-height: 46px;
+    color: #ffffff;
+    font-weight: bold;
+    font-family: 'Nunito';
+    margin: 0;
+    padding: 0;
+}
+
+.restly-about-dec p {
+    color: #ffffff;
+    line-height: 28px;
+    opacity: 80%;
+    margin-top: 23px;
+    margin-bottom: 36px;
+}
+
+.restly-about-dec ul {
+    padding: 0;
+    margin: 0;
+}
+
+.restly-about-dec ul li {
+    color: #fff;
+    line-height: 40px;
+    font-weight: 400;
+    display: inline-block;
+    width: 49%;
+    position: relative;
+    margin-bottom: 11px;
+    clear: both;
+    padding-left: 45px;
+}
+
+.restly-about-dec ul li:before {
+    content: "\f00c";
+    font-family: 'Font Awesome 5 Free';
+    width: 35px;
+    height: 35px;
+    display: inline-block;
+    background: #104cba;
+    border-radius: 100%;
+    font-size: 14px;
+    text-align: center;
+    line-height: 40px;
+    font-weight: 600;
+    clear: both;
+    position: absolute;
+    left: 0;
+}
+
+.restly-about-content.restly-right .restly-about-dec ul li:before {
+    float: right;
+    margin-right: 0;
+    margin-left: 15px;
+}
+
+.restly-line-bg {
+    z-index: -1;
+}
+
+.restly-about-content.text-right .restly-about-dec ul li:before {
+    left: auto;
+    right: 0;
+}
+
+.restly-about-content.text-right .restly-about-dec ul li {
+    padding-left: 0;
+    padding-right: 50px;
+}
+
+
+/*=================================
+======= RESTLY COUNTER CSS ========
+=================================*/
+
+.counter-nmber {
+    font-size: 48px;
+    font-weight: 700;
+    font-family: 'Nunito';
+    line-height: 46px;
+    color: #fff;
+    display: inline-block;
+}
+
+.resty-counter-title {
+    font-size: 22px;
+    color: #fff;
+    font-family: 'Rubik';
+    margin: 0;
+    line-height: 46px;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.restly-counter {
+    text-align: center;
+}
+
+.restly-counter-wrapper.style-two {
+    width: 180px;
+    height: 180px;
+    border-radius: 100%;
+    background: #ffffff;
+    padding: 46px 0;
+    border: 8px solid rgb(231 231 233 / 56%);
+}
+
+
+/*=================================
+==== RESTLY WORK PROGRESS CSS =====
+=================================*/
+
+.restly-work-process-icon i {
+    background: #285ec1;
+    border-radius: 100%;
+    position: relative;
+    font-size: 65px;
+    line-height: 1;
+    color: #fff;
+    width: 130px;
+    height: 130px;
+    vertical-align: middle;
+    text-align: center;
+    padding: 36px 0;
+    display: inline-block;
+    font-style: normal
+}
+
+.restly-work-process-icon i label,
+.restly-work-process-icon.with-img span label {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    position: absolute;
+    top: 17px;
+    right: -3px;
+    width: 30px;
+    height: 30px;
+    background: #fff;
+    border-radius: 100%;
+    text-align: center;
+    line-height: 34px;
+    font-size: 16px;
+    font-family: 'Rubik';
+    font-weight: 600;
+    color: #104cba;
+}
+
+.restly-work-process-icon.with-img span label {
+    top: -40px;
+}
+
+.restly-work-process {
+    text-align: center;
+}
+
+.work-process-title {
+    font-family: 'Rubik';
+    color: #fff;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 30px;
+    padding: 0px 50px;
+    margin-top: 30px;
+    margin-bottom: 0;
+}
+
+.restly-work-process-icon.with-img img {
+    background: #285ec1;
+    border-radius: 100%;
+    position: relative;
+    font-size: 65px;
+    line-height: 1;
+    color: #fff;
+    width: 130px;
+    height: 130px;
+    vertical-align: middle;
+    text-align: center;
+    padding: 19px 0;
+    display: inline-block;
+    font-style: normal;
+    object-fit: none;
+}
+
+.restly-work-process-icon.with-img span {
+    position: relative;
+}
+
+
+/*=================================
+== RESTLY WORK PROGRESS TWO CSS ===
+=================================*/
+
+.restly-work-progress-two {
+    text-align: center;
+}
+
+.restly-work-progress-two .work-process-title {
+    color: #091d3e;
+    margin-bottom: 24px;
+}
+
+.restly-work-progress-two {
+    position: relative;
+    padding-bottom: 24px;
+    z-index: 1;
+}
+
+.restly-work-progress-two label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 28px;
+    font-size: 125px;
+    font-family: 'Nunito';
+    font-weight: 900;
+    color: #eeeff1;
+    z-index: -1;
+}
+
+.restly-workp_two_dec p {
+    margin: 0;
+    padding: 0 30px;
+    margin-bottom: 15px;
+}
+
+
+/*=================================
+==== RESTLY PRICING TABLE CSS =====
+=================================*/
+
+.restly-pricing-inner {
+    box-shadow: 0px 0px 30px 0px hsl(0deg 0% 0% / 7%);
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-pricing-header {
+    background-color: #e7edf8;
+    border-radius: 5px;
+    padding: 16px 0 13px;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-pricing-title {
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: 900;
+    line-height: 46px;
+    margin: 0;
+}
+
+.restly-pricing-one .restly-pricing-inner:hover .restly-pricing-title {
+    color: #ffffff;
+}
+
+h2.restly-pricing-price {
+    font-size: 48px;
+    color: #104cba;
+    line-height: 46px;
+    margin: 0;
+    font-weight: 800;
+    padding-top: 3px;
+}
+
+h6.restly-pricing-time {
+    font-size: 18px;
+    color: #73767c;
+    font-weight: 800;
+    line-height: 46px;
+    margin-bottom: 0;
+}
+
+h2.restly-pricing-price label {
+    font-size: 24px;
+}
+
+.restly-price-feature {
+    padding: 40px 0;
+}
+
+.restly-price-feature ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.restly-price-feature ul li {
+    font-size: 16px;
+    line-height: 35px;
+}
+
+.restly-price-footer {
+    margin-bottom: 30px;
+}
+
+.restly-price-footer a.theme-btns {
+    padding: 20px 50px;
+    border-radius: 50px;
+    font-weight: 600;
+}
+
+.restly-pricing-two .restly-pricing-inner {
+    padding: 0;
+}
+
+.restly-pricing-two .restly-pricing-header {
+    background: transparent;
+    position: relative;
+    padding-bottom: 43px;
+    overflow: hidden;
+    padding-top: 25px;
+    z-index: 99999;
+}
+
+.restly-pricing-two .restly-pricing-header:after {
+    position: absolute;
+    width: 450px;
+    height: 473px;
+    background: #f6f9fd;
+    left: -42px;
+    top: -257px;
+    content: "";
+    z-index: -1;
+    border-radius: 100%;
+}
+
+.restly-pricing-warpper.restly-pricing-two .restly-pricing-inner {
+    box-shadow: none;
+    border: 1px solid #ececec;
+}
+
+.restly-pricing-two .restly-price-footer {
+    margin-bottom: 40px;
+}
+
+.restly-pricing-warpper.restly-pricing-two:hover .restly-pricing-inner {
+    background-color: #1d2c38;
+}
+
+.restly-pricing-warpper.restly-pricing-two:hover .restly-pricing-two .restly-pricing-header:after {
+    background-color: #f6f9fd;
+}
+
+.restly-pricing-warpper.restly-pricing-two:hover .restly-pricing-header:after {
+    background: #104cba;
+}
+
+.restly-pricing-two:hover .restly-pricing-header .restly-pricing-title,
+.restly-pricing-two:hover .restly-pricing-header .restly-pricing-price {
+    color: #fff;
+}
+
+.restly-pricing-two:hover .restly-pricing-header .restly-pricing-time {
+    color: #a9bfe6;
+}
+
+.restly-pricing-two:hover .restly-price-feature ul li {
+    color: #fff;
+}
+
+.restly-pricing-warpper.restly-pricing-two .restly-price-footer a.theme-btns:hover {
+    color: #1d2c38;
+    background-color: #ffffff;
+}
+
+
+/** Procing three ***/
+
+.restly-pricing-warpper.restly-pricing-three .restly-pricing-header {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.restly-pricing-header .restly-price-footer {
+    margin-bottom: 0;
+}
+
+.restly-pricing-warpper.restly-pricing-three .restly-price-footer {
+    margin-bottom: 0;
+}
+
+.restly-pricing-warpper.restly-pricing-three .restly-pricing-inner {
+    padding: 50px 0;
+}
+
+.pricing-icon i {
+    font-size: 72px;
+    margin: 26px 0;
+    display: block;
+}
+
+.restly-pricing-warpper.restly-pricing-three .restly-pricing-title {
+    line-height: 1;
+}
+
+.restly-pricing-warpper.restly-pricing-three h2.restly-pricing-price {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}
+
+.restly-pricing-warpper.restly-pricing-three .restly-price-feature {
+    padding-top: 4px;
+}
+
+.restly-pricing-warpper.restly-pricing-three>span {
+    position: absolute;
+    right: -20px;
+    background: #2058bf;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: bolder;
+    font-family: 'Nunito';
+    transform: rotate(90deg);
+    top: 43px;
+    border: none;
+    padding-top: 3px;
+    padding-bottom: 0px;
+    padding-right: 32px;
+    padding-left: 18px;
+}
+
+.restly-pricing-warpper.restly-pricing-three>span:after {
+    content: "";
+    width: 27px;
+    height: 27px;
+    background: white;
+    position: absolute;
+    top: 2px;
+    right: -13px;
+    border: none;
+    transform: rotate(45deg);
+}
+
+
+/*** pricing tab version**/
+
+.restly-pricing-tabs-wrapper .nav {
+    display: block;
+    background: #ffffff;
+    padding: 15px 14px;
+    max-width: 73%;
+    border-radius: 5px;
+    text-align: center;
+    margin: 28px 0;
+}
+
+.restly-pricing-tabs-wrapper .nav button {
+    display: inline-block;
+    background-color: transparent;
+    color: #949494;
+    text-transform: capitalize;
+    font-weight: bold;
+    padding: 0px 14px;
+    vertical-align: middle;
+}
+
+.restly-pricing-tabs-wrapper .nav button.active {
+    background-color: transparent;
+    color: #0e1e2a;
+}
+
+.restly-pricing-tabs-wrapper .nav button i {
+    margin-right: 6px;
+}
+
+.restly-pricing-static-contnets h4 {
+    font-size: 16px;
+    color: #ffffff;
+    margin: 0;
+    font-family: 'Rubik';
+    font-weight: 500;
+}
+
+.restly-pricing-static-contnets h2 {
+    font-size: 36px;
+    font-family: 'Nunito';
+    color: #ffffff;
+    margin: 15px 0;
+}
+
+.restly-pricing-static-contnets p {
+    color: #ffffff;
+}
+
+.restly-pricing-sort-dec p {
+    color: #fff;
+    margin-bottom: 27px;
+}
+
+
+/**** Prcing Four **/
+
+.restly-pricing-v2-wrapper {
+    background: #F4F7FA;
+    padding: 40px;
+    text-align: center;
+    transition: .4s;
+}
+
+.restly-price-v2-title {
+    font-size: 18px;
+    color: #2F97F7;
+}
+
+.restly-price-v2-price {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+.restly-price-v2-offer span {
+    background: #ffffff;
+    font-size: 12px;
+    padding: 5px 20px;
+    border-radius: 5px;
+    color: #3938B9;
+    text-transform: capitalize;
+}
+
+.restly-price-v2-offer {
+    display: block;
+}
+
+.restly-price-v2-dec {
+    padding: 50px 0;
+}
+
+a.restly-price-v2-btn {
+    padding: 13px 30px;
+    background: #2F97F7;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 5px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+a.restly-price-v2-btn i {
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+a.restly-price-v2-btn:hover {
+    background-color: #0A1426;
+}
+
+
+/*=================================
+=== RESTLY PORTFOLIO INFO CSS =====
+=================================*/
+
+.restly-protfolio-info-list ul li:after {
+    position: absolute;
+    content: "";
+    width: 10px;
+    height: 10px;
+    background: #104cba;
+    left: 0;
+    top: 3px;
+    bottom: 0;
+    border-radius: 100%;
+}
+
+.restly-protfolio-info-list {
+    padding: 35px 45px;
+    background-color: #F3F7FF;
+    border-radius: 5px;
+}
+
+.restly-protfolio-info-list .portfolio-info-title {
+    font-size: 26px;
+    font-weight: 900;
+    font-family: 'Nunito';
+    line-height: 46px;
+    margin-bottom: 30px;
+    padding: 0;
+    margin-top: 0;
+    color: #1D2C38;
+}
+
+.restly-protfolio-info-list ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.restly-protfolio-info-list ul li label {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    font-family: 'Nunito';
+    margin: 0;
+    padding: 0;
+    line-height: 1em;
+    color: #1d2c38;
+    margin-bottom: 16px;
+    letter-spacing: -0.20px;
+    margin-left: 20px;
+}
+
+.site-main.content-area.sidebar-no-bg-main .all-posts-wrapper {
+    padding: 0;
+}
+
+.restly-protfolio-info-list ul li {
+    font-size: 18px;
+    line-height: 24px;
+    font-family: 'Nunito';
+    color: #1D2C38;
+    font-weight: 400;
+    border-bottom: 1px solid #d9dfea;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.restly-protfolio-info-list ul li:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border: none;
+}
+
+.restly-protfolio-info-list ul li a {
+    margin-right: 7px;
+    position: relative;
+    font-size: 18px;
+    font-family: 'Nunito';
+    color: #1d2c38;
+    font-weight: 400;
+}
+
+.restly-protfolio-info-list ul li a:after {
+    content: ",";
+    margin-left: 1px;
+}
+
+.restly-protfolio-info-list ul li a:last-child:after {
+    content: "";
+}
+
+.restly-protfolio-info-list ul li a:hover {
+    color: #104cba;
+}
+
+.restly-portfolio-dec2 {
+    position: absolute;
+    bottom: 0px;
+    z-index: 11;
+    width: 100%;
+    padding-left: 30px;
+}
+
+.portfolio-style-two .restly-portfolio-item:after {
+    background: rgb(9, 29, 62);
+    background: linear-gradient(0deg, rgb(7 21 44) 0%, rgb(255 255 255 / 20%) 100%);
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-portfolio-dec2 h6 a {
+    color: #fff;
+}
+
+.restly-portfolio-dec2 h6 {
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Nunito';
+    line-height: 46px;
+    border-bottom: 1px solid rgb(66 83 123 / 61%);
+    padding-bottom: 10px;
+    margin-bottom: 0;
+    text-transform: capitalize;
+}
+
+.restly-portfolio-btn {
+    line-height: 1;
+    padding: 15px 0;
+}
+
+.restly-portfolio-btn a.theme-btns2 {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Nunito';
+}
+
+.restly-portfolio-items.portfolio-style-two .restly-portfolio-item {
+    border-radius: 5px;
+    object-fit: cover;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-portfolio-btn a.theme-btns2 i {
+    margin-left: 8px;
+}
+
+.restly-portfolio-dec2 h6 a:hover,
+.restly-portfolio-btn a.theme-btns2:hover {
+    color: #104cba;
+}
+
+.restly-portfolio-cats a:last-child {
+    display: block;
+}
+
+.restly-portfolio-cats a {
+    display: none;
+}
+
+
+/*=================================
+===== RESTLY PORTFOLIO FIVE CSS =====
+=================================*/
+
+.restly-portfolio-item-five {
+    position: relative;
+    min-height: 370px;
+    background-position: center center;
+    background-size: cover;
+    width: 100%;
+    z-index: 1;
+}
+
+.portfolio-style-five .restly-portfolio-decs {
+    position: absolute;
+    bottom: 30px;
+    text-align: center;
+    width: 100%;
+}
+
+.restly-portfolio-item-five:after {
+    content: "";
+    background: rgb(14 30 42 / 53%);
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+}
+
+.portfolio-style-five .restly-portfolio-content h6 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.portfolio-style-five .restly-portfolio-content a {
+    color: #ffffff;
+}
+
+.portfolio-style-five .restly-portfolio-content p {
+    color: #ffffff;
+}
+
+.portfolio-style-five .restly-portfolio-content {
+    padding: 0 19px;
+}
+
+.portfolio-style-five .restly-portfolio-content a:hover {
+    color: #104cba;
+}
+
+.portfolio-style-five .portfolio-btn a {
+    background: #104cba;
+    padding: 10px 12px;
+    display: inline-block;
+    border-radius: 5px;
+    color: #ffffff;
+}
+
+.portfolio-style-five .portfolio-btn {
+    position: absolute;
+    right: 10px;
+    top: -11px;
+}
+
+.portfolio-style-five .portfolio-btn a:hover {
+    background-color: #0e1e2a;
+}
+
+
+/*=================================
+===== RESTLY CONTACT INFO CSS =====
+=================================*/
+
+.restly-contact-info {
+    background-color: #104cba;
+    padding: 65px 55px;
+    border-radius: 5px;
+}
+
+.restly-contact-info .contact-info-title {
+    color: #ffffff;
+    font-size: 30px;
+    line-height: 46px;
+    font-family: 'Rubik';
+    font-weight: 600;
+    margin: 0;
+    margin-bottom: 50px;
+}
+
+.restly-cinfo {
+    display: flex;
+    margin-bottom: 45px;
+}
+
+.restly-cinfo:last-child {
+    margin-bottom: 0 !important;
+}
+
+.restly-cinfo-icon i {
+    width: 40px;
+    height: 40px;
+    background: #4070c8;
+    color: #fff;
+    text-align: center;
+    border-radius: 100%;
+    font-size: 16px;
+    line-height: 42px;
+    margin-right: 20px;
+    display: block;
+}
+
+.restly-cinfo-dec span {
+    font-size: 16px;
+    color: #b8caea;
+    font-family: 'Rubik';
+    line-height: 28px;
+}
+
+.restly-cinfo-dec p {
+    font-size: 18px;
+    font-family: 'Rubik';
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.restly-cinfo-dec p a {
+    color: #ffffff;
+}
+
+.restly-cinfo-dec p a:hover {
+    color: #1d2c38;
+}
+
+
+/*=================================
+=====   RESTLY PORTFOLIO CSS  =====
+=================================*/
+
+.restly-portfolio-item {
+    position: relative;
+    overflow: hidden;
+    transition: .4s;
+}
+
+.restly-portfolio-dec {
+    position: absolute;
+    bottom: -190px;
+    width: 90%;
+    background: rgb(0 0 0 / 80%);
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    border-radius: 5px;
+    padding: 13px 20px;
+    transition: .4s;
+}
+
+.restly-portfolio-dec a {
+    color: #ffffff;
+}
+
+.restly-portfolio-dec>a {
+    font-size: 12px;
+    font-family: 'Rubik';
+    font-weight: 600;
+    line-height: 1;
+    margin-right: 5px;
+    text-transform: capitalize;
+    position: relative;
+}
+
+.restly-portfolio-dec h6 {
+    margin: 0;
+}
+
+.restly-portfolio-dec h6 a {
+    line-height: 30px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Nunito';
+}
+
+.restly-portfolio-dec a:hover {
+    color: #104cba;
+}
+
+.restly-portfolio-dec>a:after {
+    content: ",";
+    margin-left: 1px;
+}
+
+.restly-portfolio-dec a:last-of-type:after {
+    content: "";
+}
+
+.restly-portfolio-item:hover .restly-portfolio-dec {
+    transition: .4s;
+    bottom: 20px;
+}
+
+.restly-portfolio-item img {
+    object-fit: cover;
+}
+
+img.img-responsive.portfolio-three-image.wp-post-image {
+    height: max-content;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.restly-portfolio-three-content .restly-portfolio-dec {
+    bottom: 13px;
+    background-color: #ffffff;
+}
+
+.restly-portfolio-three-content .restly-portfolio-dec h6 a {
+    color: #1d2c38;
+}
+
+.restly-portfolio-three-content .restly-portfolio-dec:hover {
+    background: #104cba;
+}
+
+.restly-portfolio-three-content .restly-portfolio-dec:hover h6 a {
+    color: #ffffff;
+}
+
+.restly-portfolio-three .owl-nav>div {
+    width: 45px;
+    height: 45px;
+    border-radius: 100%;
+    background-color: #ffffff;
+    margin-right: 15px;
+    text-align: center;
+    transition: .4s;
+    font-size: 0;
+    padding: 9px;
+}
+
+.restly-portfolio-three .owl-nav .owl-prev:before,
+.restly-portfolio-three .owl-nav .owl-next:before {
+    font-size: 22px;
+    color: #104cba;
+}
+
+.restly-portfolio-three .owl-nav .owl-prev:hover:before,
+.restly-portfolio-three .owl-nav .owl-next:hover:before {
+    color: #ffffff;
+}
+
+.restly-portfolio-three .owl-nav .owl-prev:before {
+    content: "\f12c";
+    font-family: 'bootstrap-icons';
+    color: #104cba;
+    font-weight: bold;
+    font-size: 23px;
+}
+
+.restly-portfolio-three .owl-nav .owl-next:before {
+    content: "\f135";
+    font-family: 'bootstrap-icons';
+    color: #104cba;
+    font-weight: bold;
+}
+
+.restly-portfolio-three .owl-nav>div:hover {
+    background-color: #104cba;
+}
+
+.restly-portfolio-three-content button.slick-arrow:hover:before {
+    color: #ffffff;
+}
+
+.restly-portfolio-static-contents h2 {
+    font-size: 36px;
+    font-weight: 900;
+    font-family: 'Nunito';
+    line-height: 46px;
+    padding-right: 30px;
+}
+
+.restly-portfolio-static-contents h3 {
+    font-size: 16px;
+    color: #104cba;
+    margin: 0;
+    line-height: 46px;
+}
+
+.restly-portfolio-three-slides {
+    left: 28%;
+    position: relative;
+    margin-top: -199px;
+}
+
+.restly-portfolio-three .owl-nav {
+    position: absolute;
+    left: -328px;
+    top: 50%;
+}
+
+.restly-portfolio-three .owl-nav>div {
+    display: inline-block;
+}
+
+.restly-portfolio-with-menu-wrapper .restly-portfolio-dec h6 a {
+    line-height: 30px;
+    padding: 8px 0;
+}
+
+.restly-portfolio-related-wrapper {
+    margin-bottom: 120px;
+}
+
+
+/*=================================
+=====   RESTLY PORTFOLIO STYLE FOUR CSS  =====
+=================================*/
+
+.restly-portfolio-items.portfolio-style-four .restly-portfolio-dec {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    vertical-align: bottom;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 0;
+    margin: 0 auto;
+    border-radius: 0;
+    background-color: #0e1e2a;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.restly-portfolio-items.portfolio-style-four .portfolio-hover {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 100px;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+}
+
+.portfolio-hover {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 100px;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+}
+
+.restly-portfolio-items.portfolio-style-four .restly-portfolio-dec h6 {
+    margin: 6px 0px 15px 0;
+}
+
+a.portfolio-btn {
+    font-size: 24px;
+}
+
+.restly-portfolio-items.portfolio-style-four .restly-portfolio-item:hover .restly-portfolio-dec {
+    opacity: 85%;
+    visibility: visible;
+}
+
+
+/*=================================
+========   RESTLY BLOG CSS  =======
+=================================*/
+
+.restly-blog-post-item.restly-blog-one {
+    box-shadow: 0px 0px 30px 0px hsl(0deg 0% 0% / 7%);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.restly-blog-post-content .post-meta-item ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.restly-blog-top-area {
+    padding: 25px 25px 0 25px;
+}
+
+.restly-blog-post-content .post-meta-item ul li {
+    display: inline-block;
+    margin-right: 26px;
+    font-size: 14px;
+    text-transform: capitalize;
+    line-height: 27px;
+}
+
+.restly-blog-post-content .post-meta-item ul li i {
+    margin-right: 10px;
+    color: #104cba;
+}
+
+.restly-blog-post-content .post-meta-item ul li a {
+    color: #454545;
+}
+
+.restly-blog-post-title a {
+    font-size: 20px;
+    font-weight: 600;
+    font-family: 'Rubik';
+    line-height: 28px;
+    margin: 13px 0;
+    display: block;
+}
+
+.restly-blog-one .restly-blog-post-author {
+    padding: 14px 25px;
+    border-top: 1px solid #e3e3e3;
+    margin-top: 22px;
+}
+
+.restly-blog-post-author img {
+    border-radius: 100% !important;
+    width: 35px;
+    height: 35px !important;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.restly-blog-post-author {
+    font-weight: 600;
+    font-size: 15px;
+    font-family: 'Rubik';
+}
+
+.restly-blog-post-author span.author.vcard a {
+    text-transform: capitalize !important;
+    margin-left: 6px;
+}
+
+.restly-blog-post-author .byline {
+    text-transform: capitalize;
+}
+
+li.postby-tow {
+    font-size: 15px;
+    font-weight: normal;
+    text-transform: capitalize;
+    line-height: 28px;
+}
+
+li.postby-tow span a {
+    margin-left: 6px;
+}
+
+.restly-blog-two .restly-blog-post-author {
+    position: absolute;
+    top: -20px;
+}
+
+.restly-blog-two .post-meta-item {
+    margin-top: 5px;
+}
+
+.restly-blog-two .restly-blog-top-area {
+    box-shadow: 0px 0px 30px 0px hsl(0deg 0% 0% / 7%);
+    background: #fff;
+    margin-top: -28px;
+    border-radius: 5px;
+    padding-bottom: 15px;
+    position: relative;
+}
+
+.restly-blog-two .restly-blog-post-content {
+    padding-right: 30px;
+}
+
+.restly-blog-post-img img {
+    height: 230px !important;
+    object-fit: cover;
+}
+
+.restly-blog-post-item.restly-blog-two .restly-blog-post-img img {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.restly-blog-post-content .post-meta-item ul li a:hover {
+    color: #104cba;
+}
+
+
+/*=================================
+==== RESTLY BLOG V2 =====
+=================================*/
+
+.restly-blog-v2-static-wrapper .restly-blog-tatic-stitle {
+    font-size: 16px;
+    font-family: 'Rubik';
+    color: #0054a6;
+    line-height: 1;
+}
+
+.restly-blog-v2-static-wrapper .restly-blog-tatic-title {
+    font-size: 36px;
+    font-weight: bold;
+    font-family: 'Nunito';
+    margin-bottom: 22px;
+}
+
+.restly-blog-v2-sdec {
+    margin-bottom: 36px;
+}
+
+.restly-blog-v2-static-wrapper {
+    padding-right: 10px;
+}
+
+.restly-blog-v2-items .no-image .restly-blog-post-item {
+    box-shadow: 0px 0px 30px 0px hsl(0deg 0% 0% / 7%);
+    padding-top: 12px;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    transition: .4s;
+    border-radius: 5px;
+}
+
+.restly-blog-v2-items .no-image .restly-blog-post-item:last-child {
+    margin-bottom: 0;
+}
+
+.restly-blog-v2-items .no-image .restly-blog-post-item:last-child {
+    margin-bottom: 0;
+}
+
+.restly-blog-v2-items .no-image .restly-blog-post-item:hover .post-meta-item ul li i,
+.restly-blog-v2-items .no-image .restly-blog-post-item:hover .restly-blog-post-title a {
+    color: #ffffff;
+}
+
+.restly-blog-v2-items .no-image .restly-blog-post-item:hover {
+    background-color: #104cba;
+}
+
+.no-image .restly-blog-post-item:hover .restly-post-dec,
+.restly-blog-v2-items .no-image .restly-blog-post-item:hover .post-meta-item ul li a {
+    color: #ffffff;
+    opacity: 50%;
+}
+
+
+/*=================================
+==== RESTLY FEATURED ICON CSS =====
+=================================*/
+
+.restly-freature-icon-title-box {
+    text-align: center;
+    background: #fff;
+    border-radius: 5px;
+    padding: 30px 20px;
+    box-shadow: 0px 0px 30px 0px hsl(0deg 0% 0% / 7%);
+}
+
+h2.feature-title {
+    margin: 23px 0 0 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Rubik';
+    line-height: 1;
+}
+
+.restly-freature-icon-title-box i {
+    font-size: 72px;
+}
+
+
+/*=================================
+==== RESTLY FEATURED ICON CSS =====
+=================================*/
+
+.no-slide .restly-client-logo-items img {
+    margin: 0 65px;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.no-slide .restly-client-logo-items img:last-child {
+    margin-right: 0;
+}
+
+.no-slide .restly-client-logo-items img:first-child {
+    margin-left: 0;
+}
+
+.restly-client-logo-wrapper.enable-slide img {
+    width: auto !important;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-client-logo-wrapper.enable-slide ul.slick-dots {
+    margin-top: 31px;
+}
+
+.restly-client-logo-wrapper.enable-slide img {
+    margin: 0 50px;
+}
+
+.restly-client-logo-items .slick-slide {
+    text-align: center;
+}
+
+
+/*=================================
+===== RESTLY TEAM MEMBER CSS ======
+=================================*/
+
+.restly-team-title-inner .team-title {
+    font-size: 36px;
+    font-weight: bold;
+    font-family: 'Nunito';
+    line-height: 1;
+    margin: 0;
+}
+
+.restly-team-title-inner .team-stitle {
+    font-size: 22px;
+    font-weight: 400;
+    font-family: 'Nunito';
+    line-height: 1;
+    margin-bottom: 0;
+    margin-top: 8px;
+}
+
+.restly-team-contents .restly-team-title {
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Nunito';
+    line-height: 1;
+    margin: 0;
+}
+
+.restly-team-contents .restly-team-stitle {
+    font-size: 16px;
+    font-weight: 400;
+    font-family: 'Rubik';
+    line-height: 20px;
+    margin: 0;
+    margin-top: 10px;
+}
+
+.restly-team-contents {
+    text-align: center;
+    background: #e7edf8;
+    border-radius: 5px;
+    padding: 25px;
+    margin-top: 12px;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-team-img .restly-team-image {
+    border-radius: 5px;
+}
+
+.team-style-two .restly-team-item {
+    position: relative;
+}
+
+.team-style-two .restly-team-contents {
+    margin-top: -21px;
+    z-index: 999;
+    position: relative;
+    width: 85%;
+    margin: -25px auto;
+    background-color: #223441;
+    transition: .4s;
+}
+
+.team-style-two .restly-team-contents .restly-team-title a,
+.restly-team-item:hover .restly-team-contents .restly-team-title a {
+    color: #fff;
+}
+
+.restly-team-item:hover .restly-team-contents {
+    background-color: #104cba;
+}
+
+.team-style-two .restly-team-contents .restly-team-stitle,
+.restly-team-item:hover .restly-team-contents .restly-team-stitle {
+    color: #bdc2c6;
+}
+
+.team-items.slick-initialized .slick-slide {
+    margin-right: 30px;
+}
+
+.team-items .single-item:nth-child(2),
+.team-items .single-item:nth-child(3),
+.team-items .single-item:nth-child(1),
+.team-items .single-item:nth-child(4) {
+    margin-top: 0;
+}
+
+.team-items .single-item {
+    margin-top: 30px;
+}
+
+
+/** Team Three */
+
+.restly-team-inner.team-style-three .restly-team-social ul li {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.restly-team-inner.team-style-three .restly-team-social ul li a {
+    display: block;
+    font-size: 16px;
+    padding: 0 8px;
+}
+
+.team-style-three .restly-team-social {
+    margin-top: 15px;
+    display: none;
+    transition: .4s;
+}
+
+.restly-team-inner.team-style-three .restly-team-contents {
+    background-color: transparent;
+    z-index: 999;
+    position: relative;
+    width: 85%;
+    margin: auto;
+    transition: .4s;
+    margin-top: 12px;
+    padding: 20px 20px;
+    padding-top: 27px;
+    position: absolute;
+    overflow: hidden;
+    left: 0;
+    right: 0;
+}
+
+.restly-team-inner.team-style-three .restly-team-item {
+    position: relative;
+    padding-bottom: 136px;
+}
+
+.restly-team-inner.team-style-three .restly-team-item:hover .restly-team-contents {
+    background: #ffffff;
+    box-shadow: -11px 12px 33px 0px rgb(32 88 191 / 8%);
+    margin-top: -65px;
+}
+
+.restly-team-inner.team-style-three .restly-team-item:hover .restly-team-contents .restly-team-social {
+    display: block;
+    transition: .4s;
+}
+
+.team-style-three .restly-team-contents .restly-team-title a,
+.team-style-three .restly-team-item:hover .restly-team-contents .restly-team-title a {
+    color: #1d2c38;
+}
+
+.team-style-three .restly-team-contents .restly-team-stitle,
+.team-style-three .restly-team-item:hover .restly-team-contents .restly-team-stitle {
+    color: #454545;
+}
+
+.restly-team-inner.team-style-three .restly-team-contents .restly-team-title {
+    font-size: 24px;
+}
+
+.team-style-three .restly-team-item:hover .restly-team-contents .restly-team-title a:hover {
+    color: #2058bf;
+}
+
+.team-style-four .restly-team-contents {
+    margin-top: 0;
+    background: #ffffff;
+}
+
+.restly-team-inner.team-style-four .restly-team-img .restly-team-image {
+    border-radius: 0;
+}
+
+.team-style-four .restly-team-img .restly-team-social ul {
+    margin: 0;
+    padding: 0;
+}
+
+.team-style-four .restly-team-img .restly-team-social ul li {
+    display: inline-block;
+}
+
+.team-style-four .restly-team-img .restly-team-social ul li a {
+    width: 40px;
+    height: 40px;
+    display: block;
+    background: #ffffff;
+    border-radius: 100%;
+    text-align: center;
+    line-height: 43px;
+    margin: 5px;
+}
+
+.team-style-four .restly-team-social {
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-bottom: -60px;
+}
+
+.team-style-four .restly-team-img {
+    position: relative;
+    overflow: hidden;
+}
+
+.restly-team-inner.team-style-four .restly-team-item:hover .restly-team-social {
+    margin-bottom: 17px;
+    z-index: 1;
+    transition: .4s;
+}
+
+.team-style-four .restly-team-item .restly-team-img:after {
+    background: rgb(10 20 38 / 50%);
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: .4s;
+}
+
+.team-style-four .restly-team-item:hover .restly-team-img:after {
+    opacity: 1;
+}
+
+.team-style-four .restly-team-img .restly-team-social ul li a:hover {
+    background-color: #2F97F7;
+    color: #ffffff;
+}
+
+
+/*=================================
+====== RESTLY SUBSCRIBE CSS =======
+=================================*/
+
+.restly-subscribe-innter .mc4wp-form-fields input[type=email] {
+    border: 2px solid #88a6dd;
+    border-radius: 5px;
+}
+
+.restly-subscribe-innter .mc4wp-form-fields button {
+    width: auto;
+    height: auto;
+    border-radius: 5px;
+    padding: 10px 30px;
+    margin: 6px;
+    background-color: #ffffff;
+    color: #091d3e;
+    font-weight: 600;
+}
+
+.restly-subscribe-innter .mc4wp-form-fields button:hover {
+    background-color: #091d3e;
+    color: #ffffff;
+}
+
+
+/*=================================
+====== RESTLY TESTIMONIAL CSS =====
+=================================*/
+
+.restly-testimonial-top {
+    display: flex;
+    position: relative;
+}
+
+.restly-testimonial-left {
+    display: flex;
+}
+
+.restly-testimonial-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    margin-right: 25px;
+}
+
+.restly-testimonial-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.restly-testimonial-title-subtitle .testimonial-title {
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Nunito';
+    line-height: 36px;
+    margin: 0;
+}
+
+.restly-testimonial-title-subtitle .testimonial-stitle {
+    font-size: 16px;
+    font-weight: 400;
+    color: #707070;
+    line-height: 1.5;
+    margin: 0;
+    font-family: 'Rubik';
+}
+
+.restly-testimonial-title-subtitle {
+    padding: 10px 0;
+}
+
+.restly-testimonial-dec {
+    margin-top: 25px;
+}
+
+.restly-testimonial-quote {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.restly-testimonial-quote i {
+    font-size: 64px;
+    color: #104cba;
+    line-height: 76px;
+}
+
+.restly-testimonial-item {
+    background-color: #ffffff;
+    padding: 40px;
+    box-shadow: 0px 0px 25px 0px hsl(0deg 0% 0% / 5%);
+    border-radius: 5px;
+}
+
+.restly-testimonial-dec P {
+    margin-bottom: 0;
+}
+
+.testi-slide-row .slick-slide {
+    margin: 0 15px;
+}
+
+.restly-testimonial-items .signle-item:nth-child(1),
+.restly-testimonial-items .signle-item:nth-child(2) {
+    margin-top: 0;
+}
+
+.restly-testimonial-items .signle-item {
+    margin-top: 30px;
+}
+
+
+/* ====================================
+====== RESTLY TESTIMONIAL TWO =========
+=====================================*/
+
+.testimonial-content .test-two-stitle {
+    font-size: 16px;
+    color: #104cba;
+    font-family: 'Rubik';
+    font-weight: 600;
+}
+
+.testimonial-content .testi-two-title {
+    font-size: 36px;
+    line-height: 38px;
+}
+
+.testimonial-content {
+    padding: 40px;
+}
+
+.testi-author-info {
+    display: flex;
+}
+
+.testi-adec {
+    margin-left: 20px;
+}
+
+.testi-author-info img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+.testi-adec h6 {
+    font-size: 18px;
+    font-weight: 900;
+    font-family: 'Nunito';
+    margin: 0;
+}
+
+.testi-adec span {
+    font-size: 16px;
+    font-family: 'Rubik';
+    color: #104cba;
+}
+
+.testi-author-info {
+    margin-top: 30px;
+}
+
+.restly-testmonial-two-items button.slick-arrow {
+    width: 50px;
+    height: 50px;
+    background-color: #104cba;
+    opacity: 1;
+}
+
+.test-card {
+    padding: 0 158px;
+}
+
+.test-card .col-md-5 img {
+    height: 100%;
+    width: 100%;
+}
+
+.test-card .card {
+    border-color: #e6e8e9;
+}
+
+.test-card img {
+    height: 100%;
+    object-fit: cover;
+}
+
+.testi-author-info img {
+    height: auto;
+}
+
+
+/** Testimonial three */
+
+.restly-testimonial-three-top {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.restly-testi3-section-stitle {
+    margin: 0;
+    font-size: 18px;
+    padding-bottom: 10px;
+}
+
+.restly-testi3-section-title {
+    margin: 0;
+    font-size: 36px;
+    padding: 0 147px;
+    text-transform: capitalize;
+    font-weight: bold;
+}
+
+.testi3-contents {
+    text-align: center;
+}
+
+.testi3-dec {
+    margin-bottom: 150px;
+}
+
+.testimonial3-title {
+    font-size: 18px;
+    margin: 0;
+}
+
+.testimonial3-stitle {
+    font-size: 15px;
+    font-weight: normal;
+    font-weight: 500;
+}
+
+.testi3-img {
+    width: 70px !important;
+    height: 70px;
+    object-fit: cover;
+}
+
+.testi3-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 100%;
+    transition: .4s;
+    cursor: pointer;
+}
+
+.slick-slide.slick-current .testi3-img img {
+    border: 1px solid #2f97f7;
+}
+
+.testi3-nav.slick-initialized.slick-slider .slick-slide {
+    width: auto !important;
+    margin: 0 5px;
+}
+
+.testi3-nav.slick-slider .slick-slide {
+    float: unset!important;
+    display: inline-block !important;
+}
+
+.testi3-navs {
+    position: relative;
+    margin-bottom: -71px;
+    bottom: 170px;
+}
+
+.testi3-contents {
+    position: relative;
+}
+
+
+/*=========================================
+====== RESTLY PORTFOLIO WITH MENU CSS =====
+=========================================*/
+
+.restly-portfolio-menu ul {
+    padding: 0;
+    list-style: none;
+    margin: 0;
+    text-align: center;
+}
+
+.restly-portfolio-menu ul li {
+    display: inline-block;
+    text-transform: capitalize;
+    font-size: 18px;
+    font-weight: 800;
+    font-family: 'Nunito';
+    line-height: 38px;
+    color: #091d3e;
+    padding: 0px 20px;
+    cursor: pointer;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-portfolio-menu ul li.active {
+    background-color: #104cba;
+    color: #fff;
+    border-radius: 5px;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+.restly-portfolio-menu {
+    margin-bottom: 16px;
+}
+
+
+/*=========================================
+====== RESTLY CONTACT INFO BOX CSS ========
+=========================================*/
+
+.restly-contact-info-box {
+    text-align: center;
+}
+
+.restly-cinfo-box-icon i {
+    font-size: 40px;
+    color: #104cba;
+    line-height: 32px;
+    margin-bottom: 20px;
+}
+
+.restly-cinfo-box-dec {
+    font-size: 18px;
+    line-height: 28px;
+    padding: 0 30px;
+    font-weight: 500;
+    color: #8a8a8a;
+}
+
+.restly-cinfo-box-dec a {
+    display: block;
+    color: #8a8a8a;
+}
+
+.restly-cinfo-box-dec a:hover {
+    color: #104cba;
+}
+
+.restly-contact-info-box {
+    position: relative;
+}
+
+.cinfo-line {
+    position: absolute;
+    right: -48px;
+    width: 89px;
+    height: 113px;
+    clip-path: polygon(50% 0, 45% 100%, 55% 100%);
+    background: #e9e9e9;
+    top: 0;
+}
+
+.restly-cinfo-box-dec p {
+    margin: 0;
+}
+
+
+/*=========================================
+======== RESTLY CONTACT FORM 7 CSS ========
+=========================================*/
+
+.restly-input input[type="text"],
+.restly-input input[type="email"],
+.restly-input.message textarea,
+.restly-home-form-input input[type="text"],
+.restly-home-form-input input[type="tel"],
+.restly-home-form-input input[type="email"],
+.restly-input input[type="url"] {
+    background: transparent;
+    border: 2px solid #e9ebef;
+    margin-bottom: 25px;
+}
+
+.restly-home-form-input select {
+    border: 2px solid #e9ebef;
+    margin-bottom: 25px;
+    background-position: calc(100% - 13px) 31px;
+}
+
+.restly-input.message textarea,
+.restly-home-form-input textarea {
+    background: transparent;
+    padding: 15px;
+}
+
+.restly-input {
+    position: relative;
+}
+
+.restly-input.name:after {
+    content: "\f406";
+    font-family: 'Font Awesome 5 Free';
+    position: absolute;
+    right: 25px;
+    color: #104cba;
+    z-index: 999;
+    font-weight: 700;
+    top: 20px;
+}
+
+.restly-input.email:after {
+    content: "\f0e0";
+    font-family: 'Font Awesome 5 Free';
+    position: absolute;
+    right: 25px;
+    color: #104cba;
+    z-index: 999;
+    font-weight: 700;
+    top: 22px;
+}
+
+.restly-input.phone:after {
+    content: "\f879";
+    font-family: 'Font Awesome 5 Free';
+    position: absolute;
+    right: 25px;
+    color: #104cba;
+    z-index: 999;
+    font-weight: 700;
+    top: 20px;
+}
+
+.restly-input.message:after {
+    content: "\f303";
+    font-family: 'Font Awesome 5 Free';
+    position: absolute;
+    right: 25px;
+    color: #104cba;
+    z-index: 999;
+    font-weight: 700;
+    top: 13px;
+}
+
+input.wpcf7-form-control.wpcf7-submit {
+    background-color: #104cba;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 5px;
+    color: #fff;
+    transition: .4s;
+    outline: none;
+}
+
+input.wpcf7-form-control.wpcf7-submit:hover {
+    background-color: #1d2c38;
+}
+
+.restly-home-form-input.service span,
+.restly-home-form-input.service span select {
+    width: 100%;
+}
+
+.restly-home-input.message textarea {
+    padding: 15px;
+    margin-bottom: 30px;
+    background: transparent;
+    border: 2px solid #e9ebef;
+}
+
+.restly-home-form-input.service select {
+    padding: 0px 15px;
+    color: #797979;
+    min-height: 66px;
+}
+
+
+/*====================================
+======== RESTLY DOT SHAPE CSS ========
+====================================*/
+
+.shapeanimation {
+    position: absolute;
+    top: 95px;
+    left: 250px;
+    -webkit-animation-duration: 9s;
+    animation-duration: 9s;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+}
+
+
+/* custom animations */
+
+@-webkit-keyframes shapeMover {
+    0%,
+    100% {
+        -webkit-transform: perspective(400px) translateY(0) rotate(0deg) translateZ(0px) translateX(0);
+        transform: perspective(400px) translateY(0) rotate(0deg) translateZ(0px) translateX(0);
+    }
+    50% {
+        -webkit-transform: perspective(400px) rotate(-45deg) translateZ(20px) translateY(20px) translateX(20px);
+        transform: perspective(400px) rotate(-45deg) translateZ(20px) translateY(20px) translateX(20px);
+    }
+}
+
+@keyframes shapeMover {
+    0%,
+    100% {
+        -webkit-transform: perspective(400px) translateY(0) rotate(0deg) translateZ(0px) translateX(0);
+        transform: perspective(400px) translateY(0) rotate(0deg) translateZ(0px) translateX(0);
+    }
+    50% {
+        -webkit-transform: perspective(400px) rotate(-45deg) translateZ(20px) translateY(20px) translateX(20px);
+        transform: perspective(400px) rotate(-45deg) translateZ(20px) translateY(20px) translateX(20px);
+    }
+}
+
+@keyframes shapeMover {
+    0%,
+    100% {
+        transform: perspective(400px) translateY(0) rotate(0deg) translateZ(0px) translateX(0);
+    }
+    50% {
+        transform: perspective(400px) rotate(-45deg) translateZ(20px) translateY(20px) translateX(20px);
+    }
+}
+
+@keyframes bubbleMover {
+    0% {
+        -webkit-transform: translateY(0px) translateX(0) rotate(0);
+        transform: translateY(0px) translateX(0) rotate(0);
+    }
+    30% {
+        -webkit-transform: translateY(30px) translateX(50px) rotate(15deg);
+        transform: translateY(30px) translateX(50px) rotate(15deg);
+        -webkit-transform-origin: center center;
+        transform-origin: center center;
+    }
+    50% {
+        -webkit-transform: translateY(50px) translateX(100px) rotate(45deg);
+        transform: translateY(50px) translateX(100px) rotate(45deg);
+        -webkit-transform-origin: right bottom;
+        transform-origin: right bottom;
+    }
+    80% {
+        -webkit-transform: translateY(30px) translateX(50px) rotate(15deg);
+        transform: translateY(30px) translateX(50px) rotate(15deg);
+        -webkit-transform-origin: left top;
+        transform-origin: left top;
+    }
+    100% {
+        -webkit-transform: translateY(0px) translateX(0) rotate(0);
+        transform: translateY(0px) translateX(0) rotate(0);
+        -webkit-transform-origin: center center;
+        transform-origin: center center;
+    }
+}
+
+.dot-shapes {
+    position: absolute;
+    width: 20em;
+    height: 20em;
+    z-index: 0;
+    top: 0;
+    background: #104cba;
+}
+
+.dot-shapes.shape_left_pos {
+    left: -30em
+}
+
+.dot-shapes.shape_center_pos {
+    left: 0;
+    right: 0;
+    margin: auto
+}
+
+.dot-shapes.shape_right_pos {
+    right: -30em
+}
+
+.dot-shapes.shape_circle {
+    border-radius: 50%
+}
+
+.dot-shapes.shape_egg {
+    border-radius: 50% 50% 50% 50%/60% 60% 40% 40%
+}
+
+.dot-shapes.shape_organic_1 {
+    border-radius: 30% 70% 70% 30%/30% 30% 70% 70%
+}
+
+.dot-shapes.shape_organic_1_rotate {
+    border-radius: 70% 30% 30% 70%/70% 70% 30% 30%
+}
+
+.dot-shapes.shape_organic_2 {
+    border-radius: 70% 30% 70% 30%/30% 70% 30% 70%
+}
+
+.dot-shapes.shape_organic_2_rotate {
+    border-radius: 30% 70% 30% 70%/70% 30% 70% 30%
+}
+
+.dot-shapes.shape_dots {
+    -webkit-mask-image: url(../img/dots.svg);
+    mask-image: url(../img/dots.svg);
+    z-index: -1;
+    -webkit-mask-size: 18px;
+}
+
+.elementor-widget-container .row {
+    margin: 0;
+}
+
+.header-top-fluid .row {
+    margin: 0;
+}
+
+
+/*====================================
+== RESTLY ELEMENTOR NAV WIDGET CSS ===
+====================================*/
+
+.elementor-widget-wp-widget-nav_menu ul {
+    list-style: none;
+    padding: 0;
+}
+
+.elementor-widget-wp-widget-nav_menu ul li {
+    display: block;
+}
+
+.elementor-widget-wp-widget-nav_menu ul li a {
+    display: block;
+    padding: 20px 020px;
+    border: 2px solid #e6ecf7;
+    margin: 10px 0;
+    font-size: 18px;
+    color: #1d2c38;
+    font-weight: bold;
+    font-family: 'Nunito';
+    line-height: 1.5;
+    position: relative;
+    border-radius: 5px;
+}
+
+.elementor-widget-wp-widget-nav_menu ul li a:hover,
+.elementor-widget-wp-widget-nav_menu ul li.current-menu-item a {
+    border-color: #104cba;
+}
+
+.elementor-widget-wp-widget-nav_menu ul li a:after {
+    content: "\f061";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: bold;
+    right: 20px;
+    position: absolute;
+    font-size: 14px;
+    line-height: 2.5;
+    color: #8e959b;
+}
+
+
+/*====================================
+======= RESTL YSOCIAL ICON CSS =======
+====================================*/
+
+.restly-social-icon-box ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.restly-social-icon-box ul li {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.restly-social-icon-box ul li a {
+    display: block;
+    width: 40px;
+    height: 40px;
+    background: #e8eef8;
+    border-radius: 100%;
+    text-align: center;
+    line-height: 45px;
+}
+
+.restly-social-icon-box ul li a:hover {
+    color: #ffffff;
+    background: #104cba;
+}
+
+.restly-social-icon-box ul li:last-child {
+    margin-right: 0;
+}
+
+.restly-social-icon-box h2 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.restly-social-icon-box h3 {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'Nunito';
+    line-height: 46px;
+}
+
+
+/****** Restly Tab ****/
+
+.restly-section-tabs-wrapper ul {
+    display: block;
+    margin-bottom: 70px;
+    border-bottom: 2px solid #1a2935;
+}
+
+.restly-section-tabs-wrapper ul li {
+    display: inline-block;
+}
+
+.restly-section-tabs-wrapper ul li button {
+    background: transparent;
+}
+
+.restly-section-tabs-wrapper ul li button.nav-link {
+    background: transparent;
+    color: #ffffff;
+    font-size: 22px;
+    padding-right: 40px;
+}
+
+.restly-section-tabs-wrapper .nav-tabs .nav-item .nav-link,
+.restly-section-tabs-wrapper .nav-tabs .nav-link {
+    color: #ffffff;
+    background-color: transparent;
+    border-color: transparent;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    padding-bottom: 30px;
+}
+
+.restly-section-tabs-wrapper .nav-tabs .nav-link.active:after,
+.restly-section-tabs-wrapper .nav-tabs .nav-link:hover:after {
+    content: "";
+    background: #2058bf;
+    height: 2px;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    transition: .4s;
+}
+
+.restly-section-tabs-wrapper ul li button i {
+    margin-right: 16px;
+    line-height: 1;
+    font-size: 28px;
+    vertical-align: middle;
+    transition: .4s;
+}
+
+.restly-section-tabs-wrapper ul li button.active i,
+.restly-section-tabs-wrapper ul li button:hover i {
+    color: #2058bf;
+    transition: .4s;
+}
+
+.navbar-collapse.nav-menu.stellarnav.elementornavs .full:nth-child(2) {
+    display: none;
+}
+
+.elementornavs .button.search-open {
+    margin-right: 30px;
+    cursor: pointer;
+}
+
+.elementor-header-search .button.search-open {
+    cursor: pointer;
+}
+
+.company-info-widget ul li i.fright {
+    left: auto;
+    right: 0;
+}
+
+.restly-recent-post-wrapper ul.restly-widget-post-thum li {
+    display: block;
+}
+
+.restly-recent-post-wrapper ul.restly-widget-post-thum li img {
+    margin-right: 20px;
+}
+
+
+/*** FAQ CSS*/
+
+.elementor-accordion .elementor-accordion-item {
+    border: 1px solid #d4d4d4;
+    margin-bottom: 19px;
+}
+
+
+/*** VIDEO BUTTON ***/
+
+.video-icons {
+    width: 60px;
+    display: inline-block;
+    height: 60px;
+    border-radius: 100%;
+    border: 1px solid #2f97f7;
+    text-align: center;
+    vertical-align: middle;
+    margin-right: 14px;
+    padding: 16px;
+    font-size: 20px;
+    transition: .4s;
+}
+
+.video-icons span {
+    font-size: 18px;
+}
+
+.video-button-wrapper a span {
+    font-size: 18px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.video-button-wrapper a .video-icons:hover {
+    background: #2f97f7;
+    color: #ffffff;
+}
+
+
+/** SERVICE V2 ***/
+
+.restly-service-v2-icon i {
+    width: 70px;
+    height: 70px;
+    background: #FF4757;
+    border-radius: 100%;
+    text-align: center;
+    padding: 23px;
+    font-size: 25px;
+    color: #ffffff;
+    display: inline-block;
+}
+
+.restly-service-v2-title {
+    font-size: 20px;
+    margin: 0;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.restly-service-v2-inner {
+    text-align: center;
+}
+
+.restly-service-v2-icon {
+    margin-bottom: 20px;
+}
+
+.restly-service-v2-title a:hover {
+    color: #2f97f7;
+}
+
+span.bar.bar-ani {
+    height: 2px;
+    display: block;
+    background: #ff4757;
+    width: 90px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 100px;
+    position: relative;
+}
+
+.service-line {
+    margin-bottom: 13px;
+}
+
+.restly-service-v2-inner {
+    box-shadow: 0px 0px 40px rgb(9 9 9 / 8%);
+    padding: 30px;
+}
+
+.restly-service-v2-content p {
+    margin: 0;
+}
+
+span.bar.bar-ani:after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 2px;
+    left: 6px;
+    background: #ffffff;
+    -webkit-animation-duration: 3s;
+    animation-duration: 3s;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-name: MOVE-BG;
+    animation-name: MOVE-BG;
+}
+
+@-webkit-keyframes MOVE-BG {
+    from {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
+    to {
+        -webkit-transform: translateX(88px);
+        transform: translateX(88px);
+    }
+}
+
+@keyframes MOVE-BG {
+    from {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
+    to {
+        -webkit-transform: translateX(88px);
+        transform: translateX(88px);
+    }
+}
+
+@media all and (min-width: 1200px) and (max-width: 1800px) {
+    .restly-portfolio-three-slides {
+        left: 0;
+        margin-top: 0
+    }
+    .restly-portfolio-three .owl-nav,
+    .restly-portfolio-static-area {
+        display: none;
+    }
+}
+
+@media all and (min-width: 1024px) and (max-width: 1199px) {
+    .restly-home-banner-forms {
+        padding: 36px;
+    }
+}
+
+@media all and (min-width: 993px) and (max-width: 1024px) {
+    .restly-service-hover.service-normal-hover {
+        padding: 60px 27px;
+    }
+}
+
+@media all and (min-width: 993px) and (max-width: 1199px) {
+    .portfolio-style-two .restly-portfolio-item {
+        margin-bottom: 30px;
+    }
+    .restly-portfolio-three-slides {
+        left: 0;
+        margin-top: 0;
+    }
+    .restly-portfolio-three .owl-nav,
+    .restly-portfolio-static-area {
+        display: none;
+    }
+    .restly-blog-post-content .post-meta-item ul li:last-child {
+        margin-right: 0;
+    }
+    .restly-blog-post-content .post-meta-item ul li {
+        margin-right: 9px;
+    }
+    .restly-pricing-two .restly-pricing-header:after {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        border-radius: 0;
+    }
+    .restly-pricing-two .restly-pricing-header {
+        padding-bottom: 25px;
+    }
+    .restly-pricing-warpper.restly-pricing-two .restly-pricing-header {
+        border-radius: 0;
+    }
+}
+
+@media all and (min-width: 768px) and (max-width: 1023px) {
+    .button.search-open {
+        position: absolute;
+        right: 264px;
+        top: 40px;
+    }
+    .button.d-flex.cta {
+        position: absolute;
+        right: 80px;
+        top: 23px;
+    }
+    .stellarnav.mobile.active>.button {
+        opacity: 0;
+        transition: .4s;
+    }
+}
+
+@media all and (min-width: 768px) and (max-width: 992px) {
+    .restly-section-title {
+        padding: 0 50px;
+    }
+    .portfolio-style-two .restly-portfolio-item {
+        margin-bottom: 30px;
+    }
+    .restly-portfolio-three-content .slick-list {
+        margin-right: 0;
+    }
+    .restly-portfolio-static-contents h2 {
+        font-size: 27px;
+        padding-right: 0;
+    }
+    .restly-portfolio-three-slides {
+        left: 0;
+        margin-top: 0;
+    }
+    .restly-portfolio-three .owl-nav,
+    .restly-portfolio-static-area {
+        display: none;
+    }
+    .restly-portfolio-dec h6 a {
+        line-height: 30px;
+    }
+    .restly-blog-post-wrapper .row>div:last-child {
+        margin-top: 30px;
+    }
+    .restly-team-inner.team-style-one .restly-team-item {
+        margin-bottom: 30px;
+    }
+    .restly-team-inner.team-style-two .restly-team-item {
+        margin-bottom: 60px;
+    }
+    .restly-blog-post-content .post-meta-item ul li:last-child {
+        margin-right: 0;
+    }
+    .team-items .single-item {
+        margin-top: 0;
+    }
+    .restly-pricing-two .restly-pricing-header:after {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        border-radius: 0;
+    }
+    .restly-pricing-two .restly-pricing-header {
+        padding-bottom: 25px;
+    }
+    .restly-pricing-warpper.restly-pricing-two .restly-pricing-header {
+        border-radius: 0;
+    }
+    #related-portfolio-slide .item:last-child {
+        margin-top: 30px;
+    }
+    .restly-home-banner-forms {
+        padding: 50px 24px;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 900px) {
+    .restly-service-hover.service-normal-hover {
+        padding: 60px 27px;
+    }
+    .header-four .button.search-open {
+        margin-right: 30px;
+        position: absolute;
+        right: 50px;
+        top: 32px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .elementornavs.mobile>.button {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .restly-section-title {
+        padding: 10px 0;
+    }
+    .restly-service-two-box {
+        padding-left: 12px;
+        padding-right: 10px;
+    }
+    h2.restly-banner-title {
+        font-size: 60px;
+        line-height: 64px;
+    }
+    .restly-portfolio-static-contents {
+        margin-bottom: 100px;
+        padding: 0 15px;
+    }
+    .restly-portfolio-static-contents h3,
+    .restly-portfolio-static-contents h2 {
+        color: #fff;
+    }
+    .restly-portfolio-three-content .slick-slider {
+        position: relative;
+    }
+    .restly-blog-post-box .restly-blog-post-item {
+        margin-bottom: 30px;
+    }
+    .restly-portfolio-three-slides {
+        left: 0;
+        position: relative;
+        margin-top: 0;
+    }
+    .restly-portfolio-three .owl-nav {
+        left: 14px;
+        top: -75px;
+    }
+    .restly-portfolio-dec h6 a {
+        line-height: 26px;
+    }
+    .restly-blog-post-content .post-meta-item ul li {
+        margin-right: 12px;
+    }
+    .restly-portfolio-item {
+        margin-bottom: 30px;
+    }
+    .restly-blog-post-content .post-meta-item ul li:last-child {
+        margin-right: 0;
+    }
+    .restly-team-item {
+        margin-bottom: 30px;
+    }
+    .restly-team-inner.team-style-two .restly-team-item {
+        margin-bottom: 60px;
+    }
+    .team-items .single-item {
+        margin-top: 0;
+    }
+    .restly-pricing-two .restly-pricing-header:after {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        border-radius: 0;
+    }
+    .restly-pricing-two .restly-pricing-header {
+        padding-bottom: 25px;
+    }
+    .restly-pricing-warpper.restly-pricing-two .restly-pricing-header {
+        border-radius: 0;
+    }
+    .header-four .button.search-open {
+        margin-right: 30px;
+        position: absolute;
+        right: 50px;
+        top: 32px;
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .restly-portfolio-related-wrapper {
+        margin-bottom: 90px;
+    }
+    .restly-blog-post-box>.row {
+        margin: 0 -10px;
+    }
+    .header-top-fluid .row.align-items-center {
+        padding: 0;
+        margin: 0;
+    }
+    .restly-home-banner-forms {
+        padding: 50px 26px;
+        margin-bottom: 50px;
+    }
+    .restly-home-banner-forms h2 {
+        font-size: 34px;
+    }
+    input.wpcf7-form-control.wpcf7-submit {
+        padding: 15px 20px;
+    }
+    .header-four .button.search-open {
+        margin-right: 30px;
+        position: absolute;
+        right: 50px;
+        top: 32px;
+    }
+    .elementor-menu .button.search-open {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .service-four-title-area h3 {
+        font-size: 21px;
+    }
+}

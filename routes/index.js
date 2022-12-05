@@ -3,6 +3,15 @@ var express = require('express');
 var router = express.Router();
 var mysql = require('mysql')
 var pool = require('./pool')
+var fetch = require('node-fetch')
+
+
+router.get('/fd',async(req,res)=>{
+    const response = await fetch('http://sms.hspsms.com/sendSMS?username=venttura&message=Your OTP is 2512. This Code valid for 10 minutes only, one time use. Please DO NOT share this OTP with anyone from Venttura BIOceuticals Pvt Ltd&sendername=VenBio&smstype=TRANS&numbers=0000000000&apikey=b9a0e9f6-fe30-49a1-bae0-d3f4b83386ad');
+const data = await response.json();
+
+console.log(data);
+})
 
 
 
@@ -14,6 +23,11 @@ var yyyy = today.getFullYear();
 today = yyyy + '-' + mm + '-' + dd;
 
 
+
+
+router.get('/index2',(req,res)=>{
+    res.render('index2')
+})
 
 
 
@@ -44,7 +58,8 @@ router.get('/cse/:name',(req,res)=>{
 router.get('/btech-final-year-project-report-:name',(req,res)=>{
     var query = `select * from project where seo_name = "${req.params.name}";`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
-    pool.query(query+query1,(err,result)=>{
+    var query2 = `select name,seo_name,short_description from project where seo_name!= '${req.params.name}';`
+    pool.query(query+query1+query2,(err,result)=>{
         err ? console.log(err) : res.render('B.Tech/preview',{result:result})
     })
 })
@@ -259,6 +274,28 @@ var query = `select * from add_project where seo_name = '${req.params.name}';`
         }
     })
     
+})
+
+
+router.get('/web-development',(req,res)=>{
+    res.render('web-development',{type:'Web Development'})
+})
+
+router.get('/web-design',(req,res)=>{
+    res.render('web-design',{type:'Web Design'})
+})
+
+
+router.get('/app-development',(req,res)=>{
+    res.render('app-development',{type:'App Development'})
+})
+
+router.get('/graphics-design',(req,res)=>{
+    res.render('graphics-design',{type:'Graphics Design'})
+})
+
+router.get('/video-editing',(req,res)=>{
+    res.render('video-editing',{type:'Video Editing'})
 })
 
 module.exports = router;
