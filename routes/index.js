@@ -56,7 +56,7 @@ router.get('/cse/:name',(req,res)=>{
 
 // new btech route
 router.get('/btech-final-year-project-report-:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
+    var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
     var query2 = `select name,seo_name,short_description from project where seo_name!= '${req.params.name}';`
     pool.query(query+query1+query2,(err,result)=>{
@@ -67,7 +67,7 @@ router.get('/btech-final-year-project-report-:name',(req,res)=>{
 
 // new mtech route
 router.get('/mtech-final-year-project-report-:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
+    var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('M.Tech/preview',{result:result})
@@ -77,7 +77,7 @@ router.get('/mtech-final-year-project-report-:name',(req,res)=>{
 
 // new be route
 router.get('/be-final-year-project-report-:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
+    var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('BE/preview',{result:result})
@@ -87,7 +87,7 @@ router.get('/be-final-year-project-report-:name',(req,res)=>{
 
 // new me route
 router.get('/me-final-year-project-report-:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
+    var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('ME/preview',{result:result})
@@ -97,7 +97,7 @@ router.get('/me-final-year-project-report-:name',(req,res)=>{
 
 // new bca route
 router.get('/bca-final-year-project-report-:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
+    var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('BCA/preview',{result:result})
@@ -107,7 +107,7 @@ router.get('/bca-final-year-project-report-:name',(req,res)=>{
 
 // new mca route
 router.get('/mca-final-year-project-report-:name',(req,res)=>{
-    var query = `select * from project where seo_name = "${req.params.name}";`
+    var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
     pool.query(query+query1,(err,result)=>{
         err ? console.log(err) : res.render('MCA/preview',{result:result})
