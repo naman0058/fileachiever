@@ -42,25 +42,25 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
 
 router.get('/projects',(req,res)=>{
     if(req.session.roll_number){
-    pool.query(`select * from ieee_project where roll_number = "${req.session.roll_number}" order by id desc limit 1`,(err,result)=>{
+    pool.query(`select * from ieee_project where roll_number = '${req.session.roll_number}' order by id desc limit 1`,(err,result)=>{
         if(err) throw err;
         else {
             console.log(req.session.roll_number)
             console.log(result[0].php)
-           var query = `select * from ieee_project where roll_number = "${req.session.roll_number}" order by id desc limit 1;`
-           var query1 = `select * from programming_language where id = "${result[0].php}";`
-           var query2 = `select * from programming_language where id = "${result[0].nodejs}";`
-           var query3 = `select * from programming_language where id = "${result[0].angular}";`
-           var query4 = `select * from programming_language where id = "${result[0].react}";`
-           var query5 = `select * from programming_language where id = "${result[0].java}";`
-           var query6 = `select * from programming_language where id = "${result[0].html}";`
-           var query7 = `select * from programming_language where id = "${result[0].python}";`
-           var query8 = `select * from programming_language where id = "${result[0].javascript}";`
-           var query9 = `select * from programming_language where id = "${result[0].jquery}";`
-           var query10 = `select * from programming_language where id = "${result[0].json}";`
-           var query11 = `select * from programming_language where id = "${result[0].css}";`
-           var query12 = `select * from programming_language where id = "${result[0].bootstrap}";`
-         var query14 = `select * from project where id = "${result[0].projectid}";`
+           var query = `select * from ieee_project where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
+           var query1 = `select * from programming_language where id = '${result[0].php}';`
+           var query2 = `select * from programming_language where id = '${result[0].nodejs}';`
+           var query3 = `select * from programming_language where id = '${result[0].angular}';`
+           var query4 = `select * from programming_language where id = '${result[0].react}';`
+           var query5 = `select * from programming_language where id = '${result[0].java}';`
+           var query6 = `select * from programming_language where id = '${result[0].html}';`
+           var query7 = `select * from programming_language where id = '${result[0].python}';`
+           var query8 = `select * from programming_language where id = '${result[0].javascript}';`
+           var query9 = `select * from programming_language where id = '${result[0].jquery}';`
+           var query10 = `select * from programming_language where id = '${result[0].json}';`
+           var query11 = `select * from programming_language where id = '${result[0].css}';`
+           var query12 = `select * from programming_language where id = '${result[0].bootstrap}';`
+         var query14 = `select * from project where id = '${result[0].projectid}';`
            pool.query(query+query1+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11+query12+query14,(err,result)=>{
                if(err) throw err;
                else res.render(`ieee/project-preview`,{result})

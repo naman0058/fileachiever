@@ -64,15 +64,15 @@ if(req.session.deviceInfo == 'mobile'){
 
 
 
-  pool.query(`select * from ${table} where roll_number = "${req.session.roll_number}" order by id desc limit 1`,(err,result)=>{
+  pool.query(`select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1`,(err,result)=>{
         if(err) throw err;
         else {
             console.log(req.session.roll_number)
             console.log(result[0].php)
-           var query = `select * from ${table} where roll_number = "${req.session.roll_number}" order by id desc limit 1;`
-           var query1 = `select * from programming_language where id = "${result[0].html}" || id = "${result[0].css}" || id = "${result[0].bootstrap}" || id = "${result[0].javascript}" || id = "${result[0].jquery}" || id = "${result[0].json}" || id = "${result[0].react}" || id = "${result[0].angular}"  ;`
-           var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
-           var query3 = `select * from project where id = "${result[0].projectid}";`
+           var query = `select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
+           var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
+           var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}';`
+           var query3 = `select * from project where id = '${result[0].projectid}';`
            //For Testing
 
            pool.query(query+query1+query2+query3,(err,result)=>{
@@ -90,15 +90,15 @@ if(req.session.deviceInfo == 'mobile'){
 else{
 
 
-  pool.query(`select * from ${table} where roll_number = "${req.session.roll_number}" order by id desc limit 1`,(err,result)=>{
+  pool.query(`select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1`,(err,result)=>{
         if(err) throw err;
         else {
             console.log(req.session.roll_number)
             console.log(result[0].php)
-           var query = `select * from ${table} where roll_number = "${req.session.roll_number}" order by id desc limit 1;`
-           var query1 = `select * from programming_language where id = "${result[0].html}" || id = "${result[0].css}" || id = "${result[0].bootstrap}" || id = "${result[0].javascript}" || id = "${result[0].jquery}" || id = "${result[0].json}" || id = "${result[0].react}" || id = "${result[0].angular}"  ;`
-           var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
-           var query3 = `select * from project where id = "${result[0].projectid}";`
+           var query = `select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
+           var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
+           var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}';`
+           var query3 = `select * from project where id = '${result[0].projectid}';`
          //For Testing
 
            pool.query(query+query1+query2+query3,(err,result)=>{
@@ -130,15 +130,15 @@ router.get('/download-your-report',(req,res)=>{
 
 
 
-  pool.query(`select * from ${table} where roll_number = "${req.query.roll_number}" order by id desc limit 1`,(err,result)=>{
+  pool.query(`select * from ${table} where roll_number = '${req.query.roll_number}' order by id desc limit 1`,(err,result)=>{
         if(err) throw err;
         else {
             console.log(req.session.roll_number)
             console.log(result[0].php)
-           var query = `select * from ${table} where roll_number = "${req.query.roll_number}" order by id desc limit 1;`
-           var query1 = `select * from programming_language where id = "${result[0].html}" || id = "${result[0].css}" || id = "${result[0].bootstrap}" || id = "${result[0].javascript}" || id = "${result[0].jquery}" || id = "${result[0].json}" || id = "${result[0].react}" || id = "${result[0].angular}"  ;`
-           var query2 = `select * from programming_language where id = "${result[0].php}" || id = "${result[0].nodejs}" || id = "${result[0].python}" || id = "${result[0].java}";`
-           var query3 = `select * from project where id = "${result[0].projectid}";`
+           var query = `select * from ${table} where roll_number = '${req.query.roll_number}' order by id desc limit 1;`
+           var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
+           var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}';`
+           var query3 = `select * from project where id = '${result[0].projectid}';`
            //For Testing
 
            pool.query(query+query1+query2+query3,(err,result)=>{

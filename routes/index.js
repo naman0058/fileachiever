@@ -298,4 +298,9 @@ router.get('/video-editing',(req,res)=>{
     res.render('video-editing',{type:'Video Editing'})
 })
 
+
+
+router.get('/refund-policy', (req, res) =>  res.render(`refund`));
+
+
 module.exports = router;
