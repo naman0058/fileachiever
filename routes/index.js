@@ -19,7 +19,7 @@ const ccave = new nodeCCAvenue.Configure({
 // const ccav = new nodeCCAvenue.Configure({
 //   merchant_id: '1760015',
 //   working_key: '3F831E8FD26B47BBFDBCDB8E021635F2',
-// });
+// });  
 
 router.get('/nonseamless', function (req, res){
     res.render('nonseamless');
