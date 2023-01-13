@@ -4,6 +4,45 @@ var router = express.Router();
 var mysql = require('mysql')
 var pool = require('./pool')
 var fetch = require('node-fetch')
+var ccavutil = require('./ccavutil')
+
+var ccavReqHandler = require('./ccavRequestHandler');
+var ccavResHandler = require('./ccavResponseHandler');
+
+const nodeCCAvenue = require('node-ccavenue');
+const ccave = new nodeCCAvenue.Configure({
+  merchant_id: '1760015',
+  working_key: '3F831E8FD26B47BBFDBCDB8E021635F2'
+});
+
+// const nodeCCAvenue = require('node-ccavenue');
+// const ccav = new nodeCCAvenue.Configure({
+//   merchant_id: '1760015',
+//   working_key: '3F831E8FD26B47BBFDBCDB8E021635F2',
+// });
+
+router.get('/nonseamless', function (req, res){
+    res.render('nonseamless');
+});
+
+router.post('/ccavRequestHandler', function (request, res){
+   
+// ccavReqHandler.postReq(request, response);
+console.log(request.body)
+const encryptedOrderData = ccave.getEncryptedOrder(request.body);
+// console.log(encryptedOrderData);
+
+res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
+});
+
+
+
+
+
+router.post('/ccavResponseHandler', function (request, response){
+    ccavResHandler.postRes(request, response);
+});
+
 
 
 router.get('/fd',async(req,res)=>{
