@@ -39,10 +39,35 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 
 
-router.post('/ccavResponseHandler', function (request, response){
-    ccavResHandler.postRes(request, response);
-});
+var payumoney = require('payumoney-node');
+payumoney.setKeys('6417784', '1QwKg7212W', 'hOcZxXYFQSsg8GQTXzbXZl/tgTR/2zd3SSrxw31/BKk=');
 
+
+payumoney.isProdMode(true);
+
+
+router.get('/payu',(req,res)=>{
+    var paymentData = {
+        productinfo: "ssd",
+        txnid: "sxfdghd65454",
+        amount: "100",
+        email: "jnaman345@gmail.com",
+        phone: "8319339945",
+        lastname: "jain",
+        firstname: "name",
+        surl: "", //"http://localhost:3000/payu/success"
+        furl: "", //"http://localhost:3000/payu/fail"
+    };
+     
+    payumoney.makePayment(paymentData, function(error, response) {
+      if (error) {
+        // Some error
+      } else {
+        // Payment redirection link
+        console.log(response);
+      }
+    });
+})
 
 
 router.get('/fd',async(req,res)=>{
