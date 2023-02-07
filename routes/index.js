@@ -225,7 +225,7 @@ router.post('/ccavRequestHandler', function (request, res){
     body['merchant_id'] = '1760015';
     body['order_id'] = guid();
     body['currency'] = 'INR';
-    body['amount'] = '500.00';
+    body['amount'] = '10.00';
     body['redirect_url'] = 'http://127.0.0.1:3001/ccavResponseHandler';
     body['cancel_url'] = 'http://127.0.0.1:3001/ccavResponseHandler';
 
