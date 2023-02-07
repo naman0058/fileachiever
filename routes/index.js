@@ -254,9 +254,9 @@ router.post('/ccavResponseHandler',(request,response)=>{
 const { encResp } = request.body;
 let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
-
-decryptedJsonResponse['type'] = request.session.type
-decryptedJsonResponse['typeid'] = request.session.source_code_id
+decryptedJsonResponse.type = request.session.type;
+// decryptedJsonResponse['type'] = request.session.type
+// decryptedJsonResponse['typeid'] = request.session.source_code_id
 
 
 
