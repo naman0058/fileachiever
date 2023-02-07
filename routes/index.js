@@ -5,6 +5,8 @@ var mysql = require('mysql')
 var pool = require('./pool')
 var fetch = require('node-fetch')
 var ccavutil = require('./ccavutil')
+var fs = require('fs');
+ 
 
 
 const { Configuration, OpenAIApi } = require("openai");
