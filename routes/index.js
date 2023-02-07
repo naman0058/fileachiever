@@ -255,7 +255,7 @@ router.post('/ccavResponseHandler',(request,response)=>{
 
 
 const { encResp } = request.body;
-const decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
+let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 // To check order_status: - 
 console.log(decryptedJsonResponse.order_status);
 
