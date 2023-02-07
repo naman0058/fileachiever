@@ -214,8 +214,8 @@ router.get('/nonseamless', function (req, res){
 
 router.post('/ccavRequestHandler', function (request, res){
 
-    req.session.source_code_id = request.body.source_code_id;
-    req.session.type = 'source_code'
+    request.session.source_code_id = request.body.source_code_id;
+    request.session.type = 'source_code'
 
     let guid = () => {
         let s4 = () => {
