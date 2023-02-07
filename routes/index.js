@@ -241,10 +241,27 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 });
 
 
+router.post('/ccavResponseHandler',(request,response)=>{
+
+  let ccavEncResponse = request.body;
+    console.log(request.body);
+    ccavPOST =  qs.parse(ccavEncResponse);
+    var encryption = ccavPOST.encResp;
+    var ccavResponse = ccave.decrypt(encryption,workingKey);
+    // ccavResHandler.postRes(request, response);
+
+
+    res.json(ccavResponse)
+
+
+})
+
+
 
 
 
 var payumoney = require('payumoney-node');
+const { request, response } = require('express');
 payumoney.setKeys('6417784', '1QwKg7212W', 'hOcZxXYFQSsg8GQTXzbXZl/tgTR/2zd3SSrxw31/BKk=');
 
 
