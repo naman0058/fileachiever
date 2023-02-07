@@ -249,20 +249,17 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 router.post('/ccavResponseHandler',(request,response)=>{
 
-    // let body = request.body;
-   
+    let body = request.body;
+    decryptedJsonResponse['type'] = request.session.type
+    decryptedJsonResponse['typeid'] = request.session.source_code_id
 
 
 
-const { encResp } = request.body;
-let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
+const { encResp } = body;
+const decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 // To check order_status: - 
 console.log(decryptedJsonResponse.order_status);
-
-decryptedJsonResponse['type'] = request.session.type
-decryptedJsonResponse['typeid'] = request.session.source_code_id
-
-response.json(decryptedJsonResponse)
+// response.json(decryptedJsonResponse)
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
     if(err) throw err;
