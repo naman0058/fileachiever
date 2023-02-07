@@ -226,8 +226,8 @@ router.post('/ccavRequestHandler', function (request, res){
     body['order_id'] = guid();
     body['currency'] = 'INR';
     body['amount'] = '10.00';
-    body['redirect_url'] = 'http://127.0.0.1:3001/ccavResponseHandler';
-    body['cancel_url'] = 'http://127.0.0.1:3001/ccavResponseHandler';
+    body['redirect_url'] = 'https://www.filemakr.com/ccavResponseHandler';
+    body['cancel_url'] =   'https://www.filemakr.com/ccavResponseHandler';
 
 
 
