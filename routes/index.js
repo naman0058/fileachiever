@@ -214,6 +214,9 @@ router.get('/nonseamless', function (req, res){
 
 router.post('/ccavRequestHandler', function (request, res){
 
+    req.session.source_code_id = request.body.source_code_id;
+    req.session.type = 'source_code'
+
     let guid = () => {
         let s4 = () => {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -246,21 +249,11 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 router.post('/ccavResponseHandler',(request,response)=>{
 
-
-// first part
-
-//   let ccavEncResponse = request.body;
-//     console.log(request.body);
-//     ccavPOST =  qs.parse(ccavEncResponse);
-//     var encryption = ccavPOST.encResp;
-//     var ccavResponse = ccave.decrypt(request.body.encResp,'3F831E8FD26B47BBFDBCDB8E021635F2');
-//     // ccavResHandler.postRes(request, response);
+    let body = request.body;
+    body['type'] = req.session.type
+    body['typeid'] = req.session.source_code_id
 
 
-//     response.json(ccavResponse)
-
-
-// first part ends
 
 const { encResp } = request.body;
 const decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
