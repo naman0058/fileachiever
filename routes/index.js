@@ -250,8 +250,8 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 router.post('/ccavResponseHandler',(request,response)=>{
 
     let body = request.body;
-    body['type'] = req.session.type
-    body['typeid'] = req.session.source_code_id
+    body['type'] = request.session.type
+    body['typeid'] = request.session.source_code_id
 
 
 
