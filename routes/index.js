@@ -268,6 +268,18 @@ const decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 console.log(decryptedJsonResponse.order_status);
 response.json(decryptedJsonResponse)
 
+pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
+    if(err) throw err;
+    else{
+        if(decryptedJsonResponse.order_status == 'Aborted'){
+           res.json({msg:'aborted or failed'})
+        }
+        else{
+            res.json({msg:'success'})
+        }
+    }
+})
+
 
 })
 
