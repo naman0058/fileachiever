@@ -6,6 +6,190 @@ var pool = require('./pool')
 var fetch = require('node-fetch')
 var ccavutil = require('./ccavutil')
 
+
+const { Configuration, OpenAIApi } = require("openai");
+
+const configuration = new Configuration({
+  apiKey: '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',
+});
+const openai = new OpenAIApi(configuration);
+
+
+router.get('/chatgpt',async(req,res)=>{
+
+
+    const Aim = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Aim of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    },(err,data)=>{
+        console.log('error',err)
+        console.log('data',data)
+
+    });
+
+
+
+    const Objective = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Objective of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    });
+
+
+    const Overview = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Overview of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    });
+
+
+    const Conclusion = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Conclusion of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    });
+
+
+    const Description = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Short Description of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    });
+
+
+    const Abstract = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Abstract of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    });
+
+
+
+
+    const Existing = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Existing System of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    });
+
+
+
+
+    const Proposed = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Proposed System of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    });
+
+
+
+
+    const Scope = await openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: "Scope of Smart Attendance in 300 words with 2 paragraph",
+        temperature: 0.7,
+max_tokens: 1210,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0,
+      
+
+    });
+
+    res.json({Aim :Aim.data.choices[0].text , Objective : Objective.data.choices[0].text , Overview : Overview.data.choices[0].text,
+        Conclusion :Conclusion.data.choices[0].text , Description : Description.data.choices[0].text , Abstract : Abstract.data.choices[0].text,
+        Scope :Scope.data.choices[0].text , Existing : Existing.data.choices[0].text , Proposed : Proposed.data.choices[0].text
+
+    })
+
+
+//     try {
+//         const completion = await openai.createCompletion({
+//             model: "text-davinci-002",
+//             prompt: "Aim of Smart Attendance in 300 words with 2 paragraph",
+//             temperature: 0.7,
+//   max_tokens: 1210,
+//   top_p: 1,
+//   frequency_penalty: 0,
+//   presence_penalty: 0,
+          
+  
+//         });
+//         res.json(completion.data.choices[0].text);
+//       } catch (error) {
+//         if (error.response) {
+//           console.log(error.response.status);
+//           console.log(error.response.data);
+//         } else {
+//           console.log(error.message);
+//         }
+//       }
+
+})
+
+
+
+
+// router.get('/scrap',(req,res)=>{
+//     fetch('https://www.rockerstop.com/freelance-jobs.php',(err,response,html)=>{
+//         if(err) throw err;
+//         else{
+//             console.log(res)
+//         }
+//     });
+// })
+
+
+
 var ccavReqHandler = require('./ccavRequestHandler');
 var ccavResHandler = require('./ccavResponseHandler');
 
@@ -26,6 +210,27 @@ router.get('/nonseamless', function (req, res){
 });
 
 router.post('/ccavRequestHandler', function (request, res){
+
+    let guid = () => {
+        let s4 = () => {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        //return id of format 'aaaaaaaa'-'aaaa'-'aaaa'-'aaaa'-'aaaaaaaaaaaa'
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    }
+
+    let body = request.body;
+    body['merchant_id'] = '1760015';
+    body['order_id'] = guid();
+    body['currency'] = 'INR';
+    body['amount'] = '500.00';
+    body['redirect_url'] = 'http://127.0.0.1:3001/ccavResponseHandler';
+    body['cancel_url'] = 'http://127.0.0.1:3001/ccavResponseHandler';
+
+
+
    
 // ccavReqHandler.postReq(request, response);
 console.log(request.body)
@@ -95,14 +300,56 @@ router.get('/index2',(req,res)=>{
 
 
 
-router.get('/', (req, res) => { pool.query(`select name,seo_name,short_description from project`,
-(err,result)=>err ? console.log(err) : res.render('index',{result:result}))
+router.get('/', (req, res) => { 
+    
+ var query = `select name,seo_name,short_description from project;`
+ var query1 = `select * from add_project;`
+ var query2 = `select * from technology;`
+
+
+    pool.query(query+query1+query2,
+(err,result)=>err ? console.log(err) : res.render('index1',{result:result}))
 })
 
-router.post('/contactus',(req,res)=>{
+
+router.get('/contact-us', (req, res) => { 
+    
+    var query = `select name,seo_name,short_description from project;`
+    var query1 = `select * from add_project;`
+    var query2 = `select * from technology;`
+   
+   
+       pool.query(query+query1+query2,
+   (err,result)=>err ? console.log(err) : res.render('contact',{result:result,msg:''}))
+   })
+
+
+
+
+
+router.post('/contact-us',(req,res)=>{
     let body = req.body
     body['date'] = today
-    pool.query(`insert into contactus set ?`,body,(err,result)=>err ? console.log(err) : res.send('OK'))
+
+    pool.query(`insert into contactus set ?`,body,(err,result)=>{
+        if(err) throw err;
+        else{
+            var query = `select name,seo_name,short_description from project;`
+    var query1 = `select * from add_project;`
+    var query2 = `select * from technology;`
+   
+   
+       pool.query(query+query1+query2,
+   (err,result)=>err ? console.log(err) : res.render('contact',{result:result,msg:'Our team will contact you soon'}))
+        }
+
+    })
+//     pool.query(`insert into contactus set ?`,body,(err,result)=>{(
+//     if(err) throw err;
+//     else{
+
+//     }
+// })
 })
 
 router.get('/synopsis', (req, res) => {
@@ -119,14 +366,133 @@ router.get('/cse/:name',(req,res)=>{
 
 
 // new btech route
-router.get('/btech-final-year-project-report-:name',(req,res)=>{
+router.get('/:graduation_type-final-year-project-report-:name',(req,res)=>{
+
+ let graduation_type_send = '';
+
+ if(req.params.graduation_type == 'btech'){
+    graduation_type_send = 'B.Tech'
+ }
+ else if(req.params.graduation_type == 'mtech'){
+    graduation_type_send = 'M.Tech'
+ }
+ else if(req.params.graduation_type == 'be'){
+   graduation_type_send = 'B.E.'
+ }
+ else if(req.params.graduation_type == 'me'){
+    graduation_type_send = 'M.E.'
+  }
+ else if(req.params.graduation_type == 'bca'){
+    graduation_type_send = 'BCA'
+  }
+  else if(req.params.graduation_type == 'mca'){
+    graduation_type_send = 'MCA'
+  }
+  
+  
+
+
+
     var query = `select * from project where seo_name = '${req.params.name}';`
     var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
     var query2 = `select name,seo_name,short_description from project where seo_name!= '${req.params.name}';`
     pool.query(query+query1+query2,(err,result)=>{
-        err ? console.log(err) : res.render('B.Tech/preview',{result:result})
+        err ? console.log(err) : res.render('B.Tech/preview',{result:result,graduation_type_send,original:req.params.graduation_type})
     })
 })
+
+
+
+
+router.get('/final-year-project-report-:name',(req,res)=>{
+
+    let graduation_type_send = '';
+   
+    
+       var query = `select * from project where seo_name = '${req.params.name}';`
+       var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
+       var query2 = `select name,seo_name,short_description from project where seo_name!= '${req.params.name}';`
+       pool.query(query+query1+query2,(err,result)=>{
+           err ? console.log(err) : res.render('B.Tech/preview1',{result:result})
+       })
+   })
+   
+
+
+
+
+   router.get('/project-ideas', (req, res) => { 
+pool.query(`select name,seo_name,short_description from project where er_diagram is not null`,
+(err,result)=>err ? console.log(err) : res.render('B.Tech/project-ideas',{result:result}))
+})
+
+
+
+router.get('/:graduation_type-final-year-project-report', (req, res) => { 
+    let graduation_type_send = '';
+
+ if(req.params.graduation_type == 'btech'){
+    graduation_type_send = 'B.Tech'
+ }
+ else if(req.params.graduation_type == 'mtech'){
+    graduation_type_send = 'M.Tech'
+ }
+ else if(req.params.graduation_type == 'be'){
+   graduation_type_send = 'B.E.'
+ }
+ else if(req.params.graduation_type == 'me'){
+    graduation_type_send = 'M.E.'
+  }
+ else if(req.params.graduation_type == 'bca'){
+    graduation_type_send = 'BCA'
+  }
+  else if(req.params.graduation_type == 'mca'){
+    graduation_type_send = 'MCA'
+  }
+  
+    
+    pool.query(`select name,seo_name,short_description from project where er_diagram is not null`,
+(err,result)=>err ? console.log(err) : res.render('B.Tech/index',{result:result,graduation_type_send,original:req.params.graduation_type}))
+})
+
+
+
+
+
+router.get('/:graduation_type-final-year-project-report-:name/edit',(req,res)=>{
+
+
+    let graduation_type_send = '';
+
+    if(req.params.graduation_type == 'btech'){
+       graduation_type_send = 'B.Tech'
+    }
+    else if(req.params.graduation_type == 'mtech'){
+       graduation_type_send = 'M.Tech'
+    }
+    else if(req.params.graduation_type == 'be'){
+      graduation_type_send = 'B.E.'
+    }
+    else if(req.params.graduation_type == 'me'){
+       graduation_type_send = 'M.E.'
+     }
+    else if(req.params.graduation_type == 'bca'){
+       graduation_type_send = 'BCA'
+     }
+     else if(req.params.graduation_type == 'mca'){
+       graduation_type_send = 'MCA'
+     }
+     
+
+    var query = `select * from project where seo_name = '${req.params.name}';`
+    var query1 = `select name,id from programming_language;`
+    pool.query(query+query1,(err,result)=>{
+        err ? console.log(err) : res.render('B.Tech/customization',{result : result,msg:'Select Atleast HTML Programming Language',graduation_type_send,original:req.params.graduation_type})
+    })
+
+})
+
+
 
 
 // new mtech route
@@ -224,15 +590,15 @@ router.get('/cse/:name/customization',(req,res)=>{
 
 
 
-router.get('/btech-final-year-project-report-:name/edit',(req,res)=>{
+// router.get('/btech-final-year-project-report-:name/edit',(req,res)=>{
 
-    var query = `select * from project where seo_name = '${req.params.name}';`
-    var query1 = `select name,id from programming_language;`
-    pool.query(query+query1,(err,result)=>{
-        err ? console.log(err) : res.render('B.Tech/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
-    })
+//     var query = `select * from project where seo_name = '${req.params.name}';`
+//     var query1 = `select name,id from programming_language;`
+//     pool.query(query+query1,(err,result)=>{
+//         err ? console.log(err) : res.render('B.Tech/customization',{result : result,msg:'Select Atleast HTML Programming Language'})
+//     })
 
-})
+// })
 
 
 //new mtech edit route
@@ -319,6 +685,23 @@ router.get('/make-your-own-project-pricing-list', (req, res) => { pool.query(`se
 
 
 
+router.get('/search',(req,res)=>{
+    if(req.query.type == 'Project Report'){
+        pool.query(`select name,seo_name,short_description from project where er_diagram is not null and seo_name like '%${req.query.q}%'`,
+        (err,result)=>err ? console.log(err) : res.render('B.Tech/project-ideas',{result:result}))
+    }
+    else{
+        pool.query(`select name,seo_name,description from add_project where seo_name like '%${req.query.q}%'`,
+        (err,result)=>err ? console.log(err) : res.render('B.Tech/source-code',{result:result}))  
+    }
+})
+
+
+router.get('/source-code', (req, res) => { 
+    pool.query(`select name,seo_name,description from add_project`,
+    (err,result)=>err ? console.log(err) : res.render('B.Tech/source-code',{result:result}))
+    })
+
 
 router.get('/:name/source-code',(req,res)=>{
     pool.query(`select id from add_project where seo_name = '${req.params.name}'`,(err,result)=>{
@@ -329,7 +712,9 @@ var query = `select * from add_project where seo_name = '${req.params.name}';`
     var query1 = `select * from add_project order by name;`
     var query2 = `select * from admin_features where projectid = '${projectid}';`
     var query3 = `select * from user_features where projectid = '${projectid}';`
-    pool.query(query+query1+query2+query3,(err,result)=>{
+    var query4 = `select name,seo_name,description from add_project where seo_name!= '${req.params.name}';`
+    
+    pool.query(query+query1+query2+query3+query4,(err,result)=>{
         if(err) throw err;
         else res.render('download-source-code',{result})
 

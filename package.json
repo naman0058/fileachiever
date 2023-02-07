@@ -22,8 +22,10 @@
     "node-ccavenue": "^1.0.5",
     "node-fetch": "^2.6.1",
     "nodemon": "^1.18.3",
+    "openai": "^3.1.0",
     "payumoney-node": "^2.0.1",
     "razorpay": "^2.0.6",
+    "request": "^2.88.2",
     "sha256": "^0.2.0"
   },
   "engines": {

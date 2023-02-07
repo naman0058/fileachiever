@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from dreamslms.dreamguystech.com/html/support.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:05:39 GMT -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+<title>Contact Us — Filemakr </title>
+
+<!-- Favicons -->
+<link href="/images/filemakr-project-file-creator-favicon.png" rel="icon">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
+
+  
+
+
+
+
+
+<link rel="stylesheet" href="/design/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
+
+<link rel="stylesheet" href="/design/plugins/select2/css/select2.min.css">
+
+<link rel="stylesheet" href="/design/plugins/feather/feather.css">
+
+<link rel="stylesheet" href="/design/css/style.css">
+
+</head>
+<body>
+
+<div class="main-wrapper">
+
+
+    <%include ./header1.ejs %>  
+
+
+
+<div class="breadcrumb-bar">
+<div class="container">
+<div class="row">
+<div class="col-md-12 col-12">
+<div class="breadcrumb-list">
+<nav aria-label="breadcrumb" class="page-breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item">Contact Us</li>
+</ol>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="page-banner">
+<div class="container">
+<div class="row">
+<div class="col-md-12 col-12">
+<h1 class="mb-0">Contact Us</h1>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="page-content">
+<div class="container">
+<div class="row">
+<div class="col-lg-6 col-md-8 mx-auto">
+<div class="support-wrap">
+<h5>Submit a Request</h5>
+<h5 style="font-size: 15px;color: #F66962;"><%=msg%></h5>
+
+<form action="/contact-us" method="post" id="contact" class="contactForm">
+<div class="form-group">
+<label>Name</label>
+<input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" required />
+</div>
+<div class="form-group">
+<label>Mobile Number</label>
+<input type="number" class="form-control" name="email" id="email" placeholder="Your Mobile Number" data-rule="minlen:10" data-msg="Please enter a valid mobile number" required />
+</div>
+<div class="form-group">
+<label>Subject</label>
+<input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject"  required/>
+</div>
+<div class="form-group">
+<label>Description</label>
+<textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message" required></textarea>
+</div>
+<button class="btn btn-submit">Submit</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<%include ./footer.ejs %>  

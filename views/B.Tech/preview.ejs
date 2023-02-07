@@ -1,8 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
 
-    <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- Mirrored from dreamslms.dreamguystech.com/html/course-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:00:18 GMT -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+
+
+
+
+
+
+<meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name=description content="<%=result[0][0].short_description%>"/>
     <meta name="abstract" content="<%=result[0][0].short_description%>"/>
    <meta name=keywords content="project file, top 100 projects"/>
@@ -23,7 +32,7 @@
     <meta name=DC.title content="<%=result[0][0].name%> project report"/>
     <meta property=og:title content="<%=result[0][0].name%>  project report"/>
     <meta property=og:type content="article"/>
-    <meta property=og:url content="https://www.filemakr.com/btech-final-year-project-report-<%=result[0][0].seo_name%>"/>
+    <meta property=og:url content="https://www.filemakr.com/<%=original%>-final-year-project-report-<%=result[0][0].seo_name%>"/>
     <meta property=og:image content="http://www.filemakr.com/images/filemakr-project-file-creator-favicon.png" style="width:80px;"/>
     <meta property=og:site_name content="http://www.filemakr.com"/>
     <meta property=og:description content="<%=result[0][0].short_description%>"/>
@@ -36,8 +45,8 @@
     <meta property="og:phone_number" content="+91-8319339945"/>
     <meta property="og:email" content="filemakr@gmail.com"/>
     <meta property="og:country-name" content="India"/>
-     <link rel=canonical href="https://www.filemakr.com/btech-final-year-project-report-<%=result[0][0].seo_name%>">
-    <title>B.Tech Project Report Of <%=result[0][0].name%> — Filemakr </title>
+     <link rel=canonical href="https://www.filemakr.com/<%=original%>-final-year-project-report-<%=result[0][0].seo_name%>">
+    <title><%=graduation_type_send%> Project Report Of <%=result[0][0].name%> — Filemakr </title>
 
 
     <script type='application/ld+json'> 
@@ -75,8 +84,10 @@
         "sameAs": [
           "https://www.facebook.com/FileMakr",
           "https://twitter.com/FileMakr",
-          "instagram.com/filemakr/",
-          "https://www.filemakr.com"
+          "https://instagram.com/filemakr/",
+          "https://www.filemakr.com",
+          https://www.linkedin.com/company/filemakr/
+
         ]
       },
         "contactPoint": {
@@ -87,189 +98,402 @@
       }
        </script>
 
-  <!-- Favicons -->
-  <link href="/images/filemakr-project-file-creator-favicon.png" rel="icon">
- 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
-
-  <!-- Bootstrap CSS File -->
-  <link href="/a/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" async>
-
-  <!-- /a/libraries CSS Files -->
-  <link href="/all.css" rel="preload" as="style" async>
-  <link href="/a/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" async>
-  <link href="/a/lib/ionicons/css/ionicons.min.css" rel="preload" as="style" async>
-  <link href="/a/lib/lightbox/css/lightbox.min.css" rel="preload" as="style" async>
-
-  <!-- Main Stylesheet File -->
-  <link href="/a/css/style.css" rel="stylesheet" async>
 
 
 
-<style type="text/css">
+<title>Dreams LMS</title>
 
+<link rel="shortcut icon" type="image/x-icon" href="/images/filemakr-project-file-creator-favicon.png">
 
-  .first{
-    font-family:'Times New Roman', Times, serif;
-    font-size:24px;
-    font-weight:bold;
+<link rel="stylesheet" href="/design/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
+
+<link rel="stylesheet" href="/design/css/feather.css">
+
+<link rel="stylesheet" href="/design/css/style.css">
+
+<style>
+@media only screen and (max-width: 1000px) {
+  .left {
+    margin-top: 200px;
+    position: absolute;
   }
-  .second{
-    font-family:'Times New Roman', Times, serif;
-    font-size:18px;
+  .right {
+    position: absolute;
   }
-  .third{
-   font-family:'Times New Roman', Times, serif;
-    font-size:18px;
-    font-weight: bold; 
-  }
-  .fourth{
-   font-family:'Times New Roman', Times, serif;
-   font-size:18px;
-   font-style: italic;
-  }
-   .fifth{
-   font-family:'Times New Roman', Times, serif;
-   font-size:12x;
-   font-style: italic;
-  }
-  
+}
 </style>
 
-  
-</head>
 
+</head>
 <body>
 
+<div class="main-wrapper">
+
+  <%include ../header1.ejs %>  
+
+
+
+<div class="breadcrumb-bar">
+<div class="container">
+<div class="row">
+<div class="col-md-12 col-12">
+<div class="breadcrumb-list">
+<nav aria-label="breadcrumb" class="page-breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item" aria-current="page"><%=graduation_type_send%></li>
+<li class="breadcrumb-item" aria-current="page">Project Report</li>
+<li class="breadcrumb-item" aria-current="page"><%=result[0][0].name%></li>
+</ol>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="inner-banner">
+<div class="container">
+<div class="row">
+<div class="col-lg-8">
+<div class="instructor-wrap border-bottom-0 m-0">
+<div class="about-instructor align-items-center">
+
+
+
+</div>
+<span class="web-badge mb-3">WEB DEVELPMENT</span>
+</div>
+<h2><%=result[0][0].name%> Project Report</h2>
+<!-- <p>Learn Web Development by building 25 websites and mobile apps using HTML, CSS, Javascript, PHP, Python, MySQL & more!</p> -->
+<div class="course-info d-flex align-items-center border-bottom-0 m-0 p-0">
+<div class="cou-info">
+<img src="/design/img/icon/icon-01.svg" alt="">
+<p>35+ Pages</p>
+</div>
+<div class="cou-info">
+<img src="/design/img/icon/timer-icon.svg" alt="">
+<p>Customize Your Project Report in 10 Minutes - Get Results Fast!</p>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<section class="page-content course-sec">
+<div class="container">
+<div class="row">
+<div class="col-lg-8">
+
+<div class="card overview-sec">
+<div class="card-body">
+<h5 class="subs-title">Overview</h5>
+<p><%=result[0][0].overview%>  </p>
+
+
+<h5 class="subs-title">Objective</h5>
+<p><%=result[0][0].objective%>  </p>
+
+
+<h5 class="subs-title">Aim</h5>
+<p><%=result[0][0].aim%>  </p>
+
+
+
+</div>
+</div>
+
+
+<div class="card content-sec">
+<div class="card-body">
+<div class="row">
+<div class="col-sm-6">
+<h5 class="subs-title">Project Report Content</h5>
+</div>
+
+</div>
+<div class="course-card">
+<h6 class="cou-title">
+<a class="collapsed" data-bs-toggle="collapse" href="#collapseOne" aria-expanded="false">Introduction</a>
+</h6>
+<div id="collapseOne" class="card-collapse collapse" style="">
+<ul>
+
+
+<li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Introduction</p></li>
+<li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">AIM</p></li>
+<li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Existing System</p></li>
+<li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Proposed System</p></li>
+<li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Feasibility Study</p></li>
+<li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Project Work Schedule</p></li>
+<li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Organization of Report</p></li>
+
+
+</ul>
+</div>
+</div>
+<div class="course-card">
+<h6 class="cou-title">
+<a class="collapsed" data-bs-toggle="collapse" href="#course2" aria-expanded="false">Software Requirements Specification</a>
+</h6>
+<div id="course2" class="card-collapse collapse" style="">
+<ul>
+  <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Hardware Requirements</p></li>
+  <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Software Requirements</p></li>
+
+
+
+</ul>
+</div>
+</div>
 
 
 
 
-    <%include ../navbar.ejs %>  
+
+<div class="course-card">
+<h6 class="cou-title">
+<a class="collapsed" data-bs-toggle="collapse" href="#course3" aria-expanded="false">Design & Planning</a>
+</h6>
+<div id="course3" class="card-collapse collapse" style="">
+  <ul>
+    <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Software Development Life Cycle Model</p></li>
+    <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">General Overview</p></li>
+    <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Use Flow Diagram</p></li>
+    <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">ER Diagram</p></li>
+    <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">DFD Diagram</p></li>
+
+
   
-
-  <main id="main">
-
-
-   <section id="services" class="section-bg" style="background-color: whitesmoke;">
-      <div class="container">
-          <header class="section-header">
-
- <br><br><br><br><br><br>
-          
-
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-lg-7" style="background-color:white;text-align: left;padding: 20px;">
-      <h4 style="text-align: left;font-weight: bold;margin-top: 10px;">Live Preview</h4>
-
- <iframe frameborder="0" allowtransparency="true" allowFullscreen="true" style="width: 100%; height: 480px; border: none;" src="https://online.visual-paradigm.com/share/book/filemakr-download-project-file-smart-attendance-147asny9mg?p=1"></iframe>
-
-      <h4 style="text-align: left;font-weight: bold;margin-top: 10px;"><%=result[0][0].name%> Project Report</h4>
-      <p style="text-align: left;width: 100%;line-height:30px ;"><%=result[0][0].overview%></p>
-      <h4 style="text-align: left;font-weight: bold;">About <%=result[0][0].name%> Project</h4>
-
-      <p style="text-align: left;width: 100%;line-height:30px ;"><%=result[0][0].objective%></p>
-
-
   
+  
+  </ul>
+</div>
+</div>
 
 
+
+<div class="course-card">
+  <h6 class="cou-title">
+  <a class="collapsed" data-bs-toggle="collapse" href="#course7" aria-expanded="false">Implementation Details</a>
+  </h6>
+  <div id="course7" class="card-collapse collapse" style="">
+  <ul>
+    <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Front End Technology</p></li>
+    <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Back End Technology</p></li>
+  
+  
+  
+  </ul>
+  </div>
+  </div>
+
+
+
+  <div class="course-card">
+    <h6 class="cou-title">
+    <a class="collapsed" data-bs-toggle="collapse" href="#course8" aria-expanded="false">Testing</a>
+    </h6>
+    <div id="course8" class="card-collapse collapse" style="">
+    <ul>
+      <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Unit Testing</p></li>
+      <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Integration Testing</p></li>
+      <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Software Verification & Validation</p></li>
+      <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Black-Box Testing</p></li>
+      <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">White-Box Testing</p></li>
+      <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">System Testing</p></li>
+
+    
+    
+    
+    </ul>
     </div>
-    <div class="col-lg-5">
-
-      <div class="card" >
-        <div class="card-body">
-          <h4 style="text-align: left;font-weight: bold;">Project Report Includes </h4>
-           <div class="row">
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">ER Diagram</div>
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">DFD Diagram</div>
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">Waterfall Model</div>
-
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">Flow Chart</div>
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">Technology</div>
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">Testing Case</div>
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">Refferences</div>
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">Indexing</div>
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">IEEE Standard</div>
-            <div class="col-lg-6 mt-2"><img src='/images/check-mark.png' style="width: 20px;">Gantt Chart</div>
-         
+    </div>
 
 
 
-           </div>
-       
-          <!-- <a href="#" class="card-link">Preview</a> -->
- <h3><button class="btn btn-primary btn-lg btn-block edit" style="float:center;margin-top:20px ;" id="<%=result[0][0].id%>" seo_name="<%=result[0][0].seo_name%>">Edit File</button></h3>
+    <div class="course-card">
+      <h6 class="cou-title">
+      <a class="collapsed" data-bs-toggle="collapse" href="#course9" aria-expanded="false">Other Important Section</a>
+      </h6>
+      <div id="course9" class="card-collapse collapse" style="">
+      <ul>
+        <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Result</p></li>
+        <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Advantages</p></li>
+        <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Conclusion</p></li>
+        <li><p><img src="/design/img/icon/play.svg" alt="" class="me-2">Bibliography</p></li>
+
+      
+      
+      
+      </ul>
+      </div>
+      </div>
 
 
 
-        </div>
+
+
+
+
+
+
+</div>
+</div>
+
+
+
+
+
+
+
+</div>
+<div class="col-lg-4">
+<div class="sidebar-sec">
+
+<div class="video-sec vid-bg">
+<div class="card">
+<div class="card-body">
+<a href="https://online.visual-paradigm.com/share/book/filemakr-download-project-file-smart-attendance-147asny9mg?p=1" target="_blank" class="video-thumbnail" data-fancybox="">
+<div class="play-icon">
+<i class="fa-solid fa-play"></i>
+</div>
+<img class="" src="/design/img/video.jpg" alt="">
+</a>
+<div class="video-details">
+<div class="course-fee">
+<h2>Rs. 10 </h2>
+<p><span>Rs 20</span> 50% off</p>
+</div>
+<div class="row gx-2">
+<div class="col-md-12">
+<a href="https://online.visual-paradigm.com/share/book/filemakr-download-project-file-smart-attendance-147asny9mg?p=1" target="_blank" class="btn btn-wish w-100"><i class="fa-solid fa-play"> </i> Live Preview</a>
+</div>
+<!-- <div class="col-md-6">
+<a href="javascript:;" class="btn btn-wish w-100"><i class="feather-share-2"></i>Share</a>
+</div> -->
+</div>
+<a class="btn btn-enroll w-100 edit" id="<%=result[0][0].id%>" seo_name="<%=result[0][0].seo_name%>">EDIT FILE</a>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="card include-sec">
+<div class="card-body">
+<div class="cat-title">
+<h4>Includes</h4>
+</div>
+<ul>
+<li><img src="/design/img/icon/import.svg" class="me-2" alt=""> ER Diagram</li>
+<li><img src="/design/img/icon/play.svg" class="me-2" alt=""> DFD Diagram</li>
+<li><img src="/design/img/icon/key.svg" class="me-2" alt=""> Waterfall Model</li>
+<li><img src="/design/img/icon/mobile.svg" class="me-2" alt=""> Flow Chart</li>
+<li><img src="/design/img/icon/cloud.svg" class="me-2" alt=""> Technology</li>
+<li><img src="/design/img/icon/teacher.svg" class="me-2" alt=""> Testing Case</li>
+
+
+<li><img src="/design/img/icon/key.svg" class="me-2" alt="">Refferences</li>
+<li><img src="/design/img/icon/mobile.svg" class="me-2" alt=""> Indexing</li>
+<li><img src="/design/img/icon/cloud.svg" class="me-2" alt=""> IEEE Standard</li>
+<li><img src="/design/img/icon/teacher.svg" class="me-2" alt=""> Gantt Chart</li>
+
+</ul>
+</div>
+</div>
+
+
+
+
+</div>
+</div>
+
+
+
+
+
+<div class="container">
+
+  <div class="section-header aos" data-aos="fade-up">
+    <div class="section-sub-head">
+      <h2>Other <%=graduation_type_send%> Project Report</h2>
+    </div>
+    <div class="all-btn all-category d-flex align-items-center">
+    <a href="/<%=original%>-final-year-project-report" class="btn btn-primary">View All</a>
+    </div>
+    </div>
+  <div class="row">
+
+
+
+
+    <% for(i=0;i<12;i++){%>
+
+    <div class="col-lg-3 col-md-6 d-flex">
+      <div class="course-box course-design d-flex ">
+      <div class="product">
+      
+      <div class="product-content">
+      <div class="course-group d-flex">
+      <div class="course-group-img d-flex">
+      <div class="course-name">
+      <h4><a href="<%=original%>-final-year-project-report-<%=result[2][i].seo_name%>"><%=result[2][i].name%></a></h4>
+      </div>
       </div>
      
-    </div>
+      </div>
+      <p class="description"><%=result[2][i].short_description%></p>
+     
+      </div>
+      </div>
+      </div>
+      </div>
+
+<% } %>
+
+      
+    
   </div>
 </div>
 
- <br><br>
- 
-        
-
-                  
 
 
-        </header>
 
+</div>
 </div>
 </section>
 
 
+<input type="hidden" class="original_name" value="<%=original%>">
 
-<section id="services" class="section-bg" style="background-color: whitesmoke;">
-  <div class="container">
+<%include ../footer.ejs %>  
 
- <div class="row">
-            <div class="col-md-12 text-center heading-main">
-                <h2 class="heading">B.Tech Trending Project Report</h2>
 
-            </div>
-        </div>  
+</div>
 
-    <div class="row">
 
-      <% for(i=0;i<9;i++){ %>
-      <div class="col-md-6 col-lg-4 wow bounceInUp" data-wow-duration="1.4s">
-        <div class="box">
-          <h4 class="title"><a href="/btech-final-year-project-report-<%=result[2][i].seo_name%>"><%=result[2][i].name%></a></h4>
-          <p class="description"><%=result[2][i].short_description%></p>
-        </div>
-      </div>
-      <% } %>
+
+
+<script>
+  $('.edit').click(function(){
+      const seo_name = $(this).attr('seo_name')
+      const original_name = $('.original_name').val()
+      // window.location.href='/${original_name}-final-year-project-report-'+seo_name+'/edit';
+      window.location.href= `${original_name}-final-year-project-report-${seo_name}/edit`;
     
-
-    </div>
-
-  </div>
-</section><!-- #services -->
+  })
+  </script>
 
 
-
- 
-  <a href="" class="back-to-top edit" id="<%=result[0][0].id%>" seo_name="<%=result[0][0].seo_name%>"><i class="fa fa-chevron-p">Edit</i></a>
-    
-  <%include ../footer.ejs %>  
-  
 </body>
 
-<script>
-$('.edit').click(function(){
-    const seo_name = $(this).attr('seo_name')
-    window.location.href='/btech-final-year-project-report-'+seo_name+'/edit';
-  
-})
-</script>
-
-
-
+<!-- Mirrored from dreamslms.dreamguystech.com/html/course-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:01:26 GMT -->
 </html>

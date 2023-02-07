@@ -78,27 +78,25 @@ enable_page_level_ads: true
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
 
-  <!-- Bootstrap CSS File -->
-  <link href="/a/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" async>
+<link rel="stylesheet" href="/design/css/bootstrap.min.css">
 
-  <!-- /a/libraries CSS Files -->
-  <link href="/all.css" rel="preload" as="style" async>
-  <link href="/a/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" async>
-  <link href="/a/lib/ionicons/css/ionicons.min.css" rel="preload" as="style" async>
-  <link href="/a/lib/lightbox/css/lightbox.min.css" rel="preload" as="style" async>
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
 
-  <!-- Main Stylesheet File -->
-  <link href="/a/css/style.css" rel="stylesheet" async>
+<link rel="stylesheet" href="/design/plugins/select2/css/select2.min.css">
 
+<link rel="stylesheet" href="/design/plugins/feather/feather.css">
+
+<link rel="stylesheet" href="/design/css/style.css">
 
 
 </head>
 
 <body>
   
-    <%include ./navbar.ejs %>  
+    <%include ./header1.ejs %>  
 
-  <main id="main">
+  <main id="main" class="main-wrapper">
 
 
 
@@ -150,7 +148,7 @@ If you have any questions concerning our return policy , please contact us at:
 
   
     
-      <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
+      <!-- <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a> -->
     <%include ./footer.ejs %>  
   
     

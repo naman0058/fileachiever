@@ -82,374 +82,494 @@ enable_page_level_ads: true
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
 
-  <!-- Bootstrap CSS File -->
-  <link href="/a/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" async>
+  
 
-  <!-- /a/libraries CSS Files -->
-  <link href="/all.css" rel="preload" as="style" async>
-  <link href="/a/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" async>
-  <link href="/a/lib/ionicons/css/ionicons.min.css" rel="preload" as="style" async>
-  <link href="/a/lib/lightbox/css/lightbox.min.css" rel="preload" as="style" async>
 
-  <!-- Main Stylesheet File -->
-  <link href="/a/css/style.css" rel="stylesheet" async>
 
+
+
+<link rel="stylesheet" href="/design/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
+
+<link rel="stylesheet" href="/design/plugins/select2/css/select2.min.css">
+
+<link rel="stylesheet" href="/design/plugins/feather/feather.css">
+
+<link rel="stylesheet" href="/design/css/style.css">
+
+
+
+<style>
+  @font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc9.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  src: url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc9.ttf) format('truetype');
+}
+
+.form-popup-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  
+}
+.form-popup-bg {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(94, 110, 141, 0.9);
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transition: opacity 0.3s 0s, visibility 0s 0.3s;
+  -moz-transition: opacity 0.3s 0s, visibility 0s 0.3s;
+  transition: opacity 0.3s 0s, visibility 0s 0.3s;
+  overflow-y: auto;
+  z-index: 10000;
+}
+.form-popup-bg.is-visible {
+  opacity: 1;
+  visibility: visible;
+  -webkit-transition: opacity 0.3s 0s, visibility 0s 0s;
+  -moz-transition: opacity 0.3s 0s, visibility 0s 0s;
+  transition: opacity 0.3s 0s, visibility 0s 0s;
+}
+.form-container {
+  background-color:  #F66962;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  padding: 40px;
+  color: #fff;
+}
+.close-button {
+  background: none;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: solid 1px #fff;
+}
+.form-popup-bg:before {
+  content: '';
+  background-color: #fff;
+  opacity: 0.25;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+</style>
 
 
 </head>
 
 <body>
- 
-    <%include ./navbar.ejs %>  
-  <main id="main">
 
-
-
-
-
-    <!--==========================
-      Services Section
-    ============================-->
-    <section id="services" class="section-bg">
-      <div class="container">
-
-       
-
-        <div class="row">
-
-       
-         
-        </div>
-
-      </div>
-    </section><!-- #services -->
-<br>
-    <section id="faq">
-        <div class="container">
-          <header class="section-header">
-            <h4><%=result[0][0].name%></h4>
-            <p></p>
-          </header>
+  <div class="main-wrapper">
   
-
-  <div class="row">
-       <div class="col-lg-4 bg-light">
-         
-<table class="table table-hover">
-  <thead style="background-color: #1BB1DC">
-    <tr>
-      <th scope="col" class="text-center">#Trending Project</th>
-     
-    </tr>
-  </thead>
-  <tbody>
-   
-<% for(i=0;i<result[1].length;i++){%>
-
-<tr>
-      <td>
-        <a href="/<%=result[1][i].seo_name%>/source-code" style="color: black;font-weight: bold"><%=result[1][i].name%></a>
-          
-        </td>
-    </tr>
-
-<% } %>
-
-  </tbody>
-</table>
-
-       </div>
-          <div class="col-lg-8">
-            
-<table class="table table-xs-responsive" summary="An example of a responsive table using Bootstrap breakpoints." aria-role="table">
-
-  <tbody>
-  <tr class="success">
-    <th>Project Name</th>
-    <td><%=result[0][0].name%></td>
-    
-  </tr>
-  <tr class="info">
-    <th>Language Used</th>
-    <td>PHP5.6, PHP7.x</td>
-   
-  </tr>
-  <tr class="warning">
-    <th>Database</th>
-    <td>MySQL 5.x</td>
- 
-  </tr>
-
-
- <tr class="warning">
-    <th>User Interface Design</th>
-    <td>HTML, AJAX, JQUERY, JAVASCRIPT, BOOTSTRAP</td>
- 
-  </tr>
-
-
-   <tr class="warning">
-    <th>Web Browser</th>
-    <td>Mozilla, Google Chrome, IE8, OPERA</td>
- 
-  </tr>
-
-
-   <tr class="warning">
-    <th>Software</th>
-    <td>XAMPP / Wamp / Mamp/ Lamp (anyone)</td>
- 
-  </tr>
-
-
-  </tbody>
-
-</table>
-
-
-
-
-
- <span style="font-size:18px; color:black;font-family:'Times New Roman', Times, serif;line-height: 2.5">
-            <p><%=result[0][0].description%>
-                
-
-
-</p>
-</span>
-
-
-
-
-
-
-
-
-<h4 style="font-weight: bold;">Admin Features</h4>
-
-
-<table class="table table-xs-responsive" summary="An example of a responsive table using Bootstrap breakpoints." aria-role="table">
-
-  <tbody>
-
-    <% for(i=0;i<result[2].length;i++){ %>
-  <tr class="success">
-
-    <td><%=i+1%>. <%=result[2][i].features%></td>
-    
-  </tr>
-
-  <% } %>
- 
-  </tbody>
-
-</table>
-
-
-
-
-
-
-
-<h4 style="font-weight: bold;">User Features</h4>
-
-
-<table class="table table-xs-responsive" summary="An example of a responsive table using Bootstrap breakpoints." aria-role="table">
-
-  <tbody>
-
-    <% for(i=0;i<result[3].length;i++){ %>
-  <tr class="success">
-
-    <td><%=i+1%>. <%=result[3][i].features%></td>
-    
-  </tr>
-
-  <% } %>
- 
-  </tbody>
-
-</table>
-
-
-
-
-<h4 style="font-weight: bold;">How TO RUN <%=result[0][0].name%></h4>
-
-
-<table class="table table-xs-responsive" summary="An example of a responsive table using Bootstrap breakpoints." aria-role="table">
-
-  <tbody>
-  <tr class="success">
-
-    <td>1. Download the zip file</td>
-    
-  </tr>
-  <tr class="info">
-   
-    <td>2. Extract the file and copy <b>"<%=result[0][0].folder_name%>"</b> folder</td>
-   
-  </tr>
-  <tr class="warning">
-   
-    <td>3. Paste inside root directory(for xampp xampp/htdocs, for wamp wamp/www, for lamp var/www/html).</td>
- 
-  </tr>
-
-
- <tr class="warning">
-   
-    <td>4. Open PHPMyAdmin (http://localhost/phpmyadmin).
-  </tr>
-
-
-
- <tr class="warning">
-   
-    <td>5. Create a database with name <b>"<%=result[0][0].database_name%>"</b>.
-  </tr>
-
-
- <tr class="warning">
-   
-    <td>6. Import <b><%=result[0][0].database_name%>.sql </b> file(given inside the zip package in SQL file folder).
-  </tr>
-
-
-
-
- <tr class="warning">
-   
-    <td>7. Run the script <b><%=result[0][0].url%></b> (frontend).
-  </tr>
-
- <tr class="warning">
-   
-    <td>8. For admin Panel <b><%=result[0][0].url%>/admin</b>.
-  </tr>
-
- 
-  </tbody>
-
-</table>
-
-
-
-<h4 style="font-weight: bold;">Login Credentials</h4>
-
-
-       
-<table class="table table-xs-responsive" summary="An example of a responsive table using Bootstrap breakpoints." aria-role="table">
-
-  <tbody>
-  <tr class="success">
-    <th>Pannel</th>
-    <th>Username</th>
-        <th>Password</th>
-  </tr>
- 
-
-   <tr class="info">
-    <th>Admin</th>
-    <td>admin</td>
-    <td>Test @123</td>
-   
-  </tr>
-  <tr class="warning">
-    <th>User</th>
-    <td>User</td>
-    <td>Test @123</td>
- 
-  </tr>
-
-
-  </tbody>
-
-</table>
-
-
-
-   <h4 style="font-weight: bold;">Fill this form to download source code.</h4>
-
-
-            <span class="anchor" id="formLogin"></span> 
-            <!-- form card login -->
-            <div class="card card-outline-secondary">
-             
-              <div class="card-body">
-                <form autocomplete="off" class="form" id="formLogin" name="formLogin" role="form">
-                  
-<div class="row">
-  <div class="col-6">
-                    <div class="form-group">
-                    <label>Name</label> 
-                    <input autocomplete="new-password" class="form-control" id="name" required="" type="text">
-                  </div>
-</div>
-
-<div class="col-6">
-                    <div class="form-group">
-                    <label>Email</label> 
-                    <input autocomplete="new-password" class="form-control" id="email" required="" type="email">
-                  </div>
-</div>
-
-  <div class="col-6">
-                    <div class="form-group">
-                    <label>Mobile Number</label> 
-                    <input autocomplete="new-password" class="form-control" id="number" required="" type="number">
-                  </div>
-</div>
-
-<div class="col-6">
-                    <div class="form-group">
-                    <label>College Name</label> 
-                    <input autocomplete="new-password" class="form-control" id="college_name" required="" type="text">
-                  </div>
-</div>
-
-
-</div>
-               
-               
-                  
-                 
-                  <button class="btn btn-primary float-right" id="razorpay" projectid="<%=result[0][0].id%>"  type="button">Download Source Code</button>
-                </form>
-              </div><!--/card-block-->
-            </div><!-- /form card login -->
-
-
-
-<!-- 
-<form><script src="https://checkout.razorpay.com/v1/payment-button.js" data-payment_button_id="pl_GJ0TEfmiPnpDS1"> </script> </form>
- -->
-<!-- <form><script src="https://checkout.razorpay.com/v1/payment-button.js" data-payment_button_id="pl_GJ0ZAfKKdC31IJ"> </script> </form>
- -->
-
+    <%include ./header1.ejs %>  
+
+
+    <div class="form-popup-bg">
+      <div class="form-container">
+        <button id="btnCloseForm" class="close-button">X</button>
+        <p>Download Source Code</p>
+        <form method="POST" name="customerData" action="/ccavRequestHandler">
+
+          <div class="form-group">
+            <label for="">Name</label>
+            <input type="text" name="billing_name" id="name" class="form-control" placeholder="Enter Your Name" required/>
+          </div>
+          <div class="form-group">
+            <label for="">Email</label>
+            <input class="form-control" id="billing_email" name="email" type="email" placeholder="Enter Your Email" required />
+          </div>
+          <div class="form-group">
+            <label for="">Mobile Number</label>
+            <input type="number" class="form-control" name="billing_tel" id="email" placeholder="Your Mobile Number" data-rule="minlen:10" data-msg="Please enter a valid mobile number" required />
 
           </div>
 
+          <input type="hidden" class="'form-control" name="source_code_id" value="<%=result[0][0].id%>">
+        
+          <button type="submit" class="btn btn-dark">Submit</button>
+        </form>
+      </div>
+    </div>
+  
+  
+  
+  <div class="breadcrumb-bar">
+  <div class="container">
+  <div class="row">
+  <div class="col-md-12 col-12">
+  <div class="breadcrumb-list">
+  <nav aria-label="breadcrumb" class="page-breadcrumb">
+  <ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="/">Home</a></li>
+  <li class="breadcrumb-item" aria-current="page">Source Code</li>
+  <li class="breadcrumb-item" aria-current="page"><%=result[0][0].name%></li>
+  </ol>
+  </nav>
   </div>
-
-
-
-
+  </div>
+  </div>
+  </div>
+  </div>
+  
+  
+  <div class="inner-banner">
+  <div class="container">
+  <div class="row">
+  <div class="col-lg-8">
+  <div class="instructor-wrap border-bottom-0 m-0">
+  <div class="about-instructor align-items-center">
+  
+  
+  
+  </div>
+  <span class="web-badge mb-3">Source Code</span>
+  </div>
+  <h2><%=result[0][0].name%> </h2>
+  <!-- <p>Learn Web Development by building 25 websites and mobile apps using HTML, CSS, Javascript, PHP, Python, MySQL & more!</p> -->
+  <div class="course-info d-flex align-items-center border-bottom-0 m-0 p-0">
+ 
 
   
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  
+  
+  <section class="page-content course-sec">
+  <div class="container">
+  <div class="row">
+  <div class="col-lg-8">
+  
+  <div class="card overview-sec">
+  <div class="card-body">
+  <h5 class="subs-title">Overview</h5>
+  <p><%=result[0][0].description%>  </p>
+
+
+  <table class="table table-xs-responsive" summary="An example of a responsive table using Bootstrap breakpoints." aria-role="table">
+
+    <tbody>
+    <tr class="success">
+      <th>Project Name</th>
+      <td><%=result[0][0].name%></td>
+      
+    </tr>
+    <tr class="info">
+      <th>Language Used</th>
+      <td>PHP5.6, PHP7.x</td>
+     
+    </tr>
+    <tr class="warning">
+      <th>Database</th>
+      <td>MySQL 5.x</td>
+   
+    </tr>
+  
+  
+   <tr class="warning">
+      <th>User Interface Design</th>
+      <td>HTML, AJAX, JQUERY, JAVASCRIPT, BOOTSTRAP</td>
+   
+    </tr>
+  
+  
+     <tr class="warning">
+      <th>Web Browser</th>
+      <td>Mozilla, Google Chrome, IE8, OPERA</td>
+   
+    </tr>
+  
+  
+     <tr class="warning">
+      <th>Software</th>
+      <td>XAMPP / Wamp / Mamp/ Lamp (anyone)</td>
+   
+    </tr>
+  
+  
+    </tbody>
+  
+  </table>
+  
+  
+  
+  
+  
+  </div>
+  </div>
+  
+  
+  <div class="card content-sec">
+  <div class="card-body">
+  <div class="row">
+  <div class="col-sm-6">
+  <h5 class="subs-title">Project Report Content</h5>
+  </div>
+  
+  </div>
+  <div class="course-card">
+  <h6 class="cou-title">
+  <a class="collapsed" data-bs-toggle="collapse" href="#collapseOne" aria-expanded="false">Admin Features</a>
+  </h6>
+  <div id="collapseOne" class="card-collapse collapse" style="">
+  <ul>
+  
+    <% for(i=0;i<result[2].length;i++){ %>
+  
+  <li><p><%=result[2][i].features%></p></li>
+
+  <% } %>
+  
+  
+  </ul>
+  </div>
+  </div>
+  <div class="course-card">
+  <h6 class="cou-title">
+  <a class="collapsed" data-bs-toggle="collapse" href="#course2" aria-expanded="false">User Features</a>
+  </h6>
+  <div id="course2" class="card-collapse collapse" style="">
+  <ul>
+   
+   
+    <% for(i=0;i<result[3].length;i++){ %>
+   
+    <li><p><%=result[3][i].features%></p></li>
+   
+    <% } %>
+  
+  
+  </ul>
+  </div>
+  </div>
+  
+  
+  
+  
+  
+  <div class="course-card">
+  <h6 class="cou-title">
+  <a class="collapsed" data-bs-toggle="collapse" href="#course3" aria-expanded="false">How TO RUN <%=result[0][0].name%></a>
+  </h6>
+  <div id="course3" class="card-collapse collapse" style="">
+    <ul>
+      <li><p>Download the zip file.</p></li>
+      <li><p>Extract the file and copy <b>"<%=result[0][0].folder_name%>"</b> folder.</p></li>
+      <li><p>Paste inside root directory(for xampp xampp/htdocs, for wamp wamp/www, for lamp var/www/html).</p></li>
+      <li><p>Open PHPMyAdmin (http://localhost/phpmyadmin).</p></li>
+      <li><p>Create a database with name <b>"<%=result[0][0].database_name%>"</b>.</p></li>
+      <li><p>Import <b><%=result[0][0].database_name%>.sql </b> file(given inside the zip package in SQL file folder).</p></li>
+
+      <li><p>Run the script <b><%=result[0][0].url%></b> (frontend).</p></li>
+      <li><p>For admin Panel <b><%=result[0][0].url%>/admin</b>.</p></li>
+
+
+
+     
+  
+    
+    
+    
+    </ul>
+  </div>
+  </div>
+  
+  
+  
+  <div class="course-card">
+    <h6 class="cou-title">
+    <a class="collapsed" data-bs-toggle="collapse" href="#course7" aria-expanded="false">Login Credentials</a>
+    </h6>
+    <div id="course7" class="card-collapse collapse" style="">
+      <table class="table table-xs-responsive" summary="An example of a responsive table using Bootstrap breakpoints." aria-role="table">
+
+        <tbody>
+        <tr class="success">
+          <th>Pannel</th>
+          <th>Username</th>
+              <th>Password</th>
+        </tr>
+       
+      
+         <tr class="info">
+          <th>Admin</th>
+          <td>admin</td>
+          <td>Test @123</td>
+         
+        </tr>
+        <tr class="warning">
+          <th>User</th>
+          <td>User</td>
+          <td>Test @123</td>
+       
+        </tr>
+      
+      
+        </tbody>
+      
+      </table>
+    </div>
+    </div>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  </div>
+  </div>
+  
+  
+  
+  
+  
+  
+  
+  </div>
+  <div class="col-lg-4">
+  <div class="sidebar-sec">
+  
+  <div class="video-sec vid-bg">
+  <div class="card">
+  <div class="card-body">
+
+  <img class="" src="/design/img/code.jpg" alt="">
+  <div class="video-details">
+  <div class="course-fee">
+  <h2>Rs. 500 </h2>
+  <p><span>Rs 1000</span> 50% off</p>
+  </div>
+  <div class="row gx-2">
+  <div class="col-md-12">
+  <a id="btnOpenForm" class="btn btn-wish w-100"> Download Code</a>
+  </div>
+  <!-- <div class="col-md-6">
+  <a href="javascript:;" class="btn btn-wish w-100"><i class="feather-share-2"></i>Share</a>
+  </div> -->
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  
+  
+  
+  
+  
+  
+  
+  </div>
+  </div>
+  
+  
+  
+  
+  
+  <div class="container">
+  
+    <div class="section-header aos" data-aos="fade-up">
+      <div class="section-sub-head">
+        <h2>Other Source Code</h2>
+      </div>
+      <div class="all-btn all-category d-flex align-items-center">
+      <a href="/source-code" class="btn btn-primary">View All</a>
+      </div>
+      </div>
+    <div class="row">
+  
+  
+  
+  
+      <% for(i=0;i<12;i++){%>
+  
+      <div class="col-lg-3 col-md-6 d-flex">
+        <div class="course-box course-design d-flex ">
+        <div class="product">
+        
+        <div class="product-content">
+        <div class="course-group d-flex">
+        <div class="course-group-img d-flex">
+        <div class="course-name">
+        <h4><a href="/<%=result[4][i].seo_name%>/source-code"><%=result[4][i].name%></a></h4>
         </div>
-      </section><!-- #faq -->
+        </div>
+       
+        </div>
+        <p class="description"><%=result[4][i].description%></p>
+       
+        </div>
+        </div>
+        </div>
+        </div>
   
-    
-
+  <% } %>
   
-    
-      <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
-    <%include ./footer.ejs %>  
+        
+      
+    </div>
+  </div>
   
-    
   
-</body>
+  
+  
+  </div>
+  </div>
+  </section>
+  
+  
+  
+  <%include ./footer.ejs %>  
+  
+  
+  </div>
+  
+  
+ 
+  
+  
+  
+  </body>
 
 
 
@@ -577,6 +697,35 @@ var rzp1 = new Razorpay(options1  );
 
 
 
+
+</script>
+
+
+<script>
+  function closeForm() {
+  $('.form-popup-bg').removeClass('is-visible');
+}
+
+$(document).ready(function($) {
+  
+  /* Contact Form Interactions */
+  $('#btnOpenForm').on('click', function(event) {
+    event.preventDefault();
+
+    $('.form-popup-bg').addClass('is-visible');
+  });
+  
+    //close popup when clicking x or off popup
+  $('.form-popup-bg').on('click', function(event) {
+    if ($(event.target).is('.form-popup-bg') || $(event.target).is('#btnCloseForm')) {
+      event.preventDefault();
+      $(this).removeClass('is-visible');
+    }
+  });
+  
+  
+  
+  });
 
 </script>
 
