@@ -262,7 +262,7 @@ console.log(decryptedJsonResponse.order_status);
 decryptedJsonResponse['type'] = request.session.type
 decryptedJsonResponse['typeid'] = request.session.source_code_id
 
-// response.json(decryptedJsonResponse)
+response.json(decryptedJsonResponse)
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
     if(err) throw err;
