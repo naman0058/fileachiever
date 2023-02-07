@@ -246,15 +246,27 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 router.post('/ccavResponseHandler',(request,response)=>{
 
-  let ccavEncResponse = request.body;
-    console.log(request.body);
-    ccavPOST =  qs.parse(ccavEncResponse);
-    var encryption = ccavPOST.encResp;
-    var ccavResponse = ccave.decrypt(request.body.encResp,'3F831E8FD26B47BBFDBCDB8E021635F2');
-    // ccavResHandler.postRes(request, response);
+
+// first part
+
+//   let ccavEncResponse = request.body;
+//     console.log(request.body);
+//     ccavPOST =  qs.parse(ccavEncResponse);
+//     var encryption = ccavPOST.encResp;
+//     var ccavResponse = ccave.decrypt(request.body.encResp,'3F831E8FD26B47BBFDBCDB8E021635F2');
+//     // ccavResHandler.postRes(request, response);
 
 
-    response.json(ccavResponse)
+//     response.json(ccavResponse)
+
+
+// first part ends
+
+const { encResp } = request.body;
+const decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
+// To check order_status: - 
+console.log(decryptedJsonResponse.order_status);
+response.json(decryptedJsonResponse)
 
 
 })
