@@ -266,7 +266,7 @@ const { encResp } = request.body;
 const decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 // To check order_status: - 
 console.log(decryptedJsonResponse.order_status);
-response.json(decryptedJsonResponse)
+// response.json(decryptedJsonResponse)
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
     if(err) throw err;
