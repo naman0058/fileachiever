@@ -254,7 +254,7 @@ router.post('/ccavResponseHandler',(request,response)=>{
     // ccavResHandler.postRes(request, response);
 
 
-    res.json(ccavResponse)
+    response.json(ccavResponse)
 
 
 })
