@@ -272,10 +272,10 @@ pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,resul
     if(err) throw err;
     else{
         if(decryptedJsonResponse.order_status == 'Aborted'){
-           res.json({msg:'aborted or failed'})
+            response.json({msg:'aborted or failed'})
         }
         else{
-            res.json({msg:'success'})
+            response.json({msg:'success'})
         }
     }
 })
