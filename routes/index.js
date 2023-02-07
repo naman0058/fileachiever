@@ -250,7 +250,7 @@ router.post('/ccavResponseHandler',(request,response)=>{
     console.log(request.body);
     ccavPOST =  qs.parse(ccavEncResponse);
     var encryption = ccavPOST.encResp;
-    var ccavResponse = ccave.decrypt(encryption,'3F831E8FD26B47BBFDBCDB8E021635F2');
+    var ccavResponse = ccave.decrypt(request.body.encResp,'3F831E8FD26B47BBFDBCDB8E021635F2');
     // ccavResHandler.postRes(request, response);
 
 
