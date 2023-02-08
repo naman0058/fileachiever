@@ -233,7 +233,7 @@ router.post('/ccavRequestHandler',(req, res)=>{
 
    
 // ccavReqHandler.postReq(request, response);
-console.log(req.session)
+console.log('naman session',req.session)
 const encryptedOrderData = ccave.getEncryptedOrder(req.body);
 // console.log(encryptedOrderData);
 
@@ -245,7 +245,9 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 router.post('/ccavResponseHandler',(req,res)=>{
 
-    res.json(req.session)
+    // res.json(req.session)
+
+    console.log('naman new session',req.session)
 
 
 const { encResp } = req.body;
