@@ -212,10 +212,12 @@ router.get('/nonseamless', function (req, res){
     res.render('nonseamless');
 });
 
-router.post('/ccavRequestHandler', function (request, res){
 
-    request.session.source_code_id = request.body.source_code_id;
-    request.session.type = 'source_code'
+
+router.post('/ccavRequestHandler', function (req, res){
+
+    req.session.source_code_id = req.body.source_code_id;
+    req.session.type = 'source_code'
 
     let guid = () => {
         let s4 = () => {
@@ -227,14 +229,14 @@ router.post('/ccavRequestHandler', function (request, res){
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     }
 
-    let body = request.body;
+    let body = req.body;
     body['merchant_id'] = '1760015';
     body['order_id'] = guid();
     body['currency'] = 'INR';
     body['amount'] = '10.00';
     body['redirect_url'] = 'https://www.filemakr.com/ccavResponseHandler';
     body['cancel_url'] =   'https://www.filemakr.com/ccavResponseHandler';
-    body['source_code_id'] = request.session.source_code_id;
+    body['source_code_id'] = req.session.source_code_id;
     body['type'] = 'source_code'
 
 
@@ -242,8 +244,8 @@ router.post('/ccavRequestHandler', function (request, res){
 
    
 // ccavReqHandler.postReq(request, response);
-console.log(request.body)
-const encryptedOrderData = ccave.getEncryptedOrder(request.body);
+console.log(req.body)
+const encryptedOrderData = ccave.getEncryptedOrder(req.body);
 // console.log(encryptedOrderData);
 
 res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
@@ -252,16 +254,16 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 
 
-router.post('/ccavResponseHandler',(request,response)=>{
-const { encResp } = request.body;
+router.post('/ccavResponseHandler',(req,response)=>{
+const { encResp } = req.body;
 
 let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
-response.json(request.session)
+response.json(req.session)
 
 
 decryptedJsonResponse.type = 'source_code'
-decryptedJsonResponse.typeid = request.session.source_code_id;
+decryptedJsonResponse.typeid = req.session.source_code_id;
 
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
