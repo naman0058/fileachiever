@@ -234,7 +234,7 @@ router.post('/ccavRequestHandler', function (request, res){
     body['amount'] = '10.00';
     body['redirect_url'] = 'https://www.filemakr.com/ccavResponseHandler';
     body['cancel_url'] =   'https://www.filemakr.com/ccavResponseHandler';
-    body['source_code_id'] = request.body.source_code_id;
+    body['source_code_id'] = request.session.source_code_id;
     body['type'] = 'source_code'
 
 
