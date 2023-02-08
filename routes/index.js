@@ -230,7 +230,6 @@ router.post('/ccavRequestHandler', function (req, res){
     body['type'] = 'source_code'
 
 
-res.json(req.session)
 
    
 // ccavReqHandler.postReq(request, response);
@@ -244,12 +243,13 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 
 
-router.post('/ccavResponseHandler',(req,response)=>{
+router.post('/ccavResponseHandler',(req,res)=>{
 const { encResp } = req.body;
 
 let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
-response.json(req.session)
+res.json(req.session)
+
 
 
 decryptedJsonResponse.type = 'source_code'
