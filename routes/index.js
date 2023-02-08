@@ -1,7 +1,6 @@
 
 var express = require('express');
 var router = express.Router();
-var mysql = require('mysql')
 var pool = require('./pool')
 var fetch = require('node-fetch')
 var ccavutil = require('./ccavutil')
@@ -182,15 +181,6 @@ presence_penalty: 0,
 
 
 
-// router.get('/scrap',(req,res)=>{
-//     fetch('https://www.rockerstop.com/freelance-jobs.php',(err,response,html)=>{
-//         if(err) throw err;
-//         else{
-//             console.log(res)
-//         }
-//     });
-// })
-
 
 
 var ccavReqHandler = require('./ccavRequestHandler');
@@ -240,7 +230,7 @@ router.post('/ccavRequestHandler', function (req, res){
     body['type'] = 'source_code'
 
 
-
+res.json(req.session)
 
    
 // ccavReqHandler.postReq(request, response);
