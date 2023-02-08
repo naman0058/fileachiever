@@ -262,6 +262,7 @@ let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
 
 response.json(decryptedJsonResponse)
+decryptedJsonResponse.abc = 'namna'
 
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
