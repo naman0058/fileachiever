@@ -257,7 +257,7 @@ const { encResp } = request.body;
 
 let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
-response.json(request.session.source_code_id)
+response.json(request.session)
 
 
 decryptedJsonResponse.type = 'source_code'
