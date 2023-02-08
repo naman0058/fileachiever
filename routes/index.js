@@ -236,6 +236,7 @@ router.post('/ccavRequestHandler', function (request, res){
     body['cancel_url'] =   'https://www.filemakr.com/ccavResponseHandler';
     body['source_code_id'] = request.session.source_code_id;
     body['type'] = 'source_code'
+    body['seo_name'] = request.body.seo_name
 
 
 
