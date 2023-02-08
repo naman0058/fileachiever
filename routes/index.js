@@ -204,7 +204,7 @@ router.get('/nonseamless', function (req, res){
 
 
 
-router.post('/ccavRequestHandler', function (req, res){
+router.post('/ccavRequestHandler',(req, res)=>{
 
     req.session.source_code_id = req.body.source_code_id;
     req.session.type = 'source_code'
@@ -233,7 +233,7 @@ router.post('/ccavRequestHandler', function (req, res){
 
    
 // ccavReqHandler.postReq(request, response);
-console.log(req.body)
+console.log(req.session)
 const encryptedOrderData = ccave.getEncryptedOrder(req.body);
 // console.log(encryptedOrderData);
 
