@@ -1,4 +1,5 @@
 var createError = require('http-errors');
+const http = require('http');
 var cookieSession = require('cookie-session')
 var express = require('express');
 var path = require('path');
@@ -71,6 +72,7 @@ app.get('/events', function (req, res) {
   })
 })
 
+
 app.use(cookieSession({
   name: 'session',
   keys: ['naman'],
@@ -78,6 +80,9 @@ app.use(cookieSession({
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
+
+
+
 app.use('/', indexRouter);
 app.use('/index1',index1);
 app.use('/index2',index2);
