@@ -244,11 +244,14 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 
 router.post('/ccavResponseHandler',(req,res)=>{
+
+    res.json(req.session)
+
+
 const { encResp } = req.body;
 
 let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
-res.json(req.session)
 
 
 
