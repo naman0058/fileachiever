@@ -1,6 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
+var mysql = require('mysql')
 var pool = require('./pool')
 var fetch = require('node-fetch')
 var ccavutil = require('./ccavutil')
@@ -181,6 +182,15 @@ presence_penalty: 0,
 
 
 
+// router.get('/scrap',(req,res)=>{
+//     fetch('https://www.rockerstop.com/freelance-jobs.php',(err,response,html)=>{
+//         if(err) throw err;
+//         else{
+//             console.log(res)
+//         }
+//     });
+// })
+
 
 
 var ccavReqHandler = require('./ccavRequestHandler');
@@ -202,12 +212,10 @@ router.get('/nonseamless', function (req, res){
     res.render('nonseamless');
 });
 
+router.post('/ccavRequestHandler', function (request, res){
 
-
-router.post('/ccavRequestHandler',(req, res)=>{
-
-    req.session.source_code_id = req.body.source_code_id;
-    req.session.type = 'source_code'
+    request.session.source_code_id = request.body.source_code_id;
+    request.session.type = 'source_code'
 
     let guid = () => {
         let s4 = () => {
@@ -219,22 +227,23 @@ router.post('/ccavRequestHandler',(req, res)=>{
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     }
 
-    let body = req.body;
+    let body = request.body;
     body['merchant_id'] = '1760015';
     body['order_id'] = guid();
     body['currency'] = 'INR';
     body['amount'] = '10.00';
     body['redirect_url'] = 'https://www.filemakr.com/ccavResponseHandler';
     body['cancel_url'] =   'https://www.filemakr.com/ccavResponseHandler';
-    body['source_code_id'] = req.session.source_code_id;
+    body['source_code_id'] = request.session.source_code_id;
     body['type'] = 'source_code'
+
 
 
 
    
 // ccavReqHandler.postReq(request, response);
-console.log('naman session',req.session)
-const encryptedOrderData = ccave.getEncryptedOrder(req.body);
+console.log(request.body)
+const encryptedOrderData = ccave.getEncryptedOrder(request.body);
 // console.log(encryptedOrderData);
 
 res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
@@ -243,21 +252,16 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 
 
-router.post('/ccavResponseHandler',(req,res)=>{
-
-    res.json(req.body)
-
-
-
-const { encResp } = req.body;
+router.post('/ccavResponseHandler',(request,response)=>{
+const { encResp } = request.body;
 
 let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
-
+// response.json(request.session.source_code_id)
 
 
 decryptedJsonResponse.type = 'source_code'
-// decryptedJsonResponse.typeid = req.session.source_code_id;
+decryptedJsonResponse.typeid = request.session.source_code_id;
 
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
