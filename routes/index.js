@@ -262,7 +262,8 @@ let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
 
 response.json(decryptedJsonResponse)
-decryptedJsonResponse.abc = 'namna'
+decryptedJsonResponse.type = 'source_code'
+decryptedJsonResponse.typeid = request.session.source_code_id
 
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
