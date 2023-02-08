@@ -238,9 +238,9 @@ router.post('/ccavRequestHandler', function (request, res){
     body['type'] = 'source_code'
     body['seo_name'] = request.body.seo_name
 
-
-
-
+   pool.query(`insert into payment_request set ?`,body,(err,result)=>{
+    if(err) throw err;
+    else{
    
 // ccavReqHandler.postReq(request, response);
 console.log(request.body)
@@ -248,6 +248,8 @@ const encryptedOrderData = ccave.getEncryptedOrder(request.body);
 // console.log(encryptedOrderData);
 
 res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
+    }
+   })
 });
 
 
