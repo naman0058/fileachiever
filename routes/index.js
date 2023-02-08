@@ -247,7 +247,6 @@ router.post('/ccavResponseHandler',(req,res)=>{
 
     // res.json(req.session)
 
-    console.log('naman new session',req.session)
 
 
 const { encResp } = req.body;
@@ -258,7 +257,7 @@ let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
 
 decryptedJsonResponse.type = 'source_code'
-decryptedJsonResponse.typeid = req.session.source_code_id;
+// decryptedJsonResponse.typeid = req.session.source_code_id;
 
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
