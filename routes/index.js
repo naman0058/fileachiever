@@ -250,20 +250,14 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 });
 
 
+
+
 router.post('/ccavResponseHandler',(request,response)=>{
-
-    let body = request.body;
-
 const { encResp } = request.body;
 let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
-
-
-
-
-response.json(decryptedJsonResponse)
 decryptedJsonResponse.type = 'source_code'
-decryptedJsonResponse.typeid = request.session.source_code_id
+decryptedJsonResponse.typeid = request.session.source_code_id;
 
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
