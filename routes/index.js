@@ -262,6 +262,7 @@ let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
 // response.json(request.session.source_code_id)
 
+console.log(request.body)
 
 decryptedJsonResponse.type = 'source_code'
 decryptedJsonResponse.typeid = request.session.source_code_id;
@@ -277,7 +278,8 @@ pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,resul
         pool.query(`select * from payment_request where order_id = '${request.body.order_id}'`,(err,result)=>{
             if(err) throw err;
             else {
-                response.redirect(`https://www.filemakr.com/${result[0].seo_name}/source-code`)
+                console.log(result)
+                response.redirect(`https://www.filemakr.com/${result.seo_name}/source-code`)
             }
         })
 
