@@ -275,11 +275,11 @@ pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,resul
             // response.json({msg:'aborted or failed'})
 
 
-        pool.query(`select * from payment_request where order_id = '${request.body.order_id}'`,(err,result)=>{
+        pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
             if(err) throw err;
             else {
                 console.log(result)
-                response.redirect(`https://www.filemakr.com/${result.seo_name}/source-code`)
+                response.redirect(`https://www.filemakr.com/${result[0].seo_name}/source-code`)
             }
         })
 
