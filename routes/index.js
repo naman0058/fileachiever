@@ -312,6 +312,109 @@ pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,resul
 
 
 
+router.post('/ccavRequestHandler1', function (request, res){
+
+    request.session.source_code_id = request.body.source_code_id;
+    request.session.type = 'project_report'
+
+    let guid = () => {
+        let s4 = () => {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        //return id of format 'aaaaaaaa'-'aaaa'-'aaaa'-'aaaa'-'aaaaaaaaaaaa'
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    }
+
+    let body = request.body;
+    body['merchant_id'] = '1760015';
+    body['order_id'] = guid();
+    body['currency'] = 'INR';
+    body['amount'] = '10.00';
+    body['redirect_url'] = 'https://www.filemakr.com/ccavResponseHandler1';
+    body['cancel_url'] =   'https://www.filemakr.com/ccavResponseHandler1';
+    body['source_code_id'] = request.session.source_code_id;
+    body['type'] = 'source_code'
+    body['seo_name'] = request.body.seo_name
+
+   pool.query(`insert into payment_request set ?`,body,(err,result)=>{
+    if(err) throw err;
+    else{
+   
+// ccavReqHandler.postReq(request, response);
+console.log(request.body)
+const encryptedOrderData = ccave.getEncryptedOrder(request.body);
+// console.log(encryptedOrderData);
+
+res.render('send1',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
+    }
+   })
+});
+
+
+
+
+router.post('/ccavResponseHandler1',(request,response)=>{
+const { encResp } = request.body;
+
+let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
+
+// response.json(request.session.source_code_id)
+
+console.log(request.body)
+
+decryptedJsonResponse.type = 'source_code'
+decryptedJsonResponse.typeid = request.session.source_code_id;
+
+
+res.json({msg:'hi'})
+
+
+// pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
+//     if(err) throw err;
+//     else{
+//         if(decryptedJsonResponse.order_status == 'Aborted'){
+//             // response.json({msg:'aborted or failed'})
+
+
+//         pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
+//             if(err) throw err;
+//             else {
+//                 console.log(result)
+//                 response.redirect(`https://www.filemakr.com/${result[0].seo_name}/source-code`)
+//             }
+//         })
+
+
+
+//         }
+//         else{
+
+//             pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
+//                 if(err) throw err;
+//                 else {
+//                     pool.query(`select source_code from add_project where id = '${req.session.source_code_id}'`,(err,result)=>{
+//                         if(err) throw err;
+//                         //else res.json(result)
+//                         else response.render('download-successfull',{result:result})
+//                     })
+//                 }
+//             })
+    
+         
+//             // response.json({msg:'success'})
+//         }
+//     }
+// })
+
+
+})
+
+
+
+
+
 var payumoney = require('payumoney-node');
 const { request, response } = require('express');
 payumoney.setKeys('6417784', '1QwKg7212W', 'hOcZxXYFQSsg8GQTXzbXZl/tgTR/2zd3SSrxw31/BKk=');
