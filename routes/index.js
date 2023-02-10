@@ -371,9 +371,9 @@ decryptedJsonResponse.typeid = request.session.source_code_id;
 // response.json({msg:'hi'})
 
 
-pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
-    if(err) throw err;
-    else{
+// pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
+//     if(err) throw err;
+//     else{
         if(decryptedJsonResponse.order_status == 'Aborted'){
             // response.json({msg:'aborted or failed'})
 response.redirect(`https://www.filemakr.com/btech-final-year-project-report/projects`)
@@ -458,8 +458,8 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
          
             // response.json({msg:'success'})
         }
-    }
-})
+//     }
+// })
 
 
 })
