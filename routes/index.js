@@ -277,7 +277,7 @@ pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,resul
         pool.query(`select * from payment_request where order_id = '${request.body.order_id}'`,(err,result)=>{
             if(err) throw err;
             else {
-                res.redirect(`https://www.filemakr.com/${result[0].seo_name}/source-code`)
+                response.redirect(`https://www.filemakr.com/${result[0].seo_name}/source-code`)
             }
         })
 
