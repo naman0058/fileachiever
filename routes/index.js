@@ -368,7 +368,7 @@ decryptedJsonResponse.type = 'source_code'
 decryptedJsonResponse.typeid = request.session.source_code_id;
 
 
-response.json({msg:'hi'})
+// response.json({msg:'hi'})
 
 
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
