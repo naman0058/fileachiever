@@ -287,7 +287,20 @@ pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,resul
 
         }
         else{
-            response.json({msg:'success'})
+
+            pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
+                if(err) throw err;
+                else {
+                    pool.query(`select source_code from add_project where id = '${req.session.source_code_id}'`,(err,result)=>{
+                        if(err) throw err;
+                        //else res.json(result)
+                        else response.render('download-successfull',{result:result})
+                    })
+                }
+            })
+    
+         
+            // response.json({msg:'success'})
         }
     }
 })
