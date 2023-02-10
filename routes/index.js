@@ -335,7 +335,7 @@ router.post('/ccavRequestHandler1', function (request, res){
     body['redirect_url'] = 'https://www.filemakr.com/ccavResponseHandler1';
     body['cancel_url'] =   'https://www.filemakr.com/ccavResponseHandler1';
     body['source_code_id'] = request.session.source_code_id;
-    body['type'] = 'source_code'
+    body['type'] = 'project_report'
     body['seo_name'] = request.body.seo_name
 
    pool.query(`insert into payment_request set ?`,body,(err,result)=>{
