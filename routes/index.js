@@ -271,7 +271,18 @@ pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,resul
     if(err) throw err;
     else{
         if(decryptedJsonResponse.order_status == 'Aborted'){
-            response.json({msg:'aborted or failed'})
+            // response.json({msg:'aborted or failed'})
+
+
+        pool.query(`select * from payment_request where order_id = '${req.body.order_id}'`,(err,result)=>{
+            if(err) throw err;
+            else {
+                res.redirect(`https://www.filemakr.com/${result[0].seo_name}/source-code`)
+            }
+        })
+
+
+
         }
         else{
             response.json({msg:'success'})
