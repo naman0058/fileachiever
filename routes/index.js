@@ -382,7 +382,7 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
         }
         else{
 
-            res.json(decryptedJsonResponse)
+            response.json(decryptedJsonResponse)
 
             // if(req.session.roll_number){
 
