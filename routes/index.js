@@ -394,12 +394,12 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
                 
                 
                 
-                  pool.query(`select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1`,(err,result)=>{
+                  pool.query(`select * from ${table} where roll_number = '${request.session.roll_number}' order by id desc limit 1`,(err,result)=>{
                         if(err) throw err;
                         else {
-                            console.log(req.session.roll_number)
+                            console.log(request.session.roll_number)
                             console.log(result[0].php)
-                           var query = `select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
+                           var query = `select * from ${table} where roll_number = '${request.session.roll_number}' order by id desc limit 1;`
                            var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
                            var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}';`
                            var query3 = `select * from project where id = '${result[0].projectid}';`
@@ -408,7 +408,7 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
                            pool.query(query+query1+query2+query3,(err,result)=>{
                                if(err) throw err;
                                //else res.json(result)
-                                else res.render('B.Tech/mobile_view',{result:result})
+                                else response.render('B.Tech/mobile_view',{result:result})
                            })
                 
                         }
@@ -420,10 +420,10 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
                 else{
                 
                 
-                  pool.query(`select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1`,(err,result)=>{
+                  pool.query(`select * from ${table} where roll_number = '${request.session.roll_number}' order by id desc limit 1`,(err,result)=>{
                         if(err) throw err;
                         else {
-                            console.log(req.session.roll_number)
+                            console.log(request.session.roll_number)
                             console.log(result[0].php)
                            var query = `select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
                            var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
@@ -433,7 +433,7 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
                 
                            pool.query(query+query1+query2+query3,(err,result)=>{
                                if(err) throw err;
-                               else res.render('B.Tech/finalnew',{result:result})
+                               else response.render('B.Tech/finalnew',{result:result})
                            })
                 
                         }
