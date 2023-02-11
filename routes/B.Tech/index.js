@@ -56,7 +56,7 @@ res.redirect(`/btech-final-year-project-report-${req.body.seo_name}/edit`)
 
 router.get('/projects',(req,res)=>{
 
-console.log('device',req.session.deviceInfo)
+
 
 
     if(req.session.roll_number){
@@ -81,7 +81,7 @@ if(req.session.deviceInfo == 'mobile'){
            pool.query(query+query1+query2+query3,(err,result)=>{
                if(err) throw err;
                //else res.json(result)
-               else res.render('B.Tech/finalnew',{result:result})
+               else res.render('B.Tech/final',{result:result})
            })
 
         }
@@ -106,7 +106,7 @@ else{
 
            pool.query(query+query1+query2+query3,(err,result)=>{
                if(err) throw err;
-               else res.render('B.Tech/finalnew',{result:result})
+               else res.render('B.Tech/final',{result:result})
            })
 
         }
