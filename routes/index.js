@@ -290,7 +290,7 @@ pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,resul
             pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
                 if(err) throw err;
                 else {
-                    pool.query(`select source_code from add_project where id = '${req.session.source_code_id}'`,(err,result)=>{
+                    pool.query(`select source_code from add_project where id = '${result[0].source_code_id}'`,(err,result)=>{
                         if(err) throw err;
                         //else res.json(result)
                         else response.render('download-successfull',{result:result})
@@ -386,46 +386,16 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
 
         }
         else if(decryptedJsonResponse.order_status == 'Success'){
-             if(request.session.roll_number){
+           
+            pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
+                if(err) throw err;
+                else {
 
-
-                if(request.session.deviceInfo == 'mobile'){
-                
-                
-                
-                
-                  pool.query(`select * from ${table} where roll_number = '${request.session.roll_number}' order by id desc limit 1`,(err,result)=>{
+                    pool.query(`select * from ${table} where id = '${result[0].source_code_id}'`,(err,result)=>{
                         if(err) throw err;
                         else {
-                            console.log(request.session.roll_number)
-                            console.log(result[0].php)
-                           var query = `select * from ${table} where roll_number = '${request.session.roll_number}' order by id desc limit 1;`
-                           var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
-                           var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}';`
-                           var query3 = `select * from project where id = '${result[0].projectid}';`
-                           //For Testing
-                
-                           pool.query(query+query1+query2+query3,(err,result)=>{
-                               if(err) throw err;
-                               //else res.json(result)
-                                else response.render('B.Tech/mobile_view',{result:result})
-                           })
-                
-                        }
-                    })
-                
-                
-                
-                }
-                else{
-                
-                
-                  pool.query(`select * from ${table} where roll_number = '${request.session.roll_number}' order by id desc limit 1`,(err,result)=>{
-                        if(err) throw err;
-                        else {
-                            console.log(request.session.roll_number)
-                            console.log(result[0].php)
-                           var query = `select * from ${table} where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
+                     
+                           var query = `select * from ${table} where id = '${result[0].source_code_id}';`
                            var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
                            var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}';`
                            var query3 = `select * from project where id = '${result[0].projectid}';`
@@ -438,17 +408,15 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
                 
                         }
                     })
-                
-                }
-                
-                
-                }
-                else{
-                    response.redirect('/')
                 }
 
+            })
+   
+    
+                }
+               
            
-        }
+      
         else{
 
             response.json(decryptedJsonResponse)
