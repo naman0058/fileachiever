@@ -271,7 +271,7 @@ decryptedJsonResponse.typeid = request.session.source_code_id;
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
     if(err) throw err;
     else{
-        if(decryptedJsonResponse.order_status == 'Aborted'){
+        if(decryptedJsonResponse.order_status == 'Aborted' || decryptedJsonResponse.order_status =='Failure'){
             // response.json({msg:'aborted or failed'})
 
 
@@ -379,7 +379,7 @@ decryptedJsonResponse.typeid = request.session.source_code_id;
 pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
     if(err) throw err;
     else{
-        if(decryptedJsonResponse.order_status == 'Aborted'){
+        if(decryptedJsonResponse.order_status == 'Aborted' || decryptedJsonResponse.order_status == 'Failure'){
             // response.json({msg:'aborted or failed'})
 response.redirect(`https://www.filemakr.com/btech-final-year-project-report/projects`)
 
