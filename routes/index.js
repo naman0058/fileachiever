@@ -390,12 +390,13 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
             pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
                 if(err) throw err;
                 else {
-
-                    pool.query(`select * from btech_project where id = '${result[0].source_code_id}'`,(err,result)=>{
+                    let source_code_id= result[0].source_code_id
+console.log('payment request data',result[0].source_code_id);
+                    pool.query(`select * from btech_project where id = '${source_code_id}'`,(err,result)=>{
                         if(err) throw err;
                         else {
                      
-                           var query = `select * from btech_project where id = '${result[0].source_code_id}';`
+                           var query = `select * from btech_project where id = '${source_code_id}';`
                            var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
                            var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}';`
                            var query3 = `select * from project where id = '${result[0].projectid}';`
