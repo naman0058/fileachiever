@@ -444,7 +444,7 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
                 
                 }
                 else{
-                    res.redirect('/')
+                    response.redirect('/')
                 }
 
            
