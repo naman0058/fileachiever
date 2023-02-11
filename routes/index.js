@@ -386,10 +386,10 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
 
         }
         else if(decryptedJsonResponse.order_status == 'Success'){
-             if(req.session.roll_number){
+             if(request.session.roll_number){
 
 
-                if(req.session.deviceInfo == 'mobile'){
+                if(request.session.deviceInfo == 'mobile'){
                 
                 
                 
@@ -447,19 +447,7 @@ response.redirect(`https://www.filemakr.com/btech-final-year-project-report/proj
                     res.redirect('/')
                 }
 
-            pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
-                if(err) throw err;
-                else {
-                    pool.query(`select source_code from add_project where id = '${req.session.source_code_id}'`,(err,result)=>{
-                        if(err) throw err;
-                        //else res.json(result)
-                        else response.render('download-successfull',{result:result})
-                    })
-                }
-            })
-    
-         
-            response.json({msg:'success'}) 
+           
         }
         else{
 
