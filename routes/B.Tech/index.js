@@ -56,7 +56,7 @@ res.redirect(`/btech-final-year-project-report-${req.body.seo_name}/edit`)
 
 router.get('/projects',(req,res)=>{
 
-
+console.log('device',req.session.deviceInfo)
 
 
     if(req.session.roll_number){
