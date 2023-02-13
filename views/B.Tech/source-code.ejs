@@ -176,7 +176,7 @@
 <div class="row">
   <% for(i=0;i<result.length;i++){%>
 
-    <div class="col-lg-3 target col-md-6">
+    <div class="col-lg-4 target col-md-6">
       <div class="course-box course-design d-flex ">
       <div class="product">
       
@@ -189,7 +189,11 @@
       </div>
      
       </div>
-      <p class="description"><%=result[i].description%></p>
+      <p class="description" style=" overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;"><%=result[i].description%></p>
      
       </div>
       </div>

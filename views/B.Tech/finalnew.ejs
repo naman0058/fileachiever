@@ -251,10 +251,14 @@ th{
 <p class="text-center third"> <%=result[0][0].name%> ( <%=result[0][0].roll_number%> )</p>
 <p class="text-center third"> <%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> )</p>
 <p class="text-center third"> <%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%> )</p>
+<p class="text-center third"> <%=result[0][0].friend2%> ( <%=result[0][0].roll_number3%> )</p>
+<p class="text-center third"> <%=result[0][0].friend3%> ( <%=result[0][0].roll_number4%> )</p>
+
+
 <% } %>
 <p class="text-center fourth">In partial fulfillment of requirements for the award of the degree  </p>
 <p class="text-center third">Master of Technology (<%=result[0][0].department%>)  </p>    
-<p class="text-center third">(2020) </p>    
+<p class="text-center third">(2023) </p>    
 <p class="text-center fifth">Under the guidance of</p> 
 
 <div class="row" style="margin-top: 10%">
@@ -321,7 +325,7 @@ th{
 <% } else { %>
   <%=result[0][0].name%> (<%=result[0][0].roll_number%>) and His/Her Friend,
 <% } %>
-    student of  Master of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the <%=result[0][0].project_type%> titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Master of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
+    student of  Master of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the <%=result[0][0].project_type%> titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Master of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2023.</p>
 
 
 <div class="row" style="margin-top: 10%">
@@ -363,7 +367,7 @@ th{
 <% } else { %>
   <%=result[0][0].name%> (<%=result[0][0].roll_number%>) and His/Her Friend,
 <% } %>
- student of  Master of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the <%=result[0][0].project_type%> titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Master of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2020.</p>
+ student of  Master of Technology, <%=result[0][0].semester%>, Department of <%=result[0][0].department%> of <%=result[0][0].college_name%>, has pursued the <%=result[0][0].project_type%> titled “<%=result[3][0].name%>” under the supervision of <%=result[0][0].hod_name%>, Head Of Department (HOD) and Internal guide <%=result[0][0].professor_name%> and the report has been submitted in partial fulfillment of requirements for the award of the degree, Master of Technology in <%=result[0][0].department%> by <%=result[0][0].college_name%> in the Year 2023.</p>
 
 
 <div class="row" style="margin-top: 10%">
@@ -439,6 +443,10 @@ We express our sincere regard and indebtedness to our project internal guide <%=
 <p class="text-justify second"><%=result[0][0].name%> ( <%=result[0][0].roll_number%> ) </p>
   <p class="text-justify second"><%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> ) </p>
    <p class="text-justify second"><%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%> ) </p> 
+   <p class="text-justify second"><%=result[0][0].friend2%> ( <%=result[0][0].roll_number3%> ) </p> 
+
+   <p class="text-justify second"><%=result[0][0].friend3%> ( <%=result[0][0].roll_number4%> ) </p> 
+
 
   <% } %>
 
@@ -465,12 +473,12 @@ We express our sincere regard and indebtedness to our project internal guide <%=
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:28px;font-weight: bold;">ABSTRACT</p>
 
 
-<p class="text-justify" tyle="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 50px;">
  <%=result[3][0].abstract%>      
 </p>
 
 
-<p class="text-justify" tyle="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 50px;">
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 50px;">
  <%=result[3][0].objective%>      
 </p>
 
@@ -624,7 +632,7 @@ else {
                                          <tr>
                                           <% let newno = 1
                                                  newno = indexpageno+1
-                                            indexpageno = indexpageno + result[2].length + 1
+                                            indexpageno = indexpageno + result[2].length
                                             %>
                                             <td class="text-center">4.2</td>
                                             <td class="text-center">BACK END</td>
@@ -951,11 +959,11 @@ else {
 <div class="col-lg-12" style="margin-right: 20px;margin-top: 17%;height: 1400px">
     <div style="page-break-before: always; page-break-after: always;">
 
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">1.6 Giant Chart</p>
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;">1.6 GAANT Chart</p>
 
    
 <div class="text-center">
-<img src="/a/img/thumbnail/giant_chart.jpeg"  style="width:100%;height:100%">
+<img src="/a/img/thumbnail/t1.png"  style="width:100%;height:100%">
 </div>
 
 
@@ -1129,18 +1137,9 @@ This section has screenshots of all the implementation i.e. user interface and t
                                             <td>Language</td>
                                             <td>PHP</td>
                                         </tr>
+                                       
                                         <tr>
                                             <td>3</td>
-                                            <td>Database</td>
-                                            <td>MySQL</td>
-                                        </tr>
-                                        <tr>
-                                            <td>4</td>
-                                            <td>IDE</td>
-                                            <td>Visual Code</td>
-                                        </tr>
-                                        <tr>
-                                            <td>5</td>
                                             <td>Browser</td>
                                             <td>Google Chrome</td>
                                         </tr>
@@ -1456,7 +1455,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <% j = j+1; %>
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;margin-left: 70px;margin-right:70px;">4.1.<%=j%>   <%=result[1][i].name%> &nbsp;&nbsp;
-<img src="/programming_logo/<%=result[1][i].logo%>" alt="<%=result[1][i].name%> icon" style="width:50px">
+<img src="/programming_logo/<%=result[1][i].logo%>" alt="<%=result[1][i].name%> icon" style="width:70px;object-fit:contain">
 </p>
 
 
@@ -1469,6 +1468,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"> <%=result[1][i].description3%></p>
 
 
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"> <%=result[1][i].description4%></p>
 
 
 <div>
@@ -1506,7 +1506,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
   <div style="page-break-before: always; page-break-after: always;">
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;margin-left: 70px;margin-right:70px;">4.1.<%=j%>   <%=result[1][i].name%> &nbsp;&nbsp;
-<img src="/programming_logo/<%=result[1][i].logo%>" alt="<%=result[1][i].name%> icon" style="width:50px">
+<img src="/programming_logo/<%=result[1][i].logo%>" alt="<%=result[1][i].name%> icon" style="width:70px;object-fit:contain">
 </p>
 
 
@@ -1517,6 +1517,9 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"> <%=result[1][i].description3%></p>
+
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"> <%=result[1][i].description4%></p>
 
 
 
@@ -1555,7 +1558,7 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;margin-left: 70px;margin-right:70px;">4.2.1   <%=result[2][i].name%> &nbsp;&nbsp;
-<img src="/programming_logo/<%=result[2][i].logo%>" alt="<%=result[2][i].name%> icon" style="width:50px">
+<img src="/programming_logo/<%=result[2][i].logo%>" alt="<%=result[2][i].name%> icon" style="width:70px;object-fit:contain">
 </p>
 
 
@@ -1566,6 +1569,10 @@ This section has screenshots of all the implementation i.e. user interface and t
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"> <%=result[2][i].description3%></p>
+
+
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"> <%=result[2][i].description4%></p>
 
 
 <div>
@@ -1603,7 +1610,7 @@ for(i=1;i<result[2].length;i++) { %>
  
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;margin-left: 70px;margin-right:70px">4.2.1   <%=result[2][i].name%> &nbsp;&nbsp;
-<img src="/programming_logo/<%=result[2][i].logo%>" alt="<%=result[2][i].name%> icon" style="width:50px">
+<img src="/programming_logo/<%=result[2][i].logo%>" alt="<%=result[2][i].name%> icon" style="width:70px;object-fit:contain">
 </p>
 
 
@@ -1614,6 +1621,10 @@ for(i=1;i<result[2].length;i++) { %>
 
 
 <p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"> <%=result[2][i].description3%></p>
+
+
+
+<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px"> <%=result[2][i].description4%></p>
 
 
 <div>
@@ -1635,66 +1646,7 @@ for(i=1;i<result[2].length;i++) { %>
 
 
 
-<!-- Twenty Two Page Start -->
-<% if(result[2].length>=1) { %>
 
-<div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1400px">
-
-  <div style="page-break-before: always; page-break-after: always;">
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;margin-left: 70px;margin-right:70px;">4.2.2   MySQL &nbsp;&nbsp;
-<img src="/programming_logo/mysql.png" alt="mysql icon" style="width:50px">
-</p>
-
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px">
-
-MySQL is an open-source relational database management system (RDBMS) based on Structured Query Language (SQL).Its name is a combination of "My", the name of co-founder Michael Widenius's daughter, and "SQL", the abbreviation for Structured Query Language. A relational database organizes data into one or more data tables in which data types may be related to each other; these relations help structure the data. SQL is a language programmers use to create, modify and extract data from the relational database, as well as control user access to the database. In addition to relational databases and SQL, an RDBMS like MySQL works with an operating system to implement a relational database in a computer's storage system, manages users, allows for network access and facilitates testing database integrity and creation of backups.
-
-</p>
-
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px">
-
-MySQL is pretty easy to master in comparison with other database software like Oracle Database, or Microsoft SQL Server.
-
-MySQL can run on various platforms UNIX, Linux, Windows, etc. You can install it on a server or even in a desktop. Besides, MySQL is reliable, scalable, and fast.
-
-The official way to pronounce MySQL is My Ess Que Ell, not My Sequel. However, you can pronounce it whatever you like, who cares?
-
-
-
-<p>
-
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px">
-
-MySQL is free and open-source software under the terms of the GNU General Public License, and is also available under a variety of proprietary licenses. MySQL was owned and sponsored by the Swedish company MySQL AB, which was bought by Sun Microsystems (now Oracle Corporation).In 2010, when Oracle acquired Sun, Widenius forked the open-source MySQL project to create MariaDB.
-
-</p>
-
-
-<p class="text-justify" style="font-family:'Times New Roman', Times, serif;font-size:24px;margin-left: 70px;margin-right:70px;line-height: 35px">
-
-MySQL is a component of the LAMP web application software stack (and others), which is an acronym for Linux, Apache, MySQL, Perl/PHP/Python. MySQL is used by many database-driven web applications, including Drupal, Joomla, phpBB, and WordPress. MySQL is also used by many popular websites, including Facebook, Youtube, Twitter and so on.
-
-</p>
-
-
-
-
-
-<div>
-<p class="text-right" style="position: absolute;bottom: 0px;right: 60px">Page No. <%=pageno%></p>
-</div>
-<% pageno = pageno+1%>
-
-</div>
-
-</div>
-
-<% } %>
-
-<!-- Twenty Two Page End -->
 
 
 
@@ -2487,7 +2439,7 @@ function printDiv(divName) {
 
      window.print();
 
-     document.body.innerHTML = `<div><p>hh</p></div>`;
+    //  document.body.innerHTML = `<div><p>hh</p></div>`;
     //  document.body.innerHTML = originalContents;
 
 }

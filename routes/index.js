@@ -369,7 +369,7 @@ let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
 console.log(request.body)
 
-decryptedJsonResponse.type = 'source_code'
+decryptedJsonResponse.type = 'project_report'
 decryptedJsonResponse.typeid = request.session.source_code_id;
 
 
@@ -473,10 +473,10 @@ router.get('/download-project-report',(req,res)=>{
                 if(err) throw err;
                 else {
                     console.log(req.session.roll_number)
-                    console.log(result[0].php)
+                    console.log('laravl',result[0].laravel)
                    var query = `select * from btech_project where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
                    var query1 = `select * from programming_language where id = '${result[0].html}' or id = '${result[0].css}' or id = '${result[0].bootstrap}' or id = '${result[0].javascript}' or id = '${result[0].jquery}' or id = '${result[0].json}' or id = '${result[0].react}' or id = '${result[0].angular}'  ;`
-                   var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}';`
+                   var query2 = `select * from programming_language where id = '${result[0].php}' or id = '${result[0].nodejs}' or id = '${result[0].python}' or id = '${result[0].java}'  or id = '${result[0].laravel}';`
                    var query3 = `select * from project where id = '${result[0].projectid}';`
                  //For Testing
         
