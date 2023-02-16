@@ -6,6 +6,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var compression = require('compression')
+var bodyParser = require('body-parser')
 
 var indexRouter = require('./routes/index');
 var index1 = require('./routes/index1');
@@ -49,12 +50,13 @@ app.set('view engine', 'ejs');
 
 
 app.use(logger('dev'));
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
+app.use(bodyParser.json({ limit: "200mb" }));
+app.use(bodyParser.urlencoded({ limit: "200mb",  extended: true, parameterLimit: 1000000 }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json({ extended: false, limit: '50mb' }))
-app.use(express.urlencoded({ limit: '50mb', extended: false, parameterLimit: 50000 }))
+
 
 
 app.get('/events', function (req, res) {
