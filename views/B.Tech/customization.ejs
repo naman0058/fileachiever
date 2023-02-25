@@ -1030,6 +1030,24 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.js"></script>
 
 <script type="text/javascript">
+
+
+
+function convertImageToBase64(imgUrl, callback) {
+  const image = new Image();
+  image.crossOrigin='anonymous';
+  image.onload = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.height = image.naturalHeight;
+    canvas.width = image.naturalWidth;
+    ctx.drawImage(image, 0, 0);
+    const dataUrl = canvas.toDataURL();
+    callback && callback(dataUrl)
+  }
+  image.src = imgUrl;
+}
+
   $("#FileInput").on('change',function (e) {
             var labelVal = $(".title").text();
             var oldfileName = $(this).val();
@@ -1068,7 +1086,9 @@
                 $(".filelabel .title").text(labelVal);
             }
         });
-  $("#FileInput1").on('change',function (e) {
+ 
+ 
+        $("#FileInput1").on('change',function (e) {
             var labelVal = $(".title").text();
             var oldfileName = $(this).val();
                 fileName = e.target.value.split( '\\' ).pop();
@@ -1095,6 +1115,40 @@
                 $(".filelabel1").css({'border':' 2px solid black'});
             }
             if(fileName ){
+      //         // convertImageToBase64(oldfileName,console.log(event.target.files))
+      //         const selectedfile = event.target.files;
+
+      //         const [imageFile] = selectedfile;
+      // const fileReader = new FileReader();
+      // fileReader.onload = () => {
+      //   const srcData = fileReader.result;
+      //   console.log('base64:', srcData)
+      // };
+      // fileReader.readAsDataURL(imageFile);
+
+      //         const data = new FormData()
+      //   data.append('file',
+      //     {
+      //       uri: imageFile,
+      //       name: `image.${extension}`,
+      //       type: `image/${extension}`,
+      //     });
+      //   // data.append('file', result.uri)
+      //   data.append('upload_preset', 'afordeals')
+      //   data.append("cloud_name", "dealsaaj")
+      //   fetch("https://api.cloudinary.com/v1_1/dealsaaj/upload", {
+      //     method: "POST",
+      //     body: data
+      //   })
+      //     .then(res => res.json()).
+      //     then(result => {
+      //       console.log('cnvert', data)
+      //       this.setState({ image: data.secure_url, imageType: data.resource_type });
+      //       // setPhoto(data.secure_url)
+      //     }).catch(err => {
+      //       Alert.alert("An Error Occured While Uploading")
+      //     })
+
                 if (fileName.length > 10){
                     $(".filelabel1 .title").text(fileName.slice(0,4)+'...'+extension);
                 }
@@ -1105,6 +1159,8 @@
             else{
                 $(".filelabel1 .title").text(labelVal);
             }
+            console.log($("#FileInput1").attr('src',URL.createObjectURL(event.target.files[0])))
+            alert(oldfileName)
         });
 /**
  * Chosen: Multiple Dropdown
