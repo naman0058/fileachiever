@@ -242,17 +242,42 @@ th{
 <p class="text-center first"><%=result[0][0].project_type%> Report On</p>
 <p class="text-center first"> <%=result[3][0].name%></p>
 <div class="text-center">
-<img src="/images/<%=result[0][0].affilated_college_logo%>" alt=" <%=result[0][0].affilated_college_name%> collge logo" class="img" style="height: 190px">
+<img src="https://www.filemakr.com/images/<%=result[0][0].affilated_college_logo%>" alt=" <%=result[0][0].affilated_college_name%> collge logo" class="img" style="height: 190px">
 </div>
 <p class="text-center second" style="margin-top: 5%">By</p>
  <% if(result[0][0].friend == "null" || result[0][0].friend == null || result[0][0].friend == "" || result[0][0].friend == []) { %>
 <p class="text-center third"> <%=result[0][0].name%> ( <%=result[0][0].roll_number%> )</p>
-<% } else { %>
-<p class="text-center third"> <%=result[0][0].name%> ( <%=result[0][0].roll_number%> )</p>
+
+<% } else if(result[0][0].friend1 == "null" || result[0][0].friend1 == null || result[0][0].friend1 == "" || result[0][0].friend1 == []) { %>
+  
+  <p class="text-center third"> <%=result[0][0].name%> ( <%=result[0][0].roll_number%> )</p>
+  <p class="text-center third"> <%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> )</p>
+
+  <% } else if(result[0][0].friend2 == "null" || result[0][0].friend2 == null || result[0][0].friend2 == "" || result[0][0].friend2 == []) { %>
+
+
+
+
+<% } else if(result[0][0].friend3 == "null" || result[0][0].friend3 == null || result[0][0].friend3 == "" || result[0][0].friend3 == []) { %>
+
+
+  <p class="text-center third"> <%=result[0][0].name%> ( <%=result[0][0].roll_number%> )</p>
 <p class="text-center third"> <%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> )</p>
 <p class="text-center third"> <%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%> )</p>
-<p class="text-center third"> <%=result[0][0].friend2%> ( <%=result[0][0].roll_number3%> )</p>
-<p class="text-center third"> <%=result[0][0].friend3%> ( <%=result[0][0].roll_number4%> )</p>
+
+ <p class="text-center third"> <%=result[0][0].friend2%> ( <%=result[0][0].roll_number3%> )</p>
+
+
+<% } else { %>
+
+
+  <p class="text-center third"> <%=result[0][0].name%> ( <%=result[0][0].roll_number%> )</p>
+  <p class="text-center third"> <%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> )</p>
+  <p class="text-center third"> <%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%> )</p>
+  
+   <p class="text-center third"> <%=result[0][0].friend2%> ( <%=result[0][0].roll_number3%> )</p>
+  
+<p class="text-center third"> <%=result[0][0].friend3%> ( <%=result[0][0].roll_number4%> )</p> 
 
 
 <% } %>
@@ -306,7 +331,7 @@ th{
 <div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1000px">
   <div style="page-break-before: always; page-break-after: always;">
 <div class="text-center">
-<img src="/images/<%=result[0][0].college_logo%>" alt=" <%=result[0][0].college_name%> collge logo" class="img" style="height: 190px">
+<img src="https://www.filemakr.com/images/<%=result[0][0].college_logo%>" alt=" <%=result[0][0].college_name%> collge logo" class="img" style="height: 190px">
 </div>
 
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold; margin-top: 5%"><%=result[0][0].college_name%> </p>
@@ -354,7 +379,7 @@ th{
 <div class="col-lg-12" style="margin-left: 20px;margin-right: 20px;margin-top: 17%;height: 1000px">
   <div style="page-break-before: always; page-break-after: always;">
 <div class="text-center">
-<img src="/images/<%=result[0][0].college_logo%>" alt=" <%=result[0][0].college_name%> collge logo" class="img" style="height: 190px">
+<img src="https://www.filemakr.com/images/<%=result[0][0].college_logo%>" alt=" <%=result[0][0].college_name%> collge logo" class="img" style="height: 190px">
 
 </div>
 <p class="text-center" style="font-family:'Times New Roman', Times, serif;font-size:24px;font-weight: bold;margin-top: 5% "><%=result[0][0].college_name%></p>
@@ -439,7 +464,34 @@ We express our sincere regard and indebtedness to our project internal guide <%=
   <p class="text-justify second"><%=result[0][0].name%></p>
   <p class="text-justify second"><%=result[0][0].roll_number%></p>
 
+
+  <% } else if(result[0][0].friend1 == "null" || result[0][0].friend1 == null || result[0][0].friend1 == "" || result[0][0].friend1 == []) { %>
+
+    <p class="text-justify second"><%=result[0][0].name%> ( <%=result[0][0].roll_number%> ) </p>
+    <p class="text-justify second"><%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> ) </p>
+  
+
+  <% } else if(result[0][0].friend2 == "null" || result[0][0].friend2 == null || result[0][0].friend2 == "" || result[0][0].friend2 == []) { %>
+
+    <p class="text-justify second"><%=result[0][0].name%> ( <%=result[0][0].roll_number%> ) </p>
+    <p class="text-justify second"><%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> ) </p>
+     <p class="text-justify second"><%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%> ) </p> 
+
+
+
+     <% } else if(result[0][0].friend3 == "null" || result[0][0].friend3 == null || result[0][0].friend3 == "" || result[0][0].friend3 == []) { %>
+
+      <p class="text-justify second"><%=result[0][0].name%> ( <%=result[0][0].roll_number%> ) </p>
+      <p class="text-justify second"><%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> ) </p>
+       <p class="text-justify second"><%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%> ) </p> 
+       <p class="text-justify second"><%=result[0][0].friend2%> ( <%=result[0][0].roll_number3%> ) </p> 
+
   <% } else { %>
+
+
+
+
+
 <p class="text-justify second"><%=result[0][0].name%> ( <%=result[0][0].roll_number%> ) </p>
   <p class="text-justify second"><%=result[0][0].friend%> ( <%=result[0][0].roll_number1%> ) </p>
    <p class="text-justify second"><%=result[0][0].friend1%> ( <%=result[0][0].roll_number2%> ) </p> 
