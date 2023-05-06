@@ -65,7 +65,7 @@ router.get('/get-developers-country-wise',cors(),(req,res)=>{
 
 
 
-router.get('/get-projects',(req,res)=>{
+router.get('/get-projects',cors(),(req,res)=>{
     pool.query(`select p.* ,
     (select d.name from developers d where d.id = p.developersid) as developername,
     (select s.name from state s where s.id = p.stateid) as statename,
@@ -78,7 +78,7 @@ router.get('/get-projects',(req,res)=>{
 
 
 
-router.get('/get-agent',(req,res)=>{
+router.get('/get-agent',cors(),(req,res)=>{
     pool.query(`select a.* , (select c.name from country c where c.id = a.countryid) as countryname from agent a order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -87,7 +87,7 @@ router.get('/get-agent',(req,res)=>{
 
 
 
-router.get('/get-listing',(req,res)=>{
+router.get('/get-listing',cors(),(req,res)=>{
     pool.query(`select l.* , 
     (select c.name from country c where c.id = l.countryid) as countryname,
     (select s.name from state s where s.id = l.stateid) as statename,
@@ -104,7 +104,7 @@ router.get('/get-listing',(req,res)=>{
 
 
 
-router.get('/get-listing-amenities',(req,res)=>{
+router.get('/get-listing-amenities',cors(),(req,res)=>{
     pool.query(`select * from listing_amenities where listingid = '${req.query.id}' order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -112,7 +112,7 @@ router.get('/get-listing-amenities',(req,res)=>{
 })
 
 
-router.get('/get-listing_imagess',(req,res)=>{
+router.get('/get-listing_imagess',cors(),(req,res)=>{
     pool.query(`select l.* , (select li.name from listing li where li.id = l.listingid) as listingname from listing_imagess l order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -121,7 +121,7 @@ router.get('/get-listing_imagess',(req,res)=>{
 
 
 
-router.get('/get-brochure',(req,res)=>{
+router.get('/get-brochure',cors(),(req,res)=>{
     pool.query(`select l.* , (select li.name from listing li where li.id = l.listingid) as listingname from brochure l order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -130,7 +130,7 @@ router.get('/get-brochure',(req,res)=>{
 
 
 
-router.get('/get-review',(req,res)=>{
+router.get('/get-review',cors(),(req,res)=>{
     pool.query(`select l.* , (select li.name from listing li where li.id = l.listingid) as listingname from review l order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -139,7 +139,7 @@ router.get('/get-review',(req,res)=>{
 
 
 
-router.get('/get-notes',(req,res)=>{
+router.get('/get-notes',cors(),(req,res)=>{
     pool.query(`select l.* , (select li.name from listing li where li.id = l.listingid) as listingname from notes l order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -150,7 +150,7 @@ router.get('/get-notes',(req,res)=>{
 
 
 
-router.get('/listing-by-developers',(req,res)=>{
+router.get('/listing-by-developers',cors(),(req,res)=>{
     pool.query(`select l.* ,
    (select i.image from listing_imagess i where i.listingid = l.id limit 1) as listingimage1,
    (select i.image from listing_imagess i where i.listingid = l.id limit 1,1) as listingimage2,
@@ -178,7 +178,7 @@ router.get('/listing-by-developers',(req,res)=>{
 
 
 
-router.get('/projects-by-developers',(req,res)=>{
+router.get('/projects-by-developers',cors(),(req,res)=>{
     pool.query(`select l.*
      from projects l where l.developersid = (select d.id from developers d where d.seo_name = '${req.query.developer_name}') order by id desc`,(err,result)=>{
         if(err) throw err;
@@ -188,7 +188,7 @@ router.get('/projects-by-developers',(req,res)=>{
 
 
 
-router.get('/projects-by-state',(req,res)=>{
+router.get('/projects-by-state',cors(),(req,res)=>{
     pool.query(`select l.*
      from projects l where l.stateid = (select d.id from state d where d.seo_name = '${req.query.state_name}') order by id desc`,(err,result)=>{
         if(err) throw err;
@@ -200,7 +200,7 @@ router.get('/projects-by-state',(req,res)=>{
 
 
 
-router.get('/listing-by-project-type',(req,res)=>{
+router.get('/listing-by-project-type',cors(),(req,res)=>{
     pool.query(`select l.* ,
    (select i.image from listing_imagess i where i.listingid = l.id limit 1) as listingimage1,
    (select i.image from listing_imagess i where i.listingid = l.id limit 1,1) as listingimage2,
@@ -223,7 +223,7 @@ router.get('/listing-by-project-type',(req,res)=>{
 
 
 
-router.get('/listing-by-property-type',(req,res)=>{
+router.get('/listing-by-property-type',cors(),(req,res)=>{
     pool.query(`select l.* ,
    (select i.image from listing_imagess i where i.listingid = l.id limit 1) as listingimage1,
    (select i.image from listing_imagess i where i.listingid = l.id limit 1,1) as listingimage2,
@@ -243,7 +243,7 @@ router.get('/listing-by-property-type',(req,res)=>{
 
 
 
-router.get('/listing-by-state',(req,res)=>{
+router.get('/listing-by-state',cors(),(req,res)=>{
     pool.query(`select l.* ,
    (select i.image from listing_imagess i where i.listingid = l.id limit 1) as listingimage1,
    (select i.image from listing_imagess i where i.listingid = l.id limit 1,1) as listingimage2,
@@ -264,7 +264,7 @@ router.get('/listing-by-state',(req,res)=>{
 
 
 
-router.get('/listing-details',(req,res)=>{
+router.get('/listing-details',cors(),(req,res)=>{
     var query = `select l.*,
     (select c.name from country c where c.id = l.countryid) as countryname,
     (select s.name from state s where s.id = l.stateid) as statename,
@@ -293,7 +293,7 @@ router.get('/listing-details',(req,res)=>{
 })
 
 
-router.post('/enquiry_submit',(req,res)=>{
+router.post('/enquiry_submit',cors(),(req,res)=>{
     let body = req.body;
     body['date'] = sending.date_and_time()
     pool.query(`insert into enquiry set ?`,body,(err,result)=>{
@@ -306,7 +306,7 @@ router.post('/enquiry_submit',(req,res)=>{
 
 
 
-router.post('/contact_submit',(req,res)=>{
+router.post('/contact_submit',cors(),(req,res)=>{
     let body = req.body;
     body['date'] = sending.date_and_time()
     pool.query(`insert into contact set ?`,body,(err,result)=>{
@@ -320,7 +320,7 @@ router.post('/contact_submit',(req,res)=>{
 
 
 
-router.get('/top-10-agent/:name',(req,res)=>{
+router.get('/top-10-agent/:name',cors(),(req,res)=>{
     if(req.params.name == 'all'){
    pool.query(`select * from agent order by id limit 10`,(err,result)=>{
     if(err) throw err;
@@ -339,7 +339,7 @@ router.get('/top-10-agent/:name',(req,res)=>{
 
 
 
-router.get('/featured/state',(req,res)=>{
+router.get('/featured/state',cors(),(req,res)=>{
     pool.query(`select * from state where isFeatured = 'yes' order by id desc limit 4`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -350,7 +350,7 @@ router.get('/featured/state',(req,res)=>{
 
 
 
-router.post('/search',(req,res)=>{
+router.post('/search',cors(),(req,res)=>{
     // console.log(`select * from listing where stateid = '${req.body.stateid}' and propertytypeid in (${req.body.property_typeid}) and price >= ${req.body.min_price} and price <= ${req.body.max_price}`)
     pool.query(`select l.* ,
     (select s.name from state s where s.id = l.stateid) as statename,
