@@ -29,6 +29,8 @@ var aboutus = require('./routes/aboutus')
 var ads = require('./routes/ads')
 var notes = require('./routes/notes')
 var source_code = require('./routes/source_code');
+var cors = require('cors')
+
 
 // newchanges
 var BTech = require('./routes/B.Tech')
@@ -160,5 +162,5 @@ app.use(function(req, res, next) {
      next();
    }});
 
-   
+
 module.exports = app;
