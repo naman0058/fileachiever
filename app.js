@@ -37,6 +37,7 @@ var BCA = require('./routes/BCA')
 var MCA = require('./routes/MCA')
 var BE = require('./routes/BE')
 var ME = require('./routes/ME')
+var api = require('./routes/api')
 
 var ieee = require('./routes/ieee/ieeeproject')
 //var facebooklogin = require('./routes/facebooklogin');
@@ -119,6 +120,7 @@ app.use('/mca-final-year-project-report',MCA)
 app.use('/be-final-year-project-report',BE)
 app.use('/me-final-year-project-report',ME)
 app.use('/final-year-projects-source-code',source_code)
+app.use('/api',api)
 //app.use('/facebooklogin',facebooklogin);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
