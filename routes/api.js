@@ -3,10 +3,11 @@ var router = express.Router();
 var pool =  require('./pool1');
 var sending = require('./msg_function');
 const { reset } = require('nodemon');
+var cors = require('cors')
 
 
 
-router.get('/get-country',(req,res)=>{
+router.get('/get-country',cors(),(req,res)=>{
     pool.query(`select * from country order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
