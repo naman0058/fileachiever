@@ -15,7 +15,7 @@ router.get('/get-country',cors(),(req,res)=>{
 })
 
 
-router.get('/get-state-country-wise',(req,res)=>{
+router.get('/get-state-country-wise',cors(),(req,res)=>{
     pool.query(`select s.* , (select c.name from country c where c.id = s.countryid) as countryname from state s where s.countryid = '${req.query.countryid}' order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -23,7 +23,7 @@ router.get('/get-state-country-wise',(req,res)=>{
 })
 
 
-router.get('/get-amenities',(req,res)=>{
+router.get('/get-amenities',cors(),(req,res)=>{
     pool.query(`select * from amenities order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -32,7 +32,7 @@ router.get('/get-amenities',(req,res)=>{
 
 
 
-router.get('/get-property_type',(req,res)=>{
+router.get('/get-property_type',cors(),(req,res)=>{
     pool.query(`select * from property_type order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -40,7 +40,7 @@ router.get('/get-property_type',(req,res)=>{
 })
 
 
-router.get('/get-state',(req,res)=>{
+router.get('/get-state',cors(),(req,res)=>{
     pool.query(`select s.* , (select c.name from country c where c.id = s.countryid) as countryname from state s order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -48,7 +48,7 @@ router.get('/get-state',(req,res)=>{
 })
 
 
-router.get('/get-developers',(req,res)=>{
+router.get('/get-developers',cors(),(req,res)=>{
     pool.query(`select d.* , (select c.name from country c where c.id = d.countryid) as countryname from developers d order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
@@ -56,7 +56,7 @@ router.get('/get-developers',(req,res)=>{
 })
 
 
-router.get('/get-developers-country-wise',(req,res)=>{
+router.get('/get-developers-country-wise',cors(),(req,res)=>{
     pool.query(`select d.* , (select c.name from country c where c.id = d.countryid) as countryname from developers d where d.countryid = '${req.query.countryid}' order by id desc`,(err,result)=>{
         if(err) throw err;
         else res.json(result);
