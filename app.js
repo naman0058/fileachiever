@@ -51,7 +51,7 @@ var app = express();
 
 
 var corsOptions = {
-  origin: 'https://earthinvestorsgroup.com/',
+  origin: 'https://earthinvestorsgroup.com',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
