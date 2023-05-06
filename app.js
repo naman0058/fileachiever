@@ -45,6 +45,15 @@ var app = express();
 app.use(compression())
 
 
+var app = express();
+
+
+var corsOptions = {
+  origin: 'https://earthinvestorsgroup.com',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
