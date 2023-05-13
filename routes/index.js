@@ -1038,9 +1038,7 @@ router.get('/taskTango-half-month-payment/:user_key', function (request, res){
     body['redirect_url'] = 'https://www.filemakr.com/tasktango_response';
     body['cancel_url'] =   'https://www.filemakr.com/tasktango_response';
     body['user_key'] = request.params.user_key
-    body['billing_name'] = 'naman'
-    body['billing_email'] = 'jnaman345@gmail.com'
-    body['billing_tel'] = '8319339945'
+   
 
    pool2.query(`insert into payment_request set ?`,body,(err,result)=>{
     if(err) throw err;
