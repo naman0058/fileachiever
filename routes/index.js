@@ -1068,8 +1068,7 @@ router.post('/tasktango_response',(request,response)=>{
     
    
     
-    decryptedJsonResponse.type = 'source_code'
-    decryptedJsonResponse.typeid = request.session.source_code_id;
+
     decryptedJsonResponse.billing_address = 'new_address'
      console.log('body aa rhi h',decryptedJsonResponse)
       
@@ -1088,10 +1087,27 @@ router.post('/tasktango_response',(request,response)=>{
                 pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
                     if(err) throw err;
                     else {
-                        pool.query(`select source_code from add_project where id = '${result[0].source_code_id}'`,(err,result)=>{
+                     let user_key = result[0].user_key
+                        pool.query(`select * from users where user_key = '${result[0].user_key}'`,(err,result)=>{
                             if(err) throw err;
                             //else res.json(result)
-                            else response.render('download-successfull',{result:result})
+//                             else response.render('download-successfull',{result:result})
+                         else {
+                          console.log('user find',result)
+                            var today = new Date();
+          today.setDate(today.getDate() + 15);
+          
+          var dd = String(today.getDate()).padStart(2, '0');
+          var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+          var yyyy = today.getFullYear();
+          
+          today = yyyy + '-' + mm + '-' + dd;
+                          pool.query(`update users set Balance = '25000' , validity = '${today}'`,(err,result=>{
+                          if(err) throw err;
+                           else {
+                           else response.render('download-successfull',{result:result})
+                           }
+                          })
                         })
                     }
                 })
