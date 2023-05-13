@@ -1105,7 +1105,7 @@ router.post('/tasktango_response',(request,response)=>{
                           pool.query(`update users set Balance = '25000' , validity = '${today}'`,(err,result=>{
                           if(err) throw err;
                            else {
-                           else response.render('download-successfull',{result:result})
+                            response.render('download-successfull',{result:result})
                            }
                           })
                         })
