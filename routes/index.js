@@ -1079,16 +1079,7 @@ router.post('/tasktango_response',(request,response)=>{
         else{
             if(decryptedJsonResponse.order_status == 'Aborted' || decryptedJsonResponse.order_status =='Failure'){
                 // response.json({msg:'aborted or failed'})
-    
-    
-            pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
-                if(err) throw err;
-                else {
-                    console.log(result)
-                    response.redirect(`https://www.filemakr.com/failue-page?reason=${request.body.status_message}`)
-                }
-            })
-    
+            response.redirect(`https://www.filemakr.com/failue-page?reason=${decryptedJsonResponse.status_message}`)
     
     
             }
