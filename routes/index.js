@@ -1097,7 +1097,7 @@ router.post('/tasktango_response',(request,response)=>{
                          else {
                           console.log('user find',result)
                             var today = new Date();
-          today.setDate(today.getDate() + 15);
+          today.setDate(today.getDate() + 30);
           
           var dd = String(today.getDate()).padStart(2, '0');
           var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -1105,10 +1105,10 @@ router.post('/tasktango_response',(request,response)=>{
           
           today = yyyy + '-' + mm + '-' + dd;
 
-            pool2.query(`update users set Balance = '25000' , validity = '${today}'`,(err,result)=>{
+            pool2.query(`update users set Balance = '25000' , validity = '${today}' where user_key = '${user_key}'`,(err,result)=>{
                 if(err) throw err;
                 else {
-                 response.render('download-successfull',{result:result})
+                 response.render('success-page',{type:'result'})
                 }
    
             })
@@ -1140,6 +1140,10 @@ router.post('/tasktango_response',(request,response)=>{
 
     router.get('/failue-page',(req,res)=>{
         res.render('failed',{type:'Web Development'})
+    })
+
+    router.get('/success-page',(req,res)=>{
+        res.render('success',{type:'Web Development'})
     })
     
 
