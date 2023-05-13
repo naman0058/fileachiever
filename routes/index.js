@@ -1049,7 +1049,7 @@ router.get('/taskTango-half-month-payment/:user_key', function (request, res){
 // ccavReqHandler.postReq(request, response);
 console.log('sending body',body)
 console.log('sending query',request.query)
-const encryptedOrderData = ccave.getEncryptedOrder(request.body);
+const encryptedOrderData = ccave.getEncryptedOrder(request.query);
 // console.log(encryptedOrderData);
 
 res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
