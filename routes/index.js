@@ -1090,7 +1090,7 @@ router.post('/tasktango_response',(request,response)=>{
                     else {
                         console.log('user',result)
                      let user_key = result[0].user_key
-                        pool.query(`select * from users where user_key = '${result[0].user_key}'`,(err,result)=>{
+                        pool2.query(`select * from users where user_key = '${result[0].user_key}'`,(err,result)=>{
                             if(err) throw err;
                             //else res.json(result)
 //                             else response.render('download-successfull',{result:result})
