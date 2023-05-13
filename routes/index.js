@@ -1102,16 +1102,23 @@ router.post('/tasktango_response',(request,response)=>{
           var yyyy = today.getFullYear();
           
           today = yyyy + '-' + mm + '-' + dd;
-                          pool.query(`update users set Balance = '25000' , validity = '${today}'`,(err,result=>{
-                          if(err) throw err;
-                           else {
-                            response.render('download-successfull',{result:result})
-                           }
-                          })
-                        })
+
+            pool.query(`update users set Balance = '25000' , validity = '${today}'`,(err,result)=>{
+                if(err) throw err;
+                else {
+                 response.render('download-successfull',{result:result})
+                }
+   
+            })
+        
+
                     }
                 })
             }
+
+        })
+
+    }
     
             else{
     
