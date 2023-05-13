@@ -1059,6 +1059,8 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 router.post('/tasktango_response',(request,response)=>{
     const { encResp } = request.body;
+ 
+  console.log('encResp',request.body)
     
     let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
     
