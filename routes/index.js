@@ -1060,18 +1060,20 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 router.post('/tasktango_response',(request,response)=>{
     const { encResp } = request.body;
  
-  console.log('encResp',request.body)
+
     
     let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
     
     // response.json(request.session.source_code_id)
     
-    console.log(request.body)
+   
     
     decryptedJsonResponse.type = 'source_code'
     decryptedJsonResponse.typeid = request.session.source_code_id;
     
-    
+     console.log('body aa rhi h',decryptedJsonResponse)
+ 
+ 
     pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
         if(err) throw err;
         else{
