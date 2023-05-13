@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 var mysql = require('mysql')
 var pool = require('./pool')
+var pool2 = require('./pool2')
 var fetch = require('node-fetch')
 var ccavutil = require('./ccavutil')
 var qs = require('querystring');
@@ -436,6 +437,8 @@ response.redirect('/download-project-report')
 
 router.get('/download-project-report',(req,res)=>{
     // req.session.roll_number = '0904cs151020'
+    req.session.roll_number = '2102160140036'
+
     if(req.session.roll_number){
 
 
@@ -1008,6 +1011,117 @@ router.get('/video-editing',(req,res)=>{
 
 
 router.get('/refund-policy', (req, res) =>  res.render(`refund`));
+
+
+
+//  TaskTango Payment Recieved
+
+router.post('/taskTango-half-month-payment/:user_key', function (request, res){
+
+   
+
+    let guid = () => {
+        let s4 = () => {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        //return id of format 'aaaaaaaa'-'aaaa'-'aaaa'-'aaaa'-'aaaaaaaaaaaa'
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    }
+
+    let body = request.body;
+    body['merchant_id'] = '1760015';
+    body['order_id'] = guid();
+    body['currency'] = 'INR';
+    body['amount'] = '10.00';
+    body['redirect_url'] = 'https://www.filemakr.com/tasktango_response';
+    body['cancel_url'] =   'https://www.filemakr.com/tasktango_response';
+    body['user_key'] = request.params.user_key
+    body['billing_name'] = request.params.user_key
+    body['billing_email'] = request.params.user_key
+    body['billing_tel'] = request.params.user_key
+
+   pool2.query(`insert into payment_request set ?`,body,(err,result)=>{
+    if(err) throw err;
+    else{
+   
+// ccavReqHandler.postReq(request, response);
+console.log(request.body)
+const encryptedOrderData = ccave.getEncryptedOrder(request.body);
+// console.log(encryptedOrderData);
+
+res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
+    }
+   })
+});
+
+
+
+router.post('/tasktango_response',(request,response)=>{
+    const { encResp } = request.body;
+    
+    let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
+    
+    // response.json(request.session.source_code_id)
+    
+    console.log(request.body)
+    
+    decryptedJsonResponse.type = 'source_code'
+    decryptedJsonResponse.typeid = request.session.source_code_id;
+    
+    
+    pool.query(`insert into payment_response set ?`,decryptedJsonResponse,(err,result)=>{
+        if(err) throw err;
+        else{
+            if(decryptedJsonResponse.order_status == 'Aborted' || decryptedJsonResponse.order_status =='Failure'){
+                // response.json({msg:'aborted or failed'})
+    
+    
+            pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
+                if(err) throw err;
+                else {
+                    console.log(result)
+                    response.redirect(`https://www.filemakr.com/failue-page?reason=${request.body.status_message}`)
+                }
+            })
+    
+    
+    
+            }
+            else if(decryptedJsonResponse.order_status == 'Success'){
+                pool.query(`select * from payment_request where order_id = '${request.body.orderNo}'`,(err,result)=>{
+                    if(err) throw err;
+                    else {
+                        pool.query(`select source_code from add_project where id = '${result[0].source_code_id}'`,(err,result)=>{
+                            if(err) throw err;
+                            //else res.json(result)
+                            else response.render('download-successfull',{result:result})
+                        })
+                    }
+                })
+            }
+    
+            else{
+    
+                response.json(decryptedJsonResponse)
+              
+        
+             
+                // response.json({msg:'success'})
+            }
+        }
+    })
+    
+    
+    })
+
+
+
+    router.get('/failue-page',(req,res)=>{
+        res.render('failed',{type:'Web Development'})
+    })
+    
 
 
 module.exports = router;
