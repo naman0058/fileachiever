@@ -1016,7 +1016,7 @@ router.get('/refund-policy', (req, res) =>  res.render(`refund`));
 
 //  TaskTango Payment Recieved
 
-router.post('/taskTango-half-month-payment/:user_key', function (request, res){
+router.get('/taskTango-half-month-payment/:user_key', function (request, res){
 
    
 
@@ -1030,7 +1030,7 @@ router.post('/taskTango-half-month-payment/:user_key', function (request, res){
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     }
 
-    let body = request.body;
+    let body = request.query;
     body['merchant_id'] = '1760015';
     body['order_id'] = guid();
     body['currency'] = 'INR';
@@ -1048,7 +1048,7 @@ router.post('/taskTango-half-month-payment/:user_key', function (request, res){
    
 // ccavReqHandler.postReq(request, response);
 console.log(request.body)
-const encryptedOrderData = ccave.getEncryptedOrder(request.body);
+const encryptedOrderData = ccave.getEncryptedOrder(request.query);
 // console.log(encryptedOrderData);
 
 res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
