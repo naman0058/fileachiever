@@ -1036,7 +1036,7 @@ router.get('/recharge/:user_key', function (request, res){
     body['merchant_id'] = '1760015';
     body['order_id'] = guid();
     body['currency'] = 'INR';
-    body['amount'] = '10.00';
+    body['amount'] = '200.00';
     body['redirect_url'] = 'https://www.filemakr.com/tasktango_response';
     body['cancel_url'] =   'https://www.filemakr.com/tasktango_response';
     body['user_key'] = request.params.user_key
@@ -1077,7 +1077,7 @@ router.get('/monthly-recharge/:user_key', function (request, res){
     body['merchant_id'] = '1760015';
     body['order_id'] = guid();
     body['currency'] = 'INR';
-    body['amount'] = '20.00';
+    body['amount'] = '300.00';
     body['redirect_url'] = 'https://www.filemakr.com/tasktango_response1';
     body['cancel_url'] =   'https://www.filemakr.com/tasktango_response1';
     body['user_key'] = request.params.user_key
