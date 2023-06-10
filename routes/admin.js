@@ -36,7 +36,7 @@ router.post('/login',(req,res)=>{
      if(err) throw err;
      else if(result[0]) {
          req.session.adminid = result[0].id
-         res.redirect('/adminhome')
+         res.redirect('/admin/dashboard/tasktango/jobs')
         }
      else res.render(`admin`,{msg : 'Enter Wrong Creaditionals'})
  })
