@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="bidding, fiverr, freelance marketplace, freelancers, freelancing, gigs, hiring, job board, job portal, job posting, jobs marketplace, peopleperhour, proposals, sell services, upwork">
+<meta name="description" content="TaskTango: Your Gateway to Freelance Success">
+<meta name="CreativeLayers" content="ATFN">
+<!-- css file -->
+<link rel="stylesheet" href="/task_tango/css/bootstrap.min.css">
+<link rel="stylesheet" href="/task_tango/css/jquery-ui.min.css">
+<link rel="stylesheet" href="/task_tango/css/ace-responsive-menu.css">
+<link rel="stylesheet" href="/task_tango/css/menu.css">
+<link rel="stylesheet" href="/task_tango/css/fontawesome.css">
+<link rel="stylesheet" href="/task_tango/css/flaticon.css">
+<link rel="stylesheet" href="/task_tango/css/bootstrap-select.min.css">
+<link rel="stylesheet" href="/task_tango/css/animate.css">
+<link rel="stylesheet" href="/task_tango/css/slider.css">
+<link rel="stylesheet" href="/task_tango/css/style.css">
+<link rel="stylesheet" href="/task_tango/css/ud-custom-spacing.css">
+<!-- Responsive stylesheet -->
+<link rel="stylesheet" href="/task_tango/css/responsive.css">
+<!-- Title -->
+<title>TaskTango: Your Gateway to Freelance Success </title>
+<!-- Favicon -->
+<link href="https://res.cloudinary.com/dealsaaj/image/upload/v1689544205/logo-removebg-preview_ar071b.png" sizes="128x128" rel="shortcut icon" type="image/x-icon" />
+<link href="https://res.cloudinary.com/dealsaaj/image/upload/v1689544205/logo-removebg-preview_ar071b.png" sizes="128x128" rel="shortcut icon" />
+<!-- Apple Touch Icon -->
+<link href="https://res.cloudinary.com/dealsaaj/image/upload/v1689544205/logo-removebg-preview_ar071b.png" sizes="60x60" rel="apple-touch-icon">
+<link href="https://res.cloudinary.com/dealsaaj/image/upload/v1689544205/logo-removebg-preview_ar071b.png" sizes="72x72" rel="apple-touch-icon">
+<link href="https://res.cloudinary.com/dealsaaj/image/upload/v1689544205/logo-removebg-preview_ar071b.png" sizes="114x114" rel="apple-touch-icon">
+<link href="https://res.cloudinary.com/dealsaaj/image/upload/v1689544205/logo-removebg-preview_ar071b.png" sizes="180x180" rel="apple-touch-icon">
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+<div class="wrapper ovh">
+  <div class="preloader"></div>
+  
+  <!-- Main Header Nav -->
+  <header class="header-nav nav-homepage-style stricky main-menu">
+    <!-- Ace Responsive Menu -->
+    <nav class="posr"> 
+      <div class="container-fluid posr menu_bdrt1 px30">
+        <div class="row align-items-center justify-content-between">
+          <div class="col-auto px-0">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="logos br-white-light pr30 pr5-xl">
+                <a class="header-logo logo1" href="index.html"><img src="https://res.cloudinary.com/dealsaaj/image/upload/v1689542785/logo_ubsi1l.jpg" style="width: 80px;" alt="Header Logo"></a>
+                <a class="header-logo logo2" href="index.html"><img src="https://res.cloudinary.com/dealsaaj/image/upload/v1689542785/logo_ubsi1l.jpg" style="width: 80px;" alt="Header Logo"></a>
+              </div>
+         
+            </div>
+          </div>
+          <div class="col-auto px-0">
+            <div class="d-flex align-items-center">
+              <!-- Responsive Menu Structure-->
+        
+             
+              <a class="ud-btn btn-white add-joining" href="https://telegram.me/TaskTango_bot">Join Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <!-- Search Modal -->
+  <div class="search-modal">
+    <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalToggleLabel"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fal fa-xmark"></i></button>
+          </div>
+          <div class="modal-body">
+            <div class="popup-search-field search_area">
+              <input type="text" class="form-control border-0" placeholder="What service are you looking for today?">
+              <label><span class="far fa-magnifying-glass"></span></label>
+              <button class="ud-btn btn-thm" type="submit">Search</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hiddenbar-body-ovelay"></div>
+
+  <!-- Mobile Nav  -->
+  <div id="page" class="mobilie_header_nav stylehome1">
+    <div class="mobile-menu">
+      <div class="header bb-white-light">
+        <div class="menu_and_widgets">
+          <div class="mobile_menu_bar d-flex justify-content-between align-items-center">
+            <a class="mobile_logo" href="#"><img src="https://res.cloudinary.com/dealsaaj/image/upload/v1689542785/logo_ubsi1l.jpg" style="width: 60px;" alt=""></a>
+            <div class="right-side text-end">
+              <a class="text-white" href="https://telegram.me/TaskTango_bot">Join Now</a>
+            </div>
+          </div>
+        </div>
+        <div class="posr"><div class="mobile_menu_close_btn"><span class="far fa-times"></span></div></div>
+      </div>
+    </div>
+    <!-- /.mobile-menu -->
+ 
+  </div>
+
+  <div class="body_content">
+    <!-- Home Banner Style V1 -->
+    <section class="home-one p-0 space-maintain-1">
+      <div class="container-fluid px-0">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="main-banner-wrapper home1_style">
+              <div class="banner-style-one dots_none nav_none owl-theme owl-carousel">
+                <!-- <div class="slide slide-one" style="background-image: url(/task_tango/images/home/home-3.jpg);"></div> -->
+                <div class="slide slide-one" style="background-image: url(/task_tango/images/home/home-1.jpg);"></div>
+              </div>
+              <div class="carousel-btn-block banner-carousel-btn">
+                <span class="carousel-btn left-btn"><i class="fas fa-chevron-left left"></i></span>
+                <span class="carousel-btn right-btn"><i class="fas fa-chevron-right right"></i></span>
+              </div>
+              <!-- /.carousel-btn-block banner-carousel-btn --> 
+            </div>
+            <!-- /.main-banner-wrapper -->
+          </div>
+        </div>
+      </div>
+      <div class="home1-banner-content">
+        <div class="container">
+          <div class="row">
+            <div class="col-xl-10 col-xxl-7">
+              <div class="position-relative">
+                <h3 class="banner-title">More than 5K Geniune <br class="d-none d-lg-block">Clients are waiting for you.</h3>
+                <p class="banner-text text-white ff-heading mb25">Millions of freelancers use TaskTango to turn their dreams into reality.</p>
+            
+                <div class="d-sm-flex banner-btn">
+                  <!-- <a href="page-project-v1.html" class="ud-btn btn-white me-0 me-sm-3">Get Started</a> -->
+                  <a href="https://telegram.me/TaskTango_bot" class="ud-btn btn-dark">Get Started</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Talent by category -->
+    <section class="pb-0 pb30-md">
+      <div class="container">
+        <div class="row align-items-center wow fadeInUp" data-wow-delay="300ms">
+          <div class="col-lg-9">
+            <div class="main-title2">
+              <h2 class="title">Expand Your Freelancing Horizons</h2>
+              <p class="paragraph">Unleash Your Skills, Connect with Limitless Clients!</p>
+            </div>
+          </div>
+          
+        </div>
+        <div class="row wow fadeInUp">
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="iconbox-style1 at-home7 bdr1 d-flex align-items-start mb30">
+              <div class="icon flex-shrink-0"><span class="flaticon-developer"></span></div>
+              <div class="details ml40">
+                <h5 class="title">Development & <br class="d-none d-lg-block"> IT</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="iconbox-style1 at-home7 bdr1 d-flex align-items-start mb30">
+              <div class="icon flex-shrink-0"><span class="flaticon-web-design-1"></span></div>
+              <div class="details ml40">
+                <h5 class="title">Design & <br class="d-none d-lg-block"> Creative</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="iconbox-style1 at-home7 bdr1 d-flex align-items-start mb30">
+              <div class="icon flex-shrink-0"><span class="flaticon-digital-marketing"></span></div>
+              <div class="details ml40">
+                <h5 class="title">Digital <br class="d-none d-lg-block"> Marketing</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="iconbox-style1 at-home7 bdr1 d-flex align-items-start mb30">
+              <div class="icon flex-shrink-0"><span class="flaticon-translator"></span></div>
+              <div class="details ml40">
+                <h5 class="title">Writing & <br class="d-none d-lg-block"> Translation</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="iconbox-style1 at-home7 bdr1 d-flex align-items-start mb30">
+              <div class="icon flex-shrink-0"><span class="flaticon-microphone"></span></div>
+              <div class="details ml40">
+                <h5 class="title">Music & <br class="d-none d-lg-block"> Audio</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="iconbox-style1 at-home7 bdr1 d-flex align-items-start mb30">
+              <div class="icon flex-shrink-0"><span class="flaticon-video-file"></span></div>
+              <div class="details ml40">
+                <h5 class="title">Video & <br class="d-none d-lg-block"> Animation</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="iconbox-style1 at-home7 bdr1 d-flex align-items-start mb30">
+              <div class="icon flex-shrink-0"><span class="flaticon-ruler"></span></div>
+              <div class="details ml40">
+                <h5 class="title">Engineering & <br class="d-none d-lg-block"> Architecture</h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="iconbox-style1 at-home7 bdr1 d-flex align-items-start mb30">
+              <div class="icon flex-shrink-0"><span class="flaticon-goal"></span></div>
+              <div class="details ml40">
+                <h5 class="title">Finance & <br class="d-none d-lg-block"> Accounting</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+   
+    <!-- Talent by category -->
+
+
+    <!-- About Us -->
+    <section class="pt0 pb-md">
+      <div class="cta-banner bgc-light-yellow mx-auto maxw1700 pt110 pb80 pb0-md bdrs12 position-relative">
+        <div class="container">
+          <div class="row align-items-start align-items-xl-center">
+            <div class="col-md-6 col-lg-7 col-xl-6">
+              <div class="position-relative mb35 mb0-sm wow fadeInRight" data-wow-delay="300ms">
+                <div class="freelancer-widget d-none d-lg-block">
+                  <h5 class="title mb20"><span class="text-thm">5K+</span> Verified Clients</h5>
+                  <div class="thumb d-flex align-items-center mb20">
+                    <div class="flex-shrink-0">
+                      <img class="wa" src="/task_tango/images/team/ea-1.png" alt="">
+                    </div>
+                    <div class="flex-grow-1 ml20">
+                      <h6 class="title mb-0">	
+                        Vinay Gondaani</h6>
+                    </div>
+                  </div>
+                  <div class="thumb d-flex align-items-center mb20">
+                    <div class="flex-shrink-0">
+                      <img class="wa" src="/task_tango/images/team/ea-2.png" alt="">
+                    </div>
+                    <div class="flex-grow-1 ml20">
+                      <h6 class="title mb-0">Arvind sankla</h6>
+                    </div>
+                  </div>
+                  <div class="thumb d-flex align-items-center mb20">
+                    <div class="flex-shrink-0">
+                      <img class="wa" src="/task_tango/images/team/ea-3.png" alt="">
+                    </div>
+                    <div class="flex-grow-1 ml20">
+                      <h6 class="title mb-0">Divyank Kocharekar</h6>
+                    </div>
+                  </div>
+                  <div class="thumb d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                      <img class="wa" src="/task_tango/images/team/ea-4.png" alt="">
+                    </div>
+                    <div class="flex-grow-1 ml20">
+                      <h6 class="title mb-0">Vibha </h6>
+                    </div>
+                  </div>
+                </div>
+                <div class="freelancer-style1 about-page-style text-center d-none d-lg-block">
+                  <div class="thumb w90 mb25 mx-auto position-relative rounded-circle"><img class="rounded-circle mx-auto" src="/task_tango/images/team/fl-2.png" alt=""><span class="online"></span></div>
+                  <div class="details">
+                    <h5 class="title mb-1">Smitha</h5>
+                    <p class="mb-0">Need Graphics Desginer</p>
+                    <div class="review pr10"><p></p></div>
+                    <div class="skill-tags d-flex align-items-center justify-content-center">
+                      <span class="tag">Photoshop</span>
+                      <span class="tag mx10">AI</span>
+                      <span class="tag">CorelDraw</span>
+                    </div>
+                    <hr>
+                    <div class="fl-meta d-flex align-items-center justify-content-between">
+                      <a class="meta fw500 text-start text-center">Location<br><span class="fz14 fw400">Pune</span></a>
+                      <a class="meta fw500 text-start text-center">Budget<br><span class="fz14 fw400">Rs. 75,000</span></a>
+                      <a class="meta fw500 text-start text-center">Contact Number<br><span class="fz14 fw400">   XXXXXXXX85</span></a>
+                    </div>
+                  </div>
+                </div>
+                <img class="d-block d-lg-none w-100" src="/task_tango/images/about/verified-freelancer.png" alt="">
+                <div class="imgbox-about-page position-relative d-none d-xl-block">
+                  <img class="img-1 spin-right" src="/task_tango/images/about/element-1.png" alt="">
+                  <img class="img-2 bounce-x" src="/task_tango/images/about/element-2.png" alt="">
+                  <img class="img-3 bounce-y" src="/task_tango/images/about/element-3.png" alt="">
+                  <img class="img-4 bounce-y" src="/task_tango/images/about/element-4.png" alt="">
+                  <img class="img-5 spin-right" src="/task_tango/images/about/element-5.png" alt="">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-5 col-xl-5 offset-xl-1">
+              <div class="about-box-1 pe-4 mt100 mt0-lg mb30-lg wow fadeInLeft" data-wow-delay="300ms">
+                <h2 class="title mb10">Introducing India's First <br>Telegram Bot</h2>
+                <p class="text mb25 mb30-md">Discover endless work opportunities in India's First Telegram bot, connecting you directly with clients and their contact numbers.</p>
+                <div class="list-style3 mb40 mb30-md">
+                  <ul>
+                    <li><i class="far fa-check text-white bgc-review-color2"></i>Client's Contact Number</li>
+                    <li><i class="far fa-check text-white bgc-review-color2"></i>No Commission</li>
+                    <li><i class="far fa-check text-white bgc-review-color2"></i>No Middleman</li>
+                  </ul>
+                </div>
+                <a href="https://telegram.me/TaskTango_bot" class="ud-btn btn-thm2">Learn More<i class="fal fa-arrow-right-long"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+ 
+
+       <!-- Latest Jobs -->
+    <section class="pb90 pb30-md" style="padding: 0px;">
+      <div class="container">
+        <div class="row align-items-center wow fadeInUp">
+          <div class="col-lg-9">
+            <div class="main-title mb50">
+              <h2 class="title">Our Latest Jobs</h2>
+              <p class="paragraph">Know your worth and find the job that qualify your life</p>
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="text-start text-lg-end mb-4 mb-lg-2">
+              <a class="ud-btn2" href="https://telegram.me/TaskTango_bot">Browse All<i class="fal fa-arrow-right-long"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="job-list-style1 default-box-shadow1 bdrs8 bdr1">
+              <div class="d-xl-flex align-items-start">
+                <div class="icon d-flex align-items-center mb20">
+                  <img class="wa" src="/task_tango/images/team/client-2.png" alt="">
+                  <span class="fav-icon flaticon-star"></span>
+                </div>
+                <div class="details ml20 ml0-xl">
+                  <h5>Website Designer Required For Directory Theme</h5>
+                  <h6 class="mb-3 text-thm">Mailchimp</h6>
+                  <p class="list-inline-item mb-0">$125k-$135k Hourly</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">1-5 Days</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Expensive</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Remote</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="job-list-style1 bdrs8 bdr1">
+              <div class="d-xl-flex align-items-start">
+                <div class="icon d-flex align-items-center mb20">
+                  <img class="wa" src="/task_tango/images/team/client-1.png" alt="">
+                  <span class="fav-icon flaticon-star"></span>
+                </div>
+                <div class="details ml20 ml0-xl">
+                  <h5>Website Designer Required For Directory Theme</h5>
+                  <h6 class="mb-3 text-thm">Mailchimp</h6>
+                  <p class="list-inline-item mb-0">$125k-$135k Hourly</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">1-5 Days</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Expensive</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Remote</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="job-list-style1 bdrs8 bdr1">
+              <div class="d-xl-flex align-items-start">
+                <div class="icon d-flex align-items-center mb20">
+                  <img class="wa" src="/task_tango/images/team/client-3.png" alt="">
+                  <span class="fav-icon flaticon-star"></span>
+                </div>
+                <div class="details ml20 ml0-xl">
+                  <h5>Website Designer Required For Directory Theme</h5>
+                  <h6 class="mb-3 text-thm">Mailchimp</h6>
+                  <p class="list-inline-item mb-0">$125k-$135k Hourly</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">1-5 Days</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Expensive</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Remote</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="job-list-style1 bdrs8 bdr1">
+              <div class="d-xl-flex align-items-start">
+                <div class="icon d-flex align-items-center mb20">
+                  <img class="wa" src="/task_tango/images/team/client-6.png" alt="">
+                  <span class="fav-icon flaticon-star"></span>
+                </div>
+                <div class="details ml20 ml0-xl">
+                  <h5>Website Designer Required For Directory Theme</h5>
+                  <h6 class="mb-3 text-thm">Mailchimp</h6>
+                  <p class="list-inline-item mb-0">$125k-$135k Hourly</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">1-5 Days</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Expensive</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Remote</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="job-list-style1 bdrs8 bdr1">
+              <div class="d-xl-flex align-items-start">
+                <div class="icon d-flex align-items-center mb20">
+                  <img class="wa" src="/task_tango/images/team/client-4.png" alt="">
+                  <span class="fav-icon flaticon-star"></span>
+                </div>
+                <div class="details ml20 ml0-xl">
+                  <h5>Website Designer Required For Directory Theme</h5>
+                  <h6 class="mb-3 text-thm">Mailchimp</h6>
+                  <p class="list-inline-item mb-0">$125k-$135k Hourly</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">1-5 Days</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Expensive</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Remote</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="job-list-style1 bdrs8 bdr1">
+              <div class="d-xl-flex align-items-start">
+                <div class="icon d-flex align-items-center mb20">
+                  <img class="wa" src="/task_tango/images/team/client-8.png" alt="">
+                  <span class="fav-icon flaticon-star"></span>
+                </div>
+                <div class="details ml20 ml0-xl">
+                  <h5>Website Designer Required For Directory Theme</h5>
+                  <h6 class="mb-3 text-thm">Mailchimp</h6>
+                  <p class="list-inline-item mb-0">$125k-$135k Hourly</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">1-5 Days</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Expensive</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Remote</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="job-list-style1 bdrs8 bdr1">
+              <div class="d-xl-flex align-items-start">
+                <div class="icon d-flex align-items-center mb20">
+                  <img class="wa" src="/task_tango/images/team/client-5.png" alt="">
+                  <span class="fav-icon flaticon-star"></span>
+                </div>
+                <div class="details ml20 ml0-xl">
+                  <h5>Website Designer Required For Directory Theme</h5>
+                  <h6 class="mb-3 text-thm">Mailchimp</h6>
+                  <p class="list-inline-item mb-0">$125k-$135k Hourly</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">1-5 Days</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Expensive</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Remote</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="job-list-style1 bdrs8 bdr1">
+              <div class="d-xl-flex align-items-start">
+                <div class="icon d-flex align-items-center mb20">
+                  <img class="wa" src="/task_tango/images/team/client-7.png" alt="">
+                  <span class="fav-icon flaticon-star"></span>
+                </div>
+                <div class="details ml20 ml0-xl">
+                  <h5>Website Designer Required For Directory Theme</h5>
+                  <h6 class="mb-3 text-thm">Mailchimp</h6>
+                  <p class="list-inline-item mb-0">$125k-$135k Hourly</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">1-5 Days</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Expensive</p>
+                  <p class="list-inline-item mb-0 bdrl1 pl10">Remote</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section class="p-0">
+      <div class="cta-banner3 bgc-light-yellow mx-auto maxw1600 pt120 pt60-lg pb90 pb60-lg position-relative overflow-hidden">
+        <div class="container">
+          <div class="row">
+            <div class="col-xl-5 wow fadeInRight" data-wow-delay="300ms">
+              <div class="mb30">
+                <div class="main-title">
+                  <h2 class="title">Unlock a Entire India of  <br class="d-none d-xl-block"> Clients at Your Fingertips</h2>
+                </div>
+              </div>
+              <div class="why-chose-list">
+                <div class="list-one d-flex align-items-start mb30">
+                  <span class="list-icon flex-shrink-0 flaticon-badge"></span>
+                  <div class="list-content flex-grow-1 ml20">
+                    <h4 class="mb-1">Unlimited Freelance Opportunities</h4>
+                    <p class="text mb-0 fz15">We offer an extensive pool of freelance opportunities. With our platform, you'll have access to an unlimited number of job postings across various industries, allowing you to explore diverse projects and expand your professional portfolio.</p>
+                  </div>
+                </div>
+                <div class="list-one d-flex align-items-start mb30">
+                  <span class="list-icon flex-shrink-0 flaticon-money"></span>
+                  <div class="list-content flex-grow-1 ml20">
+                    <h4 class="mb-1">Transparent Communication</h4>
+                    <p class="text mb-0 fz15">We prioritize transparent communication between freelancers and clients. By directly sharing contact numbers, we facilitate open discussions, ensuring that both parties can discuss project details, expectations, and timelines without any barriers.</p>
+                  </div>
+                </div>
+                <div class="list-one d-flex align-items-start mb30">
+                  <span class="list-icon flex-shrink-0 flaticon-security"></span>
+                  <div class="list-content flex-grow-1 ml20">
+                    <h4 class="mb-1">High-Quality Clients</h4>
+                    <p class="text mb-0 fz15">Our platform attracts high-quality clients who are serious about their projects and are actively seeking talented freelancers. You can expect to work with reputable companies and individuals who value the expertise and skills you bring to the table.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <img class="cta-banner3-img wow fadeInLeft" src="/task_tango/images/about/about-5.jpg" alt="" data-wow-delay="300ms">
+      </div>
+    </section>
+
+
+
+    <!-- Our Testimonials -->
+    <section class="our-testimonial">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 mx-auto wow fadeInUp" data-wow-delay="300ms">
+            <div class="main-title text-center">
+              <h2>Testimonials</h2>
+              <p class="paragraph">Discover what our satisfied clients have to say about their experience with TaskTango!</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-8 m-auto wow fadeInUp" data-wow-delay="500ms">
+            <div class="testimonial-style2">
+              <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade" id="pills-1st" role="tabpanel" aria-labelledby="pills-1st-tab">
+                  <div class="testi-content text-md-center">
+                    <span class="icon fas fa-quote-left"></span>
+                    <h4 class="testi-text">"I've tried several freelance platforms, but TaskTango stands out with its user-friendly interface and prompt support. The two free leads were a great bonus, and I've already landed a project through the platform. Thanks, TaskTango!"</h4>
+                    <h6 class="name">Nitin </h6>
+                    <p class="design">Web Developer</p>
+                  </div>
+                </div>
+                <div class="tab-pane fade show active" id="pills-2nd" role="tabpanel" aria-labelledby="pills-2nd-tab">
+                  <div class="testi-content text-md-center">
+                    <span class="icon fas fa-quote-left"></span>
+                    <h4 class="testi-text">"TaskTango has been a game-changer for me as a freelancer. The platform has provided me with a steady stream of quality leads, allowing me to focus on my work and not worry about finding clients. Highly recommended. "</h4>
+                    <h6 class="name">Anurag Sharma</h6>
+                    <p class="design">Graphics Designer</p>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="pills-3rd" role="tabpanel" aria-labelledby="pills-3rd-tab">
+                  <div class="testi-content text-md-center">
+                    <span class="icon fas fa-quote-left"></span>
+                    <h4 class="testi-text">"TaskTango has exceeded my expectations in terms of the number and quality of leads it provides. The ability to connect with clients directly through their contact numbers has saved me a lot of time and effort. This platform is a freelancer's dream come true."</h4>
+                    <h6 class="name">Abhishesk</h6>
+                    <p class="design">Video Editor</p>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="pills-4th" role="tabpanel" aria-labelledby="pills-4th-tab">
+                  <div class="testi-content text-md-center">
+                    <span class="icon fas fa-quote-left"></span>
+                    <h4 class="testi-text">"TaskTango has made my freelance journey much smoother. I appreciate how they prioritize transparency and trust between freelancers and clients. The platform's commitment to fostering a positive freelance community is commendable. "</h4>
+                    <h6 class="name">Shruti</h6>
+                    <p class="design">Content Writer</p>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="pills-5th" role="tabpanel" aria-labelledby="pills-5th-tab">
+                  <div class="testi-content text-md-center">
+                    <span class="icon fas fa-quote-left"></span>
+                    <h4 class="testi-text">"I love how TaskTango has simplified the process of finding freelance work. The bot on Telegram is easy to use, and the leads provided are genuine and relevant to my skills. It has made freelancing a breeze for me. "</h4>
+                    <h6 class="name">Manisha</h6>
+                    <p class="design">3D Animator</p>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-list position-relative">
+                <ul class="nav nav-pills justify-content-md-center" id="pills-tab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link ps-0" id="pills-1st-tab" data-bs-toggle="pill" data-bs-target="#pills-1st" type="button" role="tab" aria-controls="pills-1st" aria-selected="true"><img src="/task_tango/images/testimonials/testi-1.png" alt=""></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-2nd-tab" data-bs-toggle="pill" data-bs-target="#pills-2nd" type="button" role="tab" aria-controls="pills-2nd" aria-selected="false"><img src="/task_tango/images/testimonials/testi-2.png" alt=""></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-3rd-tab" data-bs-toggle="pill" data-bs-target="#pills-3rd" type="button" role="tab" aria-controls="pills-3rd" aria-selected="false"><img src="/task_tango/images/testimonials/testi-3.png" alt=""></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-4th-tab" data-bs-toggle="pill" data-bs-target="#pills-4th" type="button" role="tab" aria-controls="pills-4th" aria-selected="false"><img src="/task_tango/images/testimonials/testi-4.png" alt=""></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link pe-0" id="pills-5th-tab" data-bs-toggle="pill" data-bs-target="#pills-5th" type="button" role="tab" aria-controls="pills-5th" aria-selected="false"><img src="/task_tango/images/testimonials/testi-5.png" alt=""></button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section Area -->
+    <section class="our-about bgc-thm2">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-xl-6">
+            <div class="position-relative mb30-lg">
+              <div class="iconbox-small1 at-home1 d-none d-md-block wow fadeInRight">
+                <span class="icon flaticon-review"></span>
+                <div class="details">
+                  <h6>4.9/5</h6>
+                  <p class="text fz13 mb-0">Clients rate professionals</p>
+                </div>
+              </div>
+              <div class="iconbox-small2 d-none d-md-block wow fadeInLeft">
+                <span class="icon flaticon-review"></span>
+                <div class="details">
+                  <h6>+12M</h6>
+                  <p class="text fz13 mb-0">Project Completed</p>
+                </div>
+              </div>
+              <div class="about-img wow fadeInRight" data-wow-delay="300ms">
+                <img class="w100" src="/task_tango/images/about/about-1.png" alt="">
+              </div>
+              <div class="imgbox-1 default-box-shadow1 text-center wow fadeInUp">
+                <img class="img-1 bounce-y" src="/task_tango/images/about/happy-client.png" alt="">
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-5 offset-xl-1">
+            <div class="position-relative wow fadeInLeft" data-wow-delay="300ms">
+              <h2 class="text-white mb35">Join the World's Best Marketplace <br class="d-none d-lg-block"> for Unleashing Your Talent!</h2>
+              <p class="text text-white mb35">Join the World's Best Marketplace for Unleashing Your Talent with TaskTango! Whether you're a seasoned freelancer or just starting your freelance career, TaskTango is here to revolutionize the way you find work and connect with clients. Say goodbye to endless searching for gigs and worrying about finding genuine clients.</p>
+              <div class="list-style2 light-style">
+                <ul class="mb30">
+                  <li><i class="far fa-check"></i>Explore unlimited freelance projects tailored to your skills and expertise.</li>
+                  <li><i class="far fa-check"></i>Say goodbye to endless searching and hello to a hassle-free experience.</li>
+                  <li><i class="far fa-check"></i>Elevate Your Freelance Career to New Heights.</li>
+                </ul>
+              </div>
+              <a href="https://telegram.me/TaskTango_bot" class="ud-btn btn-thm">Join Now<i class="fal fa-arrow-right-long"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Our Blog -->
+    <section class="pb90 pb20-md">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 wow fadeInUp" data-wow-delay="00ms">
+            <div class="main-title">
+              <h2 class="title">Interesting Fact</h2>
+              <!-- <p class="paragraph">Aliquam lacinia diam quis lacus euismod</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="row wow fadeInUp" data-wow-delay="300ms">
+          <div class="col-sm-6 col-xl-3">
+            <div class="blog-style1">
+              <div class="blog-img"><img class="w-100" src="https://res.cloudinary.com/dealsaaj/image/upload/v1689542146/351243661_202882245992246_533620188180935761_n_xdg2i8.jpg" alt=""></div>
+              
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="blog-style1">
+              <div class="blog-img"><img class="w-100" src="https://res.cloudinary.com/dealsaaj/image/upload/v1689542281/352244762_486017363687244_5543432191018754854_n_looxz6.jpg" alt=""></div>
+              
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="blog-style1">
+              <div class="blog-img"><img class="w-100" src="https://res.cloudinary.com/dealsaaj/image/upload/v1689542397/358011739_773795394493448_264919197807906002_n_1_htelne.jpg" alt=""></div>
+             
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="blog-style1">
+              <div class="blog-img"><img class="w-100" src="https://res.cloudinary.com/dealsaaj/image/upload/v1689542459/358829528_119476884534079_2787462150001675958_n_owoyi9.jpg" alt=""></div>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+ 
+
+    <!-- Our CTA --> 
+    <section class="our-cta bgc-thm4 pt90 pb90 pt60-md pb60-md mt100 mt0-lg">
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col-md-6 col-lg-7 col-xl-5 wow fadeInLeft">
+            <div class="cta-style3">
+              <h2 class="cta-title">Empower Your Freelance Potential with Client Powerhouse!</h2>
+              <p class="cta-text">Join TaskTango, the ultimate platform for freelancers, and tap into a network of high-profile clients that will skyrocket your freelance career.</p>
+              <a href="https://telegram.me/TaskTango_bot" class="ud-btn btn-thm2">Get Started <i class="fal fa-arrow-right-long"></i></a>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-5 col-xl-5 position-relative wow zoomIn">
+            <div class="cta-img">
+              <img class="w-100" src="/task_tango/images/about/about-3.png" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+  
+
+
+    <!-- Our Footer --> 
+    <section class="footer-style1 at-home10 pt25 pb-0">
+      <div class="container">
+        <div class="row bb-white-light pb10 mb60">
+          <div class="col-md-7">
+            <div class="d-block text-center text-md-start justify-content-center justify-content-md-start d-md-flex align-items-center mb-3 mb-md-0">
+              <a class="fz17 fw500 text-white mr15-md mr30" href="#">India's First Telegram Bot - © TaskTango. All rights reserved.</a>
+             
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="social-widget text-center text-md-end">
+              <div class="social-style1">
+                <a class="text-white me-2 fw500 fz17" href="#">Follow us</a>
+                <a href="https://www.facebook.com/profile.php?id=100091240562912"><i class="fab fa-facebook-f list-inline-item"></i></a>
+                <a href="https://www.instagram.com/task_tango/"><i class="fab fa-instagram list-inline-item"></i></a>
+                <a href="https://www.linkedin.com/company/tasktango/"><i class="fab fa-linkedin-in list-inline-item"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+   
+      </div>
+   
+    </section>
+  </div>
+</div>
+<!-- Wrapper End --> 
+<script src="/task_tango/js/jquery-3.6.4.min.js"></script>
+<script src="/task_tango/js/jquery-migrate-3.0.0.min.js"></script>
+<script src="/task_tango/js/popper.min.js"></script>
+<script src="/task_tango/js/bootstrap.min.js"></script>
+<script src="/task_tango/js/bootstrap-select.min.js"></script>
+<script src="/task_tango/js/jquery.mmenu.all.js"></script>
+<script src="/task_tango/js/ace-responsive-menu.js"></script>
+<script src="/task_tango/js/jquery-scrolltofixed-min.js"></script>
+<script src="/task_tango/js/wow.min.js"></script>
+<script src="/task_tango/js/owl.js"></script>
+<script src="/task_tango/js/pricing-table.js"></script>
+<!-- Custom script for all pages -->
+<script src="/task_tango/js/script.js"></script>
+</body>
+
+</html>
