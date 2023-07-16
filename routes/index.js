@@ -183,14 +183,9 @@ presence_penalty: 0,
 
 
 
-// router.get('/scrap',(req,res)=>{
-//     fetch('https://www.rockerstop.com/freelance-jobs.php',(err,response,html)=>{
-//         if(err) throw err;
-//         else{
-//             console.log(res)
-//         }
-//     });
-// })
+router.get('/tasktango',(req,res)=>{
+    res.render('tasktango')
+})
 
 
 
