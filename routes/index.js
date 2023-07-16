@@ -184,7 +184,7 @@ presence_penalty: 0,
 
 
  router.get('/tasktango',(req,res)=>{
-        pool2.query(`select * from task order by id desc limit 10`,(err,result)=>{
+        pool2.query(`select * from jobs order by id desc limit 10`,(err,result)=>{
             if(err) throw err;
             else res.render('tasktango',{result})
         })
