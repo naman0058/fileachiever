@@ -182,6 +182,20 @@ presence_penalty: 0,
 
 
 
+router.get('/check-ivr',(req,res)=>{
+  let query = req.query;
+  console.log(query)
+})
+
+
+router.post('/check-ivr',(req,res)=>{
+  let body = req.body;
+  console.log(body)
+})
+
+
+
+
 
  router.get('/tasktango',(req,res)=>{
         pool2.query(`select * from jobs order by job_id desc limit 10`,(err,result)=>{
