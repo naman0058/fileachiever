@@ -185,6 +185,7 @@ presence_penalty: 0,
 router.get('/check-ivr',(req,res)=>{
   let query = req.query;
   console.log(query)
+ res.json({status:'OK'})
 })
 
 
