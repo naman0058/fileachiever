@@ -4,6 +4,7 @@ var router = express.Router();
 var mysql = require('mysql')
 var pool = require('./pool')
 var pool2 = require('./pool2')
+var pool3 = require('./pool3')
 var fetch = require('node-fetch')
 var ccavutil = require('./ccavutil')
 var qs = require('querystring');
@@ -182,11 +183,16 @@ presence_penalty: 0,
 
 
 
-router.get('/check-ivr',(req,res)=>{
-  let query = req.query;
-  console.log(query)
- res.json({status:'OK'})
-})
+ router.get('/check-ivr',(req,res)=>{
+    let query = req.query;
+    console.log(query)
+    pool3.query(`insert into recordings set ?`,query,(err,result)=>{
+      if(err) throw err;
+      else {
+        res.json({status:'OK'})
+      }
+    })
+  })
 
 
 router.post('/check-ivr',(req,res)=>{
