@@ -183,6 +183,15 @@ presence_penalty: 0,
 
 
 
+router.get('/check-code',(req,res)=>{
+  console.log('query',req.query)
+  res.json({
+    status : 200,
+    pincode: '1001'
+  })
+})
+
+
  router.get('/check-ivr',(req,res)=>{
     let query = req.query;
     console.log(query)
