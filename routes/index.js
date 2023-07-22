@@ -187,7 +187,7 @@ router.get('/check-code',(req,res)=>{
   console.log('query',req.query)
   res.json({
     status : 200,
-    pincode: '1001'
+    pincode: req.query.digits
   })
 })
 
