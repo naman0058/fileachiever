@@ -186,7 +186,7 @@ presence_penalty: 0,
 router.get('/check-code',(req,res)=>{
   res.json({
     status : 200,
-    select: req.query.digits
+    select: 'Delhi'
   })
  console.log('pincode', req.query.digits)
 })
