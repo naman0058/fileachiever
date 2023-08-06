@@ -3,9 +3,9 @@ var mysql = require('mysql')
 
 const pool = mysql.createPool({
 
-  host : 'db-mysql-blr1-69812-do-user-12247241-0.b.db.ondigitalocean.com',
+  host : 'db-mysql-blr1-55215-do-user-13029391-0.b.db.ondigitalocean.com',
    user: 'doadmin',
-  password:'AVNS_y2INtIf0l_w0ZJgiY29',
+  password:'AVNS_BUlYRoHmtHSKlCjHe5y',
     database: 'fileachiever',
     port:'25060' ,
     multipleStatements: true
