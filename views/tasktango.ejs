@@ -44,6 +44,22 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 
+
+
+ <script>
+        function loadCSS(url) {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = url;
+            document.head.appendChild(link);
+        }
+
+        // Load non-critical CSS files
+        loadCSS('/task_tango/css/fontawesome.css');
+        loadCSS('/task_tango/css/style.css');
+        // Add more non-critical CSS files as needed
+    </script>
+
 </head>
 <body>
 <div class="wrapper ovh">
