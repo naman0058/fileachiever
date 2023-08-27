@@ -1305,5 +1305,53 @@ router.post('/tasktango_response',(request,response)=>{
     })
     
 
+// linkedidn post
+
+const axios = require('axios');
+
+const CLIENT_ID = '774jky2f6d7eml';
+const CLIENT_SECRET = 'Jnea1z14ICaCtFSZ';
+const ACCESS_TOKEN = 'AQXK8WMzArf1KbBYydWaD14_new-qjqv5LD5sitWO59AUlvnkhm_nGVr5BzlERZpnROSxQa1zeEn63AhA6w00_cq4e53j6yo0HpsqT7qIQPhuf2whAF8VQSvNfdcP26n2EgCdW2_Z7oUXjucOOQYKIaDCPSZ7h4zUzwwsvYHVoxWb5xIdrKEid06muI5kf8ay01DXvG_xq_jLk5JyyUbNxvDDym5i4iDXPY7shqJIIgPg3JFfAMeaCjIWlFhGAVmZ5aKWhSS9osojrG3VB2z1btjFM5pSi2TYKl1FHrNCWAXY2A_L7eSnPN3Cn6ZL2rdBTtO5WyHNGBE7fC_4Jcqd4ZzENIAPw'; // You need to obtain this token through LinkedIn OAuth 2.0 flow
+
+const imageUrl = 'https://res.cloudinary.com/dealsaaj/image/upload/v1689542146/351243661_202882245992246_533620188180935761_n_xdg2i8.jpg'; // The URL of the image you want to attach
+const text = 'Your post text goes here';
+const YOUR_LINKEDIN_USER_ID = '9005b6178'
+
+
+const postContent = {
+    author: 'urn:li:person:9005b6178', // Replace with your LinkedIn profile's PROFILE_ID
+    lifecycleState: 'PUBLISHED',
+    specificContent: {
+      'com.linkedin.ugc.ShareContent': {
+        shareCommentary: {
+          text: 'Welcome to our users',
+        },
+        shareMediaCategory: 'NONE', // No image
+      },
+    },
+    visibility: {
+      'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC',
+    },
+  };
+  
+  const config = {
+    headers: {
+      'Authorization': `Bearer ${ACCESS_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+  };
+  
+  axios.post('https://api.linkedin.com/v2/ugcPosts', postContent, config)
+    .then(response => {
+      console.log('Post successfully published:', response.data);
+    })
+    .catch(error => {
+      if (error.response) {
+        console.error('Error publishing post:', error.response.status, error.response.data);
+      } else {
+        console.error('Error publishing post:', error.message);
+      }
+    });
+
 
 module.exports = router;
