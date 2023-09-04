@@ -1095,7 +1095,7 @@ router.get('/monthly-recharge/:user_key/:plan', function (request, res){
     if(request.params.plan == 'basic'){
     amount = 100;
     }
-    else if(request.params.plan == 'advances'){
+    else if(request.params.plan == 'advanced'){
 amount = 170;
     }
     else{
