@@ -1088,8 +1088,19 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 
 
-router.get('/monthly-recharge/:user_key', function (request, res){
+router.get('/monthly-recharge/:user_key/:plan', function (request, res){
 
+    let amount;
+
+    if(request.params.plan == 'basic'){
+    amount = 100;
+    }
+    else if(request.params.plan == 'advances'){
+amount = 170;
+    }
+    else{
+amount = 190;
+    }
    
 
     let guid = () => {
@@ -1106,10 +1117,11 @@ router.get('/monthly-recharge/:user_key', function (request, res){
     body['merchant_id'] = '1760015';
     body['order_id'] = guid();
     body['currency'] = 'INR';
-    body['amount'] = '100.00';
+    body['amount'] = amount;
     body['redirect_url'] = 'https://www.filemakr.com/tasktango_response1';
     body['cancel_url'] =   'https://www.filemakr.com/tasktango_response1';
     body['user_key'] = request.params.user_key
+    body['plan'] = request.params.plan
    
 
    pool2.query(`insert into payment_request set ?`,body,(err,result)=>{
@@ -1126,6 +1138,7 @@ res.render('send',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
     }
    })
 });
+
 
 
 
