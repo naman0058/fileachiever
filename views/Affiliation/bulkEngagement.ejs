@@ -1,0 +1,71 @@
+<% include ./header.ejs %>
+
+<div class="content-body">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Bulk Engagement Status</h4>
+                    </div>
+                    <div class="card-body">
+                        <form action="/affiliate/dashboard/engagement/update" method="POST">
+                            <div class="mt-3" style="position: fixed;right:20px;top:8%;">
+                                <button type="submit" class="btn btn-success">Update Engagement</button>
+                            </div>
+                           
+                            <div class="table-responsive">
+
+                                
+
+                                <table class="table table-bordered table-striped">
+
+                                    
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>Ambassador</th>
+                                            <th>Instagram ID</th>
+                                            <th>Post</th>
+                                            <th>Liked</th>
+                                            <th>Commented</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% result.forEach(row => { %>
+                                            <tr>
+                                                <td><%= row.name %></td>
+                                                <td><%= row.instagram_id %></td>
+                                                <td>
+                                                    <a href="<%= row.post_url %>" target="_blank">
+                                                        View Post (<%= row.postid %>)
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        name="likes[]" 
+                                                        value="<%= row.engagement_id %>" 
+                                                        <%= row.liked ? 'checked' : '' %>>
+                                                </td>
+                                                <td>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        name="comments[]" 
+                                                        value="<%= row.engagement_id %>" 
+                                                        <%= row.commented ? 'checked' : '' %>>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ./footer.ejs %>

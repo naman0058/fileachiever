@@ -1,0 +1,344 @@
+<% include Includes/blognav.ejs %>
+<% include Includes/projectReport.ejs %>
+
+<!-- ====== BREADCRUMB ====== -->
+
+
+
+<nav class="breadcrumb-bar" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
+      </li>
+      <li class="breadcrumb-item"><a href="/blog">Blog</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><%= result[0].meta_title %></li>
+    </ol>
+  </div>
+</nav>
+
+<!-- ====== READING PROGRESS ====== -->
+<div class="read-progress" id="ReadProgress" aria-hidden="true"></div>
+
+<!-- ====== HERO ====== -->
+<header class="post-hero" role="banner">
+  <div class="container post-hero__grid">
+    <div class="post-hero__copy">
+      <span class="post-pill">Insights & Tutorials</span>
+      <h1 class="post-title"><%= result[0].meta_title %></h1>
+      <p class="post-sub"><%= result[0].meta_description || '' %></p>
+      <ul class="post-meta">
+        <li><i data-feather="calendar"></i><span><%= (result[0].created_at || new Date()).toLocaleDateString() %></span></li>
+        <li><i data-feather="clock"></i> <span id="ReadTime">— min read</span></li>
+        <li><i data-feather="tag"></i><span><%= (result[0].meta_keywords || '').toString().slice(0,120) %></span></li>
+      </ul>
+    </div>
+    <figure class="post-hero__cover">
+      <img src="<%= result[0].thumbnail_url %>"
+           alt="<%= result[0].meta_title %> cover image"
+           width="1200" height="800" loading="eager" decoding="async">
+    </figure>
+  </div>
+</header>
+
+<main class="post-main" id="main">
+  <div class="container post-grid">
+    <!-- ====== ARTICLE ====== -->
+    <article class="post-article" id="Article" itemscope itemtype="https://schema.org/Article">
+      <!-- TOC -->
+      <aside class="post-toc" id="TOC" aria-label="Table of contents">
+        <div class="card">
+          <div class="card-hd"><i data-feather="list"></i> On this page</div>
+          <nav class="toc-nav" id="TOCNav"><!-- populated by JS --></nav>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <div class="post-content entry-content" itemprop="articleBody">
+        <%- result[0].content %>
+      </div>
+
+      <!-- Share -->
+      <div class="post-share">
+        <span class="share-label">Share</span>
+        <div class="share-actions">
+          <a class="s-btn" id="ShareTW" aria-label="Share on X/Twitter"><i data-feather="twitter"></i></a>
+          <a class="s-btn" id="ShareLI" aria-label="Share on LinkedIn"><i data-feather="linkedin"></i></a>
+          <a class="s-btn" id="ShareFB" aria-label="Share on Facebook"><i data-feather="facebook"></i></a>
+          <a class="s-btn" id="ShareCPY" aria-label="Copy link"><i data-feather="link-2"></i></a>
+        </div>
+      </div>
+
+      <!-- Author / CTA -->
+      <section class="post-cta">
+        <div class="cta-box">
+          <div class="cta-copy">
+            <h3>Need project files or source code?</h3>
+            <p>Explore ready-to-use <a href="/source-code" class="link-strong">source code</a> and <a href="/final-year-project-ideas" class="link-strong">project files</a> aligned to college formats.</p>
+          </div>
+          <div class="cta-actions" role="group" aria-label="Primary actions">
+            <a class="btn btn-brand" href="/source-code"><i data-feather="code"></i> Explore Code</a>
+            <a class="btn btn-light" href="/btech-final-year-project-report"><i data-feather="file-text"></i> Project Files</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Related (optional: show top 3 from recentBlogs excluding current) -->
+      <% if (Array.isArray(recentBlogs) && recentBlogs.length) { 
+           const related = recentBlogs.filter(b => b.slug !== result[0].slug).slice(0,3); 
+           if (related.length) { %>
+      <section class="post-related" aria-label="Related posts">
+        <h3>Related</h3>
+        <div class="rel-grid">
+          <% related.forEach(r => { %>
+            <article class="rel-card">
+              <a class="rel-thumb" href="/blog/<%= r.slug %>">
+                <img src="<%= r.thumbnail_url %>" alt="<%= r.meta_title %> thumbnail" loading="lazy" decoding="async">
+              </a>
+              <h4 class="rel-title"><a href="/blog/<%= r.slug %>"><%= r.meta_title %></a></h4>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+      <% } } %>
+    </article>
+
+    <!-- ====== SIDEBAR ====== -->
+    <aside class="post-sidebar" aria-label="Sidebar">
+      <!-- Recent -->
+      <div class="card">
+        <div class="card-hd"><i data-feather="clock"></i> Recent Posts</div>
+        <ul class="list-recent">
+          <% if (Array.isArray(recentBlogs)) { recentBlogs.slice(0,6).forEach(function(b){ %>
+            <li class="recent-item">
+              <a class="recent-thumb" href="/blog/<%= b.slug %>">
+                <img src="<%= b.thumbnail_url %>" alt="<%= b.meta_title %> thumbnail" loading="lazy" decoding="async">
+              </a>
+              <div class="recent-meta">
+                <a class="recent-title" href="/blog/<%= b.slug %>"><%= b.meta_title %></a>
+              </div>
+            </li>
+          <% }) } %>
+        </ul>
+      </div>
+
+   
+
+      <!-- Tags / Keywords -->
+      <% if (result[0].tags || result[0].meta_keywords) { 
+           const tags = (result[0].tags || '').toString().split(',').map(t=>t.trim()).filter(Boolean).slice(0,15);
+           const kws  = (result[0].meta_keywords || '').toString().split(',').map(t=>t.trim()).filter(Boolean).slice(0,10);
+      %>
+      <div class="card">
+        <div class="card-hd"><i data-feather="hash"></i> Tags</div>
+        <div class="tag-cloud">
+          <% tags.forEach(function(t){ %><a href="/blog?tag=<%= encodeURIComponent(t) %>" class="tag"><%= t %></a><% }) %>
+        </div>
+      </div>
+      <% if (kws.length) { %>
+      <div class="card">
+        <div class="card-hd"><i data-feather="search"></i> Keywords</div>
+        <div class="tag-cloud">
+          <% kws.forEach(function(k){ %><span class="tag tag-muted"><%= k %></span><% }) %>
+        </div>
+      </div>
+      <% } } %>
+    </aside>
+  </div>
+</main>
+
+<% include Includes/footer.ejs %>
+
+<!-- ====== STYLES (scoped) ====== -->
+<style>
+:root{
+  --ink:#0e1220; --muted:#616a7d; --bg:#f7f9ff; --card:#fff; --brd:rgba(14,18,32,.10);
+  --brand:#2A47FF; --accent:#F17F23; --ring:rgba(42,71,255,.18); --radius:16px;
+}
+
+/* Progress */
+.read-progress{ position:sticky; top:0; left:0; height:3px; width:0; background:linear-gradient(90deg,var(--brand),#8aa0ff); z-index:30; }
+
+/* Breadcrumb */
+.breadcrumb-bar{ border-bottom:1px solid var(--brd); background:#fff; }
+.breadcrumb{ display:flex; gap:8px; margin:0; padding:10px 0; background:transparent; }
+.breadcrumb-item + .breadcrumb-item::before{ content:"›"; color:#9aa1b5; margin-right:8px; }
+
+/* Hero */
+.post-hero{ background:linear-gradient(135deg, rgba(42,71,255,.06), rgba(241,127,35,.06)); border-bottom:1px solid var(--brd); }
+.post-hero__grid{ display:grid; gap:16px; grid-template-columns:1.1fr .9fr; padding:22px 0; align-items:center; }
+@media (max-width: 991.98px){ .post-hero__grid{ grid-template-columns:1fr; padding:18px 0; } }
+
+.post-pill{ display:inline-block; font-size:.8rem; font-weight:800; color:var(--brand); background:rgba(42,71,255,.08); border:1px solid rgba(42,71,255,.22); border-radius:999px; padding:.35rem .6rem; margin-left: 10px;}
+.post-title{ margin:.4rem 0 .5rem; color:var(--ink); font-weight:900; line-height:1.15;margin-left:10px; }
+.post-sub{ margin:0 0 .4rem; color:#111; font-weight:600; margin-left: 10px;}
+.post-meta{ list-style:none; padding:0; margin:.2rem 0 0; display:flex; flex-wrap:wrap; gap:12px; color:var(--muted); font-weight:700;margin-left: 10px; }
+.post-meta i{ width:16px; height:16px; margin-right:6px; color:var(--brand); position:relative; top:2px; }
+
+.post-hero__cover{ margin:0; border-radius:18px; overflow:hidden; border:1px solid var(--brd); background:#fff; }
+.post-hero__cover img{ display:block; width:100%; height:auto; aspect-ratio: 16/9; object-fit:cover; }
+
+/* Main grid */
+.post-main{ background:#fff; }
+.post-grid{ display:grid; gap:18px; grid-template-columns: minmax(0, 1fr) 360px; padding:22px 0; }
+@media (max-width: 1199.98px){ .post-grid{ grid-template-columns:1fr; } }
+
+/* Article */
+.post-article{ min-width:0; }
+.post-content{ background:#fff; border:1px solid var(--brd); border-radius:var(--radius); padding:20px; box-shadow:0 10px 26px rgba(14,18,32,.06); }
+.post-content h2, .post-content h3, .post-content h4{ color:#111; font-weight:900; margin:1.2rem 0 .6rem; }
+.post-content p{ color:#333; line-height:1.75; margin:.8rem 0; font-size:1.05rem; }
+.post-content ul, .post-content ol{ padding-left:1.4rem; margin:.6rem 0; }
+.post-content blockquote{ border-left:4px solid var(--brand); background:#f5f7ff; padding:.8rem 1rem; color:#27314d; font-style:italic; border-radius:8px; }
+.post-content img{ border-radius:12px; border:1px solid var(--brd); }
+
+/* TOC */
+.post-toc{ margin-bottom:12px; }
+.card{ background:#fff; border:1px solid var(--brd); border-radius:14px; box-shadow:0 10px 24px rgba(14,18,32,.06); }
+.card-hd{ padding:12px 14px; border-bottom:1px solid var(--brd); font-weight:900; color:#111; display:flex; align-items:center; gap:8px; }
+.toc-nav{ padding:8px 14px 12px; }
+.toc-nav a{ display:block; padding:6px 6px; color:#27314d; text-decoration:none; border-left:2px solid transparent; }
+.toc-nav a:hover{ background:#f7f9ff; border-left-color:var(--brand); }
+.toc-l2{ padding-left:12px; }
+.toc-l3{ padding-left:24px; }
+
+/* Share */
+.post-share{ margin:16px 0 6px; display:flex; align-items:center; gap:12px; }
+.share-label{ color:#111; font-weight:900; }
+.share-actions{ display:flex; gap:10px; }
+.s-btn{ display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:10px; border:1px solid var(--brd); color:#111; background:#fff; text-decoration:none; }
+.s-btn:hover{ box-shadow:0 0 0 4px var(--ring); }
+
+/* CTA */
+.post-cta .cta-box{
+  display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  border:1px solid var(--brd); border-radius:18px; background:linear-gradient(135deg, rgba(42,71,255,.04), rgba(241,127,35,.04));
+  padding:18px; margin-top:12px; box-shadow:0 12px 30px rgba(14,18,32,.06);
+}
+.cta-copy h3{ margin:0 0 6px; font-weight:900; color:#111; }
+.cta-copy p{ margin:0; color:#111; font-weight:600; }
+.link-strong{ color:var(--brand); text-decoration:none; border-bottom:1px dashed rgba(42,71,255,.35); }
+.link-strong:hover{ border-bottom-color:transparent; }
+.cta-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+.btn{ display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 16px; border-radius:12px; border:1px solid transparent; font-weight:900; text-decoration:none; }
+.btn i{ width:18px; height:18px; }
+.btn-brand{ background:var(--brand); color:#fff; border-color:var(--brand); box-shadow:0 10px 26px rgba(42,71,255,.15); }
+.btn-brand:hover{ filter:brightness(.98); }
+.btn-light{ background:#fff; color:#111; border:1px solid var(--brd); }
+.btn-light:hover{ box-shadow:0 0 0 4px var(--ring); }
+@media (max-width: 991.98px){ .btn{ width:100%; } }
+
+/* Related */
+.post-related{ margin-top:18px; }
+.post-related h3{ font-weight:900; color:#111; margin:0 0 10px; }
+.rel-grid{ display:grid; gap:12px; grid-template-columns:repeat(3,1fr); }
+@media (max-width: 767.98px){ .rel-grid{ grid-template-columns:1fr; } }
+.rel-card{ background:#fff; border:1px solid var(--brd); border-radius:12px; overflow:hidden; }
+.rel-thumb img{ display:block; width:100%; height:auto; aspect-ratio: 16/9; object-fit:cover; }
+.rel-title{ margin:8px 10px 12px; font-size:1rem; line-height:1.35; }
+.rel-title a{ color:#111; text-decoration:none; }
+
+/* Sidebar */
+.post-sidebar{ display:flex; flex-direction:column; gap:14px; }
+.list-recent{ list-style:none; padding:10px; margin:0; display:grid; gap:10px; }
+.recent-item{ display:flex; gap:10px; }
+.recent-thumb{ flex:0 0 96px; border-radius:10px; overflow:hidden; border:1px solid var(--brd); }
+.recent-thumb img{ width:100%; height:100%; object-fit:cover; aspect-ratio: 16/10; display:block; }
+.recent-title{ color:#111; font-weight:800; text-decoration:none; }
+.list-simple{ list-style:none; padding:10px; margin:0; display:grid; gap:8px; }
+.list-simple a{ color:#27314d; text-decoration:none; font-weight:700; }
+.tag-cloud{ padding:10px; display:flex; flex-wrap:wrap; gap:8px; }
+.tag{ display:inline-flex; align-items:center; border:1px solid var(--brd); background:#fff; color:#111; padding:6px 10px; border-radius:999px; font-weight:700; text-decoration:none; }
+.tag-muted{ opacity:.8; pointer-events:none; }
+</style>
+
+<!-- ====== SCRIPTS ====== -->
+<script>
+(function(){
+  // Feather
+  function ready(fn){ if(document.readyState !== 'loading'){ fn(); } else { document.addEventListener('DOMContentLoaded', fn); } }
+  function ensureFeather(cb){
+    if (window.feather && typeof window.feather.replace === 'function') return cb();
+    var s=document.createElement('script'); s.src='https://unpkg.com/feather-icons';
+    s.onload=function(){ window.feather && window.feather.replace(); cb(); };
+    document.head.appendChild(s);
+  }
+
+  // Read time & TOC & progress
+  ready(function(){
+    const article = document.getElementById('Article');
+    const content = article ? article.querySelector('.post-content') : null;
+
+    // Reading time (~200 wpm)
+    if (content){
+      const text = content.innerText || '';
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
+      const mins = Math.max(1, Math.ceil(words / 200));
+      const rtEl = document.getElementById('ReadTime');
+      if (rtEl) rtEl.textContent = mins + ' min read';
+    }
+
+    // TOC
+    const toc = document.getElementById('TOCNav');
+    if (content && toc){
+      const hs = content.querySelectorAll('h2, h3, h4');
+      const base = location.href.split('#')[0];
+      let out = '';
+      hs.forEach(function(h, i){
+        if (!h.id) h.id = 'h-' + (i+1);
+        const lvl = h.tagName === 'H2' ? 'toc-l1' : (h.tagName === 'H3' ? 'toc-l2' : 'toc-l3');
+        out += '<a class="'+lvl+'" href="'+base+'#'+h.id+'">'+h.textContent+'</a>';
+      });
+      toc.innerHTML = out || '<span style="color:#616a7d">Sections will appear here.</span>';
+    }
+
+    // Reading progress
+    const bar = document.getElementById('ReadProgress');
+    const target = content || article || document.body;
+    function onScroll(){
+      const rect = target.getBoundingClientRect();
+      const total = target.scrollHeight - window.innerHeight;
+      const scrolled = Math.min(total, window.scrollY - (target.offsetTop || 0));
+      const pct = Math.max(0, Math.min(100, (scrolled / (total || 1)) * 100));
+      bar.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+
+    // Share
+    const shareUrl = window.location.href;
+    const title = document.querySelector('.post-title')?.textContent || 'Article';
+    const q = encodeURIComponent(title + ' - ' + shareUrl);
+    const u = encodeURIComponent(shareUrl);
+
+    const tw = document.getElementById('ShareTW');
+    const li = document.getElementById('ShareLI');
+    const fb = document.getElementById('ShareFB');
+    const cp = document.getElementById('ShareCPY');
+
+    tw && tw.addEventListener('click', ()=> window.open('https://twitter.com/intent/tweet?text=' + q, '_blank', 'noopener'));
+    li && li.addEventListener('click', ()=> window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + u, '_blank', 'noopener'));
+    fb && fb.addEventListener('click', ()=> window.open('https://www.facebook.com/sharer/sharer.php?u=' + u, '_blank', 'noopener'));
+    cp && cp.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(shareUrl); cp.innerHTML = '<i data-feather="check"></i>'; ensureFeather(()=>window.feather.replace()); setTimeout(()=>{ cp.innerHTML = '<i data-feather="link-2"></i>'; ensureFeather(()=>window.feather.replace()); }, 1500); }catch(e){}
+    });
+
+    ensureFeather(()=> window.feather.replace());
+  });
+})();
+</script>
+
+<!-- ====== SEO: Article Schema ====== -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  "headline": <%- JSON.stringify(result[0].meta_title) %>,
+  "description": <%- JSON.stringify(result[0].meta_description || "") %>,
+  "image": <%- JSON.stringify(result[0].thumbnail_url) %>,
+  "author": {"@type":"Organization","name":"FileMakr"},
+  "publisher": {"@type":"Organization","name":"FileMakr","logo":{"@type":"ImageObject","url":"https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif"}},
+  "datePublished": <%- JSON.stringify((result[0].created_at || new Date()).toString()) %>,
+  "mainEntityOfPage": {"@type":"WebPage","@id": <%- JSON.stringify(fullUrl || "") %>}
+}
+</script>

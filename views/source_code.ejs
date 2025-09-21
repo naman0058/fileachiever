@@ -1,0 +1,323 @@
+<%include Includes/sourceCodeNavbar.ejs %>
+
+<% include Includes/projectReport.ejs %>
+
+
+<style>
+  /* Base wrap */
+.inc-wrap { margin-top: 1rem; }
+
+/* Title */
+.section-title {
+  display: flex; align-items: center; gap: .5rem;
+}
+.section-title h3 { margin: 0; }
+
+/* Grid — upgraded style */
+.inc-grid--code {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: .75rem;
+  margin-top: .75rem;
+}
+@media (max-width: 992px) {
+  .inc-grid--code { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 576px) {
+  .inc-grid--code { grid-template-columns: 1fr 1fr; }
+}
+
+.inc-item {
+  background: #fff;
+  border: 1px solid var(--border, #E8EAED);
+  border-radius: 14px;
+  padding: .9rem .95rem;
+  display: grid;
+  gap: .25rem;
+  box-shadow: 0 3px 12px rgba(17,24,39,.05);
+  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.inc-item i {
+  font-size: 18px;
+  opacity: .8;
+}
+.inc-item span {
+  font-weight: 600;
+  color: #111827;
+}
+.inc-item small {
+  color: var(--muted, #6B7280);
+  line-height: 1.25;
+}
+.inc-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(17,24,39,.08);
+  border-color: rgba(32,99,255,.25);
+}
+
+/* USP row */
+.usp-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (max-width: 992px) {
+  .usp-row { grid-template-columns: 1fr; }
+}
+
+/* USP cards — distinct styling to stand out */
+.usp-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--border, #E8EAED);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 6px 20px rgba(17,24,39,.07);
+  overflow: hidden;
+}
+.usp-card .usp-head {
+  display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem;
+}
+.usp-badge {
+  font-size: .7rem; font-weight: 700; letter-spacing: .02em;
+  background: #111827; color: #fff; padding: .15rem .45rem; border-radius: 999px;
+}
+.usp-card h4 { margin: 0 0 .25rem; }
+.usp-card p { margin: 0 0 .5rem; color: var(--muted, #6B7280); }
+.usp-card i { opacity: .9; }
+
+/* Accent variants */
+.usp-demo {
+  border-color: rgba(32,99,255,.25);
+  background:
+    radial-gradient(1200px 200px at 10% -10%, rgba(32,99,255,.06), transparent 60%),
+    #fff;
+}
+.usp-support {
+  border-color: rgba(16,185,129,.25);
+  background:
+    radial-gradient(1200px 200px at 10% -10%, rgba(16,185,129,.08), transparent 60%),
+    #fff;
+}
+
+/* CTA link */
+.usp-cta {
+  display: inline-flex; align-items: center; gap: .25rem;
+  font-weight: 600; text-decoration: none;
+  color: var(--brandBlue, #2063FF);
+  padding: .4rem .6rem;
+  border-radius: 10px;
+  transition: background .2s ease, transform .1s ease;
+}
+.usp-cta:hover { background: rgba(32,99,255,.08); }
+.muted { color: var(--muted, #6B7280); font-weight: 500; }
+
+</style>
+
+
+<div class="container">
+  <div class="brand-accent"></div>
+
+  <nav aria-label="breadcrumb" class="page-breadcrumb mb-2">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="<%= typeof homeUrl !== 'undefined' ? homeUrl : '/' %>" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page"><%= graduation_type_send %> Final Year Project Source Code Download</li>
+    </ol>
+  </nav>
+
+  <section class="page-hero">
+    <h1><%= graduation_type_send %> Final Year Project Source Code Download</h1>
+   <p>Download <%= graduation_type_send %> final year project source code with frontend, backend, and database included. Easy to set up, fully functional, and ideal for students looking for PHP projects with source code in topics like ERP, Real Estate, Vehicle Rental, and Expense Tracker.</p>
+
+
+    <!-- Highlighted WhatsApp CTA -->
+    <div class="cta-strip">
+      <span><strong>Need a Custom Source Code?</strong> Get it on WhatsApp.</span>
+      <a id="WhatsAppHero" class="cta-btn" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+        <i class="feather-message-circle"></i> Chat on WhatsApp
+      </a>
+    </div>
+  </section>
+
+  <!-- Project Report Includes -->
+ <section class="inc-wrap">
+  <div class="section-title">
+    <i class="feather-code" style="color:var(--brandBlue)"></i>
+    <h3>Source Code Includes</h3>
+  </div>
+
+  <!-- Core deliverables -->
+  <div class="inc-grid inc-grid--code">
+    <div class="inc-item">
+      <i class="feather-monitor"></i>
+      <span>Frontend</span>
+      <small>Clean UI, components, assets</small>
+    </div>
+    <div class="inc-item">
+      <i class="feather-cpu"></i>
+      <span>Backend</span>
+      <small>APIs, services, business logic</small>
+    </div>
+    <div class="inc-item">
+      <i class="feather-database"></i>
+      <span>Database</span>
+      <small>Schema & seed/sample data</small>
+    </div>
+    <div class="inc-item">
+      <i class="feather-book-open"></i>
+      <span>README</span>
+      <small>Setup, run scripts, notes</small>
+    </div>
+  </div>
+
+  <!-- USPs: highlighted separately -->
+  <div class="usp-row">
+    <div class="usp-card usp-demo">
+      <div class="usp-head">
+        <span class="usp-badge">USP</span>
+        <i class="feather-play-circle"></i>
+      </div>
+      <h4>Live Demo Before Pay</h4>
+      <p>Preview the working project in your browser before purchasing—no surprises.</p>
+      <a class="usp-cta" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>">See Live Demos →</a>
+    </div>
+
+    <div class="usp-card usp-support">
+      <div class="usp-head">
+        <span class="usp-badge">USP</span>
+        <i class="feather-life-buoy"></i>
+      </div>
+      <h4>Code Setup Support <span class="muted">(optional)</span></h4>
+      <p>Get guided setup on your machine—environment, dependencies, and run scripts.</p>
+      <a class="usp-cta" 
+   href="https://wa.me/918319339945?text=Hello%20Filemakr%2C%20I%20need%20setup%20help" 
+   target="_blank">
+   Request Setup Help →
+</a>
+    </div>
+  </div>
+</section>
+
+
+  <!-- Most Demanding Reports -->
+ <section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
+    <h3>Most Demanding Source Code</h3>
+  </div>
+  <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
+</section>
+
+  <section class="toolbar">
+    <div class="row g-2 align-items-center">
+      <div class="col-lg-9">
+        <div class="search-group">
+          <i class="feather-search"></i>
+          <input id="Search" class="form-control search-input" type="text" placeholder="Search source code… e.g., ERP, Real Estate, Daily Expense Tracker" autocomplete="off" />
+        </div>
+      </div>
+      <div class="col-lg-3 text-lg-end">
+        <select id="Sort" class="form-select sort-select" aria-label="Sort results">
+          <option value="relevance">Sort: Relevance</option>
+          <option value="alpha">Sort: A → Z</option>
+          <option value="alphaDesc">Sort: Z → A</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="course-content mt-3">
+    <div class="row">
+      <!-- Main grid -->
+      <div class="col-lg-9" style="margin-top: 10px;">
+
+
+        <div class="row g-3" id="Grid">
+          <% for (let i = 0; i < result.length; i++) { %>
+            <div class="col-md-6 col-xl-4 target"
+                 data-name="<%= result[i].name %>"
+                 data-desc="<%= result[i].description %>"
+                 data-url="/<%= result[i].seo_name %>/source-code">
+              <div class="course-box h-100 d-flex flex-column">
+                <h2>
+                  <a href="/<%= result[i].seo_name %>/source-code"
+                     title="<%= result[i].name %> | PDF for <%= graduation_type_send %> Final Year">
+                    <%= result[i].name %>
+                  </a>
+                </h2>
+                <p><%= result[i].description %></p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <a class="link-arrow" href="/<%= result[i].seo_name %>/source-code">View details →</a>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Empty state -->
+        <div id="EmptyState" class="empty empty-app mt-3" style="display:none;">
+  <div class="empty-topbar"></div>
+
+  <div class="empty-head">
+    <div class="icon-wrap-sm"><i class="feather-search"></i></div>
+    <h3 class="empty-title">Didn't find it?</h3>
+    <p class="empty-subtitle">Send your topic—we'll share the source code on WhatsApp.</p>
+  </div>
+
+  <div class="empty-action">
+    <div class="empty-field">
+      <i class="feather-type"></i>
+      <input id="EmptyTopicInput" type="text" placeholder="e.g., Smart Parking System" autocomplete="off" />
+    </div>
+    <a id="WhatsAppEmpty" class="wa-cta" href="#" aria-label="Send on WhatsApp">
+      <span class="pulse" aria-hidden="true"></span>
+      <i class="feather-message-circle"></i> Send on WhatsApp
+    </a>
+  </div>
+
+  
+</div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-3" style="margin-top: 10px;">
+        <div class="sticky-side">
+          <div class="side-card">
+            <div class="side-title"><i class="feather-zap"></i><h4>Quick actions</h4></div>
+            <div class="qa-list">
+              <a class="qa-item" href="<%= typeof codeUrl !== 'undefined' ? codeUrl : '/source-code' %>">
+                <i class="feather-code"></i>
+                <div class="qa-text"><strong>Browse Source Code</strong><span>Working projects with docs</span></div>
+              </a>
+              <a class="qa-item" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>">
+                <i class="feather-play-circle"></i>
+                <div class="qa-text"><strong>See Live Demos</strong><span>Preview before you choose</span></div>
+              </a>
+              <a class="qa-item" href="<%= typeof blogUrl !== 'undefined' ? blogUrl : '/blog' %>">
+                <i class="feather-book-open"></i>
+                <div class="qa-text"><strong>Guides & Blogs</strong><span>Tips, checklists & more</span></div>
+              </a>
+              <a class="qa-item" id="WhatsAppSide" href="#">
+                <i class="feather-message-circle"></i>
+                <div class="qa-text"><strong>Request Custom Report</strong><span>Fast reply on WhatsApp</span></div>
+              </a>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-title"><i class="feather-info"></i><h4>What we provide</h4></div>
+            <p class="mb-0" style="color:var(--muted)">Project reports, source code, and PPTs tailored for final-year students. Explore, or message us for a custom build.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Floating WhatsApp CTA -->
+
+
+<% include Includes/footer.ejs %>

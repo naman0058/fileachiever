@@ -1,0 +1,386 @@
+<% include Includes/navbar1.ejs %>
+<% include Includes/projectReport.ejs %>
+
+<style>
+	/* ===== Premium Illustration (drop in with your other scoped styles) ===== */
+.contact-hero__art{
+  display:flex; justify-content:flex-end; align-items:center;
+  overflow: hidden; /* prevents horizontal scroll */
+}
+
+.art-pro{
+  position: relative;
+  width: min(92vw, 540px);      /* fluid, capped */
+  aspect-ratio: 5 / 4;          /* responsive height */
+  border-radius: 20px;
+  background:#fff;
+  border:1px solid rgba(14,18,32,.08);
+  box-shadow: 0 18px 50px rgba(14,18,32,.10);
+  overflow: hidden;
+  isolation: isolate;
+  will-change: transform;
+}
+
+/* Gradient plate (soft background) */
+.art-pro__plate{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(140% 80% at 10% 15%, rgba(42,71,255,.14) 0%, transparent 60%),
+    radial-gradient(120% 70% at 90% 85%, rgba(241,127,35,.14) 0%, transparent 60%),
+    linear-gradient(#fff, #fff);
+  z-index: 1;
+}
+
+/* Rings */
+.art-pro__ring{
+  position:absolute;
+  border-radius: 50%;
+  filter: blur(.2px);
+  opacity: .8;
+  will-change: transform;
+  z-index: 2;
+}
+.art-pro__ring--a{
+  width: 75%; height: 75%;
+  top: -18%; left: -10%;
+  background: radial-gradient(circle at 50% 50%, rgba(42,71,255,.18), transparent 60%);
+  animation: floatA 10s ease-in-out infinite;
+}
+.art-pro__ring--b{
+  width: 60%; height: 60%;
+  bottom: -20%; right: -8%;
+  background: radial-gradient(circle at 50% 50%, rgba(241,127,35,.18), transparent 60%);
+  animation: floatB 12s ease-in-out infinite;
+}
+
+/* Dotted grid overlay */
+.art-pro__grid{
+  position:absolute; inset: 8% 8% auto 8%;
+  height: 52%;
+  background-image: radial-gradient(circle at center, rgba(14,18,32,.08) 1px, transparent 1px);
+  background-size: 14px 14px;
+  border-radius: 14px;
+  opacity: .55;
+  z-index: 3;
+}
+
+/* Floating badges */
+.art-pro__badge{
+  position:absolute; display:inline-flex; align-items:center; gap:8px;
+  padding: 8px 11px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(14,18,32,.10);
+  box-shadow: 0 10px 26px rgba(14,18,32,.10);
+  font-weight: 800;
+  z-index: 4;
+  will-change: transform, box-shadow;
+}
+.art-pro__badge i{ width:16px; height:16px; color:#2A47FF; }
+.art-pro__badge span{ white-space:nowrap; color:#0e1220; }
+
+.art-pro__badge--primary{ top: 14px; left: 14px; }
+.art-pro__badge--accent{ bottom: 16px; right: 16px; }
+.art-pro__badge--accent i{ color:#F17F23; }
+.art-pro__badge--neutral{
+  top: 50%; right: 12px; transform: translateY(-50%);
+  opacity:.95;
+}
+
+/* Hover polish (desktop) */
+@media (hover:hover){
+  .art-pro:hover .art-pro__badge{
+    box-shadow: 0 14px 34px rgba(14,18,32,.14);
+    transform: translateZ(0) scale(1.02);
+  }
+}
+
+/* Motion (respect reduced motion) */
+@keyframes floatA{
+  0%,100%{ transform: translate(0,0) }
+  50%    { transform: translate(6px, -8px) }
+}
+@keyframes floatB{
+  0%,100%{ transform: translate(0,0) }
+  50%    { transform: translate(-8px, 6px) }
+}
+@media (prefers-reduced-motion: reduce){
+  .art-pro__ring{ animation: none !important; }
+}
+
+/* Small screens */
+@media (max-width: 520px){
+  .art-pro{ width: 100%; border-radius: 16px; }
+  .art-pro__badge{ padding: 7px 10px; border-radius: 10px; }
+}
+
+</style>
+
+<!-- ===== Hero ===== -->
+<header class="contact-hero">
+  <div class="container contact-hero__grid">
+    <div class="contact-hero__copy">
+      <span class="chip">We’re here to help</span>
+      <h1>Contact FileMakr</h1>
+      <p class="lead">Questions about project files, source code, or setup support? Send us a message and we’ll get back within 24 hours.</p>
+      <ul class="contact-hero__pills">
+        <li><i data-feather="message-circle"></i> Friendly support</li>
+        <li><i data-feather="clock"></i> Quick turnarounds</li>
+        <li><i data-feather="shield"></i> Secure & private</li>
+      </ul>
+    </div>
+    <!-- Hero Illustration -->
+<div class="contact-hero__art" aria-hidden="true">
+  <div class="art-pro">
+    <!-- soft gradient plate -->
+    <div class="art-pro__plate"></div>
+
+    <!-- floating rings -->
+    <div class="art-pro__ring art-pro__ring--a"></div>
+    <div class="art-pro__ring art-pro__ring--b"></div>
+
+    <!-- dotted grid -->
+    <div class="art-pro__grid"></div>
+
+    <!-- floating badges -->
+    <div class="art-pro__badge art-pro__badge--primary">
+      <i data-feather="headphones"></i>
+      <span>Code Setup Support</span>
+    </div>
+    <div class="art-pro__badge art-pro__badge--accent">
+      <i data-feather="zap"></i>
+      <span>Fast Response</span>
+    </div>
+    <div class="art-pro__badge art-pro__badge--neutral">
+      <i data-feather="shield"></i>
+      <span>Secure</span>
+    </div>
+  </div>
+</div>
+
+  </div>
+</header>
+
+<main class="contact-main">
+  <div class="container">
+    <div class="contact-grid">
+      <!-- ===== Left: Form ===== -->
+      <section class="card-surface contact-card">
+        <div class="card-head">
+          <h2>Submit a Request</h2>
+          <% if (msg) { %>
+            <div class="alert-soft"><i data-feather="info"></i><span><%= msg %></span></div>
+          <% } %>
+        </div>
+
+        <form id="contact" class="contactForm" action="/contact-us" method="post" novalidate>
+          <!-- Honeypot (anti-spam) -->
+          <input type="text" name="company" autocomplete="off" tabindex="-1" class="hp" aria-hidden="true">
+
+          <div class="form-row">
+            <div class="field">
+              <label for="name">Full name</label>
+              <div class="input">
+                <i data-feather="user"></i>
+                <input type="text" id="name" name="name" placeholder="Your name" minlength="3" required>
+              </div>
+              <small class="hint">What should we call you?</small>
+            </div>
+
+            <div class="field">
+              <label for="phone">Mobile number</label>
+              <div class="input">
+                <i data-feather="smartphone"></i>
+                <input type="tel" id="phone" name="email" inputmode="numeric" pattern="[0-9]{10,}" placeholder="10+ digit number" required>
+              </div>
+              <small class="hint">We’ll use this if we need a quick follow-up.</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="subject">Subject</label>
+              <div class="input">
+                <i data-feather="tag"></i>
+                <input type="text" id="subject" name="subject" placeholder="e.g., Help with project report format" minlength="4" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="message">Description</label>
+            <div class="textarea">
+              <i data-feather="edit-3"></i>
+              <textarea id="message" name="message" rows="6" placeholder="Tell us a bit about your query…" required></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-brand" id="SendBtn">
+              <i data-feather="send"></i> Submit Request
+            </button>
+            <a class="btn btn-light" href="https://wa.me/918319339945" target="_blank" rel="noopener">
+              <i data-feather="message-square"></i> Chat on WhatsApp
+            </a>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== Right: Contact Info / Quick Links ===== -->
+      <aside class="card-surface info-card">
+        <h3>Other ways to reach us</h3>
+        <ul class="info-list">
+          <li>
+            <i data-feather="mail"></i>
+            <div>
+              <strong>Email</strong>
+              <span>info@filemakr.com</span>
+            </div>
+          </li>
+          <li>
+            <i data-feather="phone-call"></i>
+            <div>
+              <strong>WhatsApp</strong>
+              <a href="https://wa.me/918319339945" target="_blank" rel="noopener">+91 83193 39945</a>
+            </div>
+          </li>
+          <li>
+            <i data-feather="clock"></i>
+            <div>
+              <strong>Support Hours</strong>
+              <span>Mon–Sat, 9:00 AM – 7:00 PM IST</span>
+            </div>
+          </li>
+        </ul>
+
+        <hr class="divider">
+
+        <h4>Popular help topics</h4>
+        <ul class="links">
+          <li><a href="/final-year-project-ideas"><i data-feather="file-text"></i> Project file formats we support</a></li>
+          <li><a href="/source-code"><i data-feather="code"></i> What’s included in source code downloads</a></li>
+          <li><a href="/refund-policy"><i data-feather="shield"></i> Refunds & policies</a></li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<% include Includes/footer.ejs %>
+
+<!-- ===== Scoped Styles ===== -->
+<style>
+:root{
+  --ink:#0e1220; --muted:#6b7280; --bg:#f7f8fc; --card:#fff;
+  --brand:#2A47FF; --accent:#F17F23; --ring:rgba(42,71,255,.18);
+  --brd:rgba(14,18,32,.10); --radius:16px;
+}
+html,body{background:var(--bg);color:var(--ink);}
+.container{max-width:1100px;margin:0 auto;padding:0 16px;}
+
+/* Hero */
+.contact-hero{
+  background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));
+  border-bottom:1px solid var(--brd);
+  padding:28px 0 20px;
+}
+.contact-hero__grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:center;}
+@media (max-width:992px){.contact-hero__grid{grid-template-columns:1fr;}}
+.chip{display:inline-block;background:rgba(42,71,255,.08);color:var(--brand);border:1px solid rgba(42,71,255,.2);border-radius:999px;padding:6px 10px;font-weight:800;font-size:12px;}
+.contact-hero h1{margin:.4rem 0 .6rem;font-weight:900;}
+.lead{color:#111;}
+.contact-hero__pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;padding:0;list-style:none;}
+.contact-hero__pills li{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--brd);border-radius:999px;background:#fff;font-weight:700;}
+.contact-hero__pills svg{width:16px;height:16px;color:var(--brand);}
+
+/* Art */
+.contact-hero__art{display:flex;justify-content:flex-end;overflow:hidden;}
+.art{position:relative;width:clamp(280px, 92vw, 520px);aspect-ratio:5/4;border:1px solid var(--brd);border-radius:18px;background:#fff;box-shadow:0 12px 32px rgba(14,18,32,.08);overflow:hidden;}
+.art-ring{position:absolute;inset:auto;border-radius:50%;filter:blur(0.2px);opacity:.6;}
+.ring-1{width:140%;height:140%;top:-28%;left:-20%;background:radial-gradient(circle at center, rgba(42,71,255,.15), transparent 60%);}
+.ring-2{width:90%;height:90%;bottom:-25%;right:-10%;background:radial-gradient(circle at center, rgba(241,127,35,.16), transparent 60%);}
+.art-badge{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--brd);border-radius:12px;padding:8px 10px;font-weight:800;box-shadow:0 8px 20px rgba(14,18,32,.06);}
+.art-badge svg{width:16px;height:16px;color:var(--brand);}
+
+/* Main grid */
+.contact-main{padding:22px 0 32px;}
+.contact-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;align-items:start;}
+@media (max-width:992px){.contact-grid{grid-template-columns:1fr;}}
+
+/* Cards */
+.card-surface{background:var(--card);border:1px solid var(--brd);border-radius:var(--radius);box-shadow:0 10px 30px rgba(14,18,32,.06);}
+.contact-card{padding:16px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.card-head h2{margin:0;font-weight:900;}
+.alert-soft{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(241,127,35,.25);color:#8a4b00;border-radius:12px;padding:8px 10px;}
+.alert-soft svg{width:16px;height:16px;color:#d97706;}
+
+/* Form */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (max-width:640px){.form-row{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-weight:800;}
+.input,.textarea{display:flex;align-items:center;gap:8px;border:1px solid var(--brd);border-radius:12px;background:#fff;padding:0 10px;}
+.input:focus-within,.textarea:focus-within{box-shadow:0 0 0 4px var(--ring);border-color:var(--brand);}
+.input input{height:44px;border:none;outline:none;flex:1;font-weight:600;background:transparent;}
+.textarea textarea{border:none;outline:none;flex:1;resize:vertical;min-height:120px;padding:10px 0;font-weight:600;background:transparent;}
+.input svg,.textarea svg{width:18px;height:18px;color:var(--brand);}
+.hint{color:var(--muted);font-size:.85rem;}
+.hp{position:absolute !important;left:-9999px !important;opacity:0 !important;}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:12px;border:1px solid transparent;font-weight:900;text-decoration:none;cursor:pointer;}
+.btn svg{width:18px;height:18px;}
+.btn-brand{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 10px 26px rgba(42,71,255,.15);}
+.btn-brand:hover{filter:brightness(.98);}
+.btn-light{background:#fff;color:#111;border:1px solid var(--brd);}
+.btn-light:hover{box-shadow:0 0 0 4px var(--ring);}
+
+/* Info card */
+.info-card{padding:16px;}
+.info-card h3{margin:0 0 8px;font-weight:900;}
+.info-list{list-style:none;padding:0;margin:10px 0;display:grid;gap:10px;}
+.info-list li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--brd);border-radius:12px;padding:10px;background:#fff;}
+.info-list svg{width:18px;height:18px;color:var(--brand);margin-top:2px;}
+.info-list strong{display:block;}
+.links{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px;}
+.links a{display:flex;align-items:center;gap:8px;font-weight:700;text-decoration:none;color:#111;border:1px solid var(--brd);border-radius:10px;padding:8px;background:#fff;}
+.links a:hover{box-shadow:0 0 0 4px var(--ring);}
+.links svg{width:16px;height:16px;color:var(--brand);}
+.divider{border:none;border-top:1px solid var(--brd);margin:12px 0;}
+</style>
+
+<!-- Feather icons (safe load) + tiny UX script -->
+<script>
+(function(){
+  // Feather icons
+  function initFeather(){ window.feather && window.feather.replace(); }
+  if (!window.feather) {
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/feather-icons';
+    s.onload = initFeather; document.head.appendChild(s);
+  } else { initFeather(); }
+
+  // Submit button lock
+  const form = document.getElementById('contact');
+  const btn  = document.getElementById('SendBtn');
+  form && form.addEventListener('submit', function(e){
+    if(!form.checkValidity()){
+      e.preventDefault(); e.stopPropagation(); form.reportValidity(); return;
+    }
+    if(btn){ btn.disabled = true; btn.innerHTML = '<i data-feather="loader"></i> Sending…'; initFeather(); }
+  });
+})();
+</script>
+
+
+<!-- Feather (safe load) -->
+<script>
+  (function(){
+    function go(){ window.feather && window.feather.replace(); }
+    if(!window.feather){
+      var s=document.createElement('script');
+      s.src='https://unpkg.com/feather-icons'; s.onload=go; document.head.appendChild(s);
+    } else { go(); }
+  })();
+</script>

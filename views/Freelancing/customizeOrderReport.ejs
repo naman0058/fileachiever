@@ -1,0 +1,651 @@
+<%include ./header.ejs %>
+
+
+<style>
+    /* Style for the loader and overlay */
+    #loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+   </style>
+
+<style>
+    .popup-container {
+        /* position: fixed; top: 0; left: 0; width: 100%; height: 100%; */
+        background: white; display: flex; justify-content: center; align-items: center;
+    }
+    .popup-content {
+        background: white; padding: 20px; border-radius: 10px; text-align: center;
+    }
+    </style>
+
+
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+            <!-- row -->	
+			
+         
+            
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xl-12">
+
+
+
+                        <div id="deliveryPopup" class="popup-container" style="display: none;">
+                            <div class="popup-content">
+                                <h3>Enter AWB No.</h3>
+                                <input class="form-control" type="text" id="awbInput" placeholder="Enter AWB Number" />
+                                <input class="form-control" type="text" id="trackinglink" placeholder="Enter Tracking Link" />
+                                <button class="btn btn-primary btn-sm" onclick="submitDelivery()">Submit</button>
+                                <button class="btn btn-danger btn-sm" onclick="closePopup()">Cancel</button>
+                            </div>
+                        </div>
+                        
+						<div class="card">
+
+
+
+                            
+							<div class="card-body p-0">
+								<div class="table-responsive active-projects style-1">
+								<div class="tbl-caption">
+									<h4 class="heading mb-0"><%=status%> Request List</h4>
+									<div class="d-flex justify-content-start gap-2"> <!-- Flex container with gap -->
+										<button type="button" onclick="mergeData('btech_project')" class="btn btn-primary btn-sm">Merge Duplicate Data</button>
+										<button type="button" onclick="exportTableToCSV('data.csv')" class="btn btn-dark btn-sm">Download Data</button>
+									</div>
+								</div>
+
+
+                                
+
+								<div id="loader-overlay">
+									<div id="loader"></div>
+									</div>
+
+
+                                    
+
+									<table id="empoloyees-tblwrapper" class="table">
+										<thead>
+											<tr>
+												<th>Id</th>
+												<th>Student Name</th>
+												<th>Email Address</th>
+												<th>Contact Number</th>
+												<th>Submission Date	</th>
+												<th>Topic</th>
+                                                <th>Order Type</th>
+												<th>Report Way</th>
+												<th>Brand Ambassador</th>
+                                                <th>References</th>
+												<th>Details</th>
+												<th>Send Whatsapp</th>
+                                                <% if(status == 'success'){ %>
+                                                    <th>Delivery</th>
+                                                <% } %>
+
+                                                <% if(status == 'Out for Delivery'){ %>
+                                                    <th>Delivery Completed</th>
+                                                    <% } %>
+                                                <th>Current Status</th>
+												
+												<!-- <th>Sent Mail</th> -->
+
+
+											</tr>
+										</thead>
+										<tbody>
+
+<% for(i=0;i<projectDetails.length;i++){ %>
+
+											<tr>
+												<td><span><%=i%></span></td>
+												<td><span><%=projectDetails[i].name%></span></td>
+												<td><span><%=projectDetails[i].email%></span></td>
+												<td>
+													<span><%=projectDetails[i].number%></span>
+												</td>
+												<td>
+													<span><%=projectDetails[i].created_at%></span>
+												</td>
+
+                                                <td>
+													<span><%=projectDetails[i].topic%></span>
+												</td>
+                                               
+                                                <td>
+													<span><%=projectDetails[i].project_type%></span>
+												</td>
+
+                                                <td>
+													<span><%=projectDetails[i].reportWay%></span>
+												</td>
+
+
+                                                <td>
+													<span><%=projectDetails[i].brandAmbassadorname%></span>
+												</td>
+
+
+                                                <% if(projectDetails[i].references) { %>
+                                                <td>
+													<span><a href="/images/projectDetails[i].references">View References</a></span>
+												</td>
+                                               
+                                            <% } else { %>
+<td><span>-</span></td>
+                                            <% } %>
+
+
+												<td>
+                                                    <a  class="badge badge-dark light border-0" data-bs-toggle="modal" data-bs-target="#qcModal" 
+                                                    data-bs-images="Topic:<%=projectDetails[i].topic%>-Technology:<%=projectDetails[i].technology%>-
+                                                    Amount:<%=projectDetails[i].amount%>-Pages:<%=projectDetails[i].pages%>-
+                                                    Quantity:<%=projectDetails[i].quantity%>-Report Way:<%=projectDetails[i].reportWay%>-
+                                                    Binding Method:<%=projectDetails
+                                                    [i].bindingMethod%>-
+                                                    Description:<%=projectDetails[i].description%>-
+                                                   ">View Details</a>
+                                                </td>
+
+
+
+
+	<td>
+		<button class="badge badge-success light border-0" 
+				onclick="sendWhatsapp('<%=projectDetails[i].name%>', '<%=projectDetails[i].number%>', '<%=projectDetails[i].topic%>', '<%=projectDetails[i].project_type%>' , '<%=projectDetails[i].status%>' , '<%=projectDetails[i].amount%>' , '<%=projectDetails[i].quantity%>')">
+		  Send Whatsapp
+		</button>
+	  </td>
+
+
+      <% if(projectDetails[i].status == 'success') { %>
+      
+        <td>
+            <button class="badge badge-dark light border-0" 
+                    onclick="openDeliveryPopup('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].number%>', '<%=projectDetails[i].topic%>', '<%=projectDetails[i].project_type%>', '<%=projectDetails[i].amount%>', '<%=projectDetails[i].quantity%>')"> 
+              Out For Delivery
+            </button>
+        </td>
+        
+
+        <% } %>
+
+
+
+        <% if(projectDetails[i].status == 'Out for Delivery') { %>
+      
+            <td>
+                <a href="/shopkeeper/api/completeOrderStatus?id=<%=projectDetails[i].id%>">
+                     <button class="badge badge-dark light border-0"> 
+                  Delivery Completed
+                </button>
+            </a>
+            </td>
+            
+    
+            <% } %>
+    
+
+
+       
+	
+
+													<td>
+														<select 
+																onchange="updateStatus('<%=projectDetails[i].id%>', this.value)">
+														  <option value="interested" 
+															<%= projectDetails[i].status === 'interested' ? 'selected' : '' %>>Interested</option>
+														  <option value="pending" 
+															<%= projectDetails[i].status === 'pending' ? 'selected' : '' %>>Pending</option>
+														  <option value="not_interested" 
+															<%= projectDetails[i].status === 'not_interested' ? 'selected' : '' %>>Not Interested</option>
+														  <option value="dnp" 
+															<%= projectDetails[i].status === 'dnp' ? 'selected' : '' %>>DNP</option>
+														  <option value="fake" 
+															<%= projectDetails[i].status === 'fake' ? 'selected' : '' %>>Fake</option>
+														  <option value="recall" 
+															<%= projectDetails[i].status === 'recall' ? 'selected' : '' %>>Recall</option>
+															<option value="reminder_sent" 
+															<%= projectDetails[i].status === 'reminder_sent' ? 'selected' : '' %>>Reminder Sent</option>
+															<option value="success" 
+															<%= projectDetails[i].status === 'success' ? 'selected' : '' %>>Already Purchased</option>
+                                                            <option value="Out for Delivery" 
+															<%= projectDetails[i].status === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+                                                            <option value="completed" 
+															<%= projectDetails[i].status === 'completed' ? 'selected' : '' %>>completed</option>
+														</select>
+													  </td>
+
+
+													  
+
+
+											
+
+											</tr>
+
+
+                                            <% } %>
+										
+											
+										</tbody>
+										
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			</div>
+
+
+
+			<div class="modal fade" id="qcModal" tabindex="-1" aria-labelledby="qcModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-xs">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="qcModalLabel">Detailed Report</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div id="reporttable">
+								<table class="table">
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+        </div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%include ./footer.ejs %>
+
+
+		<style>
+
+			/* Style for the loader and overlay */
+		  
+			#loader-overlay {
+		  
+			  position: fixed;
+		  
+			  top: 0;
+		  
+			  left: 0;
+		  
+			  width: 100%;
+		  
+			  height: 100%;
+		  
+			  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+		  
+			  display: none;
+		  
+			  justify-content: center;
+		  
+			  align-items: center;
+		  
+			  z-index: 9999;
+		  
+			}
+		  
+			#loader {
+		  
+			  border: 8px solid #f3f3f3;
+		  
+			  border-top: 8px solid #3498db;
+		  
+			  border-radius: 50%;
+		  
+			  width: 50px;
+		  
+			  height: 50px;
+		  
+			  animation: spin 1s linear infinite;
+		  
+			}
+		  
+			@keyframes spin {
+		  
+			  0% { transform: rotate(0deg); }
+		  
+			  100% { transform: rotate(360deg); }
+		  
+			}
+		  
+		  </style>
+		  
+		  <div id="loader-overlay">
+		  
+			<div id="loader"></div>
+		  
+		  </div>
+
+
+		<script>
+			// $('.bookdemo').click(function(){
+			$("#empoloyees-tblwrapper").on('click', '.bookdemo', function() {
+
+				let name = $(this).attr('name')
+				let number = $(this).attr('number')
+				let source_code_id = $(this).attr('source_code_id')
+				let email = $(this).attr('email')
+
+				$.post('/dashboard/requestForDemo',{name,number,source_code_id,email,whatsapp_number:number},data=>{
+					console.log(data)
+					if(data.msg=='success'){
+						alert('Success')
+						window.location.reload()
+					}
+					else{
+						alert('Error Occurred')
+					}
+				})
+
+			})
+
+
+
+
+
+			$("#empoloyees-tblwrapper").on('click', '.sentmail', function() {
+				// alert('hi')
+				let name = $(this).attr('name')
+				let number = $(this).attr('number')
+				let source_code_id = $(this).attr('source_code_id')
+				let email = $(this).attr('email')
+
+				$.post('/dashboard/sentmail',{name,number,source_code_id,email,whatsapp_number:number},data=>{
+					console.log(data)
+					if(data.msg=='success'){
+						alert('Success')
+						window.location.reload()
+					}
+					else{
+						alert('Error Occurred')
+					}
+				})
+
+			})
+
+
+
+
+			var qcModal = document.getElementById('qcModal');
+    qcModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var data = button.getAttribute('data-bs-images').split('-');
+        console.log('qc', data);
+        var tableBody = document.querySelector('#reporttable table tbody');
+        tableBody.innerHTML = '';
+        data.forEach(function (item) {
+            var pair = item.split(':');
+            var key = pair[0];
+            var value = pair[1];
+            var row = tableBody.insertRow();
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.textContent = key;
+            cell2.textContent = value;
+        });
+    });
+
+
+	
+
+		</script>
+	
+
+
+
+	<script>
+		function updateStatus(id, status) {
+		  fetch(`/affiliate/dashboard/customizeOrder/updateStatus`, {
+			method: 'POST',
+			headers: {
+			  'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ id: id, status: status })
+		  })
+		  .then(response => response.json())
+		  .then(data => {
+			console.log('Status updated successfully:', data);
+			window.location.reload()
+		  })
+		  .catch((error) => {
+			console.error('Error updating status:', error);
+		  });
+		}
+		</script>
+
+
+
+<script>
+	function sendReminder(id,name, email, roll_number,project_name, number) {
+
+		const loaderOverlay = document.getElementById("loader-overlay");
+
+const loader = document.getElementById("loader");
+
+loaderOverlay.style.display = "flex"; // Show overlay
+
+
+  // Construct the URL with query parameters
+  const url = `/affiliate/dashboard/project/report/send/reminder?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&roll_number=${encodeURIComponent(roll_number)}&project_name=${encodeURIComponent(project_name)}&number=${encodeURIComponent(number)}`;
+
+  // Make the GET request
+  fetch(url)
+    .then(response => {
+      console.log('Full response:', response);
+      return response.json(); // Attempt to parse the response as JSON
+    })
+    .then(data => {
+		loaderOverlay.style.display = "none"; // Hide overlay after response
+      console.log('Reminder sent successfully:', data);
+      alert('Send Successfully');
+	  window.location.reload()
+
+    })
+    .catch(error => {
+		loaderOverlay.style.display = "none"; // Hide overlay after response
+      console.error('Error sending reminder:', error);
+      alert('Error Occurred');
+    });
+
+}
+
+
+	</script>
+
+
+
+
+
+<script>
+	function sendRating(id, name, number, roll_number,project_name) {
+
+		const loaderOverlay = document.getElementById("loader-overlay");
+
+const loader = document.getElementById("loader");
+
+loaderOverlay.style.display = "flex"; // Show overlay
+
+
+  // Construct the URL with query parameters
+  const url = `/affiliate/dashboard/project/report/send/rating?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&number=${encodeURIComponent(number)}&roll_number=${encodeURIComponent(roll_number)}&project_name=${encodeURIComponent(project_name)}`;
+
+  // Make the GET request
+  fetch(url)
+    .then(response => {
+      console.log('Full response:', response);
+      return response.json(); // Attempt to parse the response as JSON
+    })
+    .then(data => {
+		loaderOverlay.style.display = "none"; // Hide overlay after response
+      console.log('Reminder sent successfully:', data);
+      alert('Send Successfully');
+	  window.location.reload();
+    })
+    .catch(error => {
+		loaderOverlay.style.display = "none"; // Hide overlay after response
+      console.error('Error sending reminder:', error);
+      alert('Error Occurred');
+    });
+
+}
+
+
+	</script>
+
+
+
+<script>
+   
+   function sendWhatsapp(name, phoneNumber, topic, projectType, status, amount, quantity) {
+    let message = '';
+
+    if (status === 'success') {
+        message = `Hi ${name},%0A%0A` +
+                  `Thank you for placing your order with us! 🎉%0A%0A` +
+                  `📌 *Order Details:*%0A` +
+                  `- *Order Type:* ${projectType}%0A` +
+                  `- *Topic:* ${topic}%0A` +
+                  `- *Quantity:* ${quantity}%0A` +
+                  `- *Total Amount:* Rs.${amount}%0A%0A` +
+                  `Your order has been successfully placed. We will update you soon!%0A%0A` +
+                  `📞 Need assistance? Reply to this message.%0A%0A` +
+                  `*Thank you for choosing us!* 😊`;
+    } else if (status !== 'success' && status !== 'completed') {
+        message = `Hi ${name},%0A%0A` +
+                  `We noticed that your order is still pending due to incomplete payment. 🚨%0A%0A` +
+                  `📌 *Order Details:*%0A` +
+                  `- *Order Type:* ${projectType}%0A` +
+                  `- *Topic:* ${topic}%0A` +
+                  `- *Quantity:* ${quantity}%0A` +
+                  `- *Total Amount:* Rs.${amount}%0A%0A` +
+                  `⚡ *Complete your payment now to confirm your order:* [Payment Link]%0A%0A` +
+                  `If you need any help, feel free to reply to this message.%0A%0A` +
+                  `*Hurry! Confirm your order before it expires.* ⏳%0A%0A` +
+                  `Looking forward to serving you! 😊`;
+    }
+
+    const whatsappURL = `https://wa.me/91${phoneNumber}?text=${message}`;
+
+    // Open the WhatsApp URL
+    window.open(whatsappURL, '_blank');
+}
+
+   
+   </script>
+
+
+
+
+
+<script>
+
+
+let currentOrder = {};
+
+function openDeliveryPopup(id, name, phoneNumber, topic, projectType, amount, quantity) {
+    currentOrder = { id, name, phoneNumber, topic, projectType, amount, quantity };
+    document.getElementById("deliveryPopup").style.display = "flex";
+}
+
+function closePopup() {
+    document.getElementById("deliveryPopup").style.display = "none";
+}
+
+async function submitDelivery() {
+    const awbNumber = document.getElementById("awbInput").value.trim();
+    const trackinglink = document.getElementById("trackinglink").value.trim();
+
+
+    if (!awbNumber) {
+        alert("Please enter an AWB number.");
+        return;
+    }
+
+    if(!trackinglink){
+        alert("Please enter traking link");
+        return;
+    }
+
+    try {
+
+        // API Call to update status
+        const response = await fetch('/shopkeeper/api/updateOrderStatus', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: currentOrder.id, status: 'Out for Delivery', awb: awbNumber , trackinglink:trackinglink })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            // Send WhatsApp message
+            sendWhatsappDeliveryMessage(currentOrder.name, currentOrder.phoneNumber, currentOrder.topic, currentOrder.projectType, awbNumber,trackinglink);
+            closePopup();
+        } else {
+            alert("Failed to update status.");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong.");
+    }
+}
+
+function sendWhatsappDeliveryMessage(name, phoneNumber, topic, projectType, awbNumber,trackinglink) {
+    const message = `Hi ${name},%0A%0A` +
+                    `🚚 *Your order is now out for delivery!*%0A%0A` +
+                    `📌 *Order Details:*%0A` +
+                    `- *Order Type:* ${projectType}%0A` +
+                    `- *Topic:* ${topic}%0A` +
+                    `- *AWB Number:* ${awbNumber}%0A%0A` +
+                    `📦 Track your order here: ${trackinglink}%0A%0A` +
+                    `Thank you for choosing us! 😊`;
+
+    const whatsappURL = `https://wa.me/91${phoneNumber}?text=${message}`;
+    window.open(whatsappURL, '_blank');
+}
+
+
+</script>
+	
+		

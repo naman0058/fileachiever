@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from dreamslms.dreamguystech.com/html/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:01:56 GMT -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+<title>FileMakr — The #1 Online Major & Minor Project file Generator!</title>
+
+<link rel="shortcut icon" type="image/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif">
+
+
+<link rel="stylesheet" href="/design/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
+
+<link rel="stylesheet" href="/design/css/owl.carousel.min.css">
+<link rel="stylesheet" href="/design/css/owl.theme.default.min.css">
+
+<link rel="stylesheet" href="/design/plugins/slick/slick.css">
+<link rel="stylesheet" href="/design/plugins/slick/slick-theme.css">
+
+<link rel="stylesheet" href="/design/plugins/select2/css/select2.min.css">
+
+<link rel="stylesheet" href="/design/plugins/aos/aos.css">
+
+<link rel="stylesheet" href="/design/css/style.css">
+
+<style type="text/css">
+
+
+
+  .pos-r {
+      position: relative;
+  }
+  .section-title{margin-bottom:50px; position: relative;}
+  .section-title p{font-size: 16px;}
+  .title-effect {width: 50px; height: 50px; top: 0; position: absolute; left: 0; opacity: 0.5; animation: rotation 12.8s steps(1) 0s infinite;}
+  .text-center .title-effect{left: 50%; margin-left: -25px;}
+  .text-center .section-title h6{padding: 15px 0;}
+  
+  .title-effect .bar {background: #2575fc;}
+  .title-effect .bar-top {width: 100%; height: 7px; position: absolute; top: 0; left: 0; transform-origin: left top; transform: scale(0, 1); animation: bar-top 3.2s linear 0s infinite;}
+  .title-effect .bar-right {width: 7px; height: 100%; position: absolute; top: 0; right: 0; transform-origin: left top; transform: scale(1, 0); animation: bar-right 3.2s linear 0s infinite;}
+  .title-effect .bar-bottom {width: 100%; height: 7px; position: absolute; right: 0; bottom: 0; transform-origin: right top; transform: scale(0, 1); animation: bar-bottom 3.2s linear 0s infinite;}
+  .title-effect .bar-left {width: 7px; height: 100%; position: absolute; left: 0; bottom: 0; transform-origin: left bottom; transform: scale(1, 0); animation: bar-left 3.2s linear 0s infinite;}
+  
+  .title {position: relative; color: #1c1d3e; margin-bottom: 0;}
+  .section-title h2{margin-bottom: 15px;}
+  
+  /* ------------------------
+      How It Work
+  ------------------------*/
+  .work-process{position: relative;}
+  .step-num {background: #fff; border-radius: 50%; box-shadow: 0 12px 20px 0 rgba(117, 178, 240, 0.4); color: #25408D; display: inline-block; font-size: 18px; font-weight: 600; height: 50px; right: 0; line-height: 55px; position: absolute; text-align: center; top: 0; width: 50px;}
+  .theme-bg .work-process h4, .theme-bg .work-process p{color: #ffffff;}
+  .step-icon {background: #ffffff; width:140px; height:140px; position: relative; border: 3px solid #fafaff; border-radius: 50%; line-height: 140px; font-size: 40px; text-align: center; color: #1c1d3e;}
+  .step-icon span {position: relative;}
+  .step-icon span::after, .step-icon span::before {border-radius: 50%; content: ""; height: 40px; position: absolute; width: 40px; z-index: -1;}
+  .step-icon span::after {background: #cdf3f6; height: 25px; left: -10px; top: 5px; width: 25px;}
+  .step-icon span::before {background: #d4f8e6; bottom: 0; right: -10px;}
+  .dark-bg .step-icon{color: rgba(255,255,255,0.9); background: none;}
+  .dark-bg .step-desc h4{color: #2575fc;}
+  .dark-bg .step-icon{border-color: red;}
+  .dark-bg .step-desc p{color: rgba(255,255,255,0.7);}
+  .step-num-box{position: relative; display: inline-block; margin-bottom: 20px;}
+  .work-process .box-loader{position: absolute; top: 30%; right: -15%; left: inherit;}
+  .work-process.style-2 {padding: 0; display: flex; align-items: center;}
+  .work-process.style-2:before{display: none;}
+  .work-process.style-2 .step-num-box {margin-bottom: 0; margin-right: 30px;}
+  .work-process.style-3 {padding: 70px 30px 0;}
+  .work-process.style-3 .step-num {background: none; box-shadow: none; color: rgba(255, 255, 255, 0.1); font-size: 120px; height: auto; left: 50%; line-height: 120px; margin-bottom: 0; position: absolute; top: 0; transform: translateX(-50%); width: auto;}
+  #svg-container {position: absolute; width: 100%; left: 52%;  z-index: -1; transform: translateX(-50%); width: 75%;}
+  #svgC {margin: 0 auto; width: 100%;}
+  
+  
+  /* ------------------------
+      box-loader
+  ------------------------*/
+  .box-loader {border-radius: 100%; margin: 0 auto; position: absolute; top: 15px; left: 15px;}
+  .box-loader span{display: inline-block; width: 10px; height: 10px; border-radius: 100%; background: #2575fc; margin: 0 5px; opacity: 0;}
+  .box-loader span:nth-child(1){animation: opacitychange 1s ease-in-out infinite;}
+  .box-loader span:nth-child(2){animation: opacitychange 1s ease-in-out 0.33s infinite;}
+  .box-loader span:nth-child(3){animation: opacitychange 1s ease-in-out 0.66s infinite;}
+  
+  
+  /*--rotation--*/
+  
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(90deg);
+    }
+    50% {
+      transform: rotate(180deg);
+    }
+    75% {
+      transform: rotate(270deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes bar-top {
+    0% {
+      transform: scale(0, 1);
+    }
+    12.5% {
+      transform: scale(1, 1);
+    }
+    87.5% {
+      transform: scale(1, 1);
+    }
+    100% {
+      transform: scale(0, 1);
+    }
+  }
+  @keyframes bar-right {
+    0% {
+      transform: scale(1, 0);
+    }
+    12.5% {
+      transform: scale(1, 0);
+    }
+    25% {
+      transform: scale(1, 1);
+    }
+    75% {
+      transform: scale(1, 1);
+    }
+    87.5% {
+      transform: scale(1, 0);
+    }
+    100% {
+      transform: scale(1, 0);
+    }
+  }
+  @keyframes bar-bottom {
+    0% {
+      transform: scale(0, 1);
+    }
+    25% {
+      transform: scale(0, 1);
+    }
+    37.5% {
+      transform: scale(1, 1);
+    }
+    62.5% {
+      transform: scale(1, 1);
+    }
+    75% {
+      transform: scale(0, 1);
+    }
+    100% {
+      transform: scale(0, 1);
+    }
+  }
+  @keyframes bar-left {
+    0% {
+      transform: scale(1, 0);
+    }
+    37.5% {
+      transform: scale(1, 0);
+    }
+    50% {
+      transform: scale(1, 1);
+    }
+    62.5% {
+      transform: scale(1, 0);
+    }
+    100% {
+      transform: scale(1, 0);
+    }
+  }
+  
+  /*--opacitychange--*/
+  
+  @keyframes opacitychange{
+    0%, 100%{
+      opacity: 0;
+    }
+  
+    60%{
+      opacity: 1;
+    }
+  }
+  
+  /* responsive */
+  @media (max-width: 1200px){
+    #svg-container { width: 85%; }
+  }
+  @media (max-width: 992px){
+    .md-mt-5 { margin-top: 50px !important; }
+    /*Step*/
+    .work-process .box-loader{display: none;}
+    .step-desc p {max-width: 300px;  margin: 0 auto;}
+    #svg-container {width: 100%; transform: rotate(90deg); left: 0; top: 50%;}
+  }
+  </style>
+
+<style type="text/css">
+
+
+
+  
+  /* ------------------------
+      How It Work
+  ------------------------*/
+  .work-process{position: relative;}
+  .step-num {background: #fff; border-radius: 50%; box-shadow: 0 12px 20px 0 rgba(117, 178, 240, 0.4); color: #25408D; display: inline-block; font-size: 18px; font-weight: 600; height: 50px; right: 0; line-height: 55px; position: absolute; text-align: center; top: 0; width: 50px;}
+  .theme-bg .work-process h4, .theme-bg .work-process p{color: #ffffff;}
+  .step-icon {background: #ffffff; width:140px; height:140px; position: relative; border: 3px solid #fafaff; border-radius: 50%; line-height: 140px; font-size: 40px; text-align: center; color: #1c1d3e;}
+  .step-icon span {position: relative;}
+  .step-icon span::after, .step-icon span::before {border-radius: 50%; content: ""; height: 40px; position: absolute; width: 40px; z-index: -1;}
+  .step-icon span::after {background: #cdf3f6; height: 25px; left: -10px; top: 5px; width: 25px;}
+  .step-icon span::before {background: #d4f8e6; bottom: 0; right: -10px;}
+  .dark-bg .step-icon{color: rgba(255,255,255,0.9); background: none;}
+  .dark-bg .step-desc h4{color: #2575fc;}
+  .dark-bg .step-icon{border-color: red;}
+  .dark-bg .step-desc p{color: rgba(255,255,255,0.7);}
+  .step-num-box{position: relative; display: inline-block; margin-bottom: 20px;}
+  .work-process .box-loader{position: absolute; top: 30%; right: -15%; left: inherit;}
+  .work-process.style-2 {padding: 0; display: flex; align-items: center;}
+  .work-process.style-2:before{display: none;}
+  .work-process.style-2 .step-num-box {margin-bottom: 0; margin-right: 30px;}
+  .work-process.style-3 {padding: 70px 30px 0;}
+  .work-process.style-3 .step-num {background: none; box-shadow: none; color: rgba(255, 255, 255, 0.1); font-size: 120px; height: auto; left: 50%; line-height: 120px; margin-bottom: 0; position: absolute; top: 0; transform: translateX(-50%); width: auto;}
+  #svg-container {position: absolute; width: 100%; left: 52%;  z-index: -1; transform: translateX(-50%); width: 75%;}
+  #svgC {margin: 0 auto; width: 100%;}
+  
+  
+  /* ------------------------
+      box-loader
+  ------------------------*/
+  .box-loader {border-radius: 100%; margin: 0 auto; position: absolute; top: 15px; left: 15px;}
+  .box-loader span{display: inline-block; width: 10px; height: 10px; border-radius: 100%; background: #2575fc; margin: 0 5px; opacity: 0;}
+  .box-loader span:nth-child(1){animation: opacitychange 1s ease-in-out infinite;}
+  .box-loader span:nth-child(2){animation: opacitychange 1s ease-in-out 0.33s infinite;}
+  .box-loader span:nth-child(3){animation: opacitychange 1s ease-in-out 0.66s infinite;}
+  
+  
+  /*--rotation--*/
+  
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(90deg);
+    }
+    50% {
+      transform: rotate(180deg);
+    }
+    75% {
+      transform: rotate(270deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes bar-top {
+    0% {
+      transform: scale(0, 1);
+    }
+    12.5% {
+      transform: scale(1, 1);
+    }
+    87.5% {
+      transform: scale(1, 1);
+    }
+    100% {
+      transform: scale(0, 1);
+    }
+  }
+  @keyframes bar-right {
+    0% {
+      transform: scale(1, 0);
+    }
+    12.5% {
+      transform: scale(1, 0);
+    }
+    25% {
+      transform: scale(1, 1);
+    }
+    75% {
+      transform: scale(1, 1);
+    }
+    87.5% {
+      transform: scale(1, 0);
+    }
+    100% {
+      transform: scale(1, 0);
+    }
+  }
+  @keyframes bar-bottom {
+    0% {
+      transform: scale(0, 1);
+    }
+    25% {
+      transform: scale(0, 1);
+    }
+    37.5% {
+      transform: scale(1, 1);
+    }
+    62.5% {
+      transform: scale(1, 1);
+    }
+    75% {
+      transform: scale(0, 1);
+    }
+    100% {
+      transform: scale(0, 1);
+    }
+  }
+  @keyframes bar-left {
+    0% {
+      transform: scale(1, 0);
+    }
+    37.5% {
+      transform: scale(1, 0);
+    }
+    50% {
+      transform: scale(1, 1);
+    }
+    62.5% {
+      transform: scale(1, 0);
+    }
+    100% {
+      transform: scale(1, 0);
+    }
+  }
+  
+  /*--opacitychange--*/
+  
+  @keyframes opacitychange{
+    0%, 100%{
+      opacity: 0;
+    }
+  
+    60%{
+      opacity: 1;
+    }
+  }
+  
+  /* responsive */
+  @media (max-width: 1200px){
+    #svg-container { width: 85%; }
+  }
+  @media (max-width: 992px){
+    .md-mt-5 { margin-top: 50px !important; }
+    /*Step*/
+    .work-process .box-loader{display: none;}
+    .step-desc p {max-width: 300px;  margin: 0 auto;}
+    #svg-container {width: 100%; transform: rotate(90deg); left: 0; top: 50%;}
+  }
+  </style>
+  
+
+</head>
+<body>
+
+<div class="main-wrapper">
+
+  <%include ./navbar.ejs %>  
+
+
+<section class="home-slide d-flex align-items-center">
+<div class="container">
+<div class="row ">
+<div class="col-md-7">
+<div class="home-slide-face aos" data-aos="fade-up">
+<div class="home-slide-text ">
+  <h5>The #1 Online Major & Minor Project file Generator!</h5>
+  <h1>Build <span style="color: #F17F23;">Major & Minor</span><br>Project File</h1>
+  <p>We've helped students owners create easy-to-read, highly effective, custom project files.</p>
+</div>
+<div class="banner-content">
+<form class="form" action="/search" method="get">
+<div class="form-inner">
+<div class="input-group">
+<i class="fa-solid fa-magnifying-glass search-icon"></i>
+<input type="text" name="q" class="form-control" placeholder="Search Topics, Source Code, Project Ideas">
+<span class="drop-detail">
+<select class="form-select select" name="type">
+<option value="Project Report">Project Report</option>
+<option value="Source Code">Source Code</option>
+
+</select>
+</span>
+<button class="btn btn-primary sub-btn" type="submit"><i class="fas fa-arrow-right"></i></button>
+</div>
+</div>
+</form>
+</div>
+<div class="trust-user">
+<p>Trusted by over 12K Users <br>worldwide since 2019</p>
+<div class="trust-rating d-flex align-items-center">
+<div class="rate-head">
+<h2><span>1000</span>+</h2>
+</div>
+<div class="rating d-flex align-items-center">
+<h2 class="d-inline-block average-rating">4.4</h2>
+<i class="fas fa-star filled"></i>
+<i class="fas fa-star filled"></i>
+<i class="fas fa-star filled"></i>
+<i class="fas fa-star filled"></i>
+<i class="fas fa-star filled"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-md-5 d-flex align-items-center">
+<div class="girl-slide-img aos" data-aos="fade-up">
+<img src="/design/img/object.png" alt="">
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section student-course">
+<div class="container">
+<div class="course-widget">
+<div class="row">
+<div class="col-lg-3 col-md-6">
+<div class="course-full-width">
+<div class="blur-border course-radius align-items-center aos" data-aos="fade-up">
+<div class="online-course d-flex align-items-center">
+<div class="course-img">
+<img src="/design/img/pencil-icon.svg" alt="">
+</div>
+<div class="course-inner-content">
+  <h4><span>500</span>+</h4>
+  <p>Custom Project File</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-3 col-md-6 d-flex">
+<div class="course-full-width">
+<div class="blur-border course-radius aos" data-aos="fade-up">
+<div class="online-course d-flex align-items-center">
+<div class="course-img">
+<img src="/design/img/cources-icon.svg" alt="">
+</div>
+<div class="course-inner-content">
+  <h4><span>100</span>+</h4>
+  <p>Source Code</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-3 col-md-6 d-flex">
+<div class="course-full-width">
+<div class="blur-border course-radius aos" data-aos="fade-up">
+<div class="online-course d-flex align-items-center">
+<div class="course-img">
+<img src="/design/img/certificate-icon.svg" alt="">
+</div>
+<div class="course-inner-content">
+  <h4><span>12</span>K+</h4>
+    <p>Happy Users</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-3 col-md-6 d-flex">
+<div class="course-full-width">
+<div class="blur-border course-radius aos" data-aos="fade-up">
+<div class="online-course d-flex align-items-center">
+<div class="course-img">
+<img src="/design/img/gratuate-icon.svg" alt="">
+</div>
+ <div class="course-inner-content">
+<h4><span>60</span>K +</h4>
+<p>Online Students</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+
+
+
+
+<section class="section how-it-works">
+<div class="container">
+  
+
+
+
+
+<div class="row text-center">
+  <h1 style="margin-bottom: 80px;">Three Simple Step To <span style="color: #F17F23;">Get Report</span></h1>
+  
+  <div id="svg-container" >
+    <svg id="svgC"  width="100%" height="100%" viewBox="0 0 620 120" preserveAspectRatio="xMidYMid meet"><desc>Created with Snap</desc><defs></defs><path d="M62.9 14.9c-25-7.74-56.6 4.8-60.4 24.3-3.73 19.6 21.6 35 39.6 37.6 42.8 6.2 72.9-53.4 116-58.9 65-18.2 191 101 215 28.8 5-16.7-7-49.1-34-44-34 11.5-31 46.5-14 69.3 9.38 12.6 24.2 20.6 39.8 22.9 91.4 9.05 102-98.9 176-86.7 18.8 3.81 33 17.3 36.7 34.6 2.01 10.2.124 21.1-5.18 30.1" id="squiggle" fill="none" stroke="rgba(0,0,0,0.1)" strokeMiterLimit="10" strokeDashOffset="180" style="stroke-width: 1; stroke-dasharray: 5, 10; stroke-dashoffset: 10;"></path><g transform="matrix(0.2956,-0.9553,0.9553,0.2956,43.2367,24.8965)"></g><g>transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,557,57)"></g><g transform="matrix(-0.8615,-0.5077,0.5077,-0.8615,577.307,92.5386)"><polyline points="0, 30, 15, 0, 30, 30" id="plane" fill="rgba(0,0,0,0.05)" style="color:red"></polyline></g></svg>
+  </div>
+  <div class="col-lg-4 col-md-12">
+    <div class="work-process">
+      <div class="box-loader"> <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="step-num-box">
+        <div class="step-icon"><span><img src="/images/choice.png" style="width: 80px;"></span>
+        </div>
+        <div class="step-num" style="color: #222F5A;">01</div>
+      </div>
+      <div class="step-desc">
+        <h4>Choose Project</h4>
+        <p class="mb-0">Choose Project Report as per your choice</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4 col-md-12 md-mt-5">
+    <div class="work-process">
+      <div class="box-loader"> <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="step-num-box">
+        <div class="step-icon"><span><img src="/images/edit.png" style="width: 80px;"></span>
+        </div>
+        <div class="step-num" style="color: #222F5A;">02</div>
+      </div>
+      <div class="step-desc">
+        <h4>Edit Report</h4>
+        <p class="mb-0">Edit Report Content </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4 col-md-12 md-mt-5">
+    <div class="work-process">
+      <div class="step-num-box">
+        <div class="step-icon"><span><img src="/images/downloads.png" style="width: 80px;"></span>
+        </div>
+        <div class="step-num" style="color: #222F5A;">03</div>
+      </div>
+      <div class="step-desc">
+        <h4>Download</h4>
+        <p class="mb-0">Download Project Report easily.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="owl-carousel mentoring-course owl-theme aos" data-aos="fade-up">
+
+
+
+</div>
+</div>
+</section>
+
+
+
+<section class="section new-course">
+<div class="container">
+<div class="section-header aos" data-aos="fade-up">
+<div class="section-sub-head">
+  <span>Trending Project Report</span>
+    <h2>Featured Topic</h2>
+</div>
+<div class="all-btn all-category d-flex align-items-center">
+<a href="final-year-project-ideas" class="btn btn-primary">All Topics</a>
+</div>
+</div>
+<div class="section-text aos" data-aos="fade-up">
+  <p class="mb-0">Students are loving our trending project report topics. We have topics covering a wide range of subjects and topics that are interesting and engaging to students.</p>
+</div>
+<div class="course-feature">
+<div class="row">
+
+
+  <% for(i=0;i<8;i++){%>
+
+    <div class="col-lg-3 col-md-6 d-flex">
+      <div class="course-box course-design d-flex ">
+      <div class="product">
+      
+      <div class="product-content">
+      <div class="course-group d-flex">
+      <div class="course-group-img d-flex">
+      <div class="course-name">
+      <h4><a href="/final-year-project-report-<%=result[0][i].seo_name%>"><%=result[0][i].name%></a></h4>
+      </div>
+      </div>
+     
+      </div>
+      <p class="description"><%=result[0][i].short_description%></p>
+     
+      </div>
+      </div>
+      </div>
+      </div>
+
+<% } %>
+
+
+
+</div>
+</div>
+</div>
+</section>
+
+
+<section class="section master-skill">
+<div class="container">
+<div class="row">
+<div class="col-lg-7 col-md-12">
+<div class="section-header aos" data-aos="fade-up">
+<div class="section-sub-head">
+  <span>Project Report Includes</span>
+  <h2>Unlocking the Power of Automation with our Comprehensive Report</h2>
+</div>
+</div>
+<div class="section-text aos" data-aos="fade-up">
+  <p>A Comprehensive Project Report with ER Diagram, DFD Diagram, Waterfall Model, Flow Chart, Technology, Testing Case, Refferences, Indexing, IEEE Standard, and Gantt Chart.</p>
+</div>
+<div class="career-group aos" data-aos="fade-up">
+<div class="row">
+<div class="col-lg-4 col-md-6 d-flex">
+<div class="certified-group blur-border d-flex">
+<div class="get-certified d-flex align-items-center">
+<div class="blur-box">
+<div class="certified-img ">
+<img src="/design/img/icon/icon-1.svg" alt="" class="img-fluid">
+</div>
+</div>
+<p>IEEE Standard</p>
+
+</div>
+</div>
+</div>
+<div class="col-lg-4 col-md-6 d-flex">
+<div class="certified-group blur-border d-flex">
+<div class="get-certified d-flex align-items-center">
+<div class="blur-box">
+<div class="certified-img ">
+<img src="/design/img/icon/icon-2.svg" alt="" class="img-fluid">
+</div>
+</div>
+<p>ER Diagram</p>
+</div>
+</div>
+</div>
+<div class="col-lg-4 col-md-6 d-flex">
+<div class="certified-group blur-border d-flex">
+<div class="get-certified d-flex align-items-center">
+<div class="blur-box">
+<div class="certified-img ">
+<img src="/design/img/icon/icon-3.svg" alt="" class="img-fluid">
+</div>
+</div>
+<p>DFD Diagram</p>
+</div>
+</div>
+</div>
+<div class="col-lg-4 col-md-6 d-flex">
+<div class="certified-group blur-border d-flex">
+<div class="get-certified d-flex align-items-center">
+<div class="blur-box">
+<div class="certified-img ">
+<img src="/design/img/icon/icon-4.svg" alt="" class="img-fluid">
+</div>
+</div>
+<p>Gantt Chart</p>
+</div>
+</div>
+</div>
+
+
+
+<div class="col-lg-4 col-md-6 d-flex">
+  <div class="certified-group blur-border d-flex">
+  <div class="get-certified d-flex align-items-center">
+  <div class="blur-box">
+  <div class="certified-img ">
+  <img src="/design/img/icon/icon-4.svg" alt="" class="img-fluid">
+  </div>
+  </div>
+  <p>Testing Case</p>
+  </div>
+  </div>
+  </div>
+
+
+
+  <div class="col-lg-4 col-md-6 d-flex">
+    <div class="certified-group blur-border d-flex">
+    <div class="get-certified d-flex align-items-center">
+    <div class="blur-box">
+    <div class="certified-img ">
+    <img src="/design/img/icon/icon-4.svg" alt="" class="img-fluid">
+    </div>
+    </div>
+    <p>Indexing</p>
+    </div>
+    </div>
+    </div>
+</div>
+</div>
+</div>
+<div class="col-lg-5 col-md-12 d-flex align-items-end">
+<div class="career-img aos" data-aos="fade-up">
+<img src="/design/img/join.png" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<section class="section trend-course">
+<div class="container">
+<div class="section-header aos" data-aos="fade-up">
+<div class="section-sub-head">
+  <span>Source Code For</span>
+  <h2>Final Year Students</h2>
+</div>
+<div class="all-btn all-category d-flex align-items-center">
+<a href="/source-code" class="btn btn-primary">All Project</a>
+</div>
+</div>
+<div class="section-text aos" data-aos="fade-up">
+  <p class="mb-0">we are providing list of projects whith code and documentation is used for developing web sites, web application related projects.These applications are developed in different languages.</p>
+</div>
+<div class="owl-carousel trending-course owl-theme aos" data-aos="fade-up">
+
+
+
+
+  <% for(i=0;i<8;i++){%>
+
+
+<div class="course-box trend-box">
+<div class="product trend-product">
+
+<div class="product-content">
+<div class="course-group d-flex">
+<div class="course-group-img d-flex">
+<div class="course-name">
+<h4><a href="/<%=result[1][i].seo_name%>/source-code"><%=result[1][i].name%></a></h4>
+<p style=" overflow: hidden;
+text-overflow: ellipsis;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;"><%=result[1][i].description%></p>
+</div>
+</div>
+
+</div>
+<div class="course-info d-flex align-items-center">
+
+</div>
+
+<div class="all-btn all-category d-flex align-items-center">
+<a href="/<%=result[1][i].seo_name%>/source-code" class="btn btn-primary">BUY NOW</a>
+</div>
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+<% } %>
+
+
+
+
+
+</div>
+
+
+
+</div>
+</section>
+
+
+
+
+
+
+
+
+<section class="section user-love">
+<div class="container">
+<div class="section-header white-header aos" data-aos="fade-up">
+<div class="section-sub-head feature-head text-center">
+<h2>Experience the Love: See What Our Users Have to Say!</h2>
+</div>
+</div>
+</div>
+</section>
+
+
+<section class="testimonial-four">
+<div class="review">
+<div class="container">
+<div class="testi-quotes">
+<img src="/design/img/qute.png" alt="">
+</div>
+<div class="mentor-testimonial lazy slider aos" data-aos="fade-up" data-sizes="50vw ">
+<div class="d-flex justify-content-center">
+<div class="testimonial-all d-flex justify-content-center">
+<div class="testimonial-two-head text-center align-items-center d-flex">
+<div class="testimonial-four-saying ">
+<div class="testi-right">
+<img src="/design/img/qute-01.png" alt="">
+</div>
+<p>I was able to quickly create and submit my project report. The customization options are great, and I can easily customize the details of my files to fit my college. The customer service team is also very helpful, and they've been quick to answer any questions I've had. Overall, FileMakr is an excellent tool for creating, editing files. Highly recommended!</p>
+<div class="four-testimonial-founder">
+<div class="fount-about-img">
+<a href="#"><img src="/design/img/user/shruti.png" alt="" class="img-fluid"></a>
+</div>
+<h3><a href="#">Shruti</a></h3>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="d-flex justify-content-center">
+<div class="testimonial-all d-flex justify-content-center">
+<div class="testimonial-two-head text-center align-items-center d-flex">
+<div class="testimonial-four-saying ">
+<div class="testi-right">
+<img src="/design/img/qute-01.png" alt="">
+</div>
+<p>FileMakr is an amazing platform to create project report with Testing Case, Indexing and IEEE Standard. It also helps to generate  ER Diagram, DFD Diagram, Flow Chart and Gantt Chart. It is very useful and user friendly.</p>
+<div class="four-testimonial-founder">
+<div class="fount-about-img">
+<a href="#"><img src="/design/img/user/shubham.png" alt="" class="img-fluid"></a>
+</div>
+<h3><a href="#">Shubham</a></h3>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="d-flex justify-content-center">
+<div class="testimonial-all d-flex justify-content-center">
+<div class="testimonial-two-head text-center align-items-center d-flex">
+<div class="testimonial-four-saying ">
+<div class="testi-right">
+<img src="/design/img/qute-01.png" alt="">
+</div>
+<p>I'm very impressed with FileMakr and would highly recommend it to anyone looking for an easy way to submit their project report.</p>
+<div class="four-testimonial-founder">
+<div class="fount-about-img">
+<a href="#"><img src="/design/img/user/ashish.jpg" alt="" class="img-fluid"></a>
+</div>
+<h3><a href="#">Ashish</a></h3>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<section class="section become-instructors aos" data-aos="fade-up">
+<div class="container">
+<div class="row">
+<div class="col-lg-6 col-md-6 d-flex">
+<div class="student-mentor cube-instuctor ">
+  <h4>Create your Project's File <br/>with your hands</h4>
+    <div class="row">
+    <div class="col-lg-7 col-md-12">
+    <div class="top-instructors">
+    <p>Answer a few simple questions and automatically get a project file designed just for you in minutes.</p>
+  <p><a class="" href="#">Comming Soon</a></p>
+
+</div>
+</div>
+<div class="col-lg-5 col-md-12">
+<div class="mentor-img">
+<img class="img-fluid" alt="" src="/design/img/become-02.png">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-6 col-md-6 d-flex">
+<div class="student-mentor yellow-mentor">
+  <h4>Let FileMakr create
+    a Project File for You</h4>
+  <div class="row">
+  <div class="col-lg-8 col-md-12">
+  <div class="top-instructors">
+  <p>Filemakr provide the facality to create a project file according to your project within 3-5 business days.</p>
+            
+  <p><a class="" href="/contact-us">Contact Us</a></p>
+</div>
+</div>
+ <div class="col-lg-4 col-md-12">
+<div class="mentor-img">
+<img class="img-fluid" alt="" src="/design/img/become-01.png">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<section class="section latest-blog">
+<div class="container">
+
+
+<div class="lab-course">
+<div class="section-header aos" data-aos="fade-up">
+<div class="section-sub-head feature-head text-center">
+  <h2>Unlimited access to 500+ Custom Project File <br>and 100+ Source Code</h2>
+
+</div>
+</div>
+<!-- <div class="icon-group aos" data-aos="fade-up">
+<div class="offset-lg-1 col-lg-12">
+<div class="row">
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-09.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-10.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-16.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-12.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-13.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-14.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-15.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-16.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-17.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-1 col-3">
+<div class="total-course d-flex align-items-center">
+<div class="blur-border">
+<div class="enroll-img ">
+<img src="/design/img/icon/icon-18.svg" alt="" class="img-fluid">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div> -->
+</div>
+</div>
+</section>
+
+<%include ./footer.ejs %>  

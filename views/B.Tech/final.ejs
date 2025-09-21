@@ -1,0 +1,375 @@
+  <%include ../Includes/navbar2.ejs %>
+
+<% include ../Includes/projectReport.ejs %>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Download Project Report — <%=result[1][0].name%> | FileMakr</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css" />
+  <link rel="icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif">
+
+  <style>
+    :root{
+      --brandBlue:#2A47FF; --brandOrange:#F17F23; --ink:#0e1220;
+      --muted:#6b7280; --bg:#f7f8fc; --card:#fff; --ring:rgba(42,71,255,.25);
+      --radius:16px;
+    }
+    html,body{font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    img{max-width:100%;display:block}
+
+    .brand-accent{height:4px;background:linear-gradient(90deg,var(--brandBlue),var(--brandOrange));border-radius:999px;margin:0 0 18px}
+    /* Hero */
+    .pay-hero{
+      background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));
+      border:1px solid rgba(14,18,32,.06); border-radius:20px; padding:20px;
+      display:grid; gap:12px;
+    }
+    .pay-hero h1{margin:0;font-weight:800}
+    .sub{color:var(--muted);margin:0}
+    .pill-row{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{padding:8px 12px;border:1px solid rgba(14,18,32,.08);border-radius:999px;background:#fff;font-weight:700;font-size:12px}
+    /* Card */
+    .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+    @media(min-width:992px){.grid{grid-template-columns:1fr 340px}}
+    .card{background:var(--card);border:1px solid rgba(14,18,32,.08);border-radius:var(--radius);box-shadow:0 1px 2px rgba(14,18,32,.04)}
+    .pad{padding:16px}
+    .lead{font-size:15px;color:var(--muted)}
+    /* Summary */
+    .sum-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+    .badge-soft{background:rgba(42,71,255,.08);color:var(--brandBlue);font-weight:800;border-radius:999px;padding:6px 10px;font-size:12px}
+    .sum-title{margin:6px 0 2px;font-weight:800}
+    .sum-sub{margin:0;color:var(--muted);font-size:13px}
+    .perk-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+    .perk-list li{display:flex;align-items:center;gap:8px;font-weight:600}
+    .perk-list i{color:var(--brandBlue)}
+    .trust{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .trust span{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(14,18,32,.08);border-radius:12px;padding:8px 10px;font-weight:700;font-size:12px;background:#fff}
+    /* Buttons */
+    .btn-brand, .btn-outline, .btn-wa{
+      height:46px; border-radius:12px; padding:0 16px; font-weight:900; display:inline-flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; cursor:pointer
+    }
+    .btn-brand{background:var(--brandBlue);color:#fff;border:1px solid var(--brandBlue);box-shadow:0 8px 24px rgba(42,71,255,.15)}
+    .btn-brand:hover{filter:brightness(.98)}
+    .btn-outline{background:#fff;color:#111;border:1px solid rgba(14,18,32,.12)}
+    .btn-outline:hover{box-shadow:0 0 0 4px var(--ring)}
+    .btn-wa{background:#25D366;color:#fff;border:1px solid #1fb257;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+    .btn-wa small{font-weight:700;opacity:.9}
+    .btn-block{width:100%}
+    .btn-sm{height:40px}
+    /* Modal */
+  .modal{
+    position:fixed; inset:0;
+    display:none; place-items:center; /* top aligned so it never hides */
+    padding-top: calc(var(--navHeight, 92px) + 16px); 
+  
+   
+    /* adjust if your navbar is taller */
+    background:rgba(14,18,32,.58);
+    backdrop-filter:saturate(180%) blur(6px);
+    z-index: 10000; /* higher than navbar */
+  }
+  .modal.is-open{ display:grid; }
+    body.modal-open{ overflow:hidden; }
+
+    .sheet{width:min(720px,92vw);border-radius:18px;background:#fff;box-shadow:0 24px 60px rgba(14,18,32,.28);overflow:hidden}
+    .sheet-head{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(14,18,32,.06);background:linear-gradient(90deg,rgba(42,71,255,.06),rgba(241,127,35,.06))}
+    .sheet-head h3{margin:0;font-weight:900}
+    .sheet-body{display:grid;grid-template-columns:1fr;gap:14px;padding:14px}
+    @media(min-width:768px){.sheet-body{grid-template-columns:1.2fr .8fr}}
+    .close-x{border:none;background:#fff;color:#111;border:1px solid rgba(14,18,32,.12);height:36px;width:36px;border-radius:10px;cursor:pointer}
+    .field{display:flex;flex-direction:column;gap:0px}
+    .field label{font-weight:800;font-size:13px}
+    .input{height:44px;border:1px solid rgba(14,18,32,.12);border-radius:12px;padding:0 12px;font-weight:600;margin-bottom: 10px;}
+    .input:focus{outline:none;border-color:var(--brandBlue);box-shadow:0 0 0 4px var(--ring)}
+    .coupon-row{display:flex;gap:8px}
+    .mini{font-size:12px;color:var(--muted)}
+    .sum-card{border:1px solid rgba(14,18,32,.08);border-radius:14px;padding:12px;background:#fff}
+    .sum-line{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+    .sum-line.total{font-weight:900}
+    .ok{color:#16a34a;font-weight:800}
+    .warn{color:#f59e0b;font-weight:800}
+    .danger{color:#ef4444;font-weight:800}
+    /* Footer */
+    .footer-note{margin-top:6px;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand-accent"></div>
+
+    <!-- Hero -->
+    <section class="pay-hero">
+      <h1>Your project report is ready</h1>
+      <p class="sub">Download the <strong><%=result[1][0].name%></strong> report instantly and present with confidence.</p>
+      <div class="pill-row">
+        <span class="pill"><i class="fa-regular fa-circle-check"></i> Faculty-ready format</span>
+        <span class="pill"><i class="feather-download"></i> Instant download</span>
+        <span class="pill"><i class="fa-regular fa-file-lines"></i> 35+ pages</span>
+      </div>
+    </section>
+
+    <!-- Content + Summary -->
+    <section class="grid">
+      <div class="card pad">
+        <h2 style="margin:0 0 8px;font-weight:800">What you’ll get</h2>
+        <p class="lead">A polished, student-friendly PDF of <strong><%=result[1][0].name%></strong> with clean structure and diagrams so you can submit fast.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn-brand" id="OpenCheckout"><i class="fa-solid fa-bolt"></i> Pay & Download</button>
+          <a class="btn-wa" href="https://wa.me/918319339945?text=Questions%20about%20<%=encodeURIComponent(result[1][0].name)%>" target="_blank" rel="noopener">
+            <i class="fa-brands fa-whatsapp"></i> <span>Chat on WhatsApp</span>
+          </a>
+        </div>
+      </div>
+
+      <aside class="card pad">
+        <div class="sum-head">
+          <span class="badge-soft">Project Report</span>
+          <span style="font-weight:800;color:#111"><%=graduation_type_send%></span>
+        </div>
+        <h3 class="sum-title"><%=result[1][0].name%></h3>
+        <p class="sum-sub"><%=result[1][0].short_description%></p>
+
+        <ul class="perk-list">
+          <li><i class="fa-regular fa-circle-check"></i> Instant PDF download</li>
+          <li><i class="fa-regular fa-circle-check"></i> Student-friendly language</li>
+          <li><i class="fa-regular fa-circle-check"></i> Quick support via WhatsApp</li>
+        </ul>
+
+        <div class="trust">
+          <span><i class="fa-regular fa-lock"></i> Secure checkout</span>
+          <span><i class="fa-regular fa-clock"></i> Fast delivery</span>
+        </div>
+
+        <div style="margin-top:12px">
+          <button class="btn-brand btn-block" id="OpenCheckout2">Pay & Download</button>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="modal" id="CheckoutModal" aria-hidden="true" aria-labelledby="ck-title" role="dialog">
+    <div class="sheet" role="document">
+      <div class="sheet-head">
+        <h3 id="ck-title">Checkout</h3>
+        <button class="close-x" type="button" aria-label="Close" id="CloseCheckout"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form class="sheet-body" id="CheckoutForm" method="POST" action="/ccavRequestHandler1" novalidate>
+        <!-- Left: Customer details -->
+        <div class="col">
+          <div class="field">
+            <label for="billing_name">Full name</label>
+            <input class="input" type="text" id="billing_name" name="billing_name" placeholder="Your name" required />
+          </div>
+          <div class="field">
+            <label for="billing_email">Email</label>
+            <input class="input" type="email" id="billing_email" name="billing_email" placeholder="you@example.com" required />
+          </div>
+          <div class="field">
+            <label for="billing_tel">WhatsApp number</label>
+            <input class="input" type="tel" id="billing_tel" name="billing_tel" inputmode="numeric" pattern="[0-9]{10,}" placeholder="10+ digit number" required />
+            <span class="mini">We’ll send the download link here if needed.</span>
+          </div>
+
+          <div class="field">
+  <label for="coupon_code">Coupon code (optional)</label>
+  <div class="coupon-row">
+    <input class="input" type="text" id="coupon_code"  placeholder="CODE123" />
+    <button type="button" class="btn-outline btn-sm" id="ApplyCoupon">Apply</button>
+  </div>
+  <span id="CouponMsg" class="mini"></span>
+</div>
+
+          <!-- Hidden fields expected by your payment flow -->
+          <input type="hidden" name="source_code_id" value="<%=result[0][0].projectid%>" />
+          <input type="hidden" name="seo_name" value="<%=result[0][0].seo_name%>" />
+          <input type="hidden" name="coupon_code" id="coupon_code_hidden" value="">
+<input type="hidden" name="final_amount" id="final_amount_hidden" value="10.00">
+        </div>
+
+        <!-- Right: Order summary -->
+        <div class="col">
+          <div class="sum-card">
+            <div class="sum-line">
+              <span>Item</span>
+              <span><b><%=result[1][0].name%></b></span>
+            </div>
+            <div class="sum-line">
+              <span>Base price</span>
+              <span>₹10.00</span>
+            </div>
+            <div class="sum-line" id="CouponRow" style="display:none">
+              <span>Coupon</span>
+              <span class="ok" id="CouponValue">−₹2.00</span>
+            </div>
+            <hr style="border:none;border-top:1px solid rgba(14,18,32,.08)">
+            <div class="sum-line total">
+              <span>Total</span>
+              <span id="TotalAmt">₹10.00</span>
+            </div>
+          </div>
+
+          <div class="footer-note">
+            By continuing you agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a>.
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button type="submit" class="btn-brand btn-block" id="PayNow"><i class="feather-lock"></i> Pay securely</button>
+            <button type="button" class="btn-outline btn-block" id="CloseCheckout2">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+ <script>
+  (function(){
+    const modal = document.getElementById('CheckoutModal');
+    const form  = document.getElementById('CheckoutForm');
+    const openers = [document.getElementById('OpenCheckout'), document.getElementById('OpenCheckout2')].filter(Boolean);
+    const closers = [document.getElementById('CloseCheckout'), document.getElementById('CloseCheckout2')].filter(Boolean);
+    const firstField = document.getElementById('billing_name');
+
+    // === Modal open/close (fix cut + lock scroll) ===
+    function openModal(){
+      document.body.classList.add('modal-open');
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden','false');
+      setTimeout(()=> firstField && firstField.focus(), 60);
+    }
+    function closeModal(){
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden','true');
+      document.body.classList.remove('modal-open');
+    }
+    openers.forEach(b=>b.addEventListener('click', openModal));
+    closers.forEach(b=>b.addEventListener('click', closeModal));
+    modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+    // === Pricing + coupon ===
+    const BASE_PRICE = 10.00;
+
+    const couponInput = document.getElementById('coupon_code');
+    const couponMsg   = document.getElementById('CouponMsg');
+    const couponRow   = document.getElementById('CouponRow');
+    const couponVal   = document.getElementById('CouponValue');
+    const totalAmt    = document.getElementById('TotalAmt');
+    const applyBtn    = document.getElementById('ApplyCoupon');
+
+    // hidden fields to post
+    const hiddenCode  = document.getElementById('coupon_code_hidden');
+    const hiddenFinal = document.getElementById('final_amount_hidden');
+
+    let discountApplied = 0.00;
+    let appliedCode = '';
+
+    const money = (n)=> '₹' + n.toFixed(2);
+
+    function renderTotals(){
+      const total = Math.max(0, BASE_PRICE - discountApplied);
+      totalAmt.textContent = money(total);
+      hiddenFinal.value = total.toFixed(2);
+
+      if(discountApplied > 0){
+        couponVal.textContent = '−' + money(discountApplied);
+        couponRow.style.display = '';
+      }else{
+        couponRow.style.display = 'none';
+      }
+    }
+    renderTotals();
+
+    // Call your API: return { valid: boolean, discount: number, type: "percent"|"flat", code?: string }
+    async function verifyCoupon(code){
+      try{
+        const res = await fetch(`/api/coupon/validate?code=${encodeURIComponent(code)}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if(!res.ok) throw new Error('Network error');
+        return await res.json();
+      }catch(e){
+        return { valid:false };
+      }
+    }
+
+    async function applyCoupon(){
+      const raw = (couponInput.value || '').trim();
+      couponMsg.textContent = '';
+      couponMsg.style.color = '';
+
+      if(!raw){
+        // reset
+        appliedCode = '';
+        discountApplied = 0.00;
+        hiddenCode.value = '';
+        renderTotals();
+        return;
+      }
+
+      applyBtn.disabled = true; applyBtn.textContent = 'Checking…';
+      const { valid, discount, type, code: serverCode } = await verifyCoupon(raw);
+      applyBtn.disabled = false; applyBtn.textContent = 'Apply';
+
+      if(valid && Number(discount) > 0){
+        appliedCode = (serverCode || raw).toUpperCase();
+
+        // percent vs flat
+        if((type || '').toLowerCase() === 'percent'){
+          discountApplied = Math.round((BASE_PRICE * Number(discount) / 100) * 100) / 100;
+        }else{
+          // treat as flat rupee amount
+        discountApplied = Math.round((BASE_PRICE * Number(discount) / 100) * 100) / 100;
+        }
+
+        hiddenCode.value = appliedCode;
+        couponMsg.textContent = `Coupon applied: ${appliedCode}. You saved ${money(discountApplied)}.`;
+        couponMsg.style.color = '#16a34a';
+        renderTotals();
+      }else{
+        // invalid -> clear
+        appliedCode = '';
+        discountApplied = 0.00;
+        hiddenCode.value = '';
+        couponMsg.textContent = 'Invalid coupon code.';
+        couponMsg.style.color = '#ef4444';
+        renderTotals();
+      }
+    }
+
+    if(applyBtn) applyBtn.addEventListener('click', applyCoupon);
+    if(couponInput){
+      couponInput.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){ e.preventDefault(); applyCoupon(); }
+      });
+    }
+
+    // Prevent double-submit
+    const payBtn = document.getElementById('PayNow');
+    form.addEventListener('submit', function(e){
+      if(!form.checkValidity()){
+        e.preventDefault(); e.stopPropagation();
+        form.reportValidity();
+        return;
+      }
+      // ensure fields go with the form
+      if(appliedCode) hiddenCode.value = appliedCode;
+      hiddenFinal.value = (Math.max(0, BASE_PRICE - discountApplied)).toFixed(2);
+
+      if(payBtn){ payBtn.disabled = true; payBtn.textContent = 'Processing…'; }
+    });
+  })();
+</script>
+
+</body>
+</html>
+
+<% include ../Includes/footer.ejs %>

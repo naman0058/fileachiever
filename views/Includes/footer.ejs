@@ -1,0 +1,335 @@
+
+
+<!-- Bottom App Navigation -->
+<nav class="app-nav" role="navigation" aria-label="Primary" style="background-color: white;">
+  <a href="/" class="<%= active === 'home' ? 'active' : '' %>">
+    <i class="feather-home"></i><span>Home</span>
+  </a>
+  
+  <a href="/final-year-project-ideas" class="<%= active === 'report' ? 'active' : '' %>">
+    <i class="feather-file-text"></i><span>Report</span>
+  </a>
+  
+  <a href="/source-code" class="<%= active === 'source-code' ? 'active' : '' %>">
+    <i class="feather-code"></i><span>Code</span>
+  </a>
+  
+  <a href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>" class="<%= active === 'demo' ? 'active' : '' %>">
+    <i class="feather-play-circle"></i><span>Demo</span>
+  </a>
+  
+  <a href="https://wa.me/918319339945" class="<%= active === 'chat' ? 'active' : '' %>">
+   <i class="fa-brands fa-whatsapp thumb-icon" aria-hidden="true"></i><span>Chat</span>
+  </a>
+</nav>
+
+<script>
+  // ====== Config ======
+  const waNumber = "<%= typeof whatsappNumber !== 'undefined' ? whatsappNumber : '918319339945' %>"; // e.g., 919876543210
+  const grad = "<%= graduation_type_send || '' %>"; // empty string if null
+
+  function waLink(extra=''){
+    const base = `https://wa.me/${waNumber}`;
+    const text = `Hi FileMakr,%0AI'm looking for ${grad} final-year project report and source code.${extra ? '%0AQuery: ' + encodeURIComponent(extra) : ''}%0APlease share details.`;
+    return `${base}?text=${text}`;
+  }
+  function setAllWaLinks(query=''){
+    ['WhatsAppFloat','WhatsAppTop','WhatsAppEmpty','WhatsAppSide','WhatsAppHero'].forEach(id=>{
+      const a=document.getElementById(id);
+      if(a){a.setAttribute('href',waLink(query));a.setAttribute('target','_blank');a.setAttribute('rel','noopener');}
+    });
+  }
+
+  // ====== Search + Sort ======
+  const input=document.getElementById('Search');
+  const nodes=Array.from(document.getElementsByClassName('target'));
+  const countEl=document.getElementById('ResultCount');
+  const emptyEl=document.getElementById('EmptyState');
+  const grid=document.getElementById('Grid');
+  const sortSel=document.getElementById('Sort');
+
+  let q='';
+  const normalize=s=> (s||'').toLowerCase();
+
+ function apply(){
+  const nq = normalize(q); 
+  let visible = [];
+
+  nodes.forEach(n=>{
+    const name = normalize(n.getAttribute('data-name'));
+    const desc = normalize(n.getAttribute('data-desc'));
+    const matches = !nq || name.includes(nq) || desc.includes(nq);
+    n.style.display = matches ? '' : 'none';
+    if(matches) visible.push(n);
+  });
+
+  // Sort visible in DOM
+  const mode = sortSel ? sortSel.value : 'relevance';
+  visible.sort((a,b)=>{
+    const an = a.getAttribute('data-name').toLowerCase();
+    const bn = b.getAttribute('data-name').toLowerCase();
+    if(mode==='alpha') return an.localeCompare(bn);
+    if(mode==='alphaDesc') return bn.localeCompare(an);
+    return 0;
+  });
+  visible.forEach(n=>grid.appendChild(n));
+
+  // ✅ Null-safe UI updates
+  if (typeof countEl !== 'undefined' && countEl) {
+    countEl.textContent = String(visible.length);
+  }
+  if (typeof emptyEl !== 'undefined' && emptyEl) {
+    const showEmpty = visible.length === 0;
+    emptyEl.style.display = showEmpty ? 'block' : 'none';
+
+    if (showEmpty) {
+      // Pre-fill WhatsApp topic with the current query
+      const topicInput = document.getElementById('EmptyTopicInput');
+      if (topicInput && q && !topicInput.value) topicInput.value = q;
+
+      // Ensure WA links carry the query
+      setAllWaLinks(q);
+
+      // Smooth scroll into view on mobile
+      emptyEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  } else {
+    // Fallback: still keep WA links updated
+    setAllWaLinks(q);
+  }
+}
+
+  // ====== Most Demanding (random from current results) ======
+  function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr;}
+  function populateMostDemanding(){
+  const container = document.getElementById('MostDemanding');
+  if(!container) return;
+  container.innerHTML = '';
+
+  const items = shuffle(nodes.slice()).slice(0, Math.min(8, nodes.length));
+  items.forEach(n=>{
+    const name = n.getAttribute('data-name') || '';
+    const desc = n.getAttribute('data-desc') || '';
+    const url  = n.getAttribute('data-url')  || '#';
+    const wa   = waLink(`Need details for "${name}"`);
+
+    const card = document.createElement('div');
+    card.className = 'md-item';
+    card.innerHTML = `
+      <span class="md-chip"><i class="feather-trending-up"></i> Popular</span>
+      <h4 class="md-title">${name}</h4>
+      <p class="md-desc">${desc}</p>
+      <div class="md-actions">
+        <a class="md-btn md-btn-light" href="${url}" aria-label="View ${name} details">View</a>
+        
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+
+  // Debounced search
+  let t;
+  input && input.addEventListener('input',(e)=>{q=e.target.value||'';clearTimeout(t);t=setTimeout(apply,150);});
+  sortSel && sortSel.addEventListener('change',apply);
+
+  // Init
+  setAllWaLinks('');
+  populateMostDemanding();
+  apply();
+</script>
+
+<script>
+  // Enhance WhatsApp click: prefer typed topic, else fallback to search query
+(function(){
+  const waBtn = document.getElementById('WhatsAppEmpty');
+  const topicInput = document.getElementById('EmptyTopicInput');
+
+  if (waBtn) {
+    waBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      const topic = (topicInput?.value || q || 'custom topic').trim();
+      const msg = topic ? `Custom topic: ${topic}` : '';
+      window.open(waLink(msg), '_blank', 'noopener');
+    });
+  }
+
+  // Optional: submit on Enter
+  topicInput && topicInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('WhatsAppEmpty').click();
+    }
+  });
+})();
+
+</script>
+
+
+
+<footer class="footer">
+	<div class="footer-top aos" data-aos="fade-up">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-4 col-md-6">
+					<div class="footer-widget footer-about">
+						<div class="footer-logo">
+							<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="FileMakr Logo" title="FileMakr Logo">
+							</div>
+							<div class="footer-about-content">
+								<p>The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files.</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-2 col-md-6">
+						<div class="footer-widget footer-menu">
+							<h2 class="footer-title">Project Report</h2>
+							<ul>
+								<li>
+									<a href="/btech-final-year-project-report">B.TECH</a>
+								</li>
+								<li>
+									<a href="/mtech-final-year-project-report">M.TECH</a>
+								</li>
+								<li>
+									<a href="/be-final-year-project-report">BE</a>
+								</li>
+								<li>
+									<a href="/me-final-year-project-report">ME</a>
+								</li>
+								<li>
+									<a href="/bca-final-year-project-report">BCA</a>
+								</li>
+								<li>
+									<a href="/mca-final-year-project-report">MCA</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-lg-2 col-md-6">
+						<div class="footer-widget footer-menu">
+							<h2 class="footer-title">Important Links</h2>
+							<ul>
+								<li>
+									<a href="/final-year-project-ideas" title="Top Final Year Project Ideas for College Students | FileMakr">Project Ideas</a>
+								</li>
+								<li>
+									<a href="/source-code" title="Source Code for PHP, Python, Java, Node.js, and More | FileMakr">Source Code</a>
+								</li>
+								<li>
+									<a href="/about-us" title="About Us | FileMakr">About Us</a>
+								</li>
+								<li>
+									<a href="/contact-us" title="Contact Us | FileMakr">Contact Us</a>
+								</li>
+								<li>
+									<a href="/blog" title="Contact Us | FileMakr">Blog</a>
+								</li>
+								<li>
+									<a href="/youtube-partner-program" title="Contact Us | FileMakr">Youtube Partner Program</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-lg-4 col-md-6">
+						<div class="footer-widget footer-contact">
+							<h2 class="footer-title">Contact Details</h2>
+							<div class="footer-contact-info">
+								<div class="footer-address">
+									<img src="/design/img/icon/icon-20.svg" alt="FileMakr Address Icon" title="FileMakr Address Icon" class="img-fluid">
+									<p>New Delhi, India</p>
+									
+									</div>
+									<p>
+										<img src="/design/img/icon/icon-19.svg" alt="FileMakr Email Icon" title="FileMakr Email Icon" class="img-fluid">
+<a href="mailto:info@filemakr.com" title="Contact FileMakr: Send an Email to info@filemakr.com">info@filemakr.com</a>
+
+										</p>
+										<!-- <p><img src="/design/img/icon/icon-21.svg" alt="" class="img-fluid">
+  +91 831-933-9945
+  </p> -->
+										<p>
+											<p class="mb-0">
+												<a href="https://www.filemakr.com/" title="FileMakr: Project Report and Source Code for Final Year College Students">
+													<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/w_30,h_30/net-icon-01_ajxr39.avif" alt="FileMakr Logo" title="FileMakr: Project Report and Source Code for Final Year College Students" class="img-fluid" style="width: 30px;">
+												</a>
+													<a href="https://www.facebook.com/FileMakr" title="FileMakr: Connect with Us on Facebook | Learn More about FileMakr">
+														<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/w_30,h_30/facebook_vjgbfw.avif" alt="FileMakr Facebook Page" title="FileMakr: Connect with Us on Facebook | Learn More about FileMakr" class="img-fluid" style="width: 30px;">
+													</a>
+														
+															<a href="https://www.instagram.com/filemakr" title="Explore FileMakr on Instagram | Engaging Content & Updates">
+																<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/w_30,h_30/instagram_l8dmnm.avif" alt="FileMakr Instagram Page" title="Explore FileMakr on Instagram | Engaging Content & Updates" class="img-fluid" style="width: 30px;">
+															</a>
+															<a href="https://www.linkedin.com/company/filemakr/" title="Connect with FileMakr on LinkedIn | Explore our Company Updates">
+																<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/w_30,h_30/linkedin_wslaqg.avif" alt="FileMakr LinkedIn Page"  title="Connect with FileMakr on LinkedIn | Explore our Company Updates" class="img-fluid" style="width: 30px;">
+															</a>
+															
+																</p>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="footer-bottom">
+											<div class="container">
+												<div class="copyright">
+													<div class="row">
+														<div class="col-md-6">
+															<div class="privacy-policy">
+																<ul>
+																	<li>
+																		<a href="/terms-and-conditions" title="Terms & Conditions | FileMakr">Terms</a>
+																	</li>
+																	<li>
+																		<a href="/privacy-policy" title="Privacy Policy | FileMakr">Privacy</a>
+																	</li>
+																	<li>
+																		<a href="/refund-policy" title="Refund Policy | FileMakr">Refund</a>
+																	</li>
+																</ul>
+															</div>
+														</div>
+														<div class="col-md-6">
+															<div class="copyright-text">
+																<p class="mb-0">&copy; 2019 FileMakr. All rights reserved.</p>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</footer>
+								</div>
+								<script src="/javascripts/all.js"></script>
+								
+							</body>
+							<!-- Mirrored from dreamslms.dreamguystech.com/html/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:03:33 GMT -->
+						</html>
+
+
+						<style>
+							.float{
+	position:fixed;
+	width:60px;
+	height:60px;
+	bottom:40px;
+	right:40px;
+	background-color:#25d366;
+	color:#FFF;
+	border-radius:50px;
+	text-align:center;
+  font-size:30px;
+	box-shadow: 2px 2px 3px #999;
+  z-index:100;
+}
+
+.my-float{
+	margin-top:16px;
+}
+						</style>
+			
+						<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+

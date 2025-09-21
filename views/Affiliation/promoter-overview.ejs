@@ -1,0 +1,80 @@
+<% include ./header.ejs %>
+
+
+<style>
+.table td, .table th {
+    vertical-align: middle;
+    text-align: center;
+}
+.table-hover tbody tr:hover {
+    background-color: #f2f6fc;
+}
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+.card-header {
+    background-color: #fff;
+    border-bottom: none;
+    padding: 24px;
+}
+.card-header h4 {
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 0;
+    color: #333;
+}
+.table thead th {
+    background-color: #343a40;
+    color: #fff;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.table td {
+    font-size: 14px;
+    color: black;
+}
+</style>
+
+<div class="content-body">
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">🎯 Promoter Performance Overview</h4>
+
+</div>
+
+    <div class="table-responsive mt-3">
+     <table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Promoter Name</th>
+      <th>Total Links</th>
+      <th>Total Unique Clicks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (overview.length === 0) { %>
+      <tr><td colspan="4" class="text-center text-muted">No data available.</td></tr>
+    <% } else { %>
+      <% overview.forEach((row, index) => { %>
+        <tr>
+          <td><%= index + 1 %></td>
+          <td><%= row.promoter_name || 'Unknown' %></td>
+          <td><%= row.total_links_generated %></td>
+          <td class="text-success fw-semibold"><%= row.total_unique_clicks %></td>
+        </tr>
+      <% }) %>
+    <% } %>
+  </tbody>
+</table>
+
+    </div>
+  </div>
+</div>
+
+<% include ./footer.ejs %>

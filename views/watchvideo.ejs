@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YouTube Video</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: #fff;
+      color: #0f0f0f;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      padding: 16px;
+      max-width: 1600px;
+      margin: auto;
+    }
+
+    .main-video {
+      flex: 3;
+      margin-right: 24px;
+    }
+
+    .video-wrapper {
+      position: relative;
+      padding-top: 56.25%;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .video-title {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin: 16px 0 8px;
+    }
+
+    .video-meta {
+      display: flex;
+      justify-content: space-between;
+      color: #606060;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .recommendations {
+      flex: 1.2;
+    }
+
+    .video-card {
+      display: flex;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .video-card img {
+      width: 168px;
+      height: 94px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .video-info {
+      margin-left: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .video-info h4 {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin: 0 0 4px;
+    }
+
+    .video-info p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #606060;
+    }
+
+    @media (max-width: 992px) {
+      .container {
+        flex-direction: column;
+      }
+      .main-video {
+        margin-right: 0;
+      }
+      .recommendations {
+        margin-top: 30px;
+      }
+    }
+  </style>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Main Video Section -->
+    <div class="main-video">
+      <div class="video-wrapper">
+        <div id="player"></div>
+      </div>
+
+      
+    </div>
+
+    <!-- Sidebar Recommendations -->
+
+    <style>
+        .recommendations::-webkit-scrollbar {
+  width: 8px;
+}
+.recommendations::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+.recommendations::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+.video-card:hover {
+  background-color: #f1f1f1;
+  border-radius: 8px;
+}
+
+    </style>
+   
+
+    <!-- Sidebar Recommendations -->
+<!-- Sidebar Recommendations -->
+<div class="recommendations" style="max-height: 90vh; overflow-y: auto; padding-right: 4px;">
+  <% recommendations.forEach(video => {
+    const videoUrl = new URL(video.original_url);
+    const videoId = videoUrl.searchParams.get("v") || videoUrl.pathname.split("/").pop();
+    const youtubeLink = `https://www.youtube.com/watch?v=${videoId}`;
+  %>
+    <a href="<%= youtubeLink %>" target="_blank" style="text-decoration: none; color: inherit;">
+      <div class="video-card" style="flex-direction: column;">
+        <iframe
+          width="100%"
+          height="200"
+          src="https://www.youtube.com/embed/<%= videoId %>?rel=0&modestbranding=1"
+          title="<%= video.title %>"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          style="border-radius: 8px; margin-bottom: 6px;"
+        ></iframe>
+        <div class="video-info" style="margin-left: 0;">
+          <h4><%= video.title %></h4>
+          <p>Watch on YouTube</p>
+        </div>
+      </div>
+    </a>
+  <% }) %>
+</div>
+
+
+  </div>
+
+  <script>
+    let player;
+    let watchSeconds = 0;
+    let timer = null;
+    const originalUrl = "<%= originalUrl %>";
+    const shortCode = "<%= shortCode %>";
+    const url = new URL(originalUrl);
+    const videoId = url.searchParams.get("v") || url.pathname.split("/").pop();
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        videoId,
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        if (!timer) {
+          timer = setInterval(() => {
+            watchSeconds++;
+            const cookieId = (document.cookie.match(/(?:^|;\s*)visitor_id=([^;]+)/) || [])[1];
+            fetch('/api/logWatchTimeRealtime', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ shortCode, seconds: 1, cookieId })
+            }).catch(err => console.error('Watch log failed:', err));
+          }, 1000);
+        }
+      } else {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+  </script>
+</body>
+</html>

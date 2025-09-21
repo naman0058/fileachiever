@@ -1,0 +1,817 @@
+<%include Includes/navbar1.ejs %>
+<%include Includes/projectReport.ejs %>
+
+<style>
+	.about-trust{
+  padding:26px 0; background:linear-gradient(135deg, rgba(42,71,255,.05), rgba(241,127,35,.05));
+  border-top:1px solid var(--brd); border-bottom:1px solid var(--brd);
+}
+.about-trust__wrap{ display:grid; gap:18px; grid-template-columns:1.2fr .8fr; }
+@media(max-width:991.98px){ .about-trust__wrap{ grid-template-columns:1fr; } }
+.about-trust__checks{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:8px; }
+.about-trust__checks li{ display:flex; gap:10px; align-items:flex-start; font-weight:700; }
+.about-trust__checks svg{ width:18px; height:18px; color:var(--brand); margin-top:2px; }
+.about-quote{
+  background:#fff; border:1px solid var(--brd); border-radius:16px; padding:16px;
+  box-shadow:0 10px 24px rgba(14,18,32,.06); font-style:italic; color:#111;
+}
+.about-quote cite{ display:block; margin-top:8px; font-style:normal; color:var(--muted); font-weight:700; }
+
+
+.about-split{ display:grid; gap:16px; grid-template-columns:1.2fr .8fr; align-items:start; }
+@media(max-width:991.98px){ .about-split{ grid-template-columns:1fr; } }
+
+.about-list{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:8px; }
+.about-list li{ display:flex; align-items:flex-start; gap:10px; font-weight:600; color:#111; }
+.about-list svg{ width:18px; height:18px; color:var(--brand); margin-top:2px; }
+
+.about-kpis{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.kpi{
+  background:#fff; border:1px solid var(--brd); border-radius:14px; padding:14px;
+  text-align:center; box-shadow:0 6px 20px rgba(14,18,32,.06);
+}
+.kpi strong{ display:block; font-size:28px; font-weight:900; color:var(--ink); line-height:1; }
+.kpi span{ color:var(--muted); font-weight:700; }
+
+.about-offer{
+  background:#fff; border:1px solid var(--brd); border-radius:14px; padding:14px;
+}
+.about-offer h4{ margin:0 0 6px; font-weight:900; color:var(--ink); }
+.about-bullets{ margin:8px 0 0; padding-left:18px; color:#111; font-weight:600; }
+.about-bullets li{ margin:3px 0; }
+
+</style>
+
+<!-- ========= BREADCRUMB ========= -->
+<div class="breadcrumb-bar">
+  <div class="container">
+    <nav aria-label="breadcrumb" class="page-breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">About Us</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- ========= HERO ========= -->
+<header class="about-hero">
+  <div class="container about-hero__grid">
+    <div class="about-hero__copy">
+      <span class="badge-soft">Student-first Platform</span>
+      <h1>We make final-year projects <span class="grad">simpler</span></h1>
+      <p class="lead">
+        FileMakr helps <strong>B.Tech, M.Tech, BCA, MCA, BE, ME, BSc & MSc</strong> students build and submit
+        <strong>project files, reports, and source code</strong> with confidence—fast.
+      </p>
+      <ul class="hero-points">
+        <li><i data-feather="zap"></i> Instant, faculty-ready formats</li>
+        <li><i data-feather="file-text"></i> Clear documentation & diagrams</li>
+        <li><i data-feather="terminal"></i> Runnable source code + setup help</li>
+      </ul>
+      <div class="hero-cta">
+        <a class="btn btn-brand" href="/final-year-project-ideas"><i data-feather="compass"></i> Explore Project Files</a>
+        <a class="btn btn-light" href="https://wa.me/918319339945" target="_blank" rel="noopener"><i data-feather="message-circle"></i> Chat on WhatsApp</a>
+      </div>
+    </div>
+
+    <!-- Brand-style illustration -->
+   <!-- ===== Brand Illustration (scoped) ===== -->
+<div class="about-hero__art" aria-hidden="true">
+  <div class="art-wrap">
+    <!-- Soft gradient halo -->
+    <div class="art-glow"></div>
+
+    <!-- Glass/neo card -->
+    <div class="art-card-pro" role="img" aria-label="Quality & clean code illustration">
+      <!-- Animated rings -->
+      <span class="art-orb orb-1"></span>
+      <span class="art-orb orb-2"></span>
+      <span class="art-orb orb-3"></span>
+
+      <!-- Device mock -->
+      <div class="art-device">
+        <div class="art-toolbar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <div class="art-code">
+          <span class="l1"></span>
+          <span class="l2"></span>
+          <span class="l3"></span>
+          <span class="l4"></span>
+          <span class="l5"></span>
+        </div>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="art-badges">
+        <div class="art-chip-pro">
+          <i data-feather="award" aria-hidden="true"></i>
+          <span>Faculty-Ready</span>
+        </div>
+        <div class="art-chip-pro">
+          <i data-feather="code" aria-hidden="true"></i>
+          <span>Clean Code</span>
+        </div>
+        <div class="art-chip-pro">
+          <i data-feather="shield" aria-hidden="true"></i>
+          <span>Secure Checkout</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ===== Scoped illustration styles ===== */
+.about-hero__art { display:grid; place-items:center; }
+.about-hero__art .art-wrap {
+  position: relative;
+  width: min(100%, 520px); /* caps size on big screens, still fluid on small screens */
+  aspect-ratio: 5 / 4;
+  
+}
+
+/* 1) Never allow page-wide horizontal scroll (safe fallback) */
+html, body { overflow-x: hidden; }
+
+/* 2) Keep the illustration responsive without creating overflow */
+.art-section,
+.about-hero__art { overflow: hidden; }              /* clip any decorative spill */
+
+.art-wrap {
+  position: relative;
+  /* responsive width: min 280px, prefers 92vw, caps at 520px */
+  width: clamp(280px, 92vw, 520px);
+  aspect-ratio: 5 / 4;
+  margin: 0 auto;                                   /* center on all screens */
+  box-sizing: border-box;
+}
+
+/* 3) Ensure inner card clips all absolutely-positioned elements */
+.art-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;      /* older browsers */
+  overflow: clip;        /* modern browsers (prevents scroll metrics) */
+  contain: paint;        /* isolate paints to prevent layout spill */
+}
+
+/* 4) Keep decorative rings/chips inside the frame */
+.art-ring,
+.art-chip {
+  position: absolute;
+  max-width: 100%;
+  /* If you previously used negative offsets or large transforms,
+     rein them in to the card’s box: */
+  inset: auto;
+}
+
+/* Example safe positions (tweak as needed) */
+.ring-1 { top: -10%; left: 50%; transform: translateX(-50%); width: 120%; }
+.ring-2 { bottom: -12%; right: -8%; width: 70%; }
+
+/* Chips pinned inside the card */
+.art-chip       { top: 12px; left: 12px; }
+.art-chip.chip-2{ bottom: 12px; right: 12px; }
+
+
+
+.about-hero__art .art-glow{
+  position:absolute; inset:-8%;
+  background:
+    radial-gradient(280px 220px at 20% 30%, rgba(42,71,255,.22), transparent 60%),
+    radial-gradient(280px 220px at 80% 70%, rgba(241,127,35,.22), transparent 60%);
+  filter: blur(28px);
+  z-index:0;
+}
+
+.about-hero__art .art-card-pro{
+  position:relative; z-index:1; height:100%; width:100%;
+  border-radius:22px;
+  padding:16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.45));
+  border:1px solid rgba(14,18,32,.10);
+  box-shadow:
+    0 10px 30px rgba(14,18,32,.10),
+    inset 0 1px 0 rgba(255,255,255,.35);
+  backdrop-filter: saturate(160%) blur(8px);
+  overflow:hidden;
+}
+
+/* Floating gradient orbs */
+.about-hero__art .art-orb{
+  position:absolute; border-radius:999px; filter: blur(6px); opacity:.75;
+  animation: float 8s ease-in-out infinite;
+}
+.about-hero__art .orb-1{ width:120px; height:120px; left:8%; top:10%;
+  background: radial-gradient(closest-side, #2A47FF, rgba(42,71,255,.15)); animation-delay:0s; }
+.about-hero__art .orb-2{ width:160px; height:160px; right:8%; top:18%;
+  background: radial-gradient(closest-side, #F17F23, rgba(241,127,35,.15)); animation-delay:.6s; }
+.about-hero__art .orb-3{ width:100px; height:100px; right:12%; bottom:10%;
+  background: radial-gradient(closest-side, #7C3AED, rgba(124,58,237,.15)); animation-delay:1.2s; }
+
+@keyframes float{
+  0%,100%{ transform: translateY(0) }
+  50%{ transform: translateY(-8px) }
+}
+
+/* Device mock */
+.about-hero__art .art-device{
+  position:absolute; left:50%; top:50%; transform: translate(-50%,-50%) rotate(-2deg);
+  width:78%; border-radius:16px; overflow:hidden;
+  background:#0f1424; border:1px solid rgba(255,255,255,.08);
+  box-shadow: 0 16px 40px rgba(14,18,32,.18);
+}
+.about-hero__art .art-toolbar{
+  display:flex; align-items:center; gap:6px; height:34px; padding:0 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.about-hero__art .art-toolbar .dot{
+  width:10px; height:10px; border-radius:999px; display:inline-block;
+  background: #ff5f57; box-shadow: 16px 0 0 #febc2e, 32px 0 0 #28c840;
+}
+
+.about-hero__art .art-code{
+  padding:14px 14px 20px 14px; display:grid; gap:8px;
+}
+.about-hero__art .art-code span{
+  display:block; height:8px; border-radius:6px;
+  background: linear-gradient(90deg, rgba(255,255,255,.22), rgba(255,255,255,.08));
+}
+.about-hero__art .art-code .l1{ width:86%; }
+.about-hero__art .art-code .l2{ width:72%; }
+.about-hero__art .art-code .l3{ width:64%; }
+.about-hero__art .art-code .l4{ width:90%; }
+.about-hero__art .art-code .l5{ width:58%; }
+
+/* Badges row */
+.about-hero__art .art-badges{
+  position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
+  display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+}
+.about-hero__art .art-chip-pro{
+  display:inline-flex; align-items:center; gap:8px; padding:8px 12px;
+  border-radius:999px; font-weight:800; font-size:12px;
+  color:#0e1220; background:#fff;
+  border:1px solid rgba(14,18,32,.08);
+  box-shadow: 0 8px 18px rgba(14,18,32,.08);
+}
+.about-hero__art .art-chip-pro svg{ width:14px; height:14px; color:#2A47FF; }
+
+/* Motion preference */
+@media (prefers-reduced-motion: reduce){
+  .about-hero__art .art-orb{ animation:none; }
+}
+</style>
+
+<script>
+  // Feather icons (safe if already on page)
+  (function(){
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace();
+    } else {
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/feather-icons';
+      s.onload = function(){ window.feather && window.feather.replace(); };
+      document.head.appendChild(s);
+    }
+  })();
+</script>
+
+  </div>
+</header>
+
+<main class="about-main">
+
+  <!-- ========= TRUST STRIP ========= -->
+  <section class="trust-strip">
+    <div class="container trust-grid">
+      <div class="trust-item">
+        <i data-feather="user-check"></i>
+        <div><strong>45,000+ Students</strong><span>guided since launch</span></div>
+      </div>
+      <div class="trust-item">
+        <i data-feather="book-open"></i>
+        <div><strong>1,200+ Formats</strong><span>across universities</span></div>
+      </div>
+      <div class="trust-item">
+        <i data-feather="clock"></i>
+        <div><strong>24h Support</strong><span>for code setup</span></div>
+      </div>
+      <div class="trust-item">
+        <i data-feather="shield"></i>
+        <div><strong>Secure Checkout</strong><span>instant delivery</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========= VALUE CARDS ========= -->
+  <!-- ===== FileMakr | Value Bento ===== -->
+<section class="fm-bento">
+  <div class="container">
+    <div class="fm-bento__head">
+      <span class="fm-badge"><i data-feather="star"></i> Why students choose FileMakr</span>
+      <h2>Everything you need to build and submit with confidence</h2>
+      <p class="fm-sub">
+        Premium documentation, runnable source code, and human support—designed for final-year submissions across
+        B.Tech, M.Tech, BCA, MCA, BE, ME, BSc & MSc programs.
+      </p>
+    </div>
+
+    <div class="fm-bento__grid">
+      <!-- 1 -->
+      <article class="fm-card">
+        <div class="fm-card__icon">
+          <i data-feather="edit-3" aria-hidden="true"></i>
+        </div>
+        <div class="fm-card__body">
+          <h3>Polished Project Files</h3>
+          <p>Clean academic structure with TOC, methodology, modules, testing & references—ready for evaluation.</p>
+          <ul class="fm-list">
+            <li><i data-feather="file-text"></i> DOC & PDF exports</li>
+            <li><i data-feather="layers"></i> ER / DFD / UML diagrams</li>
+            <li><i data-feather="shield"></i> Plagiarism-aware writing</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 2 -->
+      <article class="fm-card fm-card--accent">
+        <div class="fm-card__icon">
+          <i data-feather="code" aria-hidden="true"></i>
+        </div>
+        <div class="fm-card__body">
+          <h3>Source Code You Can Run</h3>
+          <p>Organized repositories (MERN, PHP, Django, Python, Machine Learning, React Native & more) with clear README and scripts.</p>
+          <ul class="fm-list">
+            <li><i data-feather="database"></i> Sample data & seeds</li>
+            <li><i data-feather="settings"></i> ENV notes & run scripts</li>
+            <li><i data-feather="share-2"></i> API collections</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 3 -->
+      <article class="fm-card">
+        <div class="fm-card__icon">
+          <i data-feather="headphones" aria-hidden="true"></i>
+        </div>
+        <div class="fm-card__body">
+          <h3>Setup & Support</h3>
+          <p>Optional 1:1 assistance to install, configure, and demo your project—so viva day is stress-free.</p>
+          <ul class="fm-list">
+            <li><i data-feather="monitor"></i> Remote assistance</li>
+            <li><i data-feather="tool"></i> Environment fixes</li>
+            <li><i data-feather="compass"></i> End-to-end guidance</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ===== Scoped styles for the bento section ===== */
+.fm-bento{
+  position:relative;
+  padding:32px 0 28px;
+  background:
+    radial-gradient(160px 160px at 10% 10%, rgba(42,71,255,.06), transparent 60%),
+    radial-gradient(200px 200px at 90% 30%, rgba(241,127,35,.06), transparent 60%),
+    #f7f8fc;
+  border-top:1px solid rgba(14,18,32,.06);
+  border-bottom:1px solid rgba(14,18,32,.06);
+}
+.fm-bento .container{ max-width:1120px; margin:0 auto; padding:0 16px; }
+
+.fm-bento__head{ text-align:center; max-width:860px; margin:0 auto 16px; }
+.fm-badge{
+  display:inline-flex; gap:8px; align-items:center;
+  padding:6px 10px; border-radius:999px;
+  background:rgba(42,71,255,.08); color:#2A47FF; font-weight:800; font-size:12px;
+  border:1px solid rgba(42,71,255,.18);
+}
+.fm-badge svg{ width:14px; height:14px; }
+.fm-bento__head h2{ margin:10px 0 6px; font-weight:900; color:#0e1220; }
+.fm-sub{ margin:0 auto; color:#111; font-size:1.05rem; }
+
+.fm-bento__grid{
+  display:grid; gap:14px; margin-top:14px;
+  grid-template-columns:repeat(3, 1fr);
+}
+@media (max-width: 991.98px){ .fm-bento__grid{ grid-template-columns:1fr; } }
+
+.fm-card{
+  display:flex; gap:14px; padding:16px; border-radius:18px; background:#fff;
+  border:1px solid rgba(14,18,32,.08);
+  box-shadow:0 12px 28px rgba(14,18,32,.06);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.fm-card:hover{
+  transform: translateY(-2px);
+  box-shadow:0 16px 40px rgba(14,18,32,.10);
+  border-color: rgba(42,71,255,.18);
+}
+.fm-card--accent{
+  background: linear-gradient(180deg, rgba(42,71,255,.04), rgba(241,127,35,.04));
+  border:1px solid rgba(14,18,32,.08);
+}
+
+.fm-card__icon{
+  flex:0 0 auto; width:44px; height:44px; border-radius:14px;
+  display:grid; place-items:center;
+  background:linear-gradient(135deg, rgba(42,71,255,.10), rgba(241,127,35,.10));
+  color:#2A47FF;
+}
+.fm-card__icon svg{ width:22px; height:22px; }
+
+.fm-card__body h3{ margin:2px 0 6px; font-weight:900; color:#0e1220; }
+.fm-card__body p{ margin:0 0 8px; color:#6b7280; font-weight:600; }
+
+.fm-list{
+  list-style:none; padding:0; margin:0; display:grid; gap:6px;
+}
+.fm-list li{
+  display:flex; gap:10px; align-items:flex-start; color:#111; font-weight:700;
+}
+.fm-list svg{ width:16px; height:16px; color:#2A47FF; margin-top:2px; }
+</style>
+
+<script>
+  // Feather icons (safe no-op if already on page)
+  (function(){
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace();
+    } else {
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/feather-icons';
+      s.onload = function(){ window.feather && window.feather.replace(); };
+      document.head.appendChild(s);
+    }
+  })();
+</script>
+
+
+  <!-- ========= STORY SPLIT ========= -->
+
+  <!-- Built for Students (Premium) -->
+<section class="fm-built alt">
+  <div class="container fm-built__grid">
+    <!-- Left: Copy -->
+    <div class="fm-built__copy">
+      <span class="fm-tag"><i data-feather="award"></i> Student-first</span>
+      <h2>Built for College Students</h2>
+      <p class="fm-lead">
+        Whether you’re building a <strong>B.Tech final-year project</strong>, an <strong>MCA capstone</strong>, or a
+        <strong>BSc/MSc research prototype</strong>, FileMakr delivers <strong>structured documentation</strong>,
+        <strong>runnable code</strong>, and guidance aligned to <strong>department rubrics</strong>.
+      </p>
+
+      <ul class="fm-checklist">
+        <li><i data-feather="target"></i> Major & Minor projects with crystal-clear scope</li>
+        <li><i data-feather="layout"></i> Templates aligned to common college formats</li>
+        <li><i data-feather="git-branch"></i> Realistic modules, APIs & database schemas</li>
+        <li><i data-feather="users"></i> Solo or group projects — we support both</li>
+      </ul>
+
+      <div class="fm-chips">
+        <span class="chip"><i data-feather="book-open"></i> B.Tech / M.Tech</span>
+        <span class="chip"><i data-feather="cpu"></i> BCA / MCA</span>
+        <span class="chip"><i data-feather="layers"></i> BE / ME</span>
+        <span class="chip"><i data-feather="microscope"></i> BSc / MSc</span>
+      </div>
+    </div>
+
+    <!-- Right: Visual / Feature cards -->
+    <aside class="fm-built__visual" aria-hidden="true">
+      <div class="fm-card">
+        <div class="fm-card__icon"><i data-feather="file-text"></i></div>
+        <div class="fm-card__body">
+          <h4>Faculty-ready Reports</h4>
+          <p>Clean headings, diagrams & references — ready for review.</p>
+        </div>
+      </div>
+
+      <div class="fm-card">
+        <div class="fm-card__icon"><i data-feather="code"></i></div>
+        <div class="fm-card__body">
+          <h4>Runnable Source Code</h4>
+          <p>Structured repos with setup notes and sample data.</p>
+        </div>
+      </div>
+
+      <div class="fm-card">
+        <div class="fm-card__icon"><i data-feather="headphones"></i></div>
+        <div class="fm-card__body">
+          <h4>1:1 Setup Support</h4>
+          <p>Optional remote help — demo-ready in 24 hours.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<style>
+/* ===== Built for Students (scoped) ===== */
+.fm-built{
+  background: linear-gradient(135deg, rgba(42,71,255,.06), rgba(241,127,35,.06));
+  border-top: 1px solid rgba(14,18,32,.08);
+  border-bottom: 1px solid rgba(14,18,32,.08);
+  padding: 28px 0;
+}
+.fm-built .container{ max-width:1120px; margin:0 auto; padding:0 16px; }
+.fm-built__grid{
+  display:grid; gap:18px; grid-template-columns: 1.25fr .75fr; align-items: start;
+}
+@media (max-width: 991.98px){ .fm-built__grid{ grid-template-columns:1fr; } }
+
+.fm-tag{
+  display:inline-flex; gap:8px; align-items:center;
+  padding:6px 10px; border-radius:999px; font-weight:800; font-size:12px;
+  color:#2A47FF; background:rgba(42,71,255,.10); border:1px solid rgba(42,71,255,.22);
+}
+.fm-built h2{ margin:10px 0 8px; font-weight:900; color:#0e1220; }
+.fm-lead{ color:#111; margin:0 0 10px; font-size:1.05rem; }
+
+.fm-checklist{
+  list-style:none; padding:0; margin:12px 0 12px; display:grid; gap:8px;
+}
+.fm-checklist li{ display:flex; gap:10px; align-items:flex-start; font-weight:700; color:#111; }
+.fm-checklist svg{ width:18px; height:18px; color:#2A47FF; margin-top:2px; }
+
+.fm-chips{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip{
+  display:inline-flex; gap:8px; align-items:center;
+  padding:8px 12px; background:#fff; border:1px solid rgba(14,18,32,.10); border-radius:999px; font-weight:800;
+}
+.chip svg{ width:16px; height:16px; color:#2A47FF; }
+
+/* Right column cards */
+.fm-built__visual{
+  display:grid; gap:10px;
+}
+.fm-card{
+  display:flex; gap:12px; align-items:flex-start;
+  background:#fff; border:1px solid rgba(14,18,32,.08); border-radius:16px; padding:14px;
+  box-shadow:0 12px 28px rgba(14,18,32,.06);
+}
+.fm-card__icon{
+  width:38px; height:38px; border-radius:12px; display:grid; place-items:center;
+  background:rgba(42,71,255,.10); color:#2A47FF; flex:0 0 auto;
+}
+.fm-card__icon svg{ width:20px; height:20px; }
+.fm-card__body h4{ margin:2px 0 4px; font-weight:900; color:#0e1220; }
+.fm-card__body p{ margin:0; color:#6b7280; font-weight:600; }
+</style>
+
+<script>
+  (function(){
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace();
+    } else {
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/feather-icons';
+      s.onload = function(){ window.feather && window.feather.replace(); };
+      document.head.appendChild(s);
+    }
+  })();
+</script>
+
+
+
+  <!-- ========= TIMELINE ========= -->
+  <section class="about-section">
+    <div class="container">
+      <h2>How it works</h2>
+      <ol class="timeline">
+        <li>
+          <span class="dot"></span>
+          <div class="tl-card">
+            <h4><i data-feather="search"></i> Browse & choose</h4>
+            <p>Select a project topic or codebase that fits your degree and interests.</p>
+          </div>
+        </li>
+        <li>
+          <span class="dot"></span>
+          <div class="tl-card">
+            <h4><i data-feather="download-cloud"></i> Download instantly</h4>
+            <p>Get your project file and/or source code immediately after secure checkout.</p>
+          </div>
+        </li>
+        <li>
+          <span class="dot"></span>
+          <div class="tl-card">
+            <h4><i data-feather="tool"></i> Customize & run</h4>
+            <p>Follow the README and setup notes; add your college-specific tweaks.</p>
+          </div>
+        </li>
+        <li>
+          <span class="dot"></span>
+          <div class="tl-card">
+            <h4><i data-feather="thumbs-up"></i> Present with confidence</h4>
+            <p>Use structured docs and working modules to ace your viva and demo.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+
+    <section class="about-trust">
+    <div class="container about-trust__wrap">
+      <div class="about-trust__left">
+        <h2>Loved by Students & Mentors</h2>
+        <p>
+          FileMakr is crafted with educators and industry mentors. Our templates and codebases are
+          continuously improved from thousands of successful submissions and real classroom feedback.
+        </p>
+        <ul class="about-trust__checks">
+          <li><i data-feather="shield"></i> Secure checkout & instant delivery</li>
+          <li><i data-feather="clock"></i> Fast turnaround for deadlines</li>
+          <li><i data-feather="award"></i> Built to help you score better</li>
+        </ul>
+      </div>
+      <div class="about-trust__right">
+        <blockquote class="about-quote">
+          “Clean, practical, and easy to adapt to our department format. My viva was smooth because I understood
+          the flow end-to-end.”
+          <cite>— Final-Year B.Tech Student</cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========= QUOTE ========= -->
+
+
+  <!-- ========= FAQ ========= -->
+  <section class="about-section alt">
+    <div class="container">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq">
+        <details>
+          <summary>Is FileMakr suitable for my degree?</summary>
+          <p>Yes—B.Tech, M.Tech, BCA, MCA, BE, ME, BSc, and MSc. We align content with common CS/IT curricula.</p>
+        </details>
+        <details>
+          <summary>Do you provide source code with documentation?</summary>
+          <p>Absolutely. Get faculty-ready documentation plus runnable source code and setup notes.</p>
+        </details>
+        <details>
+          <summary>What if my college has a specific format?</summary>
+          <p>Share your guidelines on WhatsApp or choose the customized option—we’ll match your department style.</p>
+        </details>
+        <details>
+          <summary>How fast is delivery?</summary>
+          <p>Ready files are instant. Setup support and customizations typically start within 24 hours.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========= CTA ========= -->
+  <section class="cta">
+    <div class="container cta-box">
+      <div>
+        <h2>Start your project with confidence</h2>
+        <p>Browse ready-to-use project files and source code, or message us for custom formatting and setup support.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-brand" href="/final-year-project-ideas"><i data-feather="folder"></i> Explore Project Files</a>
+        <a class="btn btn-light" href="https://wa.me/918319339945" target="_blank" rel="noopener"><i data-feather="phone-call"></i> Chat on WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<%include Includes/footer.ejs %>
+
+<!-- ========= STYLES ========= -->
+<style>
+:root{
+  --ink:#0e1220; --muted:#6b7280; --bg:#f7f8fc; --card:#fff;
+  --brand:#2A47FF; --accent:#F17F23; --ring:rgba(42,71,255,.18);
+  --brd:rgba(14,18,32,.08); --radius:16px;
+}
+html,body{background:var(--bg);color:var(--ink)}
+.container{max-width:1120px;margin:0 auto;padding:0 16px}
+
+/* Hero */
+.about-hero{background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));border-bottom:1px solid var(--brd);padding:36px 0 28px}
+.about-hero__grid{display:grid;gap:20px;grid-template-columns:1.2fr .8fr}
+@media(max-width:992px){.about-hero__grid{grid-template-columns:1fr}}
+.badge-soft{display:inline-block;font-weight:800;font-size:12px;padding:6px 10px;border-radius:999px;color:var(--brand);background:rgba(42,71,255,.08);border:1px solid rgba(42,71,255,.2)}
+.about-hero h1{font-weight:900;margin:.4rem 0 .5rem}
+.about-hero .grad{background:linear-gradient(90deg,var(--brand),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:1.05rem;color:#111}
+.hero-points{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+.hero-points li{display:flex;align-items:center;gap:10px;font-weight:700}
+.hero-points svg{width:18px;height:18px;color:var(--brand)}
+.hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* Art */
+.about-hero__art{display:grid;place-items:center}
+.art-card{position:relative;width:100%;height:260px;border-radius:20px;background:#fff;border:1px solid var(--brd);box-shadow:0 20px 50px rgba(14,18,32,.08);overflow:hidden}
+.art-ring{position:absolute;border-radius:999px;filter:blur(18px)}
+.ring-1{width:240px;height:240px;left:-40px;top:-40px;background:rgba(42,71,255,.12)}
+.ring-2{width:260px;height:260px;right:-50px;bottom:-50px;background:rgba(241,127,35,.12)}
+.art-chip{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--brd);border-radius:12px;padding:8px 10px;font-weight:800;box-shadow:0 10px 24px rgba(14,18,32,.08)}
+.art-chip svg{width:16px;height:16px;color:var(--brand)}
+.art-chip.chip-2{left:auto;right:16px;top:16px}
+
+/* Trust strip */
+.trust-strip{background:#fff;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd)}
+.trust-grid{display:grid;gap:12px;grid-template-columns:repeat(4,1fr);padding:14px 0}
+@media(max-width:992px){.trust-grid{grid-template-columns:repeat(2,1fr)}}
+.trust-item{display:flex;gap:10px;align-items:center;border:1px solid var(--brd);border-radius:14px;background:#fff;padding:12px;box-shadow:0 10px 22px rgba(14,18,32,.06);margin-left: 5px;margin-right: 5px;}
+.trust-item svg{width:18px;height:18px;color:var(--brand)}
+.trust-item strong{display:block;line-height:1}
+
+/* Sections & cards */
+.about-section{padding:26px 0}
+.about-section.alt{background:#fff;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd)}
+.grid-3{display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+@media(max-width:992px){.grid-3{grid-template-columns:1fr}}
+.card-bento{background:#fff;border:1px solid var(--brd);border-radius:16px;padding:16px;box-shadow:0 12px 30px rgba(14,18,32,.06)}
+.ico-wrap{width:40px;height:40px;border-radius:12px;background:rgba(42,71,255,.08);border:1px solid rgba(42,71,255,.15);display:grid;place-items:center;margin-bottom:8px}
+.ico-wrap svg{width:18px;height:18px;color:var(--brand)}
+.card-bento h3{margin:4px 0 6px;font-weight:900}
+.card-bento p{color:var(--muted);margin:0 0 8px}
+.mini-list{list-style:disc;margin:0 0 0 18px;color:#111;font-weight:600}
+
+/* Split */
+.split{display:grid;gap:18px;grid-template-columns:1.2fr .8fr;align-items:center}
+@media(max-width:992px){.split{grid-template-columns:1fr}}
+.bullets{display:grid;gap:10px;margin-top:8px}
+.bullet{display:flex;gap:10px;align-items:center;font-weight:800}
+.bullet svg{width:18px;height:18px;color:var(--brand)}
+.visual .stack{display:grid;gap:10px}
+.stack-card{display:flex;gap:10px;align-items:center;border:1px solid var(--brd);border-radius:14px;background:#fff;padding:12px;box-shadow:0 10px 24px rgba(14,18,32,.06)}
+.stack-card svg{width:18px;height:18px;color:var(--brand)}
+
+/* Timeline */
+.timeline{list-style:none;margin:12px 0 0;padding-left:0;border-left:2px solid rgba(14,18,32,.08)}
+.timeline li{position:relative;margin:0 0 10px 16px}
+.timeline .dot{position:absolute;left:-9px;top:4px;width:12px;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--brand),var(--accent))}
+.tl-card{background:#fff;border:1px solid var(--brd);border-radius:12px;padding:12px;box-shadow:0 10px 24px rgba(14,18,32,.06)}
+.tl-card h4{display:flex;gap:8px;align-items:center;margin:0 0 4px}
+.tl-card h4 svg{width:16px;height:16px;color:var(--brand)}
+.tl-card p{margin:0;color:var(--muted)}
+
+/* Quote */
+.quote-band{background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));border-top:1px solid var(--brd);border-bottom:1px solid var(--brd)}
+.quote{padding:22px 0;text-align:center;max-width:880px}
+.quote p{font-size:1.05rem;font-style:italic;margin:0 0 6px}
+.quote cite{color:var(--muted);font-weight:800}
+
+/* FAQ */
+.faq details{background:#fff;border:1px solid var(--brd);border-radius:12px;padding:12px;margin:10px 0}
+.faq summary{cursor:pointer;font-weight:900}
+.faq p{margin:8px 0 0;color:var(--muted)}
+
+/* CTA */
+.cta{padding:28px 0}
+.cta-box{border:1px solid var(--brd);border-radius:18px;background:#fff;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 12px 30px rgba(14,18,32,.06)}
+@media(max-width:992px){.cta-box{flex-direction:column;align-items:flex-start}}
+.cta-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 16px;font-weight:900;border-radius:12px;border:1px solid transparent;text-decoration:none}
+.btn-brand{background:linear-gradient(90deg,var(--brand),var(--accent));color:#fff;border-color:transparent;box-shadow:0 10px 26px rgba(42,71,255,.15)}
+.btn-brand:hover{filter:brightness(.98)}
+.btn-light{background:#fff;color:#111;border:1px solid var(--brd)}
+.btn-light:hover{box-shadow:0 0 0 4px var(--ring)}
+</style>
+
+<!-- ========= FEATHER ICONS ========= -->
+<script>
+  (function(){
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace();
+    } else {
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/feather-icons';
+      s.onload = () => window.feather && window.feather.replace();
+      document.head.appendChild(s);
+    }
+  })();
+</script>
+
+<!-- ========= SEO: Organization Schema ========= -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "name":"FileMakr",
+  "url":"https://www.filemakr.com",
+  "logo":"https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
+  "sameAs":["https://wa.me/918319339945"],
+  "description":"FileMakr helps B.Tech, M.Tech, BCA, MCA, BE, ME, BSc, and MSc students create faculty-ready project files, reports, and source code with setup support."
+}
+</script>

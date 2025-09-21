@@ -1,0 +1,91 @@
+
+
+<%include ./header.ejs %>  
+
+
+    <!-- main area part start -->
+    <main>
+
+      <section class="content-box-area mt-4">
+        <div class="container">
+          <div class="row g-4">
+<%include ./profilecard.ejs %>  
+           
+            <div class="col-xl-8">
+              <div class="card content-box-card">
+                <div class="card-body portfolio-card">
+                  <div class="top-info">
+                    <div class="text">
+                      <h1 class="main-title">Check Out My Latest <span>Projects</span></h1>
+                      <p>I'm here to help if you're looking for a graphic designer and video editor to bring your ideas to life or a design partner to elevate your business to the next level.</p>
+                    </div>
+                  </div>
+                  <div class="services">
+                    <div class="row g-4">
+
+                        <% for(i=0;i<result.length;i++){ %>
+                        <div class="col-md-4 col-sm-6 col-6">
+                          <div class="services-item text-center">
+                           <a href="/works/<%=result[i].folder_name%>">
+                            <div class="text">
+                              <h3 class="title"><%=result[i].folder_name%></h3>
+                            </div>
+                            </a>
+                          </div>
+                        </div>
+                        <% } %>
+                    
+                      </div>
+                 
+                  </div>
+
+                  <div class="work-together-slider">
+                    <div class="slider-main d-flex gap-4 align-items-center">
+                      <div class="slider-item">
+                        <a href="contact.html">Let's 👋 Work Together</a>
+                        <a href="contact.html">Let's 👋 Work Together</a>
+                      </div>
+                      <div class="slider-item">
+                        <a href="contact.html">Let's 👋 Work Together</a>
+                        <a href="contact.html">Let's 👋 Work Together</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- background shape area start -->
+      <div class="background-shapes">
+        <div class="shape-1 common-shape">
+          <img src="/subdomain_manisha/assets/img/bg/banner-shape-1.png" alt="banner-shape-1">
+        </div>
+        <div class="shape-2 common-shape">
+          <img src="/subdomain_manisha/assets/img/bg/banner-shape-1.png" alt="banner-shape-1">
+        </div>
+        <div class="threed-shape-1 move-with-cursor" data-value="1">
+          <img src="/subdomain_manisha/assets/img/bg/object-3d-1.png" alt="object-3d-1">
+        </div>
+        <div class="threed-shape-2 move-with-cursor" data-value="1">
+          <img src="/subdomain_manisha/assets/img/bg/object-3d-2.png" alt="object-3d-2">
+        </div>
+      </div>
+      <!-- background shape area end -->
+    </main>
+    <!-- main area part end -->
+
+    <!-- footer part start -->
+   
+    <!-- footer part end -->
+  </div>
+
+
+
+  <%include ./footer.ejs %>  
+
+
+<!-- Mirrored from marveltheme.com/tf/html/Manishafolio-html/portfolio.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 22 Feb 2025 12:56:29 GMT -->
+</html>

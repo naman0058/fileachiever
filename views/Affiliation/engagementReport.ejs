@@ -1,0 +1,66 @@
+<% include ./header.ejs %>
+
+<div class="content-body">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Engagement Report – Last 5 Posts</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered text-center align-middle">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Ambassador</th>
+                                        <th>Instagram ID</th>
+                                        <% posts.forEach(post => { %>
+                                            <th>
+                                                <%= post.post_date %><br>
+                                                <small class="text-muted">Post ID: <%= post.id %></small>
+                                            </th>
+                                        <% }) %>
+                                    </tr>
+                                </thead>
+                                <tbody>
+    <% ambassadors.forEach(amb => { %>
+        <tr>
+            <td><%= amb.name %></td>
+            <td><%= amb.instagram_id %></td>
+            <% posts.forEach(post => {
+                const key = `${amb.id}_${post.id}`;
+                const status = engagementMap[key] || {};
+            %>
+                <td>
+                    <% if (status.liked === null || status.liked === undefined) { %>
+                        <span class="text-muted">-</span>
+                    <% } else { %>
+                        <span class="<%= status.liked ? 'text-success' : 'text-danger' %>">
+                            <%= status.liked ? '👍' : '✖' %> 
+                        </span>
+                    <% } %>
+                    /
+                    <% if (status.commented === null || status.commented === undefined) { %>
+                        <span class="text-muted">-</span>
+                    <% } else { %>
+                        <span class="<%= status.commented ? 'text-info' : 'text-danger' %>">
+                            <%= status.commented ? '💬' : '✖' %>
+                        </span>
+                    <% } %>
+                </td>
+            <% }) %>
+        </tr>
+    <% }) %>
+</tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ./footer.ejs %>

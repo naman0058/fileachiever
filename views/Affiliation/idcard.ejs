@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FILEMAKR | ID Card</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Allura&display=swap" rel="stylesheet">
+<style>
+  .amsterdam-font {
+    font-family: 'Allura', cursive;
+  }
+</style>
+
+  <style>
+    .signature-font {
+      font-family: 'Great Vibes', cursive;
+    }
+
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+      html, body {
+        width: 900px;
+        height: 550px;
+        overflow: hidden;
+      }
+    }
+
+    @page {
+      size: 900px 550px;
+      margin: 0;
+    }
+
+    @media print {
+      .gradient-strip {
+        background-image: linear-gradient(to right, #f97316, #2563eb) !important;
+        height: 20px !important;
+        border-radius: 0 !important;
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <!-- Download Button -->
+  <div class="no-print fixed top-6 right-6 z-50">
+    <button onclick="window.print()" class="bg-blue-700 text-white px-5 py-2 rounded-full shadow hover:bg-blue-800 transition-all text-lg">
+      ⬇️ Download as PDF
+    </button>
+  </div>
+
+  <!-- ID Card -->
+<div class="relative w-[900px] h-[550px] bg-white rounded-xl shadow-xl overflow-hidden border border-gray-300 flex flex-col">
+
+    <!-- Top Bar -->
+      <div class="h-[8px] bg-gradient-to-r from-orange-500 to-blue-600"></div>
+      <div class="h-[8px] bg-gradient-to-r from-orange-500 to-blue-600"></div>
+
+
+       <div class="absolute top-0 left-0 h-full w-[8px] bg-gradient-to-b from-orange-500 to-blue-600 z-10"></div>
+       <div class="absolute top-0 left-0 h-full w-[8px] bg-gradient-to-b from-orange-500 to-blue-600 z-10"></div>
+
+
+  <!-- Right Gradient Strip -->
+  <div class="absolute top-0 right-0 h-full w-[8px] bg-gradient-to-b from-blue-700 to-orange-500 z-10"></div>
+  <div class="absolute top-0 right-0 h-full w-[8px] bg-gradient-to-b from-blue-700 to-orange-500 z-10"></div>
+
+
+
+   <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif"
+     alt="FILEMAKR Watermark"
+     class="absolute top-1/2 left-[40%] -translate-x-1/2 -translate-y-1/2 w-[300px] opacity-5 pointer-events-none select-none" />
+
+    <!-- Main Content -->
+    <div class="flex px-10 py-6 items-stretch h-full">
+
+      <!-- Left Section (Details) -->
+      <div class="w-1/2 flex flex-col justify-between pr-8">
+        <div class="space-y-6 text-xl text-gray-800 leading-8 pt-4">
+          <p><span class="font-semibold">Name</span> : <%= name.toUpperCase() %></p>
+          <p><span class="font-semibold">D.O.J</span> : <%= doj %></p>
+          <p><span class="font-semibold">College</span> : <%= college.toUpperCase() %></p>
+          <p><span class="font-semibold">Email</span> : <%= email %></p>
+        </div>
+
+        <!-- Signature Block -->
+        <div class="mt-10">
+         <div class="text-5xl amsterdam-font text-gray-700">Abhishek</div>
+          <p class="text-base text-gray-500 mt-1">Authorized Signatory</p>
+        </div>
+      </div>
+
+      <!-- Right Section (Branding, Image, Barcode) -->
+      <div class="w-1/2 flex flex-col justify-start items-center pt-2 border-l pl-8 border-gray-200">
+        <h2 class="text-6xl font-extrabold text-blue-800 mb-2 tracking-wide">FILEMAKR</h2>
+        <p class="text-2xl text-gray-600 mb-6 font-medium">Campus Brand Ambassador</p>
+
+        <!-- Profile Image -->
+       <img src="<%= photoUrl %>"
+     alt="Ambassador"
+     class="w-64 h-64 object-cover rounded-lg shadow-sm border border-gray-300 mb-4" />
+
+        <!-- Barcode -->
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=<%= idCode %>&code=Code128&translate-esc=true"
+             alt="Barcode"
+             class="w-[240px] h-[60px] mt-2" />
+      </div>
+      
+    </div>
+
+    <!-- Bottom Bar -->
+     <div class="h-[8px] bg-gradient-to-r from-blue-700 to-orange-500"></div>
+     <div class="h-[8px] bg-gradient-to-r from-blue-700 to-orange-500"></div>
+
+    
+  </div>
+  
+
+</body>
+</html>

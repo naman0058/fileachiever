@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FileMakr | Brand Ambassador Leaderboard Dashboard</title>
+<link rel="shortcut icon" type="images/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width:80px;" />
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+	body {
+		background: #f4f6f9;
+		font-family: 'Poppins', sans-serif;
+	}
+	.leaderboard-container {
+		max-width: 700px;
+		margin: 50px auto;
+	}
+	.leaderboard-card {
+		background: white;
+		padding: 30px;
+		border-radius: 12px;
+		box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+	}
+	.leaderboard-title {
+		text-align: center;
+		font-weight: 700;
+		font-size: 24px;
+		margin-bottom: 20px;
+	}
+	table {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0 8px;
+		
+	}
+	
+	th {
+		padding: 12px;
+	}
+	tbody tr {
+		background: white;
+		transition: 0.3s;
+		border-radius: 8px;
+	}
+	tbody tr:hover {
+		transform: scale(1.02);
+		box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	}
+	td {
+		padding: 12px;
+		font-weight: 600;
+	}
+	.gold { color: gold; font-weight: bold; }
+	.silver { color: silver; font-weight: bold; }
+	.bronze { color: #cd7f32; font-weight: bold; }
+
+
+	#claimPointsBtn {
+    position: relative;
+    z-index: 10; /* Bring button to front */
+    pointer-events: auto; /* Ensure it's clickable */
+	margin-bottom: 20px;
+}
+
+#pointSystem{
+	position: relative;
+    z-index: 10; /* Bring button to front */
+    pointer-events: auto; /* Ensure it's clickable */
+	margin-bottom: 20px;
+}
+</style>
+ <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #1abc9c;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --border-color: #e9ecef;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+      --text-color: #495057;
+      --text-muted: #6c757d;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    /* Header Styles */
+    .main-header {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      color: var(--primary-color);
+      font-size: 1.4rem;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: var(--text-color);
+      padding: 0.75rem 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--secondary-color);
+    }
+
+    /* Card Styles */
+    .card {
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-bottom: 1.5rem;
+    }
+
+    .card:hover {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    /* Leaderboard Styles */
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.2s ease;
+    }
+
+    .leaderboard-item:hover {
+      background-color: rgba(52, 152, 219, 0.05);
+    }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+
+    .rank {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      margin-right: 15px;
+      color: white;
+    }
+
+    .rank-1 {
+      background-color: #f1c40f;
+    }
+
+    .rank-2 {
+      background-color: #bdc3c7;
+    }
+
+    .rank-3 {
+      background-color: #d35400;
+    }
+
+    .rank-other {
+      background-color: var(--primary-color);
+    }
+
+    .user-info {
+      flex-grow: 1;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+      border: 2px solid white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .username {
+      font-weight: 600;
+      margin-bottom: 0;
+      color: var(--primary-color);
+    }
+
+    .user-type {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .score {
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-right: 1.5rem;
+    }
+
+    .prize-money {
+      font-weight: 600;
+      color: var(--success-color);
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .current-user {
+      background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    /* Tab Navigation */
+    .nav-tabs {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-tabs .nav-link {
+      border: none;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 0.75rem 1.25rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+      border-color: transparent;
+      color: var(--secondary-color);
+    }
+
+    .nav-tabs .nav-link.active {
+      color: var(--secondary-color);
+      background-color: transparent;
+      border-bottom: 3px solid var(--secondary-color);
+    }
+
+    /* Stats Card */
+    .stat-card {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .stat-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+      color: var(--secondary-color);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* Activity Feed */
+    .activity-ticker {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.75rem 0;
+      overflow: hidden;
+    }
+
+    .ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .ticker {
+      display: inline-block;
+      white-space: nowrap;
+      padding-right: 100%;
+      animation: ticker 30s linear infinite;
+    }
+
+    @keyframes ticker {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        transform: translate3d(-100%, 0, 0);
+      }
+    }
+
+    .ticker-item {
+      display: inline-block;
+      padding: 0 2rem;
+    }
+
+    /* Activity List */
+    .activity-list {
+      max-height: 700px;
+      overflow-y: auto;
+    }
+
+    .activity-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-content {
+      margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Button Styles */
+    .btn-primary {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      font-weight: 500;
+      padding: 0.5rem 1.25rem;
+    }
+
+    .btn-primary:hover {
+      background-color: #2980b9;
+      border-color: #2980b9;
+    }
+
+    .btn-outline-primary {
+      color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      font-weight: 500;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+
+    /* Badge Styles */
+    .badge-primary {
+      background-color: rgba(52, 152, 219, 0.1);
+      color: var(--secondary-color);
+      font-weight: 500;
+      padding: 0.35rem 0.65rem;
+      border-radius: 0.25rem;
+    }
+
+    .prize-pool-badge {
+      background-color: rgba(39, 174, 96, 0.1);
+      color: var(--success-color);
+      font-weight: 500;
+      padding: 0.35rem 0.65rem;
+      border-radius: 0.25rem;
+    }
+
+    /* Section Headings */
+    .section-title {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 1.25rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .leaderboard-item {
+        flex-wrap: wrap;
+      }
+
+      .prize-money {
+        margin-top: 0.5rem;
+        width: 100%;
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .avatar {
+        width: 35px;
+        height: 35px;
+      }
+
+      .rank {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+      }
+
+      .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Activity Ticker -->
+  <div class="activity-ticker">
+    <div class="ticker-wrap">
+      <div class="ticker">
+       
+		
+		<% for(i=0;i<result[11].length;i++){ %>
+		<div class="ticker-item">
+          <i class="fas fa-star me-2"></i> <%=result[11][i].shopkeeper_name%> earned <%=result[11][i].points%> from <%=result[11][i].activity%>
+        </div>
+
+		<% } %>
+        
+       
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-light py-2">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <i class="fas fa-trophy me-2"></i>LeaderBoard
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+			<li class="nav-item">
+				<a class="nav-link" id="pointSystem" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#pointSystemModal">
+				  <i class="fas fa-coins me-1"></i> Points System
+				</a>
+			  </li>
+			  
+			  <li class="nav-item">
+				<a class="nav-link" style="cursor: pointer;" id="claimPointsBtn">
+				  <i class="fas fa-hand-holding-usd me-1"></i> Claim Points
+				</a>
+			  </li>
+			  
+			 <li class="nav-item">
+  <a class="nav-link" href="/shopkeeper/generateLink">
+    <i class="fas fa-link me-1"></i> Promoter Link
+  </a>
+</li>
+			
+
+          <li class="nav-item">
+				<a class="nav-link" href="/shopkeeper/dashboard/profile">
+				  <i class="fas fa-user me-1"></i> My Account
+				</a>
+			  </li>
+			  
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="py-4">
+    <div class="container">
+
+
+		<div class="modal fade" id="pointSystemModal" tabindex="-1" aria-labelledby="pointSystemModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="pointSystemModalLabel">Point System</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Activity</th>
+										<th>Points</th>
+									</tr>
+								</thead>
+								<tbody id="pointSystemTable">
+									<!-- Data will be dynamically inserted here -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+
+
+		<div id="claimFormContainer" style="display: none;">
+			<div class="card p-4 shadow">
+				<h4 class="mb-3">Submit Your Activity</h4>
+				<form id="claimForm" enctype="multipart/form-data">
+					<!-- Activity Type (Dropdown) -->
+					<div class="mb-3">
+						<label for="activityType" class="form-label">Activity Type</label>
+						<select class="form-control" id="activityType" name="activityType" required>
+							<option value="">Select Activity</option>
+							<!-- Dynamically filled options -->
+						</select>
+					</div>
+	
+					<!-- Upload Proof (File Input) -->
+					<div class="mb-3">
+						<label for="proofUpload" class="form-label">Upload Proof (Screenshot)</label>
+						<input type="file" class="form-control" id="proofUpload" name="proof" accept="image/*,video/*" required>
+
+					</div>
+	
+					<!-- Submit Button with Loader -->
+					<button type="submit" id="submitBtn" class="btn btn-success">
+						Submit
+					</button>
+					<div id="loader" class="spinner-border text-success" style="display: none;" role="status">
+						<span class="visually-hidden">Loading...</span>
+					</div>
+				</form>
+			</div>
+		</div>
+
+<input type="hidden" id="videoScreenshotData" name="videoScreenshotData" />
+<canvas id="videoCanvas" style="display: none;"></canvas>
+
+
+<% if (!result[17][0].instagram_id || !result[17][0].linkedin_id || !result[17][0].youtube_id) { %>
+  <div class="alert alert-warning text-center my-3">
+    <strong>⚠️ Complete Your Profile:</strong> Add your Instagram, LinkedIn, and YouTube details to receive ambassador benefits. <br>
+    <a href="/shopkeeper/dashboard/profile" class="btn btn-primary mt-2">
+      Complete Profile Now
+    </a>
+  </div>
+<% } %>
+
+
+<section class="mb-4">
+  <div class="card shadow-sm">
+<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+  <h5 class="mb-0">📊 Performance Overview</h5>
+  <a href="/shopkeeper/dashboard/performance" class="text-white text-decoration-underline small">
+    View Complete Performance →
+  </a>
+</div>
+    <div class="card-body">
+      <div class="row g-3">
+
+        <!-- Total Posts -->
+        <div class="col-6 col-lg-3">
+          <div class="border rounded p-3 text-center h-100">
+            <h6>Total Posts</h6>
+            <p class="mb-0 fw-bold fs-5"><%= result[18][0].total_post %></p>
+          </div>
+        </div>
+
+        <!-- Total Likes -->
+        <div class="col-6 col-lg-3">
+          <div class="border rounded p-3 text-center h-100">
+            <h6>Total Likes</h6>
+            <p class="mb-0 fw-bold fs-5"><%= result[18][0].total_like %></p>
+          </div>
+        </div>
+
+        <!-- Total Comments -->
+        <div class="col-6 col-lg-3">
+          <div class="border rounded p-3 text-center h-100">
+            <h6>Total Comments</h6>
+            <p class="mb-0 fw-bold fs-5"><%= result[18][0].total_comment %></p>
+          </div>
+        </div>
+
+        <!-- Performance Score -->
+        <div class="col-6 col-lg-3">
+          <div class="border rounded p-3 text-center h-100">
+            <h6>Performance</h6>
+            <p class="mb-0 fw-bold fs-5"><%= result[18][0].performance_score %> / 100</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+      <!-- User Stats Cards -->
+   <section class="mb-4">
+  <div class="row g-3">
+    <div class="col-6 col-md-6 col-lg-6">
+      <div class="card h-100 text-center">
+        <div class="stat-card p-3">
+          <div class="stat-icon">
+            <i class="fas fa-trophy fa-2x mb-2"></i>
+          </div>
+          <div class="stat-value fs-4"><%= result[7][0].rank_position %></div>
+          <p class="stat-label text-muted">Current Rank</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-6 col-lg-6">
+      <div class="card h-100 text-center">
+        <div class="stat-card p-3">
+          <div class="stat-icon">
+            <i class="fas fa-star fa-2x mb-2"></i>
+          </div>
+          <div class="stat-value fs-4"><%= result[7][0].total_points %></div>
+          <p class="stat-label text-muted">Total Points</p>
+        </div>
+      </div>
+    </div>
+
+   
+  </div>
+</section>
+
+
+
+	<div class="streak-tracker card p-3 shadow-sm">
+	  <h6 class="mb-3">🔥 10-Day Streak</h6>
+	  <div class="d-flex justify-content-between">
+		<% for(let i = 0; i < streak.length; i++) { %>
+		  <div class="streak-circle position-relative text-center 
+			<%= streak[i] ? 'bg-success text-white' : 'bg-light text-muted' %>"
+			data-bs-toggle="tooltip" data-bs-placement="top" 
+			title="<%= streak[i] %>: <%= streak ? '0' : '1' %>">
+			
+			<i class="fas <%= streak[i] ? 'fa-check' : 'fa-times' %>"></i>
+		  </div>
+		<% } %>
+	  </div>
+	</div>
+	
+	<style>
+	.streak-tracker {
+		border-radius: 12px;
+		background: white;
+	}
+	
+	.streak-circle {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 18px;
+		margin: 0 5px;
+		transition: all 0.3s ease-in-out;
+	}
+	
+	.streak-circle.bg-success {
+		box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+	}
+	
+	.streak-circle.bg-light {
+		border: 1px solid #ddd;
+	}
+	</style>
+	
+
+      <div class="row">
+        <!-- Leaderboard Section -->
+        <div class="col-lg-6">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="section-title mb-0">Leaderboard Rankings</h5>
+           
+          </div>
+
+          <!-- Tabs Navigation -->
+          <ul class="nav nav-tabs mb-3" id="leaderboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="current-tab" data-bs-toggle="tab" data-bs-target="#current-leaderboard" type="button" role="tab">
+                Current
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="previous-tab" data-bs-toggle="tab" data-bs-target="#previous-leaderboard" type="button" role="tab">
+                Previous
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming-leaderboard" type="button" role="tab">
+                Upcoming
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="leaderboardTabsContent">
+            <!-- Current Leaderboard -->
+            <div class="tab-pane fade show active" id="current-leaderboard" role="tabpanel">
+              <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                 
+					<% 
+  const endDate = new Date(result[6][0].end_date);
+  const today = new Date();
+
+  // Reset time to 00:00:00 to compare only the date
+  endDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  const timeDiff = endDate - today;
+  const daysLeft = Math.round(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Convert milliseconds to days
+%>
+
+<div><%= result[6][0].cycle_name %> 
+  <span class="text-muted">
+    (<%= daysLeft > 0 ? `Ends in ${daysLeft} days` : "Ends Today" %>)
+  </span>
+  
+</div>
+
+					
+                  <span class="prize-pool-badge">Prize Pool: Rs. <%=result[6][0].total_amount%> <br/><span style="font-size: 11px;">Minimum Eligible Points: 1000</span> </span>
+				  
+                </div>
+                <div class="card-body p-0">
+                  
+					
+					<% result[6].slice(0, 8).forEach((shopkeeper, index) => { %>
+
+						<% if (index === 0) { %>
+					<div class="leaderboard-item">
+                    <div class="rank rank-1"><%=index+1%></div>
+                    <div class="user-info">
+                      <h6 class="username"><%= shopkeeper.name %></h6>
+                      <small class="user-type">Pro Player</small>
+                    </div>
+                    <div class="score"><%= shopkeeper.total_points %> pts</div>
+                    <div class="prize-money">Rs. <%= Math.round(result[6][0].total_amount * 33.33 / 100) %></div>
+                  </div>
+				  <% } %>
+
+				  <% if (index === 1) { %>
+
+				  <div class="leaderboard-item">
+                    <div class="rank rank-2"><%=index+1%></div>
+                    <div class="user-info">
+                      <h6 class="username"><%= shopkeeper.name %></h6>
+                      <small class="user-type">Elite</small>
+                    </div>
+                    <div class="score"><%= shopkeeper.total_points %> pts</div>
+					<div class="prize-money">Rs. <%= Math.round(result[6][0].total_amount * 23.33 / 100) %></div>
+
+                  </div>
+				  
+				  <% } %>
+
+				  <% if (index === 2) { %>
+
+					<div class="leaderboard-item">
+						<div class="rank rank-3"><%=index+1%></div>
+						<div class="user-info">
+						  <h6 class="username"><%= shopkeeper.name %></h6>
+						  <small class="user-type">Challenger</small>
+						</div>
+						<div class="score"><%= shopkeeper.total_points %> pts</div>
+						<div class="prize-money">Rs. <%= Math.round(result[6][0].total_amount * 16.67 / 100) %></div>
+
+					  </div>
+
+					<% } %>
+
+					<% if (index > 2) { %>
+
+						<% 
+						const percentages = [10.00, 6.67, 5.00, 3.33, 1.67]; 
+						const totalPrizeMoney = result[6][0].total_amount; // Assuming this is the total amount
+					  %>
+					  
+					  <div class="leaderboard-item">
+						<div class="rank rank-other"><%= index + 1 %></div>
+						<div class="user-info">
+						  <h6 class="username"><%= shopkeeper.name %></h6>
+						  <small class="user-type">Rising Star</small>
+						</div>
+						<div class="score"><%= shopkeeper.total_points %> pts</div>
+						<div class="prize-money">
+						  Rs. <%= Math.round((totalPrizeMoney * (percentages[index-3] || 0)) / 100) %>
+						</div>
+					  </div>
+					  
+
+						<% } %>
+
+<% }); %>
+                 
+
+                
+
+
+                
+
+                
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Previous Leaderboard -->
+            <div class="tab-pane fade" id="previous-leaderboard" role="tabpanel">
+              <div class="card">
+
+
+				<% if(result[9][0].total_points == 0) { %>
+
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  
+				  <div>No Data Found</div>
+				  
+                </div>
+
+				<% } else {%>
+
+
+				<div class="card-header d-flex justify-content-between align-items-center">
+                  
+
+
+
+					<% 
+					const lastEndDate = new Date(result[9][0].end_date);
+					const formattedDate = lastEndDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+				  %>
+				  
+				  <div>Last Incentives Winners <span class="text-muted">(Ended <%= formattedDate %>)</span></div>
+				  
+
+                  <span class="prize-pool-badge">Prize Pool: <%=result[9][0].total_amount%></span>
+                </div>
+                
+                <div class="card-body p-0">
+                  
+					
+					<% result[9].slice(0, 8).forEach((shopkeeper, index) => { %>
+
+						<% if (index === 0) { %>
+					<div class="leaderboard-item">
+                    <div class="rank rank-1"><%=index+1%></div>
+                    <div class="user-info">
+                      <h6 class="username"><%= shopkeeper.name %></h6>
+                      <small class="user-type">Pro Player</small>
+                    </div>
+                    <div class="score"><%= shopkeeper.total_points %> pts</div>
+                    <div class="prize-money">Rs. <%= Math.round(result[9][0].total_amount * 33.33 / 100) %></div>
+                  </div>
+				  <% } %>
+
+				  <% if (index === 1) { %>
+
+				  <div class="leaderboard-item">
+                    <div class="rank rank-2"><%=index+1%></div>
+                    <div class="user-info">
+                      <h6 class="username"><%= shopkeeper.name %></h6>
+                      <small class="user-type">Elite</small>
+                    </div>
+                    <div class="score"><%= shopkeeper.total_points %> pts</div>
+					<div class="prize-money">Rs. <%= Math.round(result[9][0].total_amount * 23.33 / 100) %></div>
+
+                  </div>
+				  
+				  <% } %>
+
+				  <% if (index === 2) { %>
+
+					<div class="leaderboard-item">
+						<div class="rank rank-3"><%=index+1%></div>
+						<div class="user-info">
+						  <h6 class="username"><%= shopkeeper.name %></h6>
+						  <small class="user-type">Challenger</small>
+						</div>
+						<div class="score"><%= shopkeeper.total_points %> pts</div>
+						<div class="prize-money">Rs. <%= Math.round(result[9][0].total_amount * 16.67 / 100) %></div>
+
+					  </div>
+
+					<% } %>
+
+					<% if (index > 2) { %>
+
+						<% 
+						const percentages = [10.00, 6.67, 5.00, 3.33, 1.67]; 
+						const totalPrizeMoney = result[9][0].total_amount; // Assuming this is the total amount
+					  %>
+					  
+					  <div class="leaderboard-item">
+						<div class="rank rank-other"><%= index + 1 %></div>
+						<div class="user-info">
+						  <h6 class="username"><%= shopkeeper.name %></h6>
+						  <small class="user-type">Rising Star</small>
+						</div>
+						<div class="score"><%= shopkeeper.total_points %> pts</div>
+						<div class="prize-money">
+						  Rs. <%= Math.round((totalPrizeMoney * (percentages[index-3] || 0)) / 100) %>
+						</div>
+					  </div>
+					  
+
+						<% } %>
+
+<% }); %>
+                 
+
+                
+
+
+                
+
+                
+                </div>
+
+				<% } %>
+               
+              </div>
+            </div>
+
+            <!-- Upcoming Leaderboard -->
+            <div class="tab-pane fade" id="upcoming-leaderboard" role="tabpanel">
+              <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+
+					<% 
+  const upcomingStartDate = new Date(result[10][0].start_date);
+  const upcomingToday = new Date();
+
+  // Reset time to 00:00:00 to compare only the date
+  upcomingStartDate.setHours(0, 0, 0, 0);
+  upcomingToday.setHours(0, 0, 0, 0);
+
+  const upcomingTimeDiff = upcomingStartDate - upcomingToday;
+  const upcomingDaysLeft = Math.floor(upcomingTimeDiff / (1000 * 60 * 60 * 24) + 1); // Convert milliseconds to days
+%>
+
+<div>
+  <%= result[10][0].cycle_name %> 
+  <span class="text-muted">
+    (<%= upcomingDaysLeft > 0 ? `Starts in ${upcomingDaysLeft} days` : "Starts tomorrow" %>)
+  </span>
+</div>
+
+ 
+                  <span class="prize-pool-badge">Prize Pool: Rs. <%= result[10][0].total_amount %> </span>
+                </div>
+                <div class="card-body">
+                  <div class="text-center py-3">
+                    <i class="fas fa-calendar-alt fs-1 text-secondary mb-3"></i>
+                    <h5>Get Ready for the <%= result[10][0].cycle_name %> !</h5>
+
+					<% 
+					const upcomingDate = new Date(result[10][0].start_date);
+					const formattedupcomingDate = upcomingDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+				  %>
+
+                    <p class="text-muted">The competition begins on <%= formattedupcomingDate %> </p>
+                  </div>
+
+              
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activities & Prize Pool Section -->
+
+      
+        
+<div class="col-lg-6">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="section-title mb-0">YouTube Leaderboard Rankings</h5>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-tabs mb-3" id="youtubeLeaderboardTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="yt-current-tab" data-bs-toggle="tab" data-bs-target="#yt-current-leaderboard" type="button" role="tab">
+        Current
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="yt-previous-tab" data-bs-toggle="tab" data-bs-target="#yt-previous-leaderboard" type="button" role="tab">
+        Previous
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="yt-upcoming-tab" data-bs-toggle="tab" data-bs-target="#yt-upcoming-leaderboard" type="button" role="tab">
+        Upcoming
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="youtubeLeaderboardTabsContent">
+    <!-- Current -->
+    <div class="tab-pane fade show active" id="yt-current-leaderboard" role="tabpanel">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <% 
+            const ytEndDate = new Date(result[19][0].end_date);
+            const ytToday = new Date();
+            ytEndDate.setHours(0, 0, 0, 0);
+            ytToday.setHours(0, 0, 0, 0);
+            const ytDaysLeft = Math.round((ytEndDate - ytToday) / (1000 * 60 * 60 * 24)) + 1;
+          %>
+          <div>
+            <%= result[19][0].cycle_name %>
+            <span class="text-muted">(<%= ytDaysLeft > 0 ? `Ends in ${ytDaysLeft} days` : "Ends Today" %>)</span>
+          </div>
+          <span class="prize-pool-badge">Prize Pool: Rs. <%= result[19][0].total_amount %><br/><span style="font-size: 11px;">Minimum Eligible Points: 1400</span></span>
+        </div>
+
+        <div class="card-body p-0">
+          <% result[19].slice(0, 8).forEach((sk, index) => { %>
+            <% const prizePercents = [33.33, 23.33, 16.67, 10.00, 6.67, 5.00, 3.33, 1.67]; %>
+            <div class="leaderboard-item">
+              <div class="rank <%= index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other' %>"><%= index + 1 %></div>
+              <div class="user-info">
+                <h6 class="username"><%= sk.name %></h6>
+                <small class="user-type"><%= index === 0 ? 'Pro Player' : index === 1 ? 'Elite' : index === 2 ? 'Challenger' : 'Rising Star' %></small>
+              </div>
+              <div class="score"><%= sk.total_points %> pts</div>
+              <div class="prize-money">Rs. <%= Math.round(result[19][0].total_amount * (prizePercents[index] || 0) / 100) %></div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Previous -->
+   <div class="tab-pane fade" id="yt-previous-leaderboard" role="tabpanel">
+      <div class="card">
+        <% if (result[21][0].total_points == 0) { %>
+          <div class="card-header">No Data Found</div>
+        <% } else { %>
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <% 
+              const ytPrevEndDate = new Date(result[21][0].end_date);
+              const ytPrevFormatted = ytPrevEndDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+            %>
+            <div>Last Incentives Winners <span class="text-muted">(Ended <%= ytPrevFormatted %>)</span></div>
+            <span class="prize-pool-badge">Prize Pool: <%= result[21][0].total_amount %></span>
+          </div>
+          <div class="card-body p-0">
+            <% result[21].slice(0, 8).forEach((sk, index) => { %>
+              <% const prizePercents = [33.33, 23.33, 16.67, 10.00, 6.67, 5.00, 3.33, 1.67]; %>
+              <div class="leaderboard-item">
+                <div class="rank <%= index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other' %>"><%= index + 1 %></div>
+                <div class="user-info">
+                  <h6 class="username"><%= sk.name %></h6>
+                  <small class="user-type"><%= index === 0 ? 'Pro Player' : index === 1 ? 'Elite' : index === 2 ? 'Challenger' : 'Rising Star' %></small>
+                </div>
+                <div class="score"><%= sk.total_points %> pts</div>
+                <div class="prize-money">Rs. <%= Math.round(result[21][0].total_amount * (prizePercents[index] || 0) / 100) %></div>
+              </div>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Upcoming -->
+      <div class="tab-pane fade" id="yt-upcoming-leaderboard" role="tabpanel">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <% 
+            const ytUpcomingStartDate = new Date(result[22][0].start_date);
+            const ytUpcomingToday = new Date();
+            ytUpcomingStartDate.setHours(0, 0, 0, 0);
+            ytUpcomingToday.setHours(0, 0, 0, 0);
+            const ytUpcomingDaysLeft = Math.floor((ytUpcomingStartDate - ytUpcomingToday) / (1000 * 60 * 60 * 24)) + 1;
+          %>
+          <div>
+            <%= result[22][0].cycle_name %> 
+            <span class="text-muted">
+              (<%= ytUpcomingDaysLeft > 0 ? `Starts in ${ytUpcomingDaysLeft} days` : "Starts tomorrow" %>)
+            </span>
+          </div>
+          <span class="prize-pool-badge">Prize Pool: Rs. <%= result[22][0].total_amount %></span>
+        </div>
+        <div class="card-body">
+          <div class="text-center py-3">
+            <i class="fas fa-calendar-alt fs-1 text-secondary mb-3"></i>
+            <h5>Get Ready for the <%= result[22][0].cycle_name %>!</h5>
+            <% 
+              const ytFormattedUpcomingDate = ytUpcomingStartDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+            %>
+            <p class="text-muted">The competition begins on <%= ytFormattedUpcomingDate %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+        
+
+
+        <div class="col-lg-12">
+          <h5 class="section-title mb-3">Your Activity</h5>
+          <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Recent Activities</span>
+              <!-- <a href="#" class="text-decoration-none small">View All</a> -->
+            </div>
+            <div class="card-body p-0">
+              <div class="activity-list">
+               
+				<% result[8].slice(0, 20).forEach((shopkeeper, index) => { %>
+				
+				<div class="activity-item">
+                  <p class="activity-content mb-1">Earned <%= shopkeeper.points %> points from <%= shopkeeper.activity %></p>
+                </div>
+
+				<% }); %>
+
+               
+
+              
+              </div>
+            </div>
+          </div>
+
+        
+        </div>
+      </div>
+    </div>
+  </main>
+
+
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
+
+</body>
+
+</html>
+
+
+<script>
+	document.getElementById("pointSystem").addEventListener("click", function () {
+    fetch("/shopkeeper/getPointSystem") // Replace with your actual API endpoint
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.getElementById("pointSystemTable");
+            tableBody.innerHTML = ""; // Clear previous data
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='3'>No data available</td></tr>";
+                return;
+            }
+
+            data.forEach(item => {
+                let row = `<tr style="text-align:left">
+                    <td style="text-align:left">${item.activity_name}</td>
+                    <td style="text-align:left">${item.points}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        })
+        .catch(error => console.error("Error fetching point system data:", error));
+});
+
+</script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const claimBtn = document.getElementById("claimPointsBtn");
+    const claimFormContainer = document.getElementById("claimFormContainer");
+    const activityTypeSelect = document.getElementById("activityType");
+    const claimForm = document.getElementById("claimForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const loader = document.getElementById("loader");
+    const proofInput = document.getElementById("proofUpload");
+    const canvas = document.getElementById("videoCanvas");
+
+    // Show form
+    claimBtn.addEventListener("click", function () {
+      claimFormContainer.style.display = "block";
+      fetchActivityTypes();
+    });
+
+    function fetchActivityTypes() {
+      fetch('/shopkeeper/getActivityTypes')
+        .then(response => response.json())
+        .then(data => {
+          activityTypeSelect.innerHTML = '<option value="">Select Activity</option>';
+          data.forEach(activity => {
+            activityTypeSelect.innerHTML += `<option value="${activity.id}">${activity.activity_name}</option>`;
+          });
+        })
+        .catch(error => console.error('Error fetching activity types:', error));
+    }
+
+    // Handle file input to extract screenshot from video
+   proofInput.addEventListener("change", function () {
+  const file = proofInput.files[0];
+  const screenshotField = document.getElementById("videoScreenshotData");
+  const canvas = document.getElementById("videoCanvas");
+  const ctx = canvas.getContext("2d");
+
+  if (!file || !file.type.startsWith("video/")) {
+    screenshotField.value = "";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  submitBtn.disabled = true; // Prevent early submit
+  screenshotField.value = ""; // Clear old data
+
+  const video = document.createElement("video");
+  video.preload = "auto";
+  video.src = URL.createObjectURL(file);
+  video.muted = true;
+  video.playsInline = true;
+  video.crossOrigin = "anonymous";
+  video.style.position = "absolute";
+  video.style.left = "-9999px";
+  document.body.appendChild(video); // Attach to DOM
+
+  video.addEventListener("loadedmetadata", () => {
+    const seekTime = Math.min(10, video.duration);
+    video.currentTime = seekTime;
+  });
+
+  video.addEventListener("seeked", () => {
+    // Wait briefly to ensure the frame is painted
+    setTimeout(() => {
+      try {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataURL = canvas.toDataURL("image/jpeg", 0.9);
+
+        if (dataURL.length < 10000) { // Safety check: prevent black screenshots
+          throw new Error("Captured blank image");
+        }
+
+        screenshotField.value = dataURL;
+        submitBtn.disabled = false;
+      } catch (err) {
+        console.error("Screenshot capture error:", err);
+        alert("Failed to capture video screenshot. Please try a different file.");
+      } finally {
+        URL.revokeObjectURL(video.src);
+        video.remove();
+      }
+    }, 200); // Delay to allow browser to fully render frame
+  });
+});
+
+    // Submit form
+    claimForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      if (activityTypeSelect.value === "") {
+        alert("Please select an activity type.");
+        return;
+      }
+
+      const file = proofInput.files[0];
+      if (!file) {
+        alert("Please upload a proof screenshot or video.");
+        return;
+      }
+
+      loader.style.display = "inline-block";
+      submitBtn.disabled = true;
+
+      try {
+        let fileToUpload;
+
+        const isVideo = file.type.startsWith("video/");
+        const screenshotData = document.getElementById("videoScreenshotData").value;
+
+        if (isVideo) {
+          if (!screenshotData) throw new Error("Screenshot extraction failed.");
+
+          // Convert base64 to Blob
+          const blob = await fetch(screenshotData).then(res => res.blob());
+          fileToUpload = new File([blob], "screenshot.jpg", { type: "image/jpeg" });
+        } else {
+          fileToUpload = file;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileToUpload);
+        formData.append("upload_preset", "ml_default");
+
+        const cloudRes = await fetch("https://api.cloudinary.com/v1_1/dr5dofa3x/image/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const cloudData = await cloudRes.json();
+        if (!cloudData.secure_url) throw new Error("Cloudinary upload failed");
+
+        // Send to backend
+        const payload = {
+          activityType: activityTypeSelect.value,
+          proofUrl: cloudData.secure_url
+        };
+
+        const res = await fetch("/shopkeeper/submitClaim", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        alert(result.message);
+        claimForm.reset();
+        claimFormContainer.style.display = "none";
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+      } finally {
+        loader.style.display = "none";
+        submitBtn.disabled = false;
+      }
+    });
+  });
+</script>

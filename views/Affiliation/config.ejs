@@ -1,0 +1,50 @@
+<% include ./header.ejs %>
+
+<body>
+    <div class="content-body">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-xl-12 col-lg-12 col-md-12">
+                    <div class="card mt-5">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">Update Instagram Access Token</h4>
+                        </div>
+                        <div class="card-body">
+                         <form action="/affiliate/config/update-token" method="POST">
+  <!-- Instagram Token -->
+  <div class="form-group mb-3">
+    <label for="token">Instagram Access Token</label>
+    <input 
+      type="text" 
+      id="token" 
+      name="instagramAccessToken" 
+      class="form-control" 
+      value="<%= config.instagramAccessToken %>" 
+      required 
+      placeholder="Enter your Instagram access token">
+  </div>
+
+  <!-- YouTube API Key -->
+  <div class="form-group mb-3">
+    <label for="youtubeApiKey">YouTube API Key</label>
+    <input 
+      type="text" 
+      id="youtubeApiKey" 
+      name="youtubeApiKey" 
+      class="form-control" 
+      value="<%= config.youtubeApiKey %>" 
+      required 
+      placeholder="Enter your YouTube API Key">
+  </div>
+
+  <button type="submit" class="btn btn-success mt-3">Save Changes</button>
+</form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<% include ./footer.ejs %>

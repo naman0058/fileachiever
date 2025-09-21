@@ -1,0 +1,57 @@
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        $( document ).ready(function(e) {
+            let searchParams = new URLSearchParams(window.location.search)
+    let param = searchParams.get('a')
+    let param1 = searchParams.get('number')
+    // alert("+91" + param1)
+    $.get('/final-year-projects-source-code/demo1',{param},data=>{
+        console.log("datahai",data.param)
+        var options1 = {
+    "key": "rzp_live_2AYlv8GRAaT63p", // Enter the Key ID generated from the Dashboar
+    "amount": "100", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise or INR 500.
+    "currency": "INR",
+    "name": "",
+    "description": '',
+    "image": "",
+    "order_id": data.param,//This is a sample Order ID. Create an Order using Orders API. (https://razorpay.com/docs/payment-gateway/orders/integration/#step-1-create-an-order). Refer the Checkout form table given below
+     "callback_url" : "https://www.filemakr.com/final-year-projects-source-code/razorpay-response",
+     "redirect": true,
+     "modal": {
+        "ondismiss": function(){
+            window.location.href = 'https://www.filemakr.com/final-year-projects-source-code/failed_payment'
+        }
+    },
+
+    "prefill": {
+
+"name": "Sportzkeeda",
+"email": "info.sportzkeeda@gmail.com",
+"contact": "+91" + param1
+// "contact" : "+918877994455"
+
+
+
+
+},
+
+
+    "theme": {
+        "color": "#507ec0"
+    }
+};
+
+
+var rzp1 = new Razorpay(options1);
+    rzp1.open();
+    e.preventDefault();
+
+    })
+});
+
+  
+    </script>

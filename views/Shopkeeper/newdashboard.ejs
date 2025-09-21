@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FileMakr | Brand Ambassador Leaderboard Dashboard</title>
+<link rel="shortcut icon" type="images/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width:80px;" />
+
+  <!-- Bootstrap CSS -->
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+	body {
+		background: #f4f6f9;
+		font-family: 'Poppins', sans-serif;
+	}
+	.leaderboard-container {
+		max-width: 700px;
+		margin: 50px auto;
+	}
+	.leaderboard-card {
+		background: white;
+		padding: 30px;
+		border-radius: 12px;
+		box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+	}
+	.leaderboard-title {
+		text-align: center;
+		font-weight: 700;
+		font-size: 24px;
+		margin-bottom: 20px;
+	}
+	table {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0 8px;
+		
+	}
+	
+	th {
+		padding: 12px;
+	}
+	tbody tr {
+		background: white;
+		transition: 0.3s;
+		border-radius: 8px;
+	}
+	tbody tr:hover {
+		transform: scale(1.02);
+		box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	}
+	td {
+		padding: 12px;
+		font-weight: 600;
+	}
+	.gold { color: gold; font-weight: bold; }
+	.silver { color: silver; font-weight: bold; }
+	.bronze { color: #cd7f32; font-weight: bold; }
+
+
+	#claimPointsBtn {
+    position: relative;
+    z-index: 10; /* Bring button to front */
+    pointer-events: auto; /* Ensure it's clickable */
+	margin-bottom: 20px;
+}
+
+
+</style>
+ <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #1abc9c;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --border-color: #e9ecef;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+      --text-color: #495057;
+      --text-muted: #6c757d;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    /* Header Styles */
+    .main-header {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      color: var(--primary-color);
+      font-size: 1.4rem;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: var(--text-color);
+      padding: 0.75rem 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--secondary-color);
+    }
+
+    /* Card Styles */
+    .card {
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-bottom: 1.5rem;
+    }
+
+    .card:hover {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    /* Leaderboard Styles */
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.2s ease;
+    }
+
+    .leaderboard-item:hover {
+      background-color: rgba(52, 152, 219, 0.05);
+    }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+
+    .rank {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      margin-right: 15px;
+      color: white;
+    }
+
+    .rank-1 {
+      background-color: #f1c40f;
+    }
+
+    .rank-2 {
+      background-color: #bdc3c7;
+    }
+
+    .rank-3 {
+      background-color: #d35400;
+    }
+
+    .rank-other {
+      background-color: var(--primary-color);
+    }
+
+    .user-info {
+      flex-grow: 1;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+      border: 2px solid white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .username {
+      font-weight: 600;
+      margin-bottom: 0;
+      color: var(--primary-color);
+    }
+
+    .user-type {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .score {
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-right: 1.5rem;
+    }
+
+    .prize-money {
+      font-weight: 600;
+      color: var(--success-color);
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .current-user {
+      background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    /* Tab Navigation */
+    .nav-tabs {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-tabs .nav-link {
+      border: none;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 0.75rem 1.25rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+      border-color: transparent;
+      color: var(--secondary-color);
+    }
+
+    .nav-tabs .nav-link.active {
+      color: var(--secondary-color);
+      background-color: transparent;
+      border-bottom: 3px solid var(--secondary-color);
+    }
+
+    /* Stats Card */
+    .stat-card {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .stat-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+      color: var(--secondary-color);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* Activity Feed */
+    .activity-ticker {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.75rem 0;
+      overflow: hidden;
+    }
+
+    .ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .ticker {
+      display: inline-block;
+      white-space: nowrap;
+      padding-right: 100%;
+      animation: ticker 30s linear infinite;
+    }
+
+    @keyframes ticker {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        transform: translate3d(-100%, 0, 0);
+      }
+    }
+
+    .ticker-item {
+      display: inline-block;
+      padding: 0 2rem;
+    }
+
+    /* Activity List */
+    .activity-list {
+      max-height: 700px;
+      overflow-y: auto;
+    }
+
+    .activity-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-content {
+      margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Button Styles */
+    .btn-primary {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      font-weight: 500;
+      padding: 0.5rem 1.25rem;
+    }
+
+    .btn-primary:hover {
+      background-color: #2980b9;
+      border-color: #2980b9;
+    }
+
+    .btn-outline-primary {
+      color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      font-weight: 500;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+
+    /* Badge Styles */
+    .badge-primary {
+      background-color: rgba(52, 152, 219, 0.1);
+      color: var(--secondary-color);
+      font-weight: 500;
+      padding: 0.35rem 0.65rem;
+      border-radius: 0.25rem;
+    }
+
+    .prize-pool-badge {
+      background-color: rgba(39, 174, 96, 0.1);
+      color: var(--success-color);
+      font-weight: 500;
+      padding: 0.35rem 0.65rem;
+      border-radius: 0.25rem;
+    }
+
+    /* Section Headings */
+    .section-title {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 1.25rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .leaderboard-item {
+        flex-wrap: wrap;
+      }
+
+      .prize-money {
+        margin-top: 0.5rem;
+        width: 100%;
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .avatar {
+        width: 35px;
+        height: 35px;
+      }
+
+      .rank {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+      }
+
+      .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Activity Ticker -->
+ 
+
+  <!-- Header -->
+ <header class="main-header shadow-md sticky top-0 z-50 bg-white">
+  <div class="container mx-auto flex items-center justify-between px-4 py-3">
+    
+    <!-- Brand -->
+    <a href="#" class="flex items-center space-x-2 text-xl font-bold text-gray-800">
+      <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="logo" class="w-10 h-10">
+      <span>Campus Ambassador</span>
+    </a>
+
+    <!-- Toggle Button (Mobile) -->
+    <button id="menuToggle" class="md:hidden text-gray-700 focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Navigation Links -->
+    <div id="menu" class="hidden md:flex space-x-6 items-center">
+      <a href="/shopkeeper/generateLink" class="text-gray-700 hover:text-blue-600 font-medium">
+        <i class="fas fa-link mr-1"></i> Promoter Link
+      </a>
+      <a href="/shopkeeper/dashboard/profile" class="text-gray-700 hover:text-blue-600 font-medium">
+        <i class="fas fa-user mr-1"></i> My Account
+      </a>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="md:hidden hidden px-4 pb-4">
+    <a href="/shopkeeper/generateLink" class="block py-2 text-gray-700 hover:text-blue-600">
+      <i class="fas fa-link mr-1"></i> Promoter Link
+    </a>
+    <a href="/shopkeeper/dashboard/profile" class="block py-2 text-gray-700 hover:text-blue-600">
+      <i class="fas fa-user mr-1"></i> My Account
+    </a>
+  </div>
+</header>
+
+
+  <!-- Main Content -->
+  <main class="py-4">
+    <div class="container-fluid">
+
+<% if (userId == 32) { %>
+  <form action="/shopkeeper/blog" method="get">
+       <button type="submit" class="btn btn-primary">Assign Blog Task</button>
+  </form>
+<% } %>
+
+
+
+<% if (dailyTask || hustleTask) { %>
+	<% if (!result[0].instagram_id || !result[0].linkedin_id || !result[0].youtube_id) { %>
+  <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-xl max-w-3xl mx-auto my-4 text-center shadow-md">
+    <div class="flex flex-col items-center space-y-2 sm:space-y-0 sm:flex-row sm:justify-between">
+      <div class="text-sm sm:text-base font-medium">
+        ⚠️ <strong>Complete Your Profile</strong>:<br class="sm:hidden">
+        to receive ambassador benefits.
+      </div>
+      <a href="/shopkeeper/dashboard/profile" class="mt-3 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200">
+        Complete Profile Now
+      </a>
+    </div>
+  </div>
+<% } } %>
+
+	
+
+<input type="hidden" id="videoScreenshotData" name="videoScreenshotData" />
+<canvas id="videoCanvas" style="display: none;"></canvas>
+
+
+
+
+
+
+
+
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+
+
+      <!-- User Stats Cards -->
+   <section class="mb-4">
+  <!-- Main Container -->
+<div class="p-4 space-y-6">
+
+  <!-- Progress Tracker -->
+<div class="bg-white rounded-2xl shadow-xl p-6 md:flex items-center justify-between gap-8 mt-6 w-full">
+  
+  <!-- Circular Day Tracker -->
+  <div class="flex items-center justify-center w-full md:w-auto">
+    <div class="relative w-24 h-24">
+      <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" stroke="#e5e7eb" stroke-width="10" fill="none" />
+        <circle cx="50" cy="50" r="45" stroke="#3b82f6" stroke-width="10" stroke-dasharray="282.6"
+                stroke-dashoffset="<%= 282.6 - ((currentDay / 90) * 282.6) %>" fill="none" stroke-linecap="round" />
+        <text x="50" y="55" text-anchor="middle" font-size="18" fill="#111827" font-weight="bold"><%= currentDay %>/90</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Right Text Section -->
+  <div class="flex-1 text-center md:text-left mt-6 md:mt-0">
+    <h2 class="text-lg font-bold text-gray-800 flex items-center justify-center md:justify-start">
+      🎯 Your Progress
+    </h2>
+    <p class="text-gray-600 mt-1">
+      You are currently on <span class="text-blue-600 font-semibold">Day <%= currentDay %></span>
+    </p>
+
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-200 rounded-full h-3 mt-3">
+      <div class="bg-blue-500 h-full rounded-full transition-all duration-300 ease-in-out" style="width: <%= (currentDay / 90) * 100 %>%"></div>
+    </div>
+
+    <!-- Current Phase -->
+    <p class="text-sm text-gray-500 mt-2">
+     Phase:
+<% if (currentDay <= 30) { %>
+  <span class="font-medium text-blue-600">🔰 Foundation</span>
+<% } else if (currentDay <= 60) { %>
+  <span class="font-medium text-green-600">📈 Growth</span>
+<% } else { %>
+  <span class="font-medium text-yellow-600">🏆 Legacy & Leadership</span>
+<% } %>
+    </p>
+  </div>
+</div>
+
+
+<% if (dailyTask || hustleTask) { %>
+  <div class="my-10 px-0">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">🗓️ Today's Missions</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
+      
+      <% if (dailyTask) { %>
+        <!-- CARD 1: Daily Task -->
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-lg p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="text-lg font-semibold text-blue-800">📌 Daily Task</h3>
+              <p class="text-sm text-gray-600 mt-1"><%- dailyTask.description %></p>
+
+            </div>
+           <span class="text-xs sm:text-sm bg-blue-100 text-blue-800 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
+  <%= dailyTask.date %>
+</span>
+
+          </div>
+
+          <% if (dailyTask.proofUploaded) { %>
+            <div class="flex flex-col gap-2 mt-2">
+              <p class="text-sm font-medium">
+                ✅ Proof Submitted:
+              </p>
+
+              <% if (dailyTask.proofStatus === 'verified') { %>
+                <span class="inline-block text-green-700 bg-green-100 text-xs px-3 py-1 rounded-full w-fit">✅ Verified</span>
+              <% } else if (dailyTask.proofStatus === 'pending') { %>
+                <span class="inline-block text-gray-700 bg-gray-100 text-xs px-3 py-1 rounded-full w-fit">🕒 Pending Review</span>
+              <% } else if (dailyTask.proofStatus === 'rejected') { %>
+                <span class="inline-block text-red-700 bg-red-100 text-xs px-3 py-1 rounded-full w-fit">❌ Rejected</span>
+                <span class="inline-block text-red-700 bg-red-100 text-xs px-3 py-1 rounded-full w-fit">Reason : <%= dailyTask.reason %> </span>
+
+
+ <form action="/shopkeeper/submit-daily-task" method="POST" class="space-y-4 mt-4">
+              <input type="hidden" name="taskId" value="<%= dailyTask.id %>">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof</label>
+                <input type="hidden" name="videoScreenshotData" class="screenshot-data">
+                <input type="hidden" name="proofUrl" class="proof-url">
+                <input type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)">
+              </div>
+             <button type="submit" class="submit-btn relative flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded">
+  <span class="button-text">Submit</span>
+  <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
+  </svg>
+</button>
+            </form>
+
+              <% } %>
+            </div>
+          <% } else { %>
+            <form action="/shopkeeper/submit-daily-task" method="POST" class="space-y-4 mt-4">
+              <input type="hidden" name="taskId" value="<%= dailyTask.id %>">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof</label>
+                <input type="hidden" name="videoScreenshotData" class="screenshot-data">
+                <input type="hidden" name="proofUrl" class="proof-url">
+                <input type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)">
+              </div>
+              <button type="submit" class="submit-btn relative flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded">
+  <span class="button-text">Submit</span>
+  <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
+  </svg>
+</button>
+            </form>
+          <% } %>
+        </div>
+      <% } %>
+
+      <% if (hustleTask) { %>
+        <!-- CARD 2: Daily Hustle Challenge -->
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-lg p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="text-lg font-semibold text-pink-700">💸 ₹100 Challenge </h3>
+              <p class="text-sm text-gray-600 mt-1"><%- hustleTask.description %></p>
+            </div>
+             <span class="text-xs sm:text-sm bg-pink-100 text-pink-800 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
+  <%= hustleTask.date %>
+</span>
+
+          </div>
+
+          <% if (hustleTask.isClosed) { %>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+  <strong class="font-bold">Oops! </strong>
+  <span class="block sm:inline">This task has already been completed by another ambassador.</span>
+</div>
+
+      <% } else { %>
+
+          <% if (hustleTask.proofUploaded) { %>
+            <div class="flex flex-col gap-2 mt-2">
+              <p class="text-sm font-medium">
+                ✅ Proof Submitted:
+              </p>
+
+              <% if (hustleTask.proofStatus === 'verified') { %>
+                <span class="inline-block text-green-700 bg-green-100 text-xs px-3 py-1 rounded-full w-fit">✅ Verified</span>
+              <% } else if (hustleTask.proofStatus === 'pending') { %>
+                <span class="inline-block text-gray-700 bg-gray-100 text-xs px-3 py-1 rounded-full w-fit">🕒 Pending Review</span>
+              <% } else if (hustleTask.proofStatus === 'rejected') { %>
+                <span class="inline-block text-red-700 bg-red-100 text-xs px-3 py-1 rounded-full w-fit">❌ Rejected</span>
+                <span class="inline-block text-red-700 bg-red-100 text-xs px-3 py-1 rounded-full w-fit">Reason : <%= hustleTask.reason %> </span>
+
+                  <form action="/shopkeeper/submit-hustle-task" method="POST" class="space-y-4 mt-4">
+              <input type="hidden" name="taskId" value="<%= hustleTask.id %>">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof</label>
+                <input type="hidden" name="videoScreenshotData" class="screenshot-data">
+                <input type="hidden" name="proofUrl" class="proof-url">
+                <input type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)">
+              </div>
+              <button type="submit" class="submit-btn relative flex items-center justify-center px-4 py-2 bg-pink-600 text-white rounded">
+  <span class="button-text">Submit</span>
+  <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
+  </svg>
+</button>
+                <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
+  </svg>
+            </form>
+
+              <% } %>
+            </div>
+          <% } else { %>
+            <form action="/shopkeeper/submit-hustle-task" method="POST" class="space-y-4 mt-4">
+              <input type="hidden" name="taskId" value="<%= hustleTask.id %>">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof</label>
+                <input type="hidden" name="videoScreenshotData" class="screenshot-data">
+                <input type="hidden" name="proofUrl" class="proof-url">
+                <input type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)">
+              </div>
+             <button type="submit" class="submit-btn relative flex items-center justify-center px-4 py-2 bg-pink-600 text-white rounded">
+  <span class="button-text">Submit</span>
+  <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
+  </svg>
+</button>
+            </form>
+          <% } } %>
+        </div>
+      <% } %>
+
+    </div>
+  </div>
+<% } %>
+
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Brand Ambassador Benifits</h2>
+
+
+  <!-- Phase Cards Grid -->
+ <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-8 px-2">
+
+  <% const phases = [
+    { title: 'Phase 1: Foundation', color: 'bg-blue-50', textColor: 'text-blue-800', milestones: [
+      { day: 0, text: '🎉 Welcome Letter' },
+      { day: 5, text: '🪪 ID Badge' },
+      { day: 10, text: '📄 Offer Letter' },
+      { day: 15, text: '🎓 Mini Skill Course' },
+      { day: 20, text: '🔓 Activation Badge' },
+      { day: 25, text: '🏅 Micro Achievement Badge' },
+      { day: 30, text: '📜 Level 1 Certificate' },
+    ]},
+    { title: 'Phase 2: Growth', color: 'bg-green-50', textColor: 'text-green-800', milestones: [
+      { day: 35, text: '🌟 Featured on Website' },
+      { day: 40, text: '🎓 Skill Course #2' },
+      { day: 45, text: '📝 Resume Tips Session' },
+      { day: 50, text: '✅ Pre-Placement Tips' },
+      { day: 55, text: '📄 ATS Resume' },
+      { day: 60, text: '📜 Level 2 Certificate' },
+    ]},
+    { title: 'Phase 3: Legacy & Leadership', color: 'bg-yellow-50', textColor: 'text-yellow-800', milestones: [
+      { day: 65, text: '📸 Social Media Spotlight' },
+      { day: 70, text: '🎓 Skill Course #3 + LinkedIn Endorsement' },
+      { day: 75, text: '📜 Leadership Certificate' },
+      { day: 80, text: '📄 Experience Letter' },
+      { day: 85, text: '🔖 Relieving Letter' },
+      { day: 90, text: '🚀 Job Recommendation' },
+    ]}
+  ]; %>
+
+  <% phases.forEach(phase => { %>
+    <div class="<%= phase.color %> <%= phase.textColor %> rounded-2xl p-6 shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1">
+      <h3 class="text-xl font-semibold mb-4 border-b pb-2 border-dashed border-gray-300">
+        <span class="inline-block px-2 py-1 bg-white rounded-md shadow-sm text-xs uppercase tracking-wider"><%= phase.title %></span>
+      </h3>
+      <ul class="space-y-3 text-sm">
+        <% phase.milestones.forEach(m => { %>
+          <li class="flex items-center justify-between 
+                     <%= currentDay === m.day ? 'font-bold text-blue-700 animate-pulse' : '' %>">
+            <span>
+              Day <%= m.day %>: <span class="inline-block align-middle"><%= m.text %></span>
+            </span>
+            <% if (currentDay >= m.day) { %>
+              <span class="ml-2 text-green-600 font-bold text-lg">✔</span>
+            <% } %>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  <% }) %>
+</div>
+
+
+<div class="my-10 px-4">
+
+  <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+    💼 Earn Up to ₹5,100/month + Fixed ₹2,100/month – Start Today!
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
+
+    <!-- Commission Card -->
+    <div class="bg-gradient-to-r from-blue-100 to-blue-50 border border-blue-200 rounded-2xl p-6 shadow-md hover:shadow-xl transition duration-300">
+      <h3 class="text-lg font-semibold text-blue-800 mb-2">💸 20% Commission</h3>
+      <p class="text-sm text-gray-700">
+        Earn <span class="font-bold text-green-600">20% commission</span> on every successful referral when someone uses your code to buy any FileMakr service.
+      </p>
+    </div>
+
+    <!-- Daily Hustle Challenge -->
+    <div class="bg-gradient-to-r from-yellow-100 to-orange-50 border border-yellow-200 rounded-2xl p-6 shadow-md hover:shadow-xl transition duration-300">
+      <h3 class="text-lg font-semibold text-yellow-800 mb-2">🔥 ₹100/day Daily Hustle Challenge</h3>
+      <p class="text-sm text-gray-700">
+        Be the first to complete the daily challenge and earn
+        <span class="font-bold text-green-600">₹100</span>!
+        <br><span class="text-xs text-gray-500 italic">*🕒 Only one winner per day – fastest wins!</span>
+        <br><span class="text-xs text-gray-500 italic">*⚠️ Maximum 2 wins per person per week</span>
+      </p>
+    </div>
+
+    <!-- YouTube Views -->
+    <div class="bg-gradient-to-r from-purple-100 to-pink-50 border border-purple-200 rounded-2xl p-6 shadow-md hover:shadow-xl transition duration-300">
+      <h3 class="text-lg font-semibold text-purple-800 mb-2">📺 ₹500/month from YouTube Views</h3>
+      <p class="text-sm text-gray-700">
+        Earn a fixed income of <span class="font-bold text-green-600">₹500/month</span> by driving views on your YouTube promo videos.
+        <br>
+        <span class="text-xs text-gray-500 italic">Target: 1 video with 20+ views weekly, 300+ monthly views with full watch time.</span>
+      </p>
+    </div>
+
+    <!-- Reels Bonus -->
+    <div class="bg-gradient-to-r from-green-100 to-lime-50 border border-green-200 rounded-2xl p-6 shadow-md hover:shadow-xl transition duration-300">
+      <h3 class="text-lg font-semibold text-green-800 mb-2">🎬 ₹200 for Reels (Raw Face Videos)</h3>
+      <p class="text-sm text-gray-700">
+        Get <span class="font-bold text-green-600">₹200</span> per reel. We provide the script – just shoot the face video (no editing needed), and our team will do the rest!
+      </p>
+    </div>
+
+    <!-- Refer & Earn -->
+    <div class="bg-gradient-to-r from-rose-100 to-pink-50 border border-rose-200 rounded-2xl p-6 shadow-md hover:shadow-xl transition duration-300">
+      <h3 class="text-lg font-semibold text-rose-800 mb-2">🤝 ₹100 per Successful Referral</h3>
+      <p class="text-sm text-gray-700">
+        Invite other ambassadors using your referral code and earn <span class="font-bold text-green-600">₹100</span> for every successful referral.
+        <br>
+        <span class="text-xs text-gray-500 italic">*Valid only if the referred ambassador stays active for a minimum of 60 days.</span>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+
+
+<% if (winners && winners.length > 0) { %>
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded shadow">
+      <h2 class="text-3xl font-bold mb-6 text-center text-blue-800">🏆 Hustle Challenge Winners</h2>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 text-center text-sm text-gray-700">
+          <thead class="bg-blue-600 text-white">
+            <tr>
+              <th class="px-4 py-3 border">#</th>
+              <th class="px-4 py-3 border">Name</th>
+              <th class="px-4 py-3 border">Amount</th>
+              <th class="px-4 py-3 border">Won On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% winners.forEach((winner, i) => { %>
+              <tr class="hover:bg-gray-100">
+                <td class="px-4 py-2 border"><%= i + 1 %></td>
+                <td class="px-4 py-2 border font-semibold text-gray-800"><%= winner.ambassador_name %></td>
+                <td class="px-4 py-2 border text-green-700 font-medium">₹<%= winner.amount %></td>
+                <td class="px-4 py-2 border text-gray-600"><%= winner.formattedDate %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% } else { %>
+      
+       <div class="max-w-7xl mx-auto bg-white p-6 rounded shadow">
+      <h2 class="text-3xl font-bold mb-6 text-center text-blue-800">🏆 Hustle Challenge Winners</h2>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 text-center text-sm text-gray-700">
+          <thead class="bg-blue-600 text-white">
+            <tr>
+              <th class="px-4 py-3 border">No winners found yet</th>
+           
+            </tr>
+          </thead>
+      
+        </table>
+      </div>
+    </div>
+  <% } %>
+
+
+  <!-- Bonus Rewards Card -->
+
+</div>
+
+</section>
+
+
+
+	
+	<style>
+	.streak-tracker {
+		border-radius: 12px;
+		background: white;
+	}
+	
+	.streak-circle {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 18px;
+		margin: 0 5px;
+		transition: all 0.3s ease-in-out;
+	}
+	
+	.streak-circle.bg-success {
+		box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+	}
+	
+	.streak-circle.bg-light {
+		border: 1px solid #ddd;
+	}
+	</style>
+	
+
+    
+    </div>
+  </main>
+
+
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
+
+</body>
+
+</html>
+
+
+<canvas id="videoCanvas" class="hidden"></canvas>
+<video id="previewVideo" class="hidden max-w-sm mb-2" controls></video>
+<img id="previewImage" class="hidden max-w-sm mb-2" />
+<div id="loader" class="hidden text-sm text-gray-600">Uploading to Cloudinary...</div>
+
+
+
+<script>
+
+function showButtonLoader(button) {
+  
+  const text = button.querySelector(".button-text");
+  const loader = button.querySelector(".loader-icon");
+  if (text && loader) {
+    text.classList.add("opacity-50");
+    loader.classList.remove("hidden");
+    button.classList.add("cursor-not-allowed");
+  }
+}
+
+function hideButtonLoader(button) {
+  const text = button.querySelector(".button-text");
+  const loader = button.querySelector(".loader-icon");
+  if (text && loader) {
+    text.classList.remove("opacity-50");
+    loader.classList.add("hidden");
+    button.classList.remove("cursor-not-allowed");
+  }
+}
+
+
+  async function handleProofChange(input) {
+    const file = input.files[0];
+    const form = input.closest("form");
+
+    const screenshotField = form.querySelector(".screenshot-data");
+    const cloudUrlField = form.querySelector(".proof-url");
+    const canvas = document.getElementById("videoCanvas");
+    const ctx = canvas.getContext("2d");
+    const loader = document.getElementById("loader");  // or use local loader per card
+    const previewVideo = document.getElementById("previewVideo");
+    const previewImage = document.getElementById("previewImage");
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    // Reset fields
+    previewVideo.classList.add("hidden");
+    previewImage.classList.add("hidden");
+    screenshotField.value = "";
+    cloudUrlField.value = "";
+    console.log("Submit Btn:", submitBtn);
+    showButtonLoader(submitBtn);
+    loader.classList.remove("hidden");
+
+    if (!file) return;
+
+    const isVideo = file.type.startsWith("video/");
+    if (!isVideo) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        previewImage.src = e.target.result;
+        previewImage.classList.remove("hidden");
+        try {
+          const uploadUrl = await uploadToCloudinary(e.target.result);
+          cloudUrlField.value = uploadUrl;
+          console.log('uploadurl',uploadUrl)
+
+          hideButtonLoader(submitBtn);
+
+        } catch (err) {
+          alert("Image upload failed.");
+        } finally {
+          loader.classList.add("hidden");
+        }
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const video = document.createElement("video");
+    video.src = URL.createObjectURL(file);
+    video.crossOrigin = "anonymous";
+    video.preload = "auto";
+    video.muted = true;
+    video.playsInline = true;
+    video.style.position = "absolute";
+    video.style.left = "-9999px";
+    document.body.appendChild(video);
+
+    video.addEventListener("loadedmetadata", () => {
+      const seekTime = Math.min(180, video.duration);
+      video.currentTime = seekTime;
+    });
+
+    video.addEventListener("seeked", async () => {
+      setTimeout(async () => {
+        try {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const dataURL = canvas.toDataURL("image/jpeg", 0.9);
+          if (dataURL.length < 10000) throw new Error("Blank screenshot");
+
+          screenshotField.value = dataURL;
+          previewVideo.src = video.src;
+          previewVideo.classList.remove("hidden");
+
+          const uploadedUrl = await uploadToCloudinary(dataURL);
+          cloudUrlField.value = uploadedUrl;
+          hideButtonLoader(submitBtn);
+          console.log('uploadUrl',uploadedUrl)
+
+
+        } catch (e) {
+          console.error(e);
+          alert("Video screenshot failed.");
+        } finally {
+          loader.classList.add("hidden");
+          URL.revokeObjectURL(video.src);
+          video.remove();
+        }
+      }, 300);
+    });
+  }
+
+  async function uploadToCloudinary(base64Data) {
+    const formData = new FormData();
+    formData.append("file", base64Data);
+    formData.append("upload_preset", "ml_default"); // Replace with your preset
+
+    const res = await fetch("https://api.cloudinary.com/v1_1/dr5dofa3x/image/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!data.secure_url) throw new Error("Cloudinary upload failed");
+    return data.secure_url;
+  }
+
+
+
+</script>
+
+<script>
+  const menuToggle = document.getElementById("menuToggle");
+  const mobileMenu = document.getElementById("mobileMenu");
+
+  menuToggle.addEventListener("click", () => {
+    mobileMenu.classList.toggle("hidden");
+  });
+</script>

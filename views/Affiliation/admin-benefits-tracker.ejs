@@ -1,0 +1,247 @@
+<% include ./header.ejs %>
+
+<!-- Tailwind CDN with brand colors -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brandOrange: '#F17F23',
+          brandBlue: '#2A47FF'
+        }
+      }
+    }
+  }
+</script>
+
+<div class="content-body p-6 mt-5 bg-gray-50 min-h-screen font-sans">
+
+<!-- <div class="content-body max-w-7xl mt-5 mx-auto p-4 sm:p-6 font-sans "> -->
+
+  <!-- Page Title -->
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">
+      Benefits Tracker <span class="text-sm sm:text-base text-gray-500">(All 90 days)</span>
+    </h1>
+    <a href="/admin/benefits/pending" class="hidden sm:inline-flex items-center px-3 py-2 rounded-md text-white bg-brandBlue hover:opacity-90">
+      View Pending (Claim)
+    </a>
+  </div>
+
+  <!-- Sticky Toolbar -->
+  <div class="sticky top-0 z-10 bg-gray-50/80 backdrop-blur border border-gray-200 rounded-xl p-3 sm:p-4 mb-5">
+    <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+      <div class="sm:col-span-2">
+        <input id="searchInput" type="search" placeholder="Search ambassador name or number..."
+               class="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandBlue"
+               />
+      </div>
+      <div>
+        <label class="sr-only">Status</label>
+        <select id="statusFilter" class="w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-brandBlue">
+          <option value="all">All statuses</option>
+          <option value="pending">Unlocked (Pending)</option>
+          <option value="sent">Sent / Issued</option>
+          <option value="locked">Locked</option>
+        </select>
+      </div>
+      <div>
+        <label class="sr-only">Phase</label>
+        <select id="phaseFilter" class="w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-brandBlue">
+          <option value="all">All phases</option>
+          <option value="Phase 1">Phase 1</option>
+          <option value="Phase 2">Phase 2</option>
+          <option value="Phase 3">Phase 3</option>
+        </select>
+      </div>
+      <div class="flex gap-2">
+        <button id="expandAllBtn" class="flex-1 px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100">Expand all</button>
+        <button id="collapseAllBtn" class="flex-1 px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100">Collapse all</button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+      <span class="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">Unlocked (Pending)</span>
+      <span class="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Sent / Issued</span>
+      <span class="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">Locked</span>
+      <span id="totalSummary" class="ml-auto text-gray-600"></span>
+    </div>
+  </div>
+
+  <!-- Ambassadors List -->
+  <div id="ambList" class="space-y-4">
+    <% data.forEach(a => { 
+         const counts = { pending: 0, sent: 0, locked: 0, total: a.benefits.length };
+         a.benefits.forEach(b => {
+           if (b.status) counts.sent++;
+           else if (b.is_unlocked) counts.pending++;
+           else counts.locked++;
+         });
+    %>
+      <section class="amb-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden"
+               data-name="<%= (a.name||'') %> <%= (a.verified_days||0) %>"
+               data-number="<%= (a.number||'') %>">
+        <!-- Header -->
+        <header class="flex items-center justify-between gap-3 p-4 sm:p-5 bg-gradient-to-r from-white to-gray-50">
+          <div class="min-w-0">
+            <h2 class="text-lg sm:text-xl font-semibold truncate"><%= a.name %></h2>
+            <div class="mt-1 flex flex-wrap items-center gap-2 text-sm">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-brandBlue/10 text-brandBlue border border-brandBlue/20">
+                Verified: <%= a.verified_days %> days
+              </span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+                Pending: <%= counts.pending %>
+              </span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                Sent: <%= counts.sent %>
+              </span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                Locked: <%= counts.locked %>
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <% if (a.number) { %>
+              <span class="hidden sm:inline text-sm text-gray-500">Mob: <%= a.number %></span>
+            <% } %>
+            <button class="toggleBtn px-3 py-2 rounded-md text-white bg-brandOrange hover:opacity-90"
+                    aria-expanded="false">Expand</button>
+          </div>
+        </header>
+
+        <!-- Benefits Table -->
+        <div class="details hidden border-t border-gray-200">
+          <div class="grid grid-cols-12 px-4 sm:px-5 py-2 text-sm font-medium text-gray-600">
+            <div class="col-span-5 sm:col-span-5">Benefit</div>
+            <div class="col-span-2 sm:col-span-2">Phase</div>
+            <div class="col-span-2 sm:col-span-2">Threshold</div>
+            <div class="col-span-2 sm:col-span-2">Status</div>
+            <div class="col-span-1 sm:col-span-1 text-right">Claimed At</div>
+          </div>
+
+          <div class="divide-y">
+            <% a.benefits.forEach(b => { 
+                 const phaseClass = b.phase === 'Phase 1' ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                   : b.phase === 'Phase 2' ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                   : 'bg-purple-50 text-purple-700 border-purple-200';
+                 let statusChip = '';
+                 if (!b.status) {
+                   statusChip = b.is_unlocked
+                     ? '<span class="inline-flex px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">Unlocked (Pending)</span>'
+                     : '<span class="inline-flex px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">Locked</span>';
+                 } else {
+                   statusChip = '<span class="inline-flex px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">'
+                                + (b.status) + '</span>';
+                 }
+            %>
+              <div class="grid grid-cols-12 px-4 sm:px-5 py-3 items-center text-sm benefit-row"
+                   data-phase="<%= b.phase %>"
+                   data-status="<%= b.status ? 'sent' : (b.is_unlocked ? 'pending' : 'locked') %>">
+                <div class="col-span-5 sm:col-span-5">
+                  <div class="font-medium"><%= b.title %></div>
+                </div>
+                <div class="col-span-2 sm:col-span-2">
+                  <span class="inline-flex px-2 py-0.5 rounded-full border <%= phaseClass %>"><%= b.phase %></span>
+                </div>
+                <div class="col-span-2 sm:col-span-2"><%= b.day_threshold %> days</div>
+                <div class="col-span-2 sm:col-span-2"><%- statusChip %></div>
+                <div class="col-span-1 sm:col-span-1 text-right">
+                  <%= b.claimed_at ? new Date(b.claimed_at).toLocaleDateString() : '-' %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="px-4 sm:px-5 py-3 bg-gray-50 text-xs text-gray-500">
+            Tip: To claim pending benefits, use
+            <a class="text-brandBlue underline" href="/admin/benefits/pending?ambassador_id=<%= a.ambassador_id %>">Pending (Claim)</a>.
+          </div>
+        </div>
+      </section>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+  // --- Helpers ---
+  function normalize(s){ return (s||'').toString().toLowerCase().trim(); }
+
+  // --- Expand/Collapse per card ---
+  document.querySelectorAll('.toggleBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.amb-card');
+      const details = card.querySelector('.details');
+      const expanded = details.classList.toggle('hidden') ? false : true;
+      btn.textContent = expanded ? 'Collapse' : 'Expand';
+      btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+  });
+
+  // --- Expand/Collapse all ---
+  const expandAllBtn = document.getElementById('expandAllBtn');
+  const collapseAllBtn = document.getElementById('collapseAllBtn');
+  expandAllBtn.addEventListener('click', () => {
+    document.querySelectorAll('.amb-card .details').forEach(d => d.classList.remove('hidden'));
+    document.querySelectorAll('.amb-card .toggleBtn').forEach(b => { b.textContent='Collapse'; b.setAttribute('aria-expanded','true'); });
+  });
+  collapseAllBtn.addEventListener('click', () => {
+    document.querySelectorAll('.amb-card .details').forEach(d => d.classList.add('hidden'));
+    document.querySelectorAll('.amb-card .toggleBtn').forEach(b => { b.textContent='Expand'; b.setAttribute('aria-expanded','false'); });
+  });
+
+  // --- Filters ---
+  const searchInput  = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+  const phaseFilter  = document.getElementById('phaseFilter');
+  const ambList      = document.getElementById('ambList');
+  const totalSummary = document.getElementById('totalSummary');
+
+  function applyFilters(){
+    const q = normalize(searchInput.value);
+    const status = statusFilter.value; // all, pending, sent, locked
+    const phase = phaseFilter.value;   // all / Phase 1 / Phase 2 / Phase 3
+
+    let totalVisibleAmb = 0, totalVisibleBenefits = 0;
+
+    document.querySelectorAll('.amb-card').forEach(card => {
+      const name = normalize(card.getAttribute('data-name'));
+      const number = normalize(card.getAttribute('data-number'));
+      const matchSearch = !q || name.includes(q) || number.includes(q);
+
+      // Check benefits inside for status/phase
+      const rows = card.querySelectorAll('.benefit-row');
+      let visibleInCard = 0;
+
+      rows.forEach(r => {
+        const rStatus = r.getAttribute('data-status'); // pending/sent/locked
+        const rPhase = r.getAttribute('data-phase');
+        const matchStatus = (status === 'all') || (rStatus === status);
+        const matchPhase  = (phase === 'all')  || (rPhase === phase);
+        const show = matchSearch && matchStatus && matchPhase;
+        r.classList.toggle('hidden', !show);
+        if (show) visibleInCard++;
+      });
+
+      // Show/hide whole card based on whether any row is visible
+      const showCard = visibleInCard > 0;
+      card.classList.toggle('hidden', !showCard);
+      if (showCard) {
+        totalVisibleAmb++;
+        totalVisibleBenefits += visibleInCard;
+      }
+    });
+
+    totalSummary.textContent = totalVisibleAmb + ' ambassadors • ' + totalVisibleBenefits + ' benefits';
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  statusFilter.addEventListener('change', applyFilters);
+  phaseFilter.addEventListener('change', applyFilters);
+  window.addEventListener('load', applyFilters);
+</script>
+</body>
+</html>
+
+<% include ./footer.ejs %>

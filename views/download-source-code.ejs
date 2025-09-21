@@ -1,0 +1,1500 @@
+  <%include Includes/navbar3.ejs %>
+<%include Includes/projectReport.ejs %>
+
+<!-- ====== Styles (scoped) ====== -->
+<style>
+/* ===== Premium UI mapped to FileMakr brand tokens ===== */
+/* Assumes your brand :root is already defined (brandBlue, brandOrange, ink, bg, card, ring, muted) */
+
+body{ background:var(--bg); }
+.container-narrow{ max-width:1120px; margin:0 auto; }
+
+.shadow-soft{ box-shadow:0 6px 18px rgba(14,18,32,.06); }
+.card-surface{
+  background:var(--card);
+  border:1px solid rgba(14,18,32,.08);
+  border-radius:16px;
+  padding:1rem;
+}
+
+/* Pills */
+.pill{
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.5rem .9rem; border-radius:999px;
+  background:#f3f4f6; border:1px solid transparent;
+  color:var(--ink); text-decoration:none; font-weight:700; white-space:nowrap; transition:.2s;
+}
+.pill:hover{ background:#eef2f7; }
+.pill.active{
+  background:#fff; color:var(--brandBlue);
+  border-color:var(--brandBlue);
+  box-shadow:0 4px 14px rgba(42,71,255,.15);
+}
+
+/* Buttons */
+.btn-brand{
+  background:var(--brandBlue); color:#fff;
+  border-radius:999px; border:0; padding:.8rem 1.1rem; font-weight:800;
+  box-shadow:0 8px 24px rgba(42,71,255,.15);
+}
+.btn-brand:hover{ filter:brightness(.98); }
+.btn-outline{
+  background:#fff; color:var(--ink);
+  border:1px solid rgba(14,18,32,.08);
+  border-radius:999px; padding:.8rem 1.1rem; font-weight:800;
+}
+.btn-outline:hover{ border-color:var(--brandBlue); box-shadow:0 0 0 4px var(--ring); }
+
+
+
+.badge-soft{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  padding:.35rem .6rem; border-radius:999px;
+}
+.media-thumb{ border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.15); }
+
+/* Pricing option cards */
+.option-card{
+  border-radius:16px; border:1px solid rgba(14,18,32,.08);
+  background:#fff; padding:1rem; transition:.2s;
+}
+.option-card:hover{ box-shadow:0 10px 28px rgba(14,18,32,.10); transform:translateY(-2px); }
+.option-title{ font-weight:800; margin:0; color:var(--ink); }
+.tiny{ font-size:.85rem; color:var(--muted); }
+
+/* Chips */
+.chips{ display:flex; gap:.5rem; flex-wrap:wrap; }
+.chip{
+  font-size:.8rem; padding:.3rem .6rem;
+  background:#f7f8fc; color:var(--ink);
+  border-radius:999px; border:1px solid rgba(14,18,32,.08);
+  font-weight:800;
+}
+
+/* Tabs */
+.tab-content.card-surface{ padding:1rem; }
+.nav-tabs{ border:0; margin:0; }
+.nav-tabs .nav-link{
+  border:1px solid rgba(14,18,32,.08) !important;
+  border-radius:999px; margin-right:.4rem; color:var(--ink); font-weight:800;
+}
+.nav-tabs .nav-link.active{
+  background:#fff; color:var(--brandBlue);
+  border-color:var(--brandBlue) !important;
+  box-shadow:0 6px 18px rgba(42,71,255,.15);
+}
+
+/* Lists */
+.list-clean{ list-style:none; padding-left:0; margin:0; }
+.list-clean li{ padding:.5rem .25rem; border-bottom:1px dashed rgba(14,18,32,.12); }
+.list-clean li:last-child{ border-bottom:0; }
+
+/* Utilities */
+.muted{ color:var(--muted); }
+.rounded-xl{ border-radius:16px; }
+.gap-6{ gap:1.5rem; }
+.w-100{ width:100%; }
+.pointer{ cursor:pointer; }
+.sticky-side{ position:sticky; top:92px; }
+
+
+/* ===== Pro hero layout (clean, spacious) ===== */
+
+
+
+
+</style>
+
+<!-- table of contents -->
+<style>
+ /* Container */
+.toc.pro{ border:1px solid rgba(14,18,32,.08); border-radius:16px; overflow:hidden; }
+
+/* Header */
+.toc-head{
+  display:grid; grid-template-columns:120px 1fr; gap:8px;
+  background:rgba(42,71,255,.06);
+  border-bottom:1px solid rgba(14,18,32,.08);
+  padding:.65rem .9rem; color:var(--muted);
+  font-weight:900; text-transform:uppercase; font-size:.78rem; letter-spacing:.04em;
+}
+.toc-col.sno{ white-space:nowrap; }
+
+/* Chapter header row */
+.toc-chapter{ border-top:1px solid rgba(14,18,32,.06); }
+.toc-chapter:first-of-type{ border-top:0; }
+
+.toc-chapter-head{
+  width:100%; background:#f9fbff; border:0; text-align:left;
+  display:grid; grid-template-columns:120px 1fr 24px; gap:8px;
+  padding:.7rem .9rem; align-items:center; cursor:pointer;
+}
+.toc-ch-label{ font-weight:800; color:#111; }
+.toc-ch-title{ font-weight:900; color:#111; }
+.toc-ch-caret{ color:#9aa1ae; transition:.2s transform ease; }
+.toc-chapter-head[aria-expanded="true"] .toc-ch-caret{ transform:rotate(180deg); }
+
+/* Items */
+.toc-list{ margin:0; padding:.25rem .9rem .6rem; list-style:none; }
+.toc-row{
+  display:grid; grid-template-columns:120px 1fr; gap:8px;
+  padding:.48rem 0; border-bottom:1px dashed rgba(14,18,32,.08);
+}
+.toc-row:last-child{ border-bottom:0; }
+.toc-col.idx{
+  position:relative; padding-left:1rem;
+}
+.toc-col.idx::before{
+  content:""; position:absolute; left:.25rem; top:50%; transform:translateY(-50%);
+  width:6px; height:6px; border-radius:999px; background:rgba(42,71,255,.35);
+}
+
+/* Density + hover */
+.toc-row:hover .toc-col.idx{ color:#0e1220; }
+.toc-chapter-head:hover{ background:#f2f6ff; }
+
+/* Mobile */
+@media (max-width:575.98px){
+  .toc-head, .toc-row, .toc-chapter-head{ grid-template-columns:88px 1fr !important; }
+  .toc-ch-caret{ display:none; } /* less noise on tiny screens */
+}
+
+</style>
+
+
+
+<!-- description -->
+
+
+<style>
+  /* Description tab — premium, uncluttered */
+#pane-description .desc-intro{
+  border:1px solid rgba(14,18,32,.08);
+  border-radius:14px; padding:12px; background:#fff; margin-bottom:12px;
+}
+#pane-description .desc-intro p{ margin:0; color:#111; }
+
+#pane-description .desc-block{ margin-top:14px; }
+#pane-description .desc-heading{
+  margin:0 0 8px; font-weight:900; color:#111; font-size:1rem;
+}
+
+#pane-description .desc-check{
+  list-style:none; margin:0; padding:0; display:grid; gap:8px;
+}
+#pane-description .desc-check li{
+  display:flex; align-items:flex-start; gap:8px; background:#fff;
+  border:1px solid rgba(14,18,32,.08); border-radius:12px; padding:10px 12px;
+}
+#pane-description .desc-check i{ color:var(--brandBlue); margin-top:2px; }
+
+#pane-description .desc-grid{
+  display:grid; gap:10px;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+}
+@media (min-width: 768px){
+  #pane-description .desc-grid{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+}
+#pane-description .desc-item{
+  display:flex; gap:10px; align-items:flex-start;
+  border:1px solid rgba(14,18,32,.08); border-radius:12px; background:#fff; padding:10px 12px;
+}
+#pane-description .desc-item i{
+  color:var(--brandBlue); font-size:18px; line-height:1; margin-top:2px;
+}
+#pane-description .desc-item strong{ display:block; color:#111; }
+#pane-description .desc-item span{ display:block; color:var(--muted); font-size:.9rem; }
+
+#pane-description .desc-note{
+  display:flex; gap:8px; align-items:flex-start; margin-top:14px;
+  padding:10px 12px; border-radius:12px;
+  background:linear-gradient(90deg, rgba(42,71,255,.06), rgba(241,127,35,.06));
+  border:1px solid rgba(14,18,32,.06);
+}
+#pane-description .desc-note i{ color:var(--brandBlue); margin-top:2px; }
+
+
+/* Quick facts */
+.facts{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:10px; }
+@media (max-width:767.98px){ .facts{ grid-template-columns:1fr; } }
+.fact{
+  background:#fff; border:1px solid rgba(14,18,32,.08); border-radius:12px; padding:10px 12px;
+  display:flex; gap:10px; align-items:flex-start;
+}
+.fact i{ color:var(--brandBlue); margin-top:2px; }
+.fact b{ display:block; color:#111; }
+.fact span{ color:var(--muted); font-size:.92rem; }
+
+
+/* Horizontal "peek" tab slider */
+.tabslider{
+  position:relative; margin-bottom:10px;
+  padding:0 8px; /* small gutter so next tab peeks */
+  /* mask creates soft edges and shows a hint of the next tab */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 10px, #000 calc(100% - 38px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 10px, #000 calc(100% - 38px), transparent 100%);
+}
+.pro-tabs{
+  display:flex; flex-wrap:nowrap; gap:8px; overflow-x:auto; scrollbar-width:none;
+  border:0; padding:6px 0;
+  scroll-snap-type:x mandatory;
+}
+.pro-tabs::-webkit-scrollbar{ display:none; }
+.pro-tabs .nav-item{ flex:0 0 auto; scroll-snap-align:center; }
+
+.pro-tabs .nav-link{
+  display:inline-flex; align-items:center; gap:8px;
+  height:40px; padding:0 14px; border-radius:999px;
+  background:#fff; color:#111; font-weight:800;
+  border:1px solid rgba(14,18,32,.10)!important;
+  box-shadow:0 1px 2px rgba(14,18,32,.04);
+  transition:box-shadow .15s, border-color .15s, transform .06s;
+}
+.pro-tabs .nav-link i{ opacity:.85; }
+.pro-tabs .nav-link:active{ transform:translateY(1px); }
+.pro-tabs .nav-link:hover{ border-color:var(--brandBlue); }
+
+.pro-tabs .nav-link.active{
+  color:var(--brandBlue);
+  border-color:var(--brandBlue)!important;
+  box-shadow:0 6px 18px rgba(42,71,255,.15);
+  background:#fff;
+}
+
+/* active underline that glides under the active pill */
+.tab-underline{
+  position:absolute; left:12px; bottom:-2px; height:3px; width:64px;
+  background:linear-gradient(90deg,var(--brandBlue),var(--brandOrange));
+  border-radius:999px; transition:left .25s ease,width .25s ease;
+}
+
+/* Desktop: center the tab row and soften the peek */
+@media (min-width:992px){
+  .tabslider{ -webkit-mask-image:none; mask-image:none; }
+  .pro-tabs{ justify-content:flex-start; }
+}
+
+
+</style>
+
+
+<style>
+  /* Layout */
+.pro-hero{background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));
+  border:1px solid rgba(14,18,32,.06); border-radius:20px; padding:18px;}
+.pro-hero-grid{display:grid; gap:18px; align-items:center;
+  grid-template-columns:1.2fr .8fr;}
+@media(max-width:992px){ .pro-hero-grid{grid-template-columns:1fr} }
+
+.pro-hero-title{margin:.25rem 0; font-weight:900}
+.pro-hero-sub{color:var(--muted); margin:0}
+.pro-hero-chips{display:flex;gap:8px;flex-wrap:wrap;list-style:none;padding:0;margin:10px 0 12px}
+.pro-hero-chips li{padding:6px 10px;border-radius:999px;background:#fff;border:1px solid rgba(14,18,32,.08);font-weight:800}
+.pro-hero-ctas{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Poster */
+.thumb{position:relative; width:100%; aspect-ratio:16/9; border:1px solid rgba(14,18,32,.08);
+  border-radius:14px; overflow:hidden; padding:0; background:#fff; cursor:pointer}
+.thumb-img{width:100%; height:100%; object-fit:cover; display:block}
+.thumb-play{position:absolute; inset:auto auto 12px 12px; display:inline-flex; align-items:center;
+  gap:8px; padding:8px 12px; border-radius:999px; background:#fff; font-weight:900;
+  border:1px solid rgba(14,18,32,.08); box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.thumb:hover{box-shadow:0 10px 28px rgba(14,18,32,.10); transform:translateY(-1px)}
+
+/* Modal */
+.preview-modal{position:fixed; inset:0; background:rgba(14,18,32,.55); display:none; z-index:10000;
+  align-items:center; justify-content:center; padding:18px}
+.preview-modal.is-open{display:flex}
+.preview-dialog{width:min(1200px,500px); background:#fff; border-radius:16px; overflow:hidden;
+  box-shadow:0 18px 60px rgba(14,18,32,.25); position:relative;height:500px}
+.preview-close{position:absolute; top:10px; right:10px; border:1px solid rgba(14,18,32,.12);
+  background:#fff; border-radius:10px; padding:6px 8px; cursor:pointer}
+.preview-frame{position:relative; width:100%; aspect-ratio:16/9; background:#000;height:500px}
+.preview-skeleton{position:absolute; inset:0; background:
+  linear-gradient(90deg,#f5f7ff 25%,#eef2ff 37%,#f5f7ff 63%);
+  animation:shimmer 1.4s infinite; }
+@keyframes shimmer{0%{transform:translateX(-30%)} 100%{transform:translateX(30%)}}
+
+.preview-iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+
+</style>
+
+<!-- ====== Breadcrumb ====== -->
+<div class="container">
+  <div class="brand-accent"></div>
+
+  <nav aria-label="breadcrumb" class="page-breadcrumb mb-2">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="<%= typeof homeUrl !== 'undefined' ? homeUrl : '/' %>" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page"><%=result[0][0].name%> Source Code Download </li>
+    </ol>
+  </nav>
+
+
+  <style>
+    .thumb-live {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  display: block;
+}
+
+.thumb-bg {
+  background: url('/design/img/video.jpg') center/cover no-repeat;
+  width: 100%;
+  height: 100%;
+  filter: blur(6px) brightness(0.6);
+  transform: scale(1.05);
+}
+
+.thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+}
+
+.thumb-content {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.thumb-icon {
+  font-size: 42px;
+  color: white;
+  background: rgba(0,0,0,0.5);
+  padding: 14px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.thumb-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.thumb-live:hover .thumb-icon {
+  background: rgba(255,255,255,0.2);
+}
+
+
+.visually-hidden{
+  position:absolute!important; width:1px!important; height:1px!important;
+  padding:0!important; margin:-1px!important; overflow:hidden!important;
+  clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
+}
+
+ /* Modal */
+  .modal{
+    position:fixed; inset:0;
+    display:none; place-items:center; /* top aligned so it never hides */
+    padding-top: calc(var(--navHeight, 92px) + 16px); 
+  
+   
+    /* adjust if your navbar is taller */
+    background:rgba(14,18,32,.58);
+    backdrop-filter:saturate(180%) blur(6px);
+    z-index: 10000; /* higher than navbar */
+  }
+  .modal.is-open{ display:grid; }
+    body.modal-open{ overflow:hidden; }
+
+      .sheet{width:min(720px,92vw);border-radius:18px;background:#fff;box-shadow:0 24px 60px rgba(14,18,32,.28);overflow:hidden}
+    .sheet-head{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(14,18,32,.06);background:linear-gradient(90deg,rgba(42,71,255,.06),rgba(241,127,35,.06))}
+    .sheet-head h3{margin:0;font-weight:900}
+    .sheet-body{display:grid;grid-template-columns:1fr;gap:14px;padding:14px}
+    @media(min-width:768px){.sheet-body{grid-template-columns:1.2fr .8fr}}
+    .close-x{border:none;background:#fff;color:#111;border:1px solid rgba(14,18,32,.12);height:36px;width:36px;border-radius:10px;cursor:pointer}
+    .field{display:flex;flex-direction:column;gap:0px}
+    .field label{font-weight:800;font-size:13px}
+    .input{height:44px;border:1px solid rgba(14,18,32,.12);border-radius:12px;padding:0 12px;font-weight:600;margin-bottom: 10px;}
+    .input:focus{outline:none;border-color:var(--brandBlue);box-shadow:0 0 0 4px var(--ring)}
+    .coupon-row{display:flex;gap:8px}
+    .mini{font-size:12px;color:var(--muted)}
+    .sum-card{border:1px solid rgba(14,18,32,.08);border-radius:14px;padding:12px;background:#fff}
+    .sum-line{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+    .sum-line.total{font-weight:900}
+    .ok{color:#16a34a;font-weight:800}
+    .warn{color:#f59e0b;font-weight:800}
+    .danger{color:#ef4444;font-weight:800}
+    /* Footer */
+    .footer-note{margin-top:6px;color:var(--muted);font-size:12px}
+
+
+    /* Source code overview styles */
+.sc-overview{padding:14px;border:1px solid rgba(14,18,32,.08);border-radius:14px}
+.sc-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sc-head i{font-size:20px;color:var(--brandBlue)}
+.sc-grid{display:grid;grid-template-columns:1fr;gap:8px;margin:0}
+.sc-row{display:grid;grid-template-columns:180px 1fr;gap:12px;padding:8px;border:1px dashed rgba(14,18,32,.08);border-radius:12px;background:#fff}
+.sc-row dt{margin:0;font-weight:800;color:#111}
+.sc-row dd{margin:0;color:var(--muted);font-weight:700}
+@media (max-width:575.98px){
+  .sc-row{grid-template-columns:1fr}
+}
+
+
+  </style>
+
+<!-- ====== Hero (Product Header with Price/Preview/Download) ====== -->
+<section class="product-hero pro-hero" itemscope itemtype="https://schema.org/SoftwareSourceCode">
+  <div class="pro-hero-grid">
+    <!-- Copy -->
+    <header class="pro-hero-left">
+      <span class="badge-soft">• Source Code</span>
+
+      <!-- Primary keyword target -->
+      <h1 class="pro-hero-title" itemprop="name">
+        <%=result[0][0].name%> Source Code (<%=graduation_type_send%> Final Year)
+      </h1>
+
+      <!-- Supporting, keyword-rich subhead -->
+      <p class="pro-hero-sub" itemprop="description">
+        Download clean, well-commented <%=result[0][0].name%> source code for
+        <%=graduation_type_send%> final year projects — easy to run, demo-ready, and mentor-friendly.
+      </p>
+
+      <!-- Quick facts / keyword chips -->
+      <ul class="pro-hero-chips" aria-label="Tech & highlights">
+        <li><%=result[0][0].category.toUpperCase()%> Project</li>
+        <li>MySQL / MongoDB</li>
+        <li>Setup guide & demo steps</li>
+        <li>Beginner-friendly</li>
+      </ul>
+
+      <!-- Optional secondary keywords (helps SEO without cluttering UI) -->
+      <p class="visually-hidden">
+        Keywords: <%=graduation_type_send%> source code, final year project code, <%=result[0][0].name%> Git, documentation,
+        installation guide, <%=result[0][0].category%> project, college project demo.
+      </p>
+    </header>
+
+    <!-- Poster (lightweight) -->
+  <div class="pro-hero-right">
+  <% if (result[0][0].demo_url) { %>
+    <!-- Live Preview -->
+    <a class="thumb thumb-live" href="<%= result[0][0].demo_url %>" target="_blank" rel="noopener"
+       aria-label="Open live preview demo of <%= result[0][0].name %>">
+      <div class="thumb-bg" role="img" aria-label="<%= result[0][0].name %> live demo thumbnail"></div>
+      <div class="thumb-overlay"></div>
+      <div class="thumb-content">
+        <i class="fa-solid fa-play thumb-icon" aria-hidden="true"></i>
+        <span class="thumb-text">Live Preview</span>
+      </div>
+    </a>
+
+  <% } else if (result[0][0].license) { %>
+    <!-- View Screenshot -->
+   <a class="thumb thumb-live btn-gallery" href="#gallery-1" rel="noopener"
+   aria-label="View detailed screenshots of <%= result[0][0].name %>">
+  <div class="thumb-bg" role="img" aria-label="<%= result[0][0].name %> screenshot preview"></div>
+  <div class="thumb-overlay"></div>
+  <div class="thumb-content">
+    <i class="fa-solid fa-images thumb-icon" aria-hidden="true"></i>
+    <span class="thumb-text">View Screenshots</span>
+  </div>
+</a>
+
+  <% } else { %>
+    <!-- WhatsApp for Demo -->
+    <a class="thumb thumb-live" href="https://wa.me/918319339945?text=<%= encodeURIComponent('I want a demo for ' + result[0][0].name) %>" target="_blank" rel="noopener"
+       aria-label="Contact for demo of <%= result[0][0].name %>">
+      <div class="thumb-bg" role="img" aria-label="Contact on WhatsApp for <%= result[0][0].name %> demo"></div>
+      <div class="thumb-overlay"></div>
+      <div class="thumb-content">
+        <i class="fa-brands fa-whatsapp thumb-icon" aria-hidden="true"></i>
+        <span class="thumb-text">WhatsApp For Demo</span>
+      </div>
+    </a>
+  <% } %>
+</div>
+
+
+  </div>
+
+  <!-- Structured data hints -->
+  <meta itemprop="programmingLanguage" content="<%=result[0][0].category%>">
+  <meta itemprop="codeRepository" content="">
+  <meta itemprop="runtimePlatform" content="MySQL, MongoDB">
+</section>
+
+
+
+<div id="gallery-1" class="hidden">
+  <% for(let i = 0; i < result[2].length; i++) { %>
+    <a href="<%= result[2][i].url %>" title="<%= result[0][0].name %> - Screenshot <%= i+1 %>">
+      Screenshot <%= i+1 %>
+    </a>
+  <% } %>
+</div>
+      
+
+
+<!-- Preview modal (iframe injected on open) -->
+<div class="preview-modal" id="PreviewModal" aria-hidden="true">
+  <div class="preview-dialog" role="dialog" aria-modal="true" aria-label="Live Preview">
+    <button class="preview-close" data-close aria-label="Close"><i class="feather-x"></i></button>
+    <div class="preview-frame">
+      <!-- skeleton until iframe mounts -->
+      <div class="preview-skeleton"></div>
+    </div>
+  </div>
+</div>
+
+<noscript>
+  <p style="text-align:center;margin-top:8px">
+    <a href="https://online.visual-paradigm.com/share/book/sample-project-report-1uzumhkivv" target="_blank" rel="noopener">
+      Open Live Preview
+    </a>
+  </p>
+</noscript>
+
+
+
+
+
+ <section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-download" style="color:var(--brandOrange)"></i>
+    <h3>Download Source Code</h3>
+  </div>
+  <div class="h-scroll" id="MostDemanding" aria-label="Download Source Code"></div>
+</section>
+
+
+  <!-- Checkout Modal -->
+  <div class="modal" id="CheckoutModal" aria-hidden="true" aria-labelledby="ck-title" role="dialog">
+    <div class="sheet" role="document">
+      <div class="sheet-head">
+        <h3 id="ck-title">Checkout</h3>
+        <button class="close-x" type="button" aria-label="Close" id="CloseCheckout"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form class="sheet-body" id="CheckoutForm" method="POST" action="/ccavRequestHandler" novalidate>
+        <!-- Left: Customer details -->
+        <div class="col">
+          <div class="field">
+            <label for="billing_name">Full name</label>
+            <input class="input" type="text" id="billing_name" name="billing_name" placeholder="Your name" required />
+          </div>
+          <div class="field">
+            <label for="billing_email">Email</label>
+            <input class="input" type="email" id="billing_email" name="billing_email" placeholder="you@example.com" required />
+          </div>
+          <div class="field">
+            <label for="billing_tel">WhatsApp number</label>
+            <input class="input" type="tel" id="billing_tel" name="billing_tel" inputmode="numeric" pattern="[0-9]{10,}" placeholder="10+ digit number" required />
+            <span class="mini">We’ll send the download link here if needed.</span>
+          </div>
+
+          <div class="field">
+  <label for="coupon_code">Coupon code (optional)</label>
+  <div class="coupon-row">
+    <input class="input" type="text" id="coupon_code"  placeholder="CODE123" />
+    <button type="button" class="btn-outline btn-sm" id="ApplyCoupon">Apply</button>
+  </div>
+  <span id="CouponMsg" class="mini"></span>
+</div>
+
+          <!-- Hidden fields expected by your payment flow -->
+          <input type="hidden" name="source_code_id" value="<%=result[0][0].id%>" />
+          <input type="hidden" name="seo_name" value="<%=result[0][0].seo_name%>" />
+          <input type="hidden" name="coupon_code" id="coupon_code_hidden" value="">
+<input type="hidden" name="final_amount" id="final_amount_hidden" value="10.00">
+        </div>
+
+        <!-- Right: Order summary -->
+        <div class="col">
+          <div class="sum-card">
+            <div class="sum-line">
+              <span>Item</span>
+              <span><b><%=result[0][0].name%></b></span>
+            </div>
+            <div class="sum-line">
+              <span>Base price</span>
+              <span id="baseAmt">₹10.00</span>
+            </div>
+            <div class="sum-line" id="CouponRow" style="display:none">
+              <span>Coupon</span>
+              <span class="ok" id="CouponValue">−₹2.00</span>
+            </div>
+            <hr style="border:none;border-top:1px solid rgba(14,18,32,.08)">
+            <div class="sum-line total">
+              <span>Total</span>
+              <span id="TotalAmt">₹10.00</span>
+            </div>
+          </div>
+
+          <div class="footer-note">
+            By continuing you agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a>.
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button type="submit" class="btn-brand btn-block" id="PayNow"><i class="feather-lock"></i> Pay securely</button>
+            <button type="button" class="btn-outline btn-block" id="CloseCheckout2">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+<!-- ====== Smart Filter + Search (for related reports) ====== -->
+
+
+<!-- ====== Tabs: Overview / Includes / Description / Chapters ====== -->
+<section class="md-wrap md-app">
+  <div class="row g-2 align-items-center">
+    <div class="tabslider" aria-label="Report sections">
+  <ul class="nav pro-tabs" id="reportTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="tab-overview"
+            data-bs-toggle="tab" data-bs-target="#pane-description" type="button" role="tab">
+      <i class="feather-info"></i> Overview
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-admin"
+            data-bs-toggle="tab" data-bs-target="#pane-admin" type="button" role="tab">
+      <i class="feather-settings"></i> Admin Features
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-user"
+            data-bs-toggle="tab" data-bs-target="#pane-user" type="button" role="tab">
+      <i class="feather-user"></i> User Features
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-other"
+            data-bs-toggle="tab" data-bs-target="#pane-other" type="button" role="tab">
+      <i class="feather-layers"></i> Other Features
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-run"
+            data-bs-toggle="tab" data-bs-target="#pane-run" type="button" role="tab">
+      <i class="feather-play-circle"></i> How to Run
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-credentials"
+            data-bs-toggle="tab" data-bs-target="#pane-credentials" type="button" role="tab">
+      <i class="feather-lock"></i> Login Credentials
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-license"
+            data-bs-toggle="tab" data-bs-target="#pane-license" type="button" role="tab">
+      <i class="feather-file-text"></i> License
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-tags"
+            data-bs-toggle="tab" data-bs-target="#pane-tags" type="button" role="tab">
+      <i class="feather-tag"></i> Tags
+    </button>
+  </li>
+</ul>
+
+  <!-- active underline -->
+  <span class="tab-underline" id="TabUnderline"></span>
+</div>
+
+    <div class="tab-content card-surface shadow-soft">
+      <!-- Overview -->
+  
+
+      <!-- Includes -->
+      <div class="tab-pane fade" id="pane-admin" role="tabpanel">
+        <h5 class="fw-bold mb-2">Admin Features</h5>
+        
+        <%-result[0][0].admin_features%>
+      
+      </div>
+
+      <!-- Description -->
+  <div class="tab-pane fade show active" id="pane-description" role="tabpanel" aria-labelledby="tab-description">
+  <h5 class="fw-bold mb-2">Description</h5>
+
+  <!-- Intro -->
+  <div class="desc-intro card-surface">
+    <p>
+      The <strong><%=graduation_type_send%></strong> final-year <strong><%=result[0][0].name%></strong> <em>source code</em> is structured for fast setup and easy customization. You get readable code, clear folder architecture, and a guided README so you can run locally and present confidently.
+    </p>
+  </div>
+
+  <!-- Quick facts -->
+  <div class="facts">
+    <div class="fact"><i class="feather-zap"></i><b>Quick setup</b><span>Run in minutes with README</span></div>
+    <div class="fact"><i class="feather-layers"></i><b>Clean architecture</b><span>Modular & scalable</span></div>
+    <div class="fact"><i class="feather-smartphone"></i><b>Responsive UI</b><span>Mobile & desktop ready</span></div>
+  </div>
+
+  <!-- What you’ll learn/build -->
+  <div class="desc-block">
+    <h6 class="desc-heading">What you’ll build & learn</h6>
+    <ul class="desc-check">
+      <li><i class="feather-check"></i> Implement core modules and end-to-end workflow</li>
+      <li><i class="feather-check"></i> Connect to database and handle CRUD operations</li>
+      <li><i class="feather-check"></i> Follow best practices for project structure & comments</li>
+    </ul>
+  </div>
+
+  <!-- Deliverables (source code only) -->
+  <div class="desc-block">
+    <h6 class="desc-heading">Included in the download</h6>
+    <div class="desc-grid">
+      <div class="desc-item">
+        <i class="feather-monitor"></i>
+        <div><strong>Frontend</strong><span>Pages, components, assets</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-cpu"></i>
+        <div><strong>Backend</strong><span>APIs, controllers, services</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-database"></i>
+        <div><strong>Database</strong><span>Schema & sample/seed data</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-book-open"></i>
+        <div><strong>README</strong><span>Setup steps, scripts, notes</span></div>
+      </div>
+     
+    </div>
+  </div>
+
+  <!-- Source Code Overview (SEO + UX) -->
+  <div class="sc-overview card-surface" style="margin-top: 10px;" itemscope itemtype="https://schema.org/SoftwareSourceCode">
+    <div class="sc-head">
+      <i class="feather-code"></i>
+      <div>
+        <h6 class="mb-0">Source Code Overview</h6>
+        <small class="text-muted">Technical snapshot & environment</small>
+      </div>
+    </div>
+
+    <dl class="sc-grid">
+      <div class="sc-row">
+        <dt>Project Name</dt>
+        <dd itemprop="name"><%=result[0][0].name%></dd>
+      </div>
+      <div class="sc-row">
+        <dt>Language / Stack</dt>
+        <dd itemprop="programmingLanguage"><%=result[0][0].category%></dd>
+      </div>
+      <div class="sc-row">
+        <dt>Database</dt>
+        <dd>MySQL or MongoDB</dd>
+      </div>
+      <div class="sc-row">
+        <dt>UI Technologies</dt>
+        <dd>HTML, AJAX, jQuery, JavaScript, Bootstrap</dd>
+      </div>
+      <div class="sc-row">
+        <dt>Browsers</dt>
+        <dd>Chrome, Firefox, Edge, Opera</dd>
+      </div>
+      <div class="sc-row">
+        <dt>Run Scripts</dt>
+        <dd>Documented in README (install, seed, start)</dd>
+      </div>
+      <div class="sc-row">
+        <dt>License</dt>
+        <dd itemprop="license">Academic use for college submission</dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Friendly reminder -->
+  <div class="desc-note">
+    <i class="feather-info"></i>
+    <span><strong>Academic use only:</strong> this code is provided to help you learn and submit your college project. For institute-specific formatting or extra diagrams, contact us on WhatsApp.</span>
+  </div>
+</div>
+
+
+
+      <!-- Chapters -->
+  <div class="tab-pane fade" id="pane-user" role="tabpanel">
+        <h5 class="fw-bold mb-2">User Features</h5>
+        
+        <%-result[0][0].user_features%>
+      
+      </div>
+
+
+      <div class="tab-pane fade" id="pane-other" role="tabpanel">
+        <h5 class="fw-bold mb-2">Other Features</h5>
+        
+        <%-result[0][0].other_features%>
+      
+      </div>
+
+
+      <div class="tab-pane fade" id="pane-run" role="tabpanel">
+        <h5 class="fw-bold mb-2">How to run <%=result[0][0].name%></h5>
+        
+        <%-result[0][0].how_to_run%>
+      
+      </div>
+
+
+
+      <div class="tab-pane fade" id="pane-credentials" role="tabpanel">
+        <h5 class="fw-bold mb-2">Credentials</h5>
+        
+        <%-result[0][0].credentials%>
+      
+      </div>
+
+
+       <div class="tab-pane fade" id="pane-license" role="tabpanel">
+        <h5 class="fw-bold mb-2">License</h5>
+        
+        <%-result[0][0].license%>
+      
+      </div>
+
+
+       <div class="tab-pane fade" id="pane-tags" role="tabpanel">
+        <h5 class="fw-bold mb-2"><%=result[0][0].name%> Source Code Tags</h5>
+        
+             <% 
+                let metaKeywords = result[0][0].meta_keywords;
+                let keywordsArray = metaKeywords.split(',').map(keyword => keyword.trim());
+                %>
+
+                <% const string = result[0][0].name;
+const index = string.indexOf("Using");
+const keywordresult = index !== -1 ? string.slice(0, index).trim() : string; %>
+
+         <div class="facts">
+
+<div class="fact"><i class="feather-code"></i><b><%=result[0][0].name%> Source Code Download</b></div>
+  <div class="fact"><i class="feather-download"></i><b>Final Year <%=result[0][0].name%> Code for B.Tech</b></div>
+  <div class="fact"><i class="feather-download"></i><b>Final Year <%=result[0][0].name%> Code for M.Tech</b></div>
+  <div class="fact"><i class="feather-download"></i><b>Final Year <%=result[0][0].name%> Code for MCA</b></div>
+  <div class="fact"><i class="feather-download"></i><b>Final Year <%=result[0][0].name%> Code for BCA</b></div>
+  <div class="fact"><i class="feather-download"></i><b>Final Year <%=result[0][0].name%> Code for M.E.</b></div>
+  <div class="fact"><i class="feather-download"></i><b>Final Year <%=result[0][0].name%> Code for B.E.</b></div>
+  <div class="fact"><i class="feather-download"></i><b>Final Year <%=result[0][0].name%> Code for M.Sc</b></div>
+  <div class="fact"><i class="feather-download"></i><b>Final Year <%=result[0][0].name%> Code for B.Sc</b></div>
+  <div class="fact"><i class="feather-layers"></i><b><%=result[0][0].name%> Project with Documentation</b></div>
+  <div class="fact"><i class="feather-zap"></i><b>Ready-to-Run <%=result[0][0].name%> Code</b></div>
+  <div class="fact"><i class="feather-layers"></i><b>Customizable <%=result[0][0].name%> Source Code</b></div>
+  <div class="fact"><i class="feather-smartphone"></i><b>Responsive <%=result[0][0].name%> Project Code</b></div>
+  <div class="fact"><i class="feather-database"></i><b><%=result[0][0].name%> Code with Database</b></div>
+  <div class="fact"><i class="feather-trending-up"></i><b>Best Final Year <%=result[0][0].name%> Code</b></div>
+  <div class="fact"><i class="feather-shield"></i><b>Plagiarism-Free <%=result[0][0].name%> Code</b></div>
+  <div class="fact"><i class="feather-file-text"></i><b>Complete <%=result[0][0].name%> Code Package</b></div>
+  <div class="fact"><i class="feather-check-circle"></i><b>Faculty Approved <%=result[0][0].name%> Code</b></div>
+
+            <% for(let i = 0; i < keywordsArray.length; i++) { %>
+    <div class="fact"><i class="feather-file-text"></i><b><%=keywordsArray[i]%></b></div>
+         <% } %>
+
+
+
+         </div>
+
+      
+      </div>
+
+
+
+<!-- tags -->
+
+
+
+      <!-- /tab panes -->
+    </div>
+  </div>
+</section>
+
+<!-- ====== Related / Popular (uses your existing result[1]) ====== -->
+
+
+<style>
+  /* Premium section header */
+.pro-sechead{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:12px; margin:6px 0 14px;
+  border-bottom:1px solid rgba(14,18,32,.06); padding-bottom:10px;
+}
+.pro-sechead__left{ max-width:900px; }
+.pro-kicker{
+  display:inline-flex; align-items:center; gap:6px;
+  font-weight:800; font-size:.8rem; letter-spacing:.02em;
+  color:var(--brandBlue);
+  background:linear-gradient(90deg,rgba(42,71,255,.08),rgba(241,127,35,.08));
+  border:1px solid rgba(14,18,32,.06);
+  padding:6px 10px; border-radius:999px;
+}
+.pro-kicker i{ font-size:14px; }
+
+.pro-title{
+  margin:8px 0 2px; font-weight:900;
+  letter-spacing:-.01em; color:#111;
+}
+.pro-sub{
+  margin:0; color:var(--muted); font-size:.95rem;
+}
+
+/* Pill CTA */
+.pro-sechead__right{ flex:0 0 auto; }
+.pro-cta{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 14px; border-radius:999px; text-decoration:none;
+  font-weight:900; color:#111; background:#fff;
+  border:1px solid rgba(14,18,32,.10);
+  box-shadow:0 1px 2px rgba(14,18,32,.04);
+  transition:box-shadow .15s, border-color .15s, transform .06s;
+}
+.pro-cta:hover{
+  border-color:var(--brandBlue);
+  box-shadow:0 0 0 3px rgba(42,71,255,.15);
+}
+.pro-cta i{ opacity:.9; }
+
+/* Mobile stacking */
+@media (max-width: 767.98px){
+  .pro-sechead{
+    flex-direction:column; align-items:flex-start; gap:10px;
+  }
+  .pro-sechead__right{ width:100%; }
+  .pro-cta{ width:100%; justify-content:center; }
+}
+
+</style>
+
+  <section class="course-content mt-3">
+
+  <div class="pro-sechead">
+  <div class="pro-sechead__left">
+    <span class="pro-kicker">
+      <i class="feather-trending-up"></i> Recommended for you
+    </span>
+    <h2 class="pro-title">Related & Popular Project Reports</h2>
+    <p class="pro-sub">Explore more final-year projects you might be interested in</p>
+  </div>
+
+  <div class="pro-sechead__right">
+    <a href="/source-code/<%=result[0][0].category%>" class="pro-cta">
+      View all
+      <i class="feather-arrow-right"></i>
+    </a>
+  </div>
+</div>
+    <div class="row">
+      <!-- Main grid -->
+      <div class="col-lg-9" style="margin-top: 10px;">
+
+
+        <div class="row g-3" id="Grid">
+          <% for (let i=0;i<12 && result[1] && result[1][i]; i++) { %>
+            <div class="col-md-6 col-xl-4 target"
+                 data-name="<%= result[1][i].name %>"
+                 data-desc="<%= result[1][i].short_description %>"
+                 data-url="/final-year-project-report-<%= result[1][i].seo_name %>">
+              <div class="course-box h-100 d-flex flex-column">
+                <h2>
+                  <a href="/<%= result[1][i].seo_name%>/source-code"
+                     title="<%= result[1][i].name %> | PDF for <%= graduation_type_send %> Final Year">
+                    <%= result[1][i].name %>
+                  </a>
+                </h2>
+                <p><%= result[1][i].description %></p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <a class="link-arrow" href="/final-year-project-report-<%= result[1][i].seo_name %>">View details →</a>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Empty state -->
+      
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-3" style="margin-top: 10px;">
+        <div class="sticky-side">
+          <div class="side-card">
+            <div class="side-title"><i class="feather-zap"></i><h4>Quick actions</h4></div>
+            <div class="qa-list">
+              <a class="qa-item" href="<%= typeof codeUrl !== 'undefined' ? codeUrl : '/source-code' %>">
+                <i class="feather-code"></i>
+                <div class="qa-text"><strong>Browse Source Code</strong><span>Working projects with docs</span></div>
+              </a>
+              <a class="qa-item" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>">
+                <i class="feather-play-circle"></i>
+                <div class="qa-text"><strong>See Live Demos</strong><span>Preview before you choose</span></div>
+              </a>
+              <a class="qa-item" href="<%= typeof blogUrl !== 'undefined' ? blogUrl : '/blog' %>">
+                <i class="feather-book-open"></i>
+                <div class="qa-text"><strong>Guides & Blogs</strong><span>Tips, checklists & more</span></div>
+              </a>
+              <a class="qa-item" id="WhatsAppSide" href="#">
+                <i class="feather-message-circle"></i>
+                <div class="qa-text"><strong>Request Custom Report</strong><span>Fast reply on WhatsApp</span></div>
+              </a>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-title"><i class="feather-info"></i><h4>What we provide</h4></div>
+            <p class="mb-0" style="color:var(--muted)">Project reports, source code, and PPTs tailored for final-year students. Explore, or message us for a custom build.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+</div>
+
+<%include Includes/footer.ejs %>
+
+<!-- ====== Scripts ====== -->
+<script>
+  // Primary download handler (keeps your route)
+  $('.edit').on('click', function(){
+    const seo_name = $(this).attr('seo_name');
+    window.location.href = `/final-year-project-report-${seo_name}/edit`;
+  });
+
+  // Activate degree pill based on path
+  (function(){
+    const path = location.pathname.toLowerCase();
+    document.querySelectorAll('.h-scroll .pill').forEach(p=>{
+      const href = (p.getAttribute('href')||'').toLowerCase();
+      p.classList.toggle('active', href && path.startsWith(href));
+    });
+  })();
+
+  // (Optional) Client-side search redirect for quick UX
+  document.getElementById('SearchInput')?.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){
+      const q = encodeURIComponent(this.value.trim());
+      if(q) window.location.href = `/final-year-project-report?search=${q}`;
+    }
+  });
+</script>
+
+
+<script>
+function populatePriceStrip(){
+  const container = document.getElementById('MostDemanding');
+  if(!container) return;
+  container.innerHTML = '';
+
+  const productId   = "<%=result[0][0].id%>";
+  const productSlug = "<%=result[0][0].seo_name%>";
+  const productName = "<%=result[0][0].name%>";
+  const license     = "<%=result[0][0].license%>"; // check license availability
+  const whatsappUrl = "https://wa.me/918319339945?text=" + encodeURIComponent(`Hi, I'm interested in the demo for ${productName}`);
+
+  // Two variants for source code
+  const plans = [
+    {
+      chip: 'Basic',
+      title: 'Source Code Download',
+      desc: 'Instant download of the full source code',
+      price: 99.00,
+      featured: false
+    },
+    {
+      chip: 'With Setup Support',
+      title: 'Source Code + Code Setup Support',
+      desc: 'Includes remote assistance to set up the project',
+      price: 148.00,
+      featured: true
+    }
+  ];
+
+  plans.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'md-item-new' + (p.featured ? ' md-item--featured' : '');
+
+    // Build CTA depending on license availability
+    let actionHtml;
+    if (license) {
+      // license available → show Download button
+      actionHtml = `
+        <button class="md-btn md-btn-light open-checkout" data-price="${p.price}">
+          <i class="feather-download"></i> Download
+        </button>`;
+    } else {
+      // license not available → show WhatsApp button
+      actionHtml = `
+  <a href="${whatsappUrl}" target="_blank" class="md-btn md-btn-light">
+    <i class="fa-brands fa-whatsapp"></i> WhatsApp for Demo
+  </a>`;
+    }
+
+    card.innerHTML = `
+      <span class="md-chip"><i class="feather-zap"></i> ${p.chip}</span>
+      <h4 class="md-title">${p.title}</h4>
+      <p class="md-desc">${p.desc}</p>
+      <div class="md-price">₹${p.price}</div>
+      <div class="md-actions">${actionHtml}</div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Hook download buttons to open checkout with correct price
+  if (license) {
+    document.querySelectorAll('.open-checkout').forEach(btn => {
+      btn.addEventListener('click', function(){
+        const price = parseFloat(this.getAttribute('data-price'));
+        openCheckoutWithPrice(price);
+      });
+    });
+  }
+}
+populatePriceStrip();
+</script>
+
+
+
+
+<script>
+(function(){
+  const chapters = document.querySelectorAll('.toc-chapter');
+  chapters.forEach(ch => {
+    const head = ch.querySelector('.toc-chapter-head');
+    const list = ch.querySelector('.toc-list');
+    if(!head || !list) return;
+
+    // default open if data-open="true"
+    head.setAttribute('aria-expanded', list.getAttribute('data-open') === 'true' ? 'true' : 'false');
+
+    head.addEventListener('click', () => {
+      const open = list.getAttribute('data-open') === 'true';
+      list.setAttribute('data-open', open ? 'false' : 'true');
+      head.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+  });
+})();
+</script>
+
+
+
+<script>
+(function(){
+  const row = document.getElementById('reportTabs');
+  const underline = document.getElementById('TabUnderline');
+  if(!row || !underline) return;
+
+function positionUnderline() {
+  const active = row.querySelector('.nav-link.active');
+  if (!active) return;
+
+  // --- Measure using offsets (stable with horizontal scrolling) ---
+  const leftInRow = active.offsetLeft - row.scrollLeft;      // visible x within the row viewport
+  const w = Math.max(32, active.offsetWidth - 24);           // keep a sane min width
+  underline.style.left = `${leftInRow + 12}px`;              // match your pill’s inner padding
+  underline.style.width = `${w}px`;
+
+  // --- Center the active tab WITHOUT overscrolling ---
+  const desired = active.offsetLeft - (row.clientWidth - active.offsetWidth)/2;
+  const maxScroll = Math.max(0, row.scrollWidth - row.clientWidth);
+  const safeScrollLeft = Math.min(Math.max(0, desired), maxScroll);
+
+  row.scrollTo({ left: safeScrollLeft, behavior: 'smooth' });
+}
+
+
+
+row.addEventListener('scroll', () => {
+  // avoid fighting the smooth() call: only update the underline
+  const active = row.querySelector('.nav-link.active');
+  if (!active) return;
+  const leftInRow = active.offsetLeft - row.scrollLeft;
+  underline.style.left = `${leftInRow + 12}px`;
+});
+
+// make sure we recalc after fonts load / layout changes
+window.addEventListener('resize', () => requestAnimationFrame(positionUnderline));
+document.fonts?.ready?.then(() => requestAnimationFrame(positionUnderline));
+setTimeout(positionUnderline, 0); // initial
+
+
+
+  // initial + on tab change + on resize
+  positionUnderline();
+  window.addEventListener('resize', positionUnderline);
+  row.addEventListener('click', e=>{
+    const btn = e.target.closest('.nav-link');
+    if(btn){ setTimeout(positionUnderline, 0); } // after BS toggles .active
+  });
+
+  // keyboard support: arrow keys to navigate tabs
+  row.addEventListener('keydown', (e)=>{
+    if(!['ArrowLeft','ArrowRight'].includes(e.key)) return;
+    const tabs = [...row.querySelectorAll('.nav-link')];
+    const i = tabs.findIndex(t=>t.classList.contains('active'));
+    if(i<0) return;
+    const next = e.key==='ArrowRight' ? tabs[Math.min(i+1, tabs.length-1)] : tabs[Math.max(i-1,0)];
+    if(next && next!==tabs[i]) next.click();
+  });
+})();
+</script>
+
+<script>
+// Preconnect for faster first byte once user opens the preview
+const vpPreconnect = document.createElement('link');
+vpPreconnect.rel = 'preconnect';
+vpPreconnect.href = 'https://online.visual-paradigm.com';
+document.head.appendChild(vpPreconnect);
+
+(function () {
+  const modal     = document.getElementById('PreviewModal');
+  const frameWrap = modal?.querySelector('.preview-frame');
+  const openBtns  = document.querySelectorAll('[data-preview]');
+  const closeBtn  = modal?.querySelector('[data-close]');
+
+  // Use embed-friendly URL if available
+  const PREVIEW_URL = 'https://online.visual-paradigm.com/share/book/sample-project-report-1uzumhkivv?embed=true';
+
+  function injectIframeDirect() {
+    // if already injected, do nothing
+    if (frameWrap.querySelector('iframe')) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.className = 'preview-iframe';
+    iframe.src = PREVIEW_URL;              // ← Direct src (no srcdoc)
+    iframe.loading = 'eager';
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = 'no-referrer-when-downgrade';
+    // Optional, sometimes helps with embedded viewers:
+    iframe.allow = 'fullscreen; clipboard-read; clipboard-write';
+
+    frameWrap.appendChild(iframe);
+
+    // Graceful fallback if the site blocks iframing
+    let fallbackTimer = setTimeout(() => {
+      // If the iframe is blocked by X-Frame-Options, users would see a blank view.
+      // Open the preview in a new tab automatically.
+      window.open(PREVIEW_URL, '_blank', 'noopener,noreferrer');
+    }, 1500);
+
+    iframe.addEventListener('load', () => {
+      // If load fires, cancel fallback. (Note: some blocked frames still trigger 'load';
+      // this is best-effort. Users at least get the new-tab fallback if content remains blank.)
+      clearTimeout(fallbackTimer);
+    });
+  }
+
+  function openModal() {
+    if (!modal || !frameWrap) return;
+    modal.classList.add('is-open');
+    injectIframeDirect();
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('is-open');
+  }
+
+  openBtns.forEach(btn => btn.addEventListener('click', openModal));
+  closeBtn?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+<script>
+  $(document).ready(function() {
+  $('a.btn-gallery').on('click', function(event) {
+    event.preventDefault();
+
+    const gallery = $(this).attr('href');
+
+    $(gallery).magnificPopup({
+      delegate: 'a',
+      type: 'image',
+      gallery: {
+        enabled: true,
+        tCounter: '%curr% of %total%',
+      },
+      mainClass: 'mfp-fade',
+      removalDelay: 300,
+      fixedContentPos: true,
+      image: {
+        titleSrc: 'title'
+      }
+    }).magnificPopup('open');
+  });
+});
+</script>
+
+
+
+<script>
+(function(){
+  const modal = document.getElementById('CheckoutModal');
+  const form  = document.getElementById('CheckoutForm');
+  const firstField = document.getElementById('billing_name');
+
+  let BASE_PRICE = 99.00; // default
+
+  window.openCheckoutWithPrice = function(price){
+    BASE_PRICE = price;
+    discountApplied = 0.00; // reset coupon
+    appliedCode = '';
+    hiddenCode.value = '';
+    couponMsg.textContent = '';
+    renderTotals();
+    openModal();
+  };
+
+  function openModal(){
+    document.body.classList.add('modal-open');
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden','false');
+    setTimeout(()=> firstField && firstField.focus(), 60);
+  }
+  function closeModal(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.classList.remove('modal-open');
+  }
+
+  const closers = [document.getElementById('CloseCheckout'), document.getElementById('CloseCheckout2')].filter(Boolean);
+  closers.forEach(b=>b.addEventListener('click', closeModal));
+  modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+  // Coupon logic
+  const couponInput = document.getElementById('coupon_code');
+  const couponMsg   = document.getElementById('CouponMsg');
+  const couponRow   = document.getElementById('CouponRow');
+  const couponVal   = document.getElementById('CouponValue');
+  const totalAmt    = document.getElementById('TotalAmt');
+  const baseAmt    = document.getElementById('baseAmt');
+
+  const applyBtn    = document.getElementById('ApplyCoupon');
+
+  const hiddenCode  = document.getElementById('coupon_code_hidden');
+  const hiddenFinal = document.getElementById('final_amount_hidden');
+
+  let discountApplied = 0.00;
+  let appliedCode = '';
+
+  const money = (n)=> '₹' + n.toFixed(2);
+
+  function renderTotals(){
+    const total = Math.max(0, BASE_PRICE - discountApplied);
+    const basetotal = Math.max(0, BASE_PRICE);
+
+    totalAmt.textContent = money(total);
+    baseAmt.textContent = money(basetotal);
+
+    hiddenFinal.value = total.toFixed(2);
+
+    if(discountApplied > 0){
+      couponVal.textContent = '−' + money(discountApplied);
+      couponRow.style.display = '';
+    }else{
+      couponRow.style.display = 'none';
+    }
+  }
+  renderTotals();
+
+  async function verifyCoupon(code){
+    try{
+      const res = await fetch(`/api/coupon/validate?code=${encodeURIComponent(code)}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if(!res.ok) throw new Error('Network error');
+      return await res.json();
+    }catch(e){
+      return { valid:false };
+    }
+  }
+
+  async function applyCoupon(){
+    const raw = (couponInput.value || '').trim();
+    couponMsg.textContent = '';
+    couponMsg.style.color = '';
+
+    if(!raw){
+      appliedCode = '';
+      discountApplied = 0.00;
+      hiddenCode.value = '';
+      renderTotals();
+      return;
+    }
+
+    applyBtn.disabled = true; applyBtn.textContent = 'Checking…';
+    const { valid, discount, type, code: serverCode } = await verifyCoupon(raw);
+    applyBtn.disabled = false; applyBtn.textContent = 'Apply';
+
+    if(valid && Number(discount) > 0){
+      appliedCode = (serverCode || raw).toUpperCase();
+
+      if((type || '').toLowerCase() === 'percent'){
+        discountApplied = Math.round((BASE_PRICE * Number(discount) / 100) * 100) / 100;
+      }else{
+                discountApplied = Math.round((BASE_PRICE * Number(discount) / 100) * 100) / 100;
+
+      }
+
+      hiddenCode.value = appliedCode;
+      couponMsg.textContent = `Coupon applied: ${appliedCode}. You saved ${money(discountApplied)}.`;
+      couponMsg.style.color = '#16a34a';
+      renderTotals();
+    }else{
+      appliedCode = '';
+      discountApplied = 0.00;
+      hiddenCode.value = '';
+      couponMsg.textContent = 'Invalid coupon code.';
+      couponMsg.style.color = '#ef4444';
+      renderTotals();
+    }
+  }
+
+  if(applyBtn) applyBtn.addEventListener('click', applyCoupon);
+  if(couponInput){
+    couponInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){ e.preventDefault(); applyCoupon(); }
+    });
+  }
+
+  const payBtn = document.getElementById('PayNow');
+  form.addEventListener('submit', function(e){
+    if(!form.checkValidity()){
+      e.preventDefault(); e.stopPropagation();
+      form.reportValidity();
+      return;
+    }
+    if(appliedCode) hiddenCode.value = appliedCode;
+    hiddenFinal.value = (Math.max(0, BASE_PRICE - discountApplied)).toFixed(2);
+
+    if(payBtn){ payBtn.disabled = true; payBtn.textContent = 'Processing…'; }
+  });
+})();
+</script>
+
+
+

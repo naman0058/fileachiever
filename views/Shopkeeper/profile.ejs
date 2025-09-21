@@ -1,0 +1,184 @@
+<% include ./header.ejs %>
+
+<div class="content-body">
+  <div class="container-fluid py-5">
+    <div class="row justify-content-center">
+      <div class="col-xl-12 col-lg-12 col-md-10">
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-header bg-white border-bottom-0 text-center">
+            <h4 class="mb-0 fw-bold">Update Your Profile</h4>
+          </div>
+          <div class="card-body">
+            <form id="updateProfileForm" enctype="multipart/form-data">
+              
+              <!-- Name -->
+              <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" id="name" name="name" class="form-control" value="<%= result[0].name %>" readonly required>
+              </div>
+
+              <!-- Number -->
+              <div class="mb-3">
+                <label for="number" class="form-label">Mobile Number</label>
+                <input type="text" id="number" name="number" class="form-control" value="<%= result[0].number %>" readonly required>
+              </div>
+
+              <!-- Password -->
+              <div class="mb-3">
+                <label for="password" class="form-label">New Password</label>
+                <input type="password" id="password" name="password" class="form-control" value="<%=result[0].password%>" placeholder="Leave blank to keep current password">
+              </div>
+
+              <!-- Address -->
+              <div class="mb-3">
+                <label for="address" class="form-label">College Name</label>
+                <input type="text" id="address" name="address" class="form-control" value="<%= result[0].address %>" readonly required>
+              </div>
+
+
+              <!-- Instagram ID -->
+<div class="mb-3">
+  <label for="instagram_id" class="form-label">Instagram Username</label>
+  <input 
+    type="text" 
+    id="instagram_id" 
+    name="instagram_id" 
+    class="form-control" 
+    value="<%= result[0].instagram_id || '' %>" 
+    <%= result[0].instagram_id ? 'readonly' : '' %>
+    placeholder="e.g. your_ig_handle">
+</div>
+
+<!-- YouTube ID -->
+<div class="mb-3">
+  <label for="youtube_id" class="form-label">YouTube Channel Name</label>
+  <input 
+    type="text" 
+    id="youtube_id" 
+    name="youtube_id" 
+    class="form-control" 
+    value="<%= result[0].youtube_id || '' %>" 
+    <%= result[0].youtube_id ? 'readonly' : '' %>
+    placeholder="e.g. YourYouTubeName">
+</div>
+
+<!-- LinkedIn ID -->
+<div class="mb-3">
+  <label for="linkedin_id" class="form-label">LinkedIn Username</label>
+  <input 
+    type="text" 
+    id="linkedin_id" 
+    name="linkedin_id" 
+    class="form-control" 
+    value="<%= result[0].linkedin_id || '' %>" 
+    <%= result[0].linkedin_id ? 'readonly' : '' %>
+    placeholder="e.g. your-linkedin-profile">
+</div>
+
+              <!-- Profile Image -->
+              <div class="mb-3">
+                <label for="image" class="form-label">Profile Image</label>
+                <input type="file" id="image" name="image" class="form-control">
+                <% if (result[0].image_url) { %>
+                  <div class="mt-2">
+                    <img src="<%= result[0].image_url %>" alt="Profile Image" class="img-thumbnail" width="120">
+                  </div>
+                <% } %>
+              </div>
+
+
+
+              <!-- Submit Button -->
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary rounded-pill">Update Profile</button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loader-overlay" style="display: none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+  <div class="spinner-border text-light" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<% include ./footer.ejs %>
+
+
+<script>
+  document.getElementById("updateProfileForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    
+    const loader = document.getElementById("loader-overlay");
+    loader.style.display = "flex";
+
+    const name = document.getElementById("name").value;
+    const number = document.getElementById("number").value;
+    const password = document.getElementById("password").value;
+    const address = document.getElementById("address").value;
+    let instagram_id = document.getElementById("instagram_id").value.trim();
+let youtube_id = document.getElementById("youtube_id").value.trim();
+let linkedin_id = document.getElementById("linkedin_id").value.trim();
+    const imageFile = document.getElementById("image").files[0];
+
+
+    // ✅ Remove @ from start of Instagram ID if present
+if (instagram_id.startsWith('@')) {
+  instagram_id = instagram_id.slice(1);
+}
+
+// ✅ Add @ to start of YouTube ID if not present
+if (!youtube_id.startsWith('@') && youtube_id !== '') {
+  youtube_id = '@' + youtube_id;
+} 
+
+    let image_url = "<%= result[0].image_url %>"; // default to current image
+
+    try {
+      // Upload new image if selected
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        formData.append("upload_preset", "docs_upload_example_us_preset"); // Use your Cloudinary preset
+
+        const uploadRes = await fetch("https://api.cloudinary.com/v1_1/dggf8vl9p/image/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const uploadData = await uploadRes.json();
+        image_url = uploadData.secure_url;
+      }
+
+      // Send updated data to backend API
+      const res = await fetch("/shopkeeper/dashboard/profile/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, number, password, address, image_url , instagram_id , youtube_id , linkedin_id })
+      });
+
+      const result = await res.json();
+      loader.style.display = "none";
+
+      if (result.status === "success") {
+        alert("Profile updated successfully!");
+        window.location.reload();
+      } else {
+        alert("Failed to update profile.");
+      }
+
+    } catch (error) {
+      loader.style.display = "none";
+      console.error("Error:", error);
+      alert("Something went wrong!");
+    }
+  });
+</script>
+

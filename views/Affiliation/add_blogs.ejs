@@ -1,0 +1,198 @@
+<%include ./header.ejs %>
+<link rel="stylesheet" href="https://elusiveicons.com/assets/elusive-icons/css/elusive-icons.css">
+
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+			<div class="page-titles">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item"><a href="javascript:void(0)">CMS</a></li>
+						<li class="breadcrumb-item active"><a href="javascript:void(0)">Add Blogs</a></li>
+					</ol>
+                </div>
+			<div class="container-fluid">
+				<!-- Row -->
+				<div class="row">
+					
+					<div class="col-xl-12">
+						<div class="filter cm-content-box box-primary">
+							<div class="content-title">
+								<div class="cpa">
+									<i class="fa-solid fa-envelope me-1"></i>Add Blogs	
+								</div>
+								<div class="tools">
+									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>
+								</div>
+							</div>
+							<div class="cm-content-body form excerpt">
+								<div class="card-body">
+
+                  
+
+    <div id="loader" style="display: none; text-align: center; margin-top: 20px;">
+  <span>⏳ Please wait...</span>
+</div>
+									
+                  <form action="/affiliate/dashboard/blogs/add" method="post" enctype="multipart/form-data" class="uploadImage">
+
+<div class="row">
+ 
+    <div class="col-xl-12">
+        <label  class="form-label">Category</label>
+      <select class="form-control" name="category" id="category" required>
+  <option value="">Select Category</option>
+  <option value="resume-roaster">Resume Roaster</option>
+  <option value="stack-attack">Stack Attack</option>
+  <option value="explainer-blog">Explainer Blog</option>
+  <option value="internship-alert">Internship Alert</option>
+  <option value="internship-diaries">Internship Diaries</option>
+  <option value="all">All</option>
+
+</select>
+    </div>
+
+</div>
+
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xl-6">
+        <label class="form-label">YouTube Title</label>
+        <input type="text" class="form-control" id="youtube_title" placeholder="Enter YouTube Video Title">
+    </div>
+    <div class="col-xl-6">
+        <label class="form-label">YouTube Video Link</label>
+        <input type="text" class="form-control" id="youtube_link" placeholder="https://youtube.com/xyz">
+    </div>
+</div>
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xl-12">
+        <label class="form-label">YouTube Script (Summary)</label>
+        <textarea id="youtube_script" class="form-control" rows="4" placeholder="Paste video script or summary here..."></textarea>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xl-12">
+        <label class="form-label">YouTube Thumbnail</label>
+        <input type="file" class="form-control" id="youtube_thumbnail" placeholder="https://img.youtube.com/...">
+    </div>
+</div>
+
+                                        
+
+                                       
+
+										
+									
+										<div class="text-end" style="margin-top: 20px;">
+											<button type="submit" class="btn btn-primary save">Save</button>
+										</div>
+									</div>
+
+
+                </form>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%include ./footer.ejs %>
+
+
+        <script src="https://cdn.ckeditor.com/4.7.0/full/ckeditor.js"></script>
+        <script src="https://unpkg.com/vue@2.3.4"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+
+      <script>
+  document.querySelector(".uploadImage").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const loader = document.getElementById("loader");
+    loader.style.display = "block"; // Show loader
+
+    const category = document.getElementById("category").value;
+    const title = document.getElementById("youtube_title").value;
+    const link = document.getElementById("youtube_link").value;
+    const script = document.getElementById("youtube_script").value;
+    const thumbnailFile = document.getElementById("youtube_thumbnail").files[0];
+
+    if (!thumbnailFile) {
+      loader.style.display = "none";
+      alert("Please select a thumbnail image.");
+      return;
+    }
+
+    try {
+      // 1. Upload image to Cloudinary
+      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dr5dofa3x/image/upload`;
+      const cloudinaryPreset = `ml_default`;
+
+      const imageData = new FormData();
+      imageData.append("file", thumbnailFile);
+      imageData.append("upload_preset", cloudinaryPreset);
+
+      const cloudRes = await fetch(cloudinaryUrl, {
+        method: "POST",
+        body: imageData,
+      });
+
+      const cloudData = await cloudRes.json();
+
+      if (!cloudData.secure_url) {
+        throw new Error("Image upload failed.");
+      }
+
+      const thumbnailUrl = cloudData.secure_url;
+
+      // 2. Prepare final data for backend
+      const payload = {
+        category: category,
+        youtube_title: title,
+        youtube_link: link,
+        youtube_script: script,
+        youtube_thumbnail: thumbnailUrl
+      };
+
+      // 3. Submit to your API
+      const response = await fetch("/affiliateblog/youtube/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      loader.style.display = "none"; // Hide loader
+
+      if (response.ok) {
+        alert("✅ Blog submitted successfully!");
+        e.target.reset();
+      } else {
+        throw new Error(result.message || "Submission failed.");
+      }
+
+    } catch (error) {
+      loader.style.display = "none"; // Hide loader on error
+      console.error(error);
+      alert("❌ Error: " + error.message);
+    }
+  });
+</script>

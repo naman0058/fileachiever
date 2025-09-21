@@ -1,0 +1,220 @@
+<% include ./header.ejs %>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brandOrange: '#F17F23',
+          brandBlue: '#2A47FF',
+        },
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+
+<div class="content-body bg-gray-50 min-h-screen font-sans">
+  <div class="container mx-auto px-4 py-6">
+
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+      <div class="flex flex-col md:flex-row items-center justify-between px-6 py-5 border-b border-gray-200">
+        <h2 class="text-2xl font-semibold text-gray-800">🎯 Brand Ambassador Performance Dashboard</h2>
+    
+      </div>
+    </div>
+    
+
+    <!-- Analytics Summary Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-xl shadow-md text-center">
+        <p class="text-sm text-gray-500">Total Ambassadors</p>
+        <p class="text-3xl font-bold text-brandBlue"><%= result.length %></p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md text-center">
+        <p class="text-sm text-gray-500">Top Performers (70%+)</p>
+        <p class="text-3xl font-bold text-green-600"><%= result.filter(r => r.total_days > 0 && (r.verified_task_count / r.total_days) * 100 >= 70).length %></p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md text-center">
+        <p class="text-sm text-gray-500">Low Performers (<30%)</p>
+        <p class="text-3xl font-bold text-red-500"><%= result.filter(r => r.total_days > 0 && (r.verified_task_count / r.total_days) * 100 < 30).length %></p>
+      </div>
+    </div>
+
+    <!-- Top 10 Bar Chart -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">📊 Top 10 Ambassador Performance</h3>
+      <canvas id="top10Chart"></canvas>
+    </div>
+
+
+    <!-- Header + Search + Download -->
+    
+
+    <!-- Data Table (Scrollable) -->
+    <div class="bg-white p-4 rounded-2xl shadow-lg">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">📋 All Ambassadors</h3>
+          <div class="flex items-center gap-4 mt-4 md:mt-0 w-full md:w-auto">
+          <input id="searchInput" type="text" placeholder="🔍 Search by Name"
+            class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brandBlue" />
+       
+       <select id="performanceFilter" class="border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brandBlue">
+  <option value="all">All</option>
+  <option value="below30">Below 30%</option>
+  <option value="below40">Below 40%</option>
+  <option value="below50">Below 50%</option>
+</select>
+
+            <button id="downloadCSV"
+            class="bg-brandBlue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">⬇️ Download CSV</button>
+        </div>
+
+        <br/>
+      <div class="overflow-x-auto max-h-[600px] overflow-y-scroll">
+        <table class="min-w-full text-center table-auto">
+          <thead class="bg-brandBlue text-white text-sm uppercase">
+            <tr>
+              <th class="px-4 py-3">#</th>
+              <th class="px-4 py-3 text-left">Ambassador Name</th>
+              <th class="px-4 py-3">Number</th>
+              <th class="px-4 py-3">Total Days</th>
+              <th class="px-4 py-3">Verified Tasks</th>
+              <th class="px-4 py-3">Performance (%)</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-100">
+            <% if (result.length === 0) { %>
+              <tr>
+                <td colspan="6" class="text-gray-500 py-6">No data available</td>
+              </tr>
+            <% } else { %>
+              <% result.forEach((row, index) => { 
+                  const performance = row.total_days > 0 ? ((row.verified_task_count / row.total_days) * 100).toFixed(1) : 0;
+              %>
+                <tr class="hover:bg-gray-100 transition <%= performance >= 70 ? 'bg-green-50' : (performance < 30 ? 'bg-red-50' : '') %>">
+                  <td class="py-3 px-4"><%= index + 1 %></td>
+                  <td class="py-3 px-4 text-left">
+                    <a href="/affiliate/dashboard/performance?shopkeeper=<%= row.id %>"
+                      class="text-brandBlue font-medium hover:underline">
+                      <%= row.name %>
+                    </a>
+                  </td>
+                  <td class="py-3 px-4"><%= row.number %></td>
+                  <td class="py-3 px-4"><%= row.total_days %></td>
+                  <td class="py-3 px-4"><%= row.verified_task_count %></td>
+                  <td class="py-3 px-4"><%= performance %> %</td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% include ./footer.ejs %>
+
+<script>
+  document.getElementById('searchInput').addEventListener('keyup', function () {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+      const nameCell = row.querySelector('td:nth-child(2)');
+      if (nameCell && nameCell.textContent.toLowerCase().includes(filter)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+
+ document.getElementById('downloadCSV').addEventListener('click', function () {
+  const filter = document.getElementById('performanceFilter').value;
+
+  const rows = Array.from(document.querySelectorAll("table tbody tr"));
+  const headers = Array.from(document.querySelectorAll("table thead th")).map(th => th.textContent.trim());
+  let csv = [headers.join(",")];
+
+  rows.forEach(row => {
+    const cols = Array.from(row.querySelectorAll("td"));
+    if (cols.length < 5) return;
+
+    const totalDays = parseInt(cols[3].innerText.trim()) || 0;
+    const verifiedTasks = parseInt(cols[4].innerText.trim()) || 0;
+    const percentage = totalDays > 0 ? (verifiedTasks / totalDays) * 100 : 0;
+
+    let shouldInclude = false;
+    switch (filter) {
+      case 'below30':
+        shouldInclude = percentage < 30;
+        break;
+      case 'below40':
+        shouldInclude = percentage < 40;
+        break;
+      case 'below50':
+        shouldInclude = percentage < 50;
+        break;
+      default:
+        shouldInclude = true;
+    }
+
+    if (shouldInclude) {
+      const rowData = cols.map(td => `"${td.innerText.replace(/"/g, '""')}"`);
+      csv.push(rowData.join(","));
+    }
+  });
+
+  if (csv.length === 1) {
+    alert("No data matches the selected filter.");
+    return;
+  }
+
+  const blob = new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.setAttribute("href", URL.createObjectURL(blob));
+  link.setAttribute("download", "ambassador_performance_filtered.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
+
+  // Chart.js - Top 10 Performers
+  const top10 = <%- JSON.stringify(result.sort((a, b) => {
+    const perfA = a.total_days > 0 ? a.verified_task_count / a.total_days : 0;
+    const perfB = b.total_days > 0 ? b.verified_task_count / b.total_days : 0;
+    return perfB - perfA;
+  }).slice(0, 10)) %>;
+
+  const ctx = document.getElementById('top10Chart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top10.map(x => x.name),
+      datasets: [{
+        label: '% Task Accuracy',
+        data: top10.map(x => x.total_days > 0 ? ((x.verified_task_count / x.total_days) * 100).toFixed(1) : 0),
+        backgroundColor: '#2A47FF',
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.raw + '%' } }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: { display: true, text: 'Performance %' }
+        }
+      }
+    }
+  });
+</script>

@@ -1,0 +1,265 @@
+<% include Includes/navbar1.ejs %>
+<% include Includes/projectReport.ejs %>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0e1220; --muted:#5f6783; --bg:#f7f9ff; --card:#ffffff; --brd:rgba(14,18,32,.10);
+    --brand:#2A47FF; --accent:#F17F23; --ring:rgba(42,71,255,.18); --radius:16px;
+  }
+
+  /* Page padding + equal margins */
+  .page-wrap{ background:#fff; }
+  .container-balanced{ max-width: 1200px; margin: 0 auto; padding: 24px; }
+  @media (max-width: 575.98px){ .container-balanced{ padding: 16px; } }
+
+  /* Breadcrumb (simple, premium) */
+  .breadcrumb-bar{ border-bottom:1px solid var(--brd); background:#fff; }
+  .breadcrumb{ display:flex; gap:8px; margin:0; padding:10px 0; background:transparent; }
+  .breadcrumb-item + .breadcrumb-item::before{ content:"›"; color:#9aa1b5; margin-right:8px; }
+
+  /* Hero */
+  .amb-hero{ background:linear-gradient(135deg, rgba(42,71,255,.06), rgba(241,127,35,.06)); border-bottom:1px solid var(--brd); }
+  .amb-hero__grid{ display:grid; grid-template-columns: 1.1fr .9fr; gap: 18px; align-items:center; }
+  @media (max-width: 991.98px){ .amb-hero__grid{ grid-template-columns:1fr; } }
+  .pill{ display:inline-block; font-size:.8rem; font-weight:800; color:var(--brand); background:rgba(42,71,255,.08); border:1px solid rgba(42,71,255,.22); border-radius:999px; padding:.35rem .6rem; }
+  .amb-title{ margin:.4rem 0 .5rem; color:#111; font-weight:900; line-height:1.1; }
+  .amb-sub{ margin:0 0 .4rem; color:#111; font-weight:600; }
+  .stats{ display:flex; gap:16px; flex-wrap:wrap; margin-top:8px; }
+  .stat{ background:#fff; border:1px solid var(--brd); border-radius:12px; padding:10px 12px; font-weight:800; color:#111; box-shadow:0 8px 20px rgba(14,18,32,.06); }
+  .amb-hero__art{ border:1px solid var(--brd); border-radius:18px; overflow:hidden; background:#fff; aspect-ratio: 16/9; display:grid; place-items:center; }
+  .amb-hero__art i{ font-size:54px; color:var(--brand); }
+
+  /* Controls */
+  .controls{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin: 12px 0 6px; }
+  .searchbox{ position:relative; flex: 1 1 320px; }
+  .searchbox input{ width:100%; height:44px; padding:0 44px 0 14px; border:1px solid var(--brd); border-radius:12px; outline:none; }
+  .searchbox .bi-search{ position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--muted); }
+  .sort{ display:flex; gap:8px; align-items:center; }
+  .sort select{ height:44px; border:1px solid var(--brd); border-radius:12px; padding:0 12px; }
+  .count{ color:#111; font-weight:900; }
+
+  /* Grid (2 on mobile as requested) */
+  .grid{ display:grid; gap:16px; grid-template-columns: repeat(4, minmax(0,1fr)); }
+  @media (max-width: 1199.98px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+  @media (max-width: 767.98px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  /* Card */
+  .card-amb{
+    background:var(--card); border:1px solid var(--brd); border-radius:12px; overflow:hidden;
+    box-shadow:0 10px 25px rgba(14,18,32,.06); transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .card-amb:hover{ transform: translateY(-4px); box-shadow:0 14px 30px rgba(14,18,32,.10); }
+  .amb-img{ width:100%; height: 240px; object-fit:cover; background:#f5f6fb; display:block; }
+  @media (max-width: 575.98px){ .amb-img{ height: 200px; } }
+  .amb-body{ padding:12px; text-align:center; }
+  .amb-name{ font-size:18px; font-weight:800; margin:4px 0; color:#111; }
+  .amb-college{ font-size:13px; color:#27314d; font-weight:600; min-height: 38px; }
+  .stars i{ font-size:16px; }
+  .socials{ display:flex; justify-content:center; gap:12px; margin-top:10px; font-size:20px; }
+  .badge-top{ position:absolute; top:10px; left:10px; background:#fff; border:1px solid var(--brd); border-radius:999px; padding:6px 10px; font-weight:800; display:flex; align-items:center; gap:6px; }
+  .amb-thumb{ position:relative; }
+
+  /* CTA */
+  .cta{ margin-top: 18px; }
+  .cta-box{
+    display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    border:1px solid var(--brd); border-radius:18px; background:linear-gradient(135deg, rgba(42,71,255,.04), rgba(241,127,35,.04));
+    padding:18px; box-shadow:0 12px 30px rgba(14,18,32,.06);
+  }
+  .cta-copy h3{ margin:0 0 6px; font-weight:900; color:#111; }
+  .cta-copy p{ margin:0; color:#111; font-weight:600; }
+  .cta-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 16px; border-radius:12px; border:1px solid transparent; font-weight:900; text-decoration:none; }
+  .btn-brand{ background:var(--brand); color:#fff; border-color:var(--brand); box-shadow:0 10px 26px rgba(42,71,255,.15); }
+  .btn-light{ background:#fff; color:#111; border:1px solid var(--brd); }
+  .btn:hover{ filter:brightness(.98); }
+  @media (max-width: 991.98px){ .btn{ width:100%; } }
+
+  /* Empty state */
+  .empty{ display:none; align-items:center; justify-content:center; text-align:center; padding:28px; border:1px dashed var(--brd); border-radius:14px; }
+  .empty h4{ margin:0 0 6px; font-weight:900; color:#111; }
+  .empty p{ margin:0; color:#27314d; font-weight:600; }
+</style>
+
+<!-- ====== BREADCRUMB ====== -->
+<div class="breadcrumb-bar">
+  <div class="container-balanced">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Campus Brand Ambassadors</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ====== HERO ====== -->
+<header class="amb-hero">
+  <div class="container-balanced">
+    <div class="amb-hero__grid">
+      <div>
+        <span class="pill">Community & Outreach</span>
+        <h1 class="amb-title">Our Campus Brand Ambassadors</h1>
+        <p class="amb-sub">Meet the student leaders who champion FileMakr across top campuses—driving workshops, demos, and peer support.</p>
+        <div class="stats" role="list">
+          <div class="stat" role="listitem"><i class="bi bi-people-fill"></i> <span id="AmbCount">—</span> Ambassadors</div>
+          <div class="stat" role="listitem"><i class="bi bi-mortarboard-fill"></i> Multiple Programs</div>
+          <div class="stat" role="listitem"><i class="bi bi-award-fill"></i> Faculty-ready Projects</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- ====== LIST ====== -->
+<section class="page-wrap">
+  <div class="container-balanced">
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="searchbox">
+        <input type="text" id="Search" placeholder="Search by name or college…">
+        <i class="bi bi-search"></i>
+      </div>
+      <div class="sort">
+        <span class="count"><span id="ResultCount">0</span> shown</span>
+        <select id="Sort" aria-label="Sort ambassadors">
+          <option value="relevance">Sort: Relevance</option>
+          <option value="nameAsc">Name A–Z</option>
+          <option value="nameDesc">Name Z–A</option>
+          <option value="ratingDesc">Top Rated</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid" id="Grid" style="margin-top: 20px;">
+      <% result.forEach(function(ambassador){ 
+           const photo = (ambassador.image_url && ambassador.image_url.trim() !== '') 
+                        ? ambassador.image_url 
+                        : 'https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif';
+           const nm = ambassador.name || 'Ambassador';
+           const college = ambassador.address || '';
+           const rating = Number(ambassador.rating_star || 0);
+      %>
+      <article class="card-amb target"
+               data-name="<%= nm.toLowerCase() %>"
+               data-college="<%= college.toLowerCase() %>"
+               data-rating="<%= rating %>">
+        <div class="amb-thumb">
+          <% if (rating >= 5) { %>
+            <span class="badge-top"><i class="bi bi-trophy-fill" style="color:#f2b01e"></i> Top Performer</span>
+          <% } %>
+          <img class="amb-img" src="<%= photo %>" alt="<%= nm %> photo">
+        </div>
+        <div class="amb-body">
+          <h5 class="amb-name"><%= nm %></h5>
+          <p class="amb-college"><%= college %></p>
+          <div class="stars" aria-label="Rating: <%= rating %> of 5">
+            <% for (let j=0;j<5;j++){ %>
+              <% if (j < rating) { %>
+                <i class="bi bi-star-fill text-warning"></i>
+              <% } else { %>
+                <i class="bi bi-star text-muted"></i>
+              <% } %>
+            <% } %>
+          </div>
+          <div class="socials">
+            <% if (ambassador.instagram_id && ambassador.instagram_id.trim() !== "") { %>
+              <a href="https://instagram.com/<%= ambassador.instagram_id.trim() %>" target="_blank" rel="noopener" class="text-danger" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+            <% } %>
+            <% if (ambassador.youtube_id && ambassador.youtube_id.trim() !== "") { %>
+              <a href="https://youtube.com/<%= ambassador.youtube_id.trim() %>" target="_blank" rel="noopener" class="text-danger" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+            <% } %>
+            <% if (ambassador.linkedin_id && ambassador.linkedin_id.trim() !== "") { %>
+              <a href="https://linkedin.com/in/<%= ambassador.linkedin_id.trim() %>" target="_blank" rel="noopener" class="text-primary" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+            <% } %>
+          </div>
+        </div>
+      </article>
+      <% }) %>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty" id="EmptyState">
+      <div>
+        <h4>No ambassadors found</h4>
+        <p>Try a different name or college. Want to represent FileMakr at your campus?</p>
+        <div class="cta-actions" style="justify-content:center; margin-top:10px;">
+          <a class="btn btn-brand" href="/contact-us"><i class="bi bi-chat-dots"></i> Apply Now</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <div class="cta-box">
+        <div class="cta-copy">
+          <h3>Become a FileMakr Campus Ambassador</h3>
+          <p>Lead workshops, help peers build faculty-ready projects, and earn exclusive perks.</p>
+        </div>
+        <div class="cta-actions" role="group" aria-label="Primary actions">
+          <a class="btn btn-brand" href="/contact-us"><i class="bi bi-rocket-takeoff"></i> Apply Today</a>
+          <a class="btn btn-light" href="/about-us"><i class="bi bi-info-circle"></i> Program Details</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<% include Includes/footer.ejs %>
+
+<script>
+(function(){
+  const $grid = document.getElementById('Grid');
+  const $cards = Array.from($grid.getElementsByClassName('target'));
+  const $search = document.getElementById('Search');
+  const $sort = document.getElementById('Sort');
+  const $count = document.getElementById('ResultCount');
+  const $empty = document.getElementById('EmptyState');
+  const $ambTotal = document.getElementById('AmbCount');
+
+  // Set totals
+  $ambTotal && ($ambTotal.textContent = String($cards.length));
+
+  let q = '';
+  function norm(s){ return (s||'').toLowerCase(); }
+
+  function apply(){
+    const nq = norm(q);
+    let visible = [];
+
+    $cards.forEach(card=>{
+      const name = card.getAttribute('data-name');
+      const college = card.getAttribute('data-college');
+      const matches = !nq || name.includes(nq) || college.includes(nq);
+      card.style.display = matches ? '' : 'none';
+      if(matches) visible.push(card);
+    });
+
+    // Sort visible
+    const mode = $sort ? $sort.value : 'relevance';
+    visible.sort((a,b)=>{
+      if(mode==='nameAsc') return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+      if(mode==='nameDesc') return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
+      if(mode==='ratingDesc') return Number(b.getAttribute('data-rating')) - Number(a.getAttribute('data-rating'));
+      return 0;
+    });
+    visible.forEach(n=> $grid.appendChild(n));
+
+    // UI
+    if($count) $count.textContent = String(visible.length);
+    if($empty) $empty.style.display = visible.length ? 'none' : 'flex';
+  }
+
+  // Debounce search
+  let t;
+  $search && $search.addEventListener('input', (e)=>{ q = e.target.value || ''; clearTimeout(t); t=setTimeout(apply, 150); });
+  $sort && $sort.addEventListener('change', apply);
+
+  // Init
+  apply();
+})();
+</script>

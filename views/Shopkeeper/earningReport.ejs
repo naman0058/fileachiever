@@ -1,0 +1,396 @@
+<%include ./header.ejs %>
+
+
+<style>
+    /* Style for the loader and overlay */
+    #loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+   </style>
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+            <!-- row -->	
+			
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card">
+							<div class="card-body p-0">
+								<div class="table-responsive active-projects style-1">
+								<div class="tbl-caption">
+									<h4 class="heading mb-0"><%=status.toUpperCase()%> Orders</h4>
+									<div class="d-flex justify-content-start gap-2"> <!-- Flex container with gap -->
+										<button type="button" onclick="exportTableToCSV('data.csv')" class="btn btn-dark btn-sm">Download Data</button>
+									</div>
+								</div>
+
+
+								<div id="loader-overlay">
+									<div id="loader"></div>
+									</div>
+
+									<table id="empoloyees-tblwrapper" class="table">
+										<thead>
+											<tr>
+												<th>Id</th>
+												<th>Student Name</th>
+												<th>Topic</th>
+												<th>Order Type</th>
+												<th>Earning</th>
+												<th>Order Date</th>
+												<th>Current Status</th>
+
+												
+
+											</tr>
+										</thead>
+										<tbody>
+
+<% for(i=0;i<projectDetails.length;i++){ %>
+
+											<tr>
+												<td><span><%=i%></span></td>
+												<td><span><%=projectDetails[i].name%></span></td>
+												<td>
+													<span><%=projectDetails[i].topic%></span>
+												</td>
+                                                <td>
+													<span><%=projectDetails[i].project_type%></span>
+												</td>
+
+                                                
+
+                                                <td>
+													<span><%= (projectDetails[i].amount * 0.2).toFixed(2) %></span>
+                                                </td>
+
+
+
+                                                <td>
+                                                    <span><%=projectDetails[i].created_at%></span>
+                                                </td>
+
+
+                                                <td>
+                                                    <span><%=projectDetails[i].status%></span>
+                                                </td>
+
+                                               
+												
+
+													
+
+											
+											
+
+											</tr>
+
+
+                                            <% } %>
+										
+											
+										</tbody>
+										
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			</div>
+
+
+
+			<div class="modal fade" id="qcModal" tabindex="-1" aria-labelledby="qcModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-xs">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="qcModalLabel">Detailed Report</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div id="reporttable">
+								<table class="table">
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+        </div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%include ./footer.ejs %>
+
+
+		<style>
+
+			/* Style for the loader and overlay */
+		  
+			#loader-overlay {
+		  
+			  position: fixed;
+		  
+			  top: 0;
+		  
+			  left: 0;
+		  
+			  width: 100%;
+		  
+			  height: 100%;
+		  
+			  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+		  
+			  display: none;
+		  
+			  justify-content: center;
+		  
+			  align-items: center;
+		  
+			  z-index: 9999;
+		  
+			}
+		  
+			#loader {
+		  
+			  border: 8px solid #f3f3f3;
+		  
+			  border-top: 8px solid #3498db;
+		  
+			  border-radius: 50%;
+		  
+			  width: 50px;
+		  
+			  height: 50px;
+		  
+			  animation: spin 1s linear infinite;
+		  
+			}
+		  
+			@keyframes spin {
+		  
+			  0% { transform: rotate(0deg); }
+		  
+			  100% { transform: rotate(360deg); }
+		  
+			}
+		  
+		  </style>
+		  
+		  <div id="loader-overlay">
+		  
+			<div id="loader"></div>
+		  
+		  </div>
+
+
+		<script>
+			// $('.bookdemo').click(function(){
+			$("#empoloyees-tblwrapper").on('click', '.bookdemo', function() {
+
+				let name = $(this).attr('name')
+				let number = $(this).attr('number')
+				let source_code_id = $(this).attr('source_code_id')
+				let email = $(this).attr('email')
+
+				$.post('/dashboard/requestForDemo',{name,number,source_code_id,email,whatsapp_number:number},data=>{
+					console.log(data)
+					if(data.msg=='success'){
+						alert('Success')
+						window.location.reload()
+					}
+					else{
+						alert('Error Occurred')
+					}
+				})
+
+			})
+
+
+
+
+
+			$("#empoloyees-tblwrapper").on('click', '.sentmail', function() {
+				// alert('hi')
+				let name = $(this).attr('name')
+				let number = $(this).attr('number')
+				let source_code_id = $(this).attr('source_code_id')
+				let email = $(this).attr('email')
+
+				$.post('/dashboard/sentmail',{name,number,source_code_id,email,whatsapp_number:number},data=>{
+					console.log(data)
+					if(data.msg=='success'){
+						alert('Success')
+						window.location.reload()
+					}
+					else{
+						alert('Error Occurred')
+					}
+				})
+
+			})
+
+
+
+
+			var qcModal = document.getElementById('qcModal');
+    qcModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var data = button.getAttribute('data-bs-images').split('-');
+        console.log('qc', data);
+        var tableBody = document.querySelector('#reporttable table tbody');
+        tableBody.innerHTML = '';
+        data.forEach(function (item) {
+            var pair = item.split(':');
+            var key = pair[0];
+            var value = pair[1];
+            var row = tableBody.insertRow();
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.textContent = key;
+            cell2.textContent = value;
+        });
+    });
+
+
+	
+
+		</script>
+	
+
+
+
+	<script>
+		function updateStatus(id, status) {
+		  fetch(`/affiliate/dashboard/project/report/updateStatus`, {
+			method: 'POST',
+			headers: {
+			  'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ id: id, status: status })
+		  })
+		  .then(response => response.json())
+		  .then(data => {
+			console.log('Status updated successfully:', data);
+			window.location.reload()
+		  })
+		  .catch((error) => {
+			console.error('Error updating status:', error);
+		  });
+		}
+		</script>
+
+
+
+<script>
+	function sendReminder(id,name, email, roll_number,project_name, number) {
+
+		const loaderOverlay = document.getElementById("loader-overlay");
+
+const loader = document.getElementById("loader");
+
+loaderOverlay.style.display = "flex"; // Show overlay
+
+
+  // Construct the URL with query parameters
+  const url = `/affiliate/dashboard/project/report/send/reminder?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&roll_number=${encodeURIComponent(roll_number)}&project_name=${encodeURIComponent(project_name)}&number=${encodeURIComponent(number)}`;
+
+  // Make the GET request
+  fetch(url)
+    .then(response => {
+      console.log('Full response:', response);
+      return response.json(); // Attempt to parse the response as JSON
+    })
+    .then(data => {
+		loaderOverlay.style.display = "none"; // Hide overlay after response
+      console.log('Reminder sent successfully:', data);
+      alert('Send Successfully');
+	  window.location.reload()
+
+    })
+    .catch(error => {
+		loaderOverlay.style.display = "none"; // Hide overlay after response
+      console.error('Error sending reminder:', error);
+      alert('Error Occurred');
+    });
+
+}
+
+
+	</script>
+
+
+
+
+
+<script>
+	function sendRating(id, name, number, roll_number,project_name) {
+
+		const loaderOverlay = document.getElementById("loader-overlay");
+
+const loader = document.getElementById("loader");
+
+loaderOverlay.style.display = "flex"; // Show overlay
+
+
+  // Construct the URL with query parameters
+  const url = `/affiliate/dashboard/project/report/send/rating?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&number=${encodeURIComponent(number)}&roll_number=${encodeURIComponent(roll_number)}&project_name=${encodeURIComponent(project_name)}`;
+
+  // Make the GET request
+  fetch(url)
+    .then(response => {
+      console.log('Full response:', response);
+      return response.json(); // Attempt to parse the response as JSON
+    })
+    .then(data => {
+		loaderOverlay.style.display = "none"; // Hide overlay after response
+      console.log('Reminder sent successfully:', data);
+      alert('Send Successfully');
+	  window.location.reload();
+    })
+    .catch(error => {
+		loaderOverlay.style.display = "none"; // Hide overlay after response
+      console.error('Error sending reminder:', error);
+      alert('Error Occurred');
+    });
+
+}
+
+
+	</script>
+	
+		

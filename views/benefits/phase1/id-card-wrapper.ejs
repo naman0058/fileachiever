@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+<head>
+  <% include ../_head.ejs %>
+  <style>
+    /* Sheet is A4 for easy print; card is ISO/IEC 7810 ID-1 (credit-card size) */
+     .id-sheet { width: 210mm; min-height: 297mm; background: #fff; }
+    .id-card  { width: 150mm; height: 80mm; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.10); border: 0.3mm solid #e5e7eb; background: #fff; }
+    .print-note { color:#64748b; font-size: 12px; }
+    .tiny     { font-size: 2.6mm; line-height: 1.2; } /* small text suited to card */
+    .small    { font-size: 4mm;   line-height: 1.25; }
+    .label    { font-weight: 600; }
+    .bar-hr   { height: 1.2mm; }
+    .bar-v    { width: 1.2mm; }
+     .signature-font {
+      font-family: 'Great Vibes', cursive;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <%
+    // Safe locals with fallbacks
+    const fullName = (typeof name === 'string' ? name : (name?.toString() || '')).trim();
+    const photo    = image_url || photoUrl || '/assets/placeholder-user.png';
+    const doj      = created_at ? new Date(created_at).toLocaleDateString() : (today ? today.toDateString() : '');
+    const idCode   = typeof id !== 'undefined' ? id : (idCode || '');
+    const collegeN = typeof address === 'string' ? address : (address?.toString() || '');
+    const emailN   = typeof email === 'string' ? email : (email?.toString() || '');
+    const phoneN   = typeof number === 'string' ? number : (number?.toString() || '');
+  %>
+
+  <div class="id-sheet content-body max-w-7xl mx-auto p-4 ">
+  
+   <div class="space-y-8">
+      <!-- FRONT -->
+  <div class="flex justify-center ">
+        <div class="id-card relative">
+          <!-- Top gradient bar -->
+          <div class="bar-hr w-full bg-gradient-to-r from-brandOrange to-brandBlue"></div>
+
+          <!-- Left + Right vertical accent bars -->
+          <div class="absolute top-0 left-0 h-full bar-v bg-gradient-to-b from-brandOrange to-brandBlue"></div>
+          <div class="absolute top-0 right-0 h-full bar-v bg-gradient-to-b from-brandBlue to-brandOrange"></div>
+
+          <!-- Watermark -->
+          <img
+            src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif"
+            alt="Watermark"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none select-none"
+            style="width: 30mm;"/>
+
+          <!-- Content -->
+          <div class="h-full flex">
+            <!-- Left details -->
+            <div class="w-1/2 h-full flex flex-col justify-between px-3 py-2">
+              <div class="space-y-1.5 small text-gray-800">
+                <p><span class="label">Name</span>: <%= fullName.toUpperCase() %></p>
+                <p><span class="label">D.O.J</span>: <%= doj %></p>
+                <% if (collegeN) { %>
+                  <p><span class="label">College</span>: <%= collegeN.toUpperCase() %></p>
+                <% } %>
+                <% if (emailN) { %>
+                  <p class="truncate"><span class="label">Email</span>: <%= emailN %></p>
+                <% } %>
+              </div>
+
+              <div class="mt-1">
+                <div class="text-gray-700 signature-font" style="font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif; font-size: 5mm;">Manisha</div>
+                <p class="tiny text-gray-500 mt-0.5">Authorized Signatory</p>
+              </div>
+            </div>
+
+            <!-- Right branding / photo / barcode -->
+            <div class="w-1/2 h-full flex flex-col justify-start items-center border-l border-gray-200 pl-3 pt-1.5">
+              <h2 class="text-[6mm] font-extrabold text-blue-800 leading-none tracking-wide">FILEMAKR</h2>
+              <p class="small text-gray-600 mb-2 font-medium">Campus Brand Ambassador</p>
+
+              <!-- Profile Image -->
+              <img src="<%= image_url %>"
+                   alt="Ambassador"
+                   class="rounded-md border border-gray-300 shadow-sm"
+                   style="width: 50mm; height: 50mm; object-fit: cover;"/>
+
+              <!-- Barcode -->
+              <img
+                src="https://barcode.tec-it.com/barcode.ashx?data=FILMKR<%= encodeURIComponent(idCode) %>&code=Code128&translate-esc=true"
+                alt="Barcode"
+                class="mt-1"
+                style="width: 40mm; height: 10mm; object-fit: contain;"/>
+            </div>
+          </div>
+
+          <!-- Bottom gradient bar -->
+          <div class="bar-hr w-full bg-gradient-to-r from-brandBlue to-brandOrange"></div>
+        </div>
+
+      </div>
+
+      <!-- BACK -->
+      <div class="flex justify-center">
+        <div class="id-card flex items-center justify-center">
+          <div class="p-4 small text-gray-700 w-full h-full">
+            <div class="flex items-center justify-between mb-2">
+              <div class="font-semibold text-brandBlue small"><%= org?.name || 'Organization' %></div>
+              <% if (org?.logo) { %>
+                <img src="<%= org.logo %>" alt="logo" style="height: 8mm;"/>
+              <% } %>
+            </div>
+
+            <p class="mb-2">This card certifies that <strong><%= fullName %></strong> is a <strong>Brand Ambassador</strong>. If found, please contact <%= org?.supportEmail || 'support@example.com' %>.</p>
+
+            <div class="grid grid-cols-3 gap-x-3 gap-y-1 mt-40">
+              <div>ID: FILMKR<%= idCode %></div>
+              <div>Phone: <%= phoneN %></div>
+              <div>Issued: <%= (today || new Date()).toDateString() %></div>
+            </div>
+
+            <!-- Optional QR: render as text payload or link to a pre-generated QR image -->
+               <div class="mt-2 text-gray-500">Verify: <span class="break-all"><%= 'https://filemakr.com/our-campus-brand-ambassador' %></span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

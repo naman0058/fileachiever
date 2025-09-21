@@ -1,0 +1,296 @@
+<%include ./header.ejs %>
+
+
+<style>
+    /* Style for the loader and overlay */
+    #loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+   </style>
+
+
+
+<style>
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+
+
+
+
+
+</style>
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+            <!-- row -->	
+			
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card">
+							<div class="card-body p-0">
+								<div class="table-responsive active-projects style-1">
+								<div class="tbl-caption">
+									<h4 class="heading mb-0"><%=month.toUpperCase()%> PROJECTS</h4>
+									<div class="d-flex justify-content-start gap-2"> <!-- Flex container with gap -->
+										<button type="button" onclick="mergeData('btech_project')" class="btn btn-primary btn-sm">Merge Duplicate Data</button>
+										<button type="button" onclick="exportTableToCSV('data.csv')" class="btn btn-dark btn-sm">Download Data</button>
+									</div>
+								</div>
+
+
+								<div id="loader-overlay">
+									<div id="loader"></div>
+									</div>
+
+									<table id="empoloyees-tblwrapper" class="table">
+										<thead>
+											<tr>
+												<th>Id</th>
+												<th>Status</th>
+												<th>Name</th>
+												<th>Number</th>
+												<th>Enquiry	</th>
+												<th>Deadline</th>
+												<th>Assign</th>
+												<th>Agent Price</th>
+												<th>Lead Price</th>
+												<th>PKR Price</th>
+												<th>Advance Amount</th>
+												<th>Project Done</th>
+												<th>Payment Recieved</th>
+												<th>Agent Payment Done</th>
+												<th>Remarks</th>
+												<th>Status</th>
+
+
+
+												
+												<!-- <th>Sent Mail</th> -->
+
+
+											</tr>
+										</thead>
+
+
+										<tbody>
+											<% for(let i = 0; i < result.length; i++){ %>
+											
+
+
+											<tr>
+
+												<td>
+													<span class="badge <%= result[i].status_label.class %>">
+														<%= i+1 %>
+													</span>
+												</td>
+											
+												<td>
+													<span class="badge <%= result[i].status_label.class %>">
+														<%= result[i].status_label.text %>
+													</span>
+												</td>
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'name', this.innerText)"><%= result[i].name %></td>
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'number', this.innerText)"><%= result[i].number %></td>
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'enquiry', this.innerText)"><%= result[i].enquiry %></td>
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'deadline', this.innerText)"><%= result[i].deadline %></td>
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'assign', this.innerText)"><%= result[i].assign %></td>
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'agent_price', this.innerText)"><%= result[i].agent_price %></td>
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'lead_price', this.innerText)"><%= result[i].lead_price %></td>
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'pakistani_price', this.innerText)"><%= result[i].pakistani_price %></td>
+												
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'advance_amount', this.innerText)"><%= result[i].advance_amount %></td>
+												
+												<!-- Project Done -->
+												<td>
+													<label class="switch">
+														<input type="checkbox" onclick="toggleProjectStatus('<%= result[i].id %>', this.checked)" <%= result[i].is_project_done == 1 ? 'checked' : '' %>>
+														<span class="slider round"></span>
+													</label>
+												</td>
+												
+												<!-- Payment Received -->
+												<td>
+													<label class="switch">
+														<input type="checkbox" onclick="togglePaymentStatus('<%= result[i].id %>', this.checked)" <%= result[i].is_payment_received == 1 ? 'checked' : '' %>>
+														<span class="slider round"></span>
+													</label>
+												</td>
+										
+												<!-- Agent Payment Done -->
+												<td>
+													<label class="switch">
+														<input type="checkbox" onclick="toggleAgentPaymentStatus('<%= result[i].id %>', this.checked)" <%= result[i].is_agent_payment_done == 1 ? 'checked' : '' %>>
+														<span class="slider round"></span>
+													</label>
+												</td>
+										
+												<td contenteditable="true" onblur="updateField('<%= result[i].id %>', 'remarks', this.innerText)"><%= result[i].remarks %></td>
+										
+												<!-- Status Dropdown -->
+												<td>
+													<select onchange="updateStatus('<%=result[i].id%>', this.value)">
+														<option value="in_progress" <%= result[i].status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+														<option value="assign" <%= result[i].status === 'assign' ? 'selected' : '' %>>Assign</option>
+														<option value="completed" <%= result[i].status === 'completed' ? 'selected' : '' %>>Completed</option>
+														<option value="hold" <%= result[i].status === 'hold' ? 'selected' : '' %>>Hold</option>
+														<option value="pending" <%= result[i].status === 'pending' ? 'selected' : '' %>>Pending</option>
+														<option value="client_review" <%= result[i].status === 'client_review' ? 'selected' : '' %>>Client Review</option>
+														<option value="in_changes" <%= result[i].status === 'in_changes' ? 'selected' : '' %>>In Changes</option>
+													</select>
+												</td>
+											</tr>
+											<% } %>
+										</tbody>
+										
+										
+										
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			</div>
+
+
+
+		
+
+        </div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%include ./footer.ejs %>
+
+
+
+
+
+<script>
+	function toggleProjectStatus(id, isChecked) {
+    updateToggleStatus(id, 'is_project_done', isChecked);
+}
+
+function togglePaymentStatus(id, isChecked) {
+    updateToggleStatus(id, 'is_payment_received', isChecked);
+}
+
+function toggleAgentPaymentStatus(id, isChecked) {
+    updateToggleStatus(id, 'is_agent_payment_done', isChecked);
+}
+
+function updateToggleStatus(id, field, isChecked) {
+    const newValue = isChecked ? 1 : 0;
+
+    fetch('/freelancing/update-field', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, field, value: newValue })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            alert("Failed to update status!");
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+
+function updateStatus(id, newValue) {
+    updateField(id, 'status', newValue);
+}
+
+
+function updateField(id, field, value) {
+    fetch('/freelancing/update-field', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, field, value })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            alert("Failed to update field!");
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+</script>

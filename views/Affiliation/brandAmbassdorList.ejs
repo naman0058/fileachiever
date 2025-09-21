@@ -1,0 +1,283 @@
+<% include ./header.ejs %>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brandOrange: '#F17F23',
+          brandBlue: '#2A47FF'
+        },
+        boxShadow: {
+          card: '0 8px 24px rgba(0,0,0,0.06)'
+        }
+      }
+    }
+  }
+</script>
+
+<div class="content-body bg-gray-50 min-h-screen">
+  <div class="max-w-[1400px] mx-auto px-4 lg:px-6 py-6">
+
+    <!-- Header / Toolbar -->
+    <div class="bg-white rounded-xl shadow-card border border-gray-100">
+      <div class="px-5 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900">Brand Ambassadors</h1>
+          <p class="text-sm text-gray-500">Manage communications, documents, and credentials.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+            <span>Total:</span><span id="totalCount" class="font-semibold text-gray-900"><%= result?.length || 0 %></span>
+            <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+            <span>Visible:</span><span id="visibleCount" class="font-semibold text-gray-900"><%= result?.length || 0 %></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="sr-only" for="perPage">Rows</label>
+            <select id="perPage" class="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brandBlue">
+              <option value="10">10 / page</option>
+              <option value="25" selected>25 / page</option>
+              <option value="50">50 / page</option>
+              <option value="100">100 / page</option>
+            </select>
+            <div class="relative">
+              <input id="searchInput" type="search" placeholder="Search name, phone, socials, email…"
+                     class="w-[260px] md:w-[320px] pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brandOrange" />
+              <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 015.292 5.708l3.5 3.5a1 1 0 01-1.414 1.414l-3.5-3.5A4 4 0 118 4zm0 2a2 2 0 100 4 2 2 0 000-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="border-t border-gray-100 overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead class="bg-brandBlue text-white text-[12px] uppercase sticky top-0 z-10">
+            <tr>
+              <th class="p-3 text-left font-semibold">ID</th>
+              <th class="p-3 text-left font-semibold">Name</th>
+              <th class="p-3 text-left font-semibold">Phone</th>
+              <th class="p-3 text-left font-semibold">Instagram</th>
+              <th class="p-3 text-left font-semibold">LinkedIn</th>
+              <th class="p-3 text-left font-semibold">YouTube</th>
+              <th class="p-3 text-left font-semibold">Documents</th>
+              <th class="p-3 text-left font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-gray-100 text-sm">
+            <% (result || []).forEach((amb) => { 
+                 const startDate = new Date(amb.created_at);
+                 const endDate = new Date(new Date(amb.created_at).setMonth(startDate.getMonth() + 3));
+                 const searchBlob = [
+                   amb.id, amb.name, amb.number, amb.email, amb.instagram_id, amb.linkedin_id, amb.youtube_id, amb.address
+                 ].filter(Boolean).join(' ').toLowerCase();
+            %>
+            <tr class="hover:bg-gray-50"
+                data-search="<%= searchBlob %>">
+              <td class="p-3 text-gray-700"><%= amb.id %></td>
+              <td class="p-3">
+                <div class="font-medium text-gray-900"><%= amb.name %></div>
+                <div class="text-xs text-gray-500"><%= amb.email || '' %></div>
+              </td>
+              <td class="p-3 text-gray-700"><%= amb.number || '-' %></td>
+              <td class="p-3 text-gray-700"><%= amb.instagram_id || '-' %></td>
+              <td class="p-3 text-gray-700"><%= amb.linkedin_id || '-' %></td>
+              <td class="p-3 text-gray-700"><%= amb.youtube_id || '-' %></td>
+
+              <!-- Documents column -->
+              <td class="p-3 space-y-1">
+                <!-- Offer Letter -->
+             
+                  <form action="/affiliate/send-offer" method="GET">
+                    <input type="hidden" name="student_name" value="<%= amb.name %>">
+                    <input type="hidden" name="college_name" value="<%= amb.address %>">
+                    <input type="hidden" name="start_date" value="<%= startDate.toLocaleDateString() %>">
+                    <input type="hidden" name="end_date" value="<%= endDate.toLocaleDateString() %>">
+                    <input type="hidden" name="email" value="<%= amb.email %>">
+                    <input type="hidden" name="title" value="<%= amb.title %>">
+                    <input type="hidden" name="docType" value="OFFER">
+                    <button class="inline-flex items-center gap-2 bg-brandBlue text-white px-3 py-1 rounded text-xs hover:bg-blue-700">
+                      Send Offer
+                    </button>
+                  </form>
+              
+
+                <!-- Credentials -->
+                <% if (amb.is_password_mail_send != 0) { %>
+                  <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                    <span class="inline-block w-1.5 h-1.5 bg-green-500 rounded-full"></span> Credentials Sent
+                  </span>
+                <% } else { %>
+                  <form action="/affiliate/credentials/sent" method="GET">
+                    <input type="hidden" name="email" value="<%= amb.email %>">
+                    <input type="hidden" name="number" value="<%= amb.number %>">
+                    <input type="hidden" name="password" value="<%= amb.password %>">
+                    <input type="hidden" name="unique_code" value="<%= amb.unique_code %>">
+                    <button class="inline-flex items-center gap-2 bg-brandOrange text-white px-3 py-1 rounded text-xs hover:bg-orange-600">
+                      Send Credentials
+                    </button>
+                  </form>
+                <% } %>
+
+                <!-- Common Certificates -->
+                <% const certs = [
+                     {code:'LEVEL_1', label:'Level 1 Certificate'},
+                     {code:'LEVEL_2', label:'Level 2 Certificate'},
+                     {code:'LEADERSHIP', label:'Leadership Certificate'},
+                     {code:'EXPERIENCE', label:'Experience Certificate'},
+                     {code:'RELIEVING', label:'Relieving Letter'}
+                   ];
+                %>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                <% certs.forEach(c => { %>
+                  <form action="/affiliate/send-common-letter" method="GET">
+                    <input type="hidden" name="student_name" value="<%= amb.name %>">
+                    <input type="hidden" name="college_name" value="<%= amb.address %>">
+                    <input type="hidden" name="start_date" value="<%= startDate.toLocaleDateString() %>">
+                    <input type="hidden" name="end_date" value="<%= endDate.toLocaleDateString() %>">
+                    <input type="hidden" name="email" value="<%= amb.email %>">
+                    <input type="hidden" name="title" value="<%= amb.title %>">
+                    <input type="hidden" name="docType" value="<%= c.code %>">
+                    <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs rounded px-2 py-1 text-left">
+                      <%= c.label %>
+                    </button>
+                  </form>
+                <% }) %>
+                </div>
+              </td>
+
+              <!-- Actions -->
+              <td class="p-3 space-x-2 whitespace-nowrap">
+                <form action="/affiliate/edit/<%= amb.id %>" method="GET" class="inline">
+                  <button class="text-brandBlue hover:underline text-sm">Edit</button>
+                </form>
+                <form action="/affiliate/delete/<%= amb.id %>" method="POST" class="inline"
+                      onsubmit="return confirm('Delete <%= amb.name %>? This cannot be undone.');">
+                  <button class="text-red-500 hover:underline text-sm">Delete</button>
+                </form>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+        <!-- Empty state -->
+        <div id="emptyState" class="hidden py-12 text-center">
+          <div class="mx-auto w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <span class="text-2xl">🔎</span>
+          </div>
+          <h3 class="mt-4 text-lg font-semibold text-gray-900">No matches</h3>
+          <p class="text-sm text-gray-500">Try adjusting your search or filters.</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="px-5 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="text-sm text-gray-500">
+          Showing <span id="rangeFrom">1</span>–<span id="rangeTo">0</span> of <span id="rangeTotal"><%= result?.length || 0 %></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="prevBtn" class="px-3 py-1.5 text-sm border rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-40" disabled>Previous</button>
+          <div class="text-sm text-gray-600">Page <span id="pageNum">1</span> / <span id="pageCount">1</span></div>
+          <button id="nextBtn" class="px-3 py-1.5 text-sm border rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-40">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const tbody = document.getElementById('tableBody');
+  const rows  = Array.from(tbody.querySelectorAll('tr'));
+  const searchInput = document.getElementById('searchInput');
+  const perPageSel  = document.getElementById('perPage');
+
+  const totalCount  = document.getElementById('totalCount');
+  const visibleCount= document.getElementById('visibleCount');
+  const emptyState  = document.getElementById('emptyState');
+
+  const rangeFrom = document.getElementById('rangeFrom');
+  const rangeTo   = document.getElementById('rangeTo');
+  const rangeTotal= document.getElementById('rangeTotal');
+  const pageNum   = document.getElementById('pageNum');
+  const pageCount = document.getElementById('pageCount');
+  const prevBtn   = document.getElementById('prevBtn');
+  const nextBtn   = document.getElementById('nextBtn');
+
+  totalCount.textContent = rows.length;
+  rangeTotal.textContent = rows.length;
+
+  let currentPage = 1;
+  let perPage     = parseInt(perPageSel.value, 10) || 25;
+  let filtered = rows.slice();
+
+  function applySearch() {
+    const q = (searchInput.value || '').trim().toLowerCase();
+    if (!q) {
+      filtered = rows.slice();
+    } else {
+      filtered = rows.filter(r => (r.dataset.search || '').includes(q));
+    }
+    currentPage = 1;
+    render();
+  }
+
+  function render() {
+    rows.forEach(r => r.style.display = 'none');
+
+    const total = filtered.length;
+    const pages = Math.max(1, Math.ceil(total / perPage));
+
+    pageCount.textContent = pages;
+    pageNum.textContent   = Math.min(currentPage, pages);
+
+    if (currentPage > pages) currentPage = pages;
+
+    const startIdx = (currentPage - 1) * perPage;
+    const endIdx   = Math.min(startIdx + perPage, total);
+    filtered.slice(startIdx, endIdx).forEach(r => r.style.display = '');
+
+    // counters
+    visibleCount.textContent = total;
+    rangeFrom.textContent = total ? (startIdx + 1) : 0;
+    rangeTo.textContent   = endIdx;
+
+    // empty state
+    emptyState.classList.toggle('hidden', total !== 0);
+
+    // buttons
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= pages;
+  }
+
+  // Events
+  let t;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(t);
+    t = setTimeout(applySearch, 120);
+  });
+
+  perPageSel.addEventListener('change', () => {
+    perPage = parseInt(perPageSel.value, 10) || 25;
+    currentPage = 1;
+    render();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentPage > 1) { currentPage--; render(); }
+  });
+  nextBtn.addEventListener('click', () => {
+    const pages = Math.max(1, Math.ceil(filtered.length / perPage));
+    if (currentPage < pages) { currentPage++; render(); }
+  });
+
+  // Initial render
+  render();
+})();
+</script>
+
+<% include ./footer.ejs %>

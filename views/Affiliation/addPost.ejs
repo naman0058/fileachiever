@@ -1,0 +1,138 @@
+<% include ./header.ejs %>
+
+<div class="content-body">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Add Social Media Post</h4>
+                    </div>
+                    <div class="card-body">
+                        <form action="/affiliate/dashboard/instagram/post/add" method="POST">
+                            <!-- Platform Selector -->
+                            <div class="form-group mb-3">
+                                <label for="platform" class="form-label">Social Media Platform</label>
+                                <select 
+                                    name="platform" 
+                                    id="platform" 
+                                    class="form-select" 
+                                    required>
+                                    <option value="" disabled selected>Select Platform</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                </select>
+                            </div>
+
+                            <!-- Post URL -->
+                            <div class="form-group mb-3">
+                                <label for="post_url" class="form-label">Post URL</label>
+                                <input 
+                                    type="text" 
+                                    name="link" 
+                                    id="post_url" 
+                                    class="form-control" 
+                                    placeholder="https://www.instagram.com/p/xyz..." 
+                                    required>
+                            </div>
+
+                            <!-- Date Posted -->
+                            <div class="form-group mb-3">
+                                <label for="post_date" class="form-label">Date Posted</label>
+                                <input 
+                                    type="date" 
+                                    name="post_date" 
+                                    id="post_date" 
+                                    class="form-control" 
+                                    required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Add Post</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Existing form above -->
+
+<hr class="my-4">
+
+<h4 class="card-title">All Social Media Posts</h4>
+<div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Post ID</th>
+                <th>Platform</th>
+                <th>Link</th>
+                <th>Post ID</th>
+                <th>Date Posted</th>
+                <th>View</th>
+                <th>Last Update</th>
+                <th>Last Reminder</th>
+
+                
+                <th>Actions</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (posts && posts.length > 0) { %>
+                <% posts.forEach((post, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td>Post ID :<%= post.id %></td>
+
+                        <td class="text-capitalize"><%= post.platform %></td>
+                        <td><a href="<%= post.link %>" target="_blank">View Link</a></td>
+                        <td><%= post.postid || '—' %></td>
+                        <td><%= new Date(post.post_date).toLocaleDateString() %></td>
+                        <td>
+                            <a href="/affiliate/dashboard/post/<%= post.id %>/details" class="btn btn-sm btn-info">
+                                View Details
+                            </a>
+                        </td>
+                        <td><%= post.last_update ? new Date(post.last_update).toLocaleString() : '—' %></td>
+                        <td><%= post.last_reminder ? new Date(post.last_reminder).toLocaleString() : '—' %></td>
+
+                      
+<td>
+    <% if (post.platform === 'instagram' && post.postid) { %>
+        <form action="/affiliate/dashboard/post/<%= post.id %>/fetch" method="POST">
+            <button type="submit" class="btn btn-sm btn-warning">Fetch IG</button>
+        </form>
+    <% } else if (post.platform === 'youtube' && post.postid) { %>
+        <form action="/affiliate/dashboard/post/<%= post.id %>/fetch-youtube" method="POST">
+            <button type="submit" class="btn btn-sm btn-danger">Fetch YT</button>
+        </form>
+    <% } else { %>
+        —
+    <% } %>
+</td>
+<td>
+    <% if (post.platform === 'instagram' && (!post.postid || post.postid.trim() === '')) { %>
+        <a href="/affiliate/dashboard/post/<%= post.id %>/delete" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this post?')">
+            Delete
+        </a>
+    <% } else { %>
+        —
+    <% } %>
+</td>
+
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="8">No posts found.</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+        </div>
+    </div>
+</div>
+
+<% include ./footer.ejs %>

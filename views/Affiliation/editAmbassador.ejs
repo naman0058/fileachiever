@@ -1,0 +1,55 @@
+<% include ./header.ejs %>
+
+<div class="container py-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-white border-bottom">
+      <h4 class="mb-0 text-primary">Edit Brand Ambassador</h4>
+    </div>
+    <div class="card-body">
+      <form action="/affiliate/edit/<%= ambassador.id %>" method="POST" class="row g-3">
+        
+        <div class="col-md-6">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-control" value="<%= ambassador.name %>" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Mobile Number</label>
+          <input type="text" name="number" class="form-control" value="<%= ambassador.number %>" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-control" value="<%= ambassador.email %>" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Instagram ID</label>
+          <input type="text" name="instagram_id" class="form-control" value="<%= ambassador.instagram_id %>">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">LinkedIn ID</label>
+          <input type="text" name="linkedin_id" class="form-control" value="<%= ambassador.linkedin_id %>">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">YouTube ID</label>
+          <input type="text" name="youtube_id" class="form-control" value="<%= ambassador.youtube_id %>">
+        </div>
+
+        <div class="col-md-12">
+          <label class="form-label">Address (College)</label>
+          <textarea name="address" class="form-control" rows="2"><%= ambassador.address %></textarea>
+        </div>
+
+        <div class="col-12 text-end mt-4">
+          <button class="btn btn-success px-4">Update Ambassador</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<% include ./footer.ejs %>

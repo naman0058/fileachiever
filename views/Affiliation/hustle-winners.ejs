@@ -1,0 +1,43 @@
+<% include ./header.ejs %>
+
+<div class="content-body">
+  <div class="page-titles">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">CMS</a></li>
+      <li class="breadcrumb-item active"><a href="#">Hustle Challenge Winners</a></li>
+    </ol>
+  </div>
+
+  <div class="container-fluid">
+    <% if (winners.length === 0) { %>
+      <div class="alert alert-info">No winners found.</div>
+    <% } else { %>
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Phone Number</th>
+              <th>Amount</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% winners.forEach((winner, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= winner.ambassador_name %></td>
+                <td><%= winner.number %></td>
+                <td>₹<%= winner.amount %></td>
+               <td><%= winner.formattedDate %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<% include ./footer.ejs %>
