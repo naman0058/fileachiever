@@ -68,53 +68,68 @@
     <svg class="w-6 h-6 text-brandBlue" fill="currentColor" viewBox="0 0 24 24">
       <path d="M9 19V6h13v13H9zm11-2V8H11v9h9zM4 13H2v6a1 1 0 001 1h6v-2H4v-5zm0-4h2V5h5V3H3a1 1 0 00-1 1v6h2V9z" />
     </svg>
-    Fixed Incentive Watch Logs
+    Fixed Incentive Watch Logsssss
   </h2>
 
-  <div class="w-full overflow-auto rounded-lg border border-gray-200">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-brandBlue text-white text-xs uppercase tracking-wider">
-        <tr>
-          <th class="px-5 py-3 text-left font-semibold">ID</th>
-          <th class="px-5 py-3 text-left font-semibold">Name</th>
-          <th class="px-5 py-3 text-left font-semibold">Start Date</th>
-          <th class="px-5 py-3 text-left font-semibold">End Date</th>
-          <th class="px-5 py-3 text-center font-semibold">Total Links</th>
-          <th class="px-5 py-3 text-center font-semibold">Watch Logs</th>
-          <th class="px-5 py-3 text-center font-semibold">Avg. Watch Time</th>
-
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100 text-sm text-gray-800">
-        <% if (incentiveData.length > 0) { %>
-          <% incentiveData.forEach(row => { %>
-            <tr class="hover:bg-gray-50 transition-all duration-200">
-              <td class="px-5 py-4 whitespace-nowrap"><%= row.id %></td>
-              <td class="px-5 py-4 whitespace-nowrap font-medium"><%= row.name %></td>
-              <td class="px-5 py-4 whitespace-nowrap"><%= new Date(row.start_date).toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-              <td class="px-5 py-4 whitespace-nowrap"><%= new Date(row.end_date).toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-              <td class="px-5 py-4 text-center"><%= row.total_links %></td>
-              <td class="px-5 py-4 text-center font-semibold">
-                <span class="<%= row.watch_logs > 0 ? 'text-brandBlue' : 'text-gray-400' %>">
-                  <%= row.watch_logs %>
-                </span>
-              </td>
-
-			  <td class="px-5 py-4 text-center font-semibold">
-                <span class="<%= row.avg_watch_time > 100 ? 'text-brandBlue' : 'text-gray-400' %>">
-                  <%= row.avg_watch_time %>
-                </span>
-              </td>
-            </tr>
-          <% }); %>
-        <% } else { %>
-          <tr>
-            <td colspan="6" class="text-center py-6 text-gray-500">No data available</td>
+<div class="w-full overflow-auto rounded-lg border border-gray-200">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-brandBlue text-white text-xs uppercase tracking-wider">
+      <tr>
+        <th class="px-5 py-3 text-left font-semibold">ID</th>
+        <th class="px-5 py-3 text-left font-semibold">Name</th>
+        <th class="px-5 py-3 text-left font-semibold">Start Date</th>
+        <th class="px-5 py-3 text-left font-semibold">End Date</th>
+        <th class="px-5 py-3 text-center font-semibold">Total Links</th>
+        <th class="px-5 py-3 text-center font-semibold">Watch Logs</th>
+        <th class="px-5 py-3 text-center font-semibold">Avg. Watch Time</th>
+        <th class="px-5 py-3 text-center font-semibold">Target Count</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100 text-sm text-gray-800">
+      <% if (incentiveData.length > 0) { %>
+        <% incentiveData.forEach(row => { 
+             const targetCount = Math.floor(row.watch_logs / 300); 
+             const remainingLogs = row.watch_logs % 300; 
+        %>
+          <tr class="hover:bg-gray-50 transition-all duration-200">
+            <td class="px-5 py-4 whitespace-nowrap"><%= row.id %></td>
+            <td class="px-5 py-4 whitespace-nowrap font-medium"><%= row.name %></td>
+            <td class="px-5 py-4 whitespace-nowrap">
+              <%= new Date(row.start_date).toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %>
+            </td>
+            <td class="px-5 py-4 whitespace-nowrap">
+              <%= new Date(row.end_date).toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %>
+            </td>
+            <td class="px-5 py-4 text-center"><%= row.total_links %></td>
+            <td class="px-5 py-4 text-center font-semibold">
+              <span class="<%= row.watch_logs > 0 ? 'text-brandBlue' : 'text-gray-400' %>">
+                <%= row.watch_logs %>
+              </span>
+            </td>
+            <td class="px-5 py-4 text-center font-semibold">
+              <span class="<%= row.avg_watch_time > 100 ? 'text-brandBlue' : 'text-gray-400' %>">
+                <%= row.avg_watch_time %>
+              </span>
+            </td>
+            <td class="px-5 py-4 text-center font-semibold">
+              <span class="<%= targetCount > 0 ? 'text-brandBlue' : 'text-gray-400' %>">
+                <%= targetCount %> 
+                <% if (remainingLogs > 0) { %>
+                  ( +<%= remainingLogs %> left )
+                <% } %>
+              </span>
+            </td>
           </tr>
-        <% } %>
-      </tbody>
-    </table>
-  </div>
+        <% }); %>
+      <% } else { %>
+        <tr>
+          <td colspan="8" class="text-center py-6 text-gray-500">No data available</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
 </div>
 
 

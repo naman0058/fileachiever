@@ -129,7 +129,7 @@ router.get('/dashboard', (req, res) => {
   const metricsParams = [startDate, endDate, startDate, endDate];
 
   // Fixed Incentive Watch Logs Query
-  const incentiveQuery = `
+const incentiveQuery = `
 SELECT 
   a.id,
   a.name,
@@ -148,8 +148,7 @@ FROM (
   FROM shopkeeper s
   JOIN links l ON s.id = l.promoter_id
   WHERE s.isFixIncentiveJoin = 1
-  GROUP BY s.id, DATE(l.created_at)
-  HAVING COUNT(*) >= 15
+  GROUP BY s.id
 ) a
 LEFT JOIN (
   SELECT 
@@ -162,6 +161,7 @@ LEFT JOIN (
   GROUP BY l.promoter_id
 ) b ON a.id = b.promoter_id;
 `;
+
 
 
   const promterQuery = `SELECT 
@@ -3459,76 +3459,76 @@ ORDER BY total_referred DESC;`,(err,result)=>{
 
 
 
-const { nanoid } = require('nanoid');
+// const { nanoid } = require('nanoid');
 
-// Helper to ensure unique short_code (rarely needed, but safe)
-async function generateUniqueShortCode(queryAsync, maxAttempts = 5) {
-  for (let i = 0; i < maxAttempts; i++) {
-    const code = nanoid(6);
-    const rows = await queryAsync('SELECT 1 FROM links WHERE short_code = ? LIMIT 1', [code]);
-    if (rows.length === 0) return code;
-  }
-  throw new Error('Failed to generate a unique short code after multiple attempts.');
-}
+// // Helper to ensure unique short_code (rarely needed, but safe)
+// async function generateUniqueShortCode(queryAsync, maxAttempts = 5) {
+//   for (let i = 0; i < maxAttempts; i++) {
+//     const code = nanoid(6);
+//     const rows = await queryAsync('SELECT 1 FROM links WHERE short_code = ? LIMIT 1', [code]);
+//     if (rows.length === 0) return code;
+//   }
+//   throw new Error('Failed to generate a unique short code after multiple attempts.');
+// }
 
-/**
- * Bulk create links for a promoter, then set isFixIncentiveJoin = 1.
- * @param {function} queryAsync - promisified DB query function
- * @param {number|string} promoterId
- * @param {string[]} urls
- * @returns {Promise<Array<{original_url: string, short_code: string}>>}
- */
-async function createBulkLinks(queryAsync, promoterId, urls) {
-  if (!promoterId) throw new Error('promoterId is required');
-  if (!Array.isArray(urls) || urls.length === 0) throw new Error('urls must be a non-empty array');
+// /**
+//  * Bulk create links for a promoter, then set isFixIncentiveJoin = 1.
+//  * @param {function} queryAsync - promisified DB query function
+//  * @param {number|string} promoterId
+//  * @param {string[]} urls
+//  * @returns {Promise<Array<{original_url: string, short_code: string}>>}
+//  */
+// async function createBulkLinks(queryAsync, promoterId, urls) {
+//   if (!promoterId) throw new Error('promoterId is required');
+//   if (!Array.isArray(urls) || urls.length === 0) throw new Error('urls must be a non-empty array');
 
-  // Normalize & de-duplicate URLs while preserving order
-  const seen = new Set();
-  const cleanUrls = [];
-  for (const u of urls.map(u => String(u).trim()).filter(Boolean)) {
-    if (!seen.has(u)) { seen.add(u); cleanUrls.push(u); }
-  }
+//   // Normalize & de-duplicate URLs while preserving order
+//   const seen = new Set();
+//   const cleanUrls = [];
+//   for (const u of urls.map(u => String(u).trim()).filter(Boolean)) {
+//     if (!seen.has(u)) { seen.add(u); cleanUrls.push(u); }
+//   }
 
-  // Prepare rows with unique short codes
-  const prepared = [];
-  for (const original_url of cleanUrls) {
-    const short_code = await generateUniqueShortCode(queryAsync);
-    prepared.push({ original_url, short_code });
-  }
+//   // Prepare rows with unique short codes
+//   const prepared = [];
+//   for (const original_url of cleanUrls) {
+//     const short_code = await generateUniqueShortCode(queryAsync);
+//     prepared.push({ original_url, short_code });
+//   }
 
-  // Build a single multi-value INSERT statement
-  const valuesSql = prepared.map(() => '(?, ?, ?, NOW())').join(', ');
-  const params = [];
-  for (const row of prepared) {
-    params.push(promoterId, row.original_url, row.short_code);
-  }
+//   // Build a single multi-value INSERT statement
+//   const valuesSql = prepared.map(() => '(?, ?, ?, NOW())').join(', ');
+//   const params = [];
+//   for (const row of prepared) {
+//     params.push(promoterId, row.original_url, row.short_code);
+//   }
 
-  try {
-    await queryAsync('START TRANSACTION');
+//   try {
+//     await queryAsync('START TRANSACTION');
 
-    await queryAsync(
-      `INSERT INTO links (promoter_id, original_url, short_code, created_at)
-       VALUES ${valuesSql}`,
-      params
-    );
+//     await queryAsync(
+//       `INSERT INTO links (promoter_id, original_url, short_code, created_at)
+//        VALUES ${valuesSql}`,
+//       params
+//     );
 
-    await queryAsync(
-      'UPDATE shopkeeper SET isFixIncentiveJoin = 1 WHERE id = ?',
-      [promoterId]
-    );
+//     await queryAsync(
+//       'UPDATE shopkeeper SET isFixIncentiveJoin = 1 WHERE id = ?',
+//       [promoterId]
+//     );
 
-    await queryAsync('COMMIT');
-    return prepared; // [{original_url, short_code}, ...]
-  } catch (err) {
-    await queryAsync('ROLLBACK');
+//     await queryAsync('COMMIT');
+//     return prepared; // [{original_url, short_code}, ...]
+//   } catch (err) {
+//     await queryAsync('ROLLBACK');
 
-    // If collision somehow slipped through, surface a helpful message
-    if (err && err.code === 'ER_DUP_ENTRY') {
-      err.message = 'Duplicate short_code encountered. Please retry.';
-    }
-    throw err;
-  }
-}
+//     // If collision somehow slipped through, surface a helpful message
+//     if (err && err.code === 'ER_DUP_ENTRY') {
+//       err.message = 'Duplicate short_code encountered. Please retry.';
+//     }
+//     throw err;
+//   }
+// }
 
 // ---------- Express Route Example ----------
 
@@ -3540,49 +3540,195 @@ async function createBulkLinks(queryAsync, promoterId, urls) {
  *   "urls": ["https://...", "..."]   // optional; if omitted, defaults to the 15 YouTube URLs below
  * }
  */
-router.get(
-  '/shopkeeper/generate-links-bulk',
-  // verify.shopAuthenticationToken,
-  async (req, res) => {
-    try {
-      const promoterId = req.query.promoterId
-      const urls = Array.isArray(req.query.urls) && req.query.urls.length
-        ? req.query.urls
-        : [
-            'https://youtu.be/3_Sf6voNi_4',
-            'https://youtu.be/yfWQrMaQVdc',
-            'https://youtu.be/0cKV4SYeQQk',
-            'https://youtu.be/kcSF6m2icy0',
-            'https://youtu.be/Yk1dMnrHzpw',
-            'https://youtu.be/Xpg9I19F8kE',
-            'https://youtu.be/RRbD9D4w-GY',
-            'https://youtu.be/6PVxXYvOa78',
-            'https://youtu.be/R2VQeLlX70s',
-            'https://youtu.be/1rGs-t8pBto',
-            'https://youtu.be/v_X2ykG217k',
-            'https://youtu.be/oHSxkGbYV98',
-            'https://youtu.be/5IoSxgK2AG8',
-            'https://youtu.be/fBsgBS_Nl2E',
-            'https://youtu.be/C5ZG0yJWvLg',
-          ];
+// router.get(
+//   '/shopkeeper/generate-links-bulk',
+//   // verify.shopAuthenticationToken,
+//   async (req, res) => {
+//     try {
+//       const promoterId = req.query.promoterId
+//       const urls = Array.isArray(req.query.urls) && req.query.urls.length
+//         ? req.query.urls
+//         : [
+//             'https://youtu.be/3_Sf6voNi_4',
+//             'https://youtu.be/yfWQrMaQVdc',
+//             'https://youtu.be/0cKV4SYeQQk',
+//             'https://youtu.be/kcSF6m2icy0',
+//             'https://youtu.be/Yk1dMnrHzpw',
+//             'https://youtu.be/Xpg9I19F8kE',
+//             'https://youtu.be/RRbD9D4w-GY',
+//             'https://youtu.be/6PVxXYvOa78',
+//             'https://youtu.be/R2VQeLlX70s',
+//             'https://youtu.be/1rGs-t8pBto',
+//             'https://youtu.be/v_X2ykG217k',
+//             'https://youtu.be/oHSxkGbYV98',
+//             'https://youtu.be/5IoSxgK2AG8',
+//             'https://youtu.be/fBsgBS_Nl2E',
+//             'https://youtu.be/C5ZG0yJWvLg',
+//           ];
 
-      const created = await createBulkLinks(queryAsync, promoterId, urls);
+//       const created = await createBulkLinks(queryAsync, promoterId, urls);
 
-      // Example: redirect back to a page that can show results,
-      // or send JSON. Choose whichever suits your UI.
-      // res.redirect('/shopkeeper/generateLink');
-      res.json({
-        ok: true,
-        promoterId,
-        count: created.length,
-        links: created, // [{original_url, short_code}]
-      });
-    } catch (error) {
-      console.error('Bulk link generation failed:', error);
-      res.status(500).json({ ok: false, message: error.message || 'Internal Server Error' });
+//       // Example: redirect back to a page that can show results,
+//       // or send JSON. Choose whichever suits your UI.
+//       // res.redirect('/shopkeeper/generateLink');
+//       res.json({
+//         ok: true,
+//         promoterId,
+//         count: created.length,
+//         links: created, // [{original_url, short_code}]
+//       });
+//     } catch (error) {
+//       console.error('Bulk link generation failed:', error);
+//       res.status(500).json({ ok: false, message: error.message || 'Internal Server Error' });
+//     }
+//   }
+// );
+
+
+
+const { nanoid } = require('nanoid');
+
+// Assumes you have a promisified MySQL query function:
+// const queryAsync = util.promisify(connection.query).bind(connection);
+
+/** Generate a unique short code with collision check */
+async function generateUniqueShortCode(queryAsync, maxAttempts = 5) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const code = nanoid(6);
+    const rows = await queryAsync(
+      'SELECT 1 FROM fileachiever.links WHERE short_code = ? LIMIT 1',
+      [code]
+    );
+    if (rows.length === 0) return code;
+  }
+  throw new Error('Failed to generate a unique short code after multiple attempts.');
+}
+
+/** Try to get shopkeepers by isFixInceitve=1; if the column doesn’t exist, try isFixIncentiveJoin=1 */
+async function getEligibleShopkeepers(queryAsync) {
+  try {
+    return await queryAsync('SELECT id FROM shopkeeper WHERE isFixInceitve = 1');
+  } catch (e) {
+    // ER_BAD_FIELD_ERROR (1054) -> fallback to prior column name
+    if (e && (e.code === 'ER_BAD_FIELD_ERROR' || e.errno === 1054)) {
+      return await queryAsync('SELECT id FROM shopkeeper WHERE isFixIncentiveJoin = 1');
+    }
+    throw e;
+  }
+}
+
+/** Insert missing URLs for a single promoter */
+async function assignMissingYoutubeLinksToPromoter(queryAsync, promoterId, allYoutubeUrls) {
+  // Get existing original_url for this promoter from fileachiever.links
+  const existing = await queryAsync(
+    'SELECT original_url FROM fileachiever.links WHERE promoter_id = ?',
+    [promoterId]
+  );
+  const existingSet = new Set(existing.map(r => String(r.original_url).trim()));
+
+  // Compute missing URLs (preserve order, dedupe source list)
+  const seen = new Set();
+  const missing = [];
+  for (const raw of allYoutubeUrls) {
+    const url = String(raw).trim();
+    if (!url) continue;
+    if (seen.has(url)) continue;      // dedupe source list
+    seen.add(url);
+    if (!existingSet.has(url)) {
+      missing.push(url);
     }
   }
-);
+
+  if (missing.length === 0) return { inserted: 0, skipped: allYoutubeUrls.length };
+
+  // Prepare rows (promoter_id, original_url, short_code, created_at)
+  const prepared = [];
+  for (const original_url of missing) {
+    const short_code = await generateUniqueShortCode(queryAsync);
+    prepared.push({ original_url, short_code });
+  }
+
+  // Build bulk insert
+  const valuesSql = prepared.map(() => '(?, ?, ?, NOW())').join(', ');
+  const params = [];
+  for (const row of prepared) {
+    params.push(promoterId, row.original_url, row.short_code);
+  }
+
+  await queryAsync('START TRANSACTION');
+  try {
+    await queryAsync(
+      `INSERT INTO fileachiever.links (promoter_id, original_url, short_code, created_at)
+       VALUES ${valuesSql}`,
+      params
+    );
+    await queryAsync('COMMIT');
+
+    return { inserted: prepared.length, skipped: allYoutubeUrls.length - prepared.length };
+  } catch (err) {
+    await queryAsync('ROLLBACK');
+    // Handle a race where original_url is uniquely constrained by (promoter_id, original_url)
+    if (err && err.code === 'ER_DUP_ENTRY') {
+      // In rare cases of race, just report zero inserted for safety.
+      return { inserted: 0, skipped: allYoutubeUrls.length };
+    }
+    throw err;
+  }
+}
+
+/**
+ * Route: Assign all youtube_link URLs to every eligible shopkeeper
+ * Only insert URLs that are NOT already present in fileachiever.links for that promoter.
+ */
+router.get('/shopkeeper/assign-youtube-links', async (req, res) => {
+  try {
+    // 1) Shopkeepers with the flag = 1
+    const shopkeepers = await getEligibleShopkeepers(queryAsync);
+    if (shopkeepers.length === 0) {
+      return res.json({ ok: true, message: 'No eligible shopkeepers found.', totalPromoters: 0, totalInserted: 0 });
+    }
+
+    // 2) All youtube_link rows
+    const ytRows = await queryAsync('SELECT link FROM youtube_link');
+    const allYoutubeUrls = ytRows.map(r => String(r.link).trim()).filter(Boolean);
+    if (allYoutubeUrls.length === 0) {
+      return res.json({ ok: true, message: 'No youtube_link entries found.', totalPromoters: shopkeepers.length, totalInserted: 0 });
+    }
+
+    // 3) For each shopkeeper, insert only missing URLs into fileachiever.links
+    const summary = [];
+    let totalInserted = 0;
+    for (const { id: promoterId } of shopkeepers) {
+      const { inserted, skipped } = await assignMissingYoutubeLinksToPromoter(
+        queryAsync,
+        promoterId,
+        allYoutubeUrls
+      );
+      totalInserted += inserted;
+      summary.push({ promoterId, inserted, skipped });
+    }
+
+    // Optional: return a sample of current links if you want
+    // const linksPreview = await queryAsync(
+    //   'SELECT id, promoter_id, original_url, short_code, created_at FROM fileachiever.links ORDER BY id DESC LIMIT 20'
+    // );
+
+    return res.json({
+      ok: true,
+      message: 'YouTube links assigned where missing. Existing links were left untouched.',
+      totalPromoters: shopkeepers.length,
+      totalInserted,
+      details: summary,
+      // preview: linksPreview,
+    });
+  } catch (error) {
+    console.error('Assigning YouTube links failed:', error);
+    return res.status(500).json({ ok: false, message: error.message || 'Internal Server Error' });
+  }
+});
+
+
+
 
 
 
