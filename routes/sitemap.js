@@ -55,8 +55,11 @@ router.get('/', async (req, res) => {
     // Run query on secondary DB (blog)
     const blogs = await queryAsync2(`SELECT * FROM blogs`);
 
+    const usTrends = await queryAsync(`SELECT * FROM posts`);
+
+
     // Combine all results
-    const result = [sourceCodes, categories, projects, blogs];
+    const result = [sourceCodes, categories, projects, blogs, usTrends];
 
     // Render sitemap
     res.set('Content-Type', 'application/xml');

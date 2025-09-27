@@ -28,6 +28,13 @@
 
 
 <url>
+  <loc>https://www.filemakr.com/us/trends</loc>
+  <lastmod><%=lastupdate%></lastmod>
+  <priority>0.80</priority>
+</url>
+
+
+<url>
   <loc>https://www.filemakr.com/final-year-project-ideas</loc>
   <lastmod><%=lastupdate%></lastmod>
   <priority>0.80</priority>
@@ -138,6 +145,16 @@
                 <% } %>
 
 
+
+                
+  <% for(i=0;i<result[4].length;i++) { %>
+                <url>
+                  <loc>https://www.filemakr.com/us/trends/<%=result[4][i].slug%></loc>
+                  <lastmod><%=lastupdate%></lastmod>
+                  <priority>0.64</priority>
+                </url>
+                
+                <% } %>
 
 
 

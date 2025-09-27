@@ -34,6 +34,7 @@ var sitemap = require('./routes/sitemap');
 var ads = require('./routes/ads')
 var notes = require('./routes/notes')
 var source_code = require('./routes/source_code');
+var trend = require('./routes/Trends/index')
 var cors = require('cors')
 
 
@@ -181,6 +182,7 @@ app.use('/be-final-year-project-report',BE)
 app.use('/me-final-year-project-report',ME)
 app.use('/final-year-projects-source-code',source_code)
 app.use('/api',api)
+app.use('/trending',trend);
 //app.use('/facebooklogin',facebooklogin);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

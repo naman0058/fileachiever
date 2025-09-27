@@ -2570,6 +2570,10 @@ router.get('/blog', dataService.allCategory, (req, res) => {
 
 
 
+
+
+
+
 router.get('/blog/:name', dataService.allCategory, (req, res) => {
     const blogSlug = req.params.name;
 
@@ -2917,5 +2921,144 @@ router.post('/api/verify/license', (req, res) => {
   }
 });
 
+
+
+
+
+
+
+
+
+
+
+
+router.get('/us/trends', dataService.allCategory, (req, res) => {
+  // --- Inputs ---
+  const pageSize = Math.min(Math.max(parseInt(req.query.pageSize || 12, 10), 6), 48); // clamp 6–48
+  const page     = Math.max(parseInt(req.query.page || 1, 10), 1);
+  const q        = (req.query.q || '').trim();
+  const cat      = (req.query.category || '').trim(); // optional future filter
+  const order    = (req.query.sort || 'new'); // 'new' | 'old' | 'alpha'
+
+  // --- Build SQL safely ---
+  const where = [];
+  const params = [];
+
+  if (q) {
+    where.push(`(meta_title LIKE ? OR meta_description LIKE ? OR title LIKE ?)`);
+    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+  }
+  if (cat) {
+    where.push(`category_slug = ?`);
+    params.push(cat);
+  }
+  const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
+
+  let orderSql = 'ORDER BY published_at DESC, id DESC';
+  if (order === 'old')   orderSql = 'ORDER BY published_at ASC, id ASC';
+  if (order === 'alpha') orderSql = 'ORDER BY meta_title ASC';
+
+  const offset = (page - 1) * pageSize;
+
+  // --- Queries ---
+  const countSql = `SELECT COUNT(*) AS total FROM blogs ${whereSql}`;
+  const listSql  = `
+    SELECT id, slug, meta_title, meta_description, thumbnail_url, published_at
+    FROM posts
+    ${whereSql}
+    ${orderSql}
+    LIMIT ? OFFSET ?
+  `;
+
+  // --- Run queries ---
+  pool.query(countSql, params, (err, countRows) => {
+    if (err) throw err;
+    const total = countRows[0]?.total || 0;
+    const totalPages = Math.max(Math.ceil(total / pageSize), 1);
+
+    pool.query(listSql, [...params, pageSize, offset], (err2, result) => {
+      if (err2) throw err2;
+
+      // Build canonical & prev/next
+      const baseUrl = req.fullUrl?.split('?')[0] || `${req.protocol}://${req.get('host')}${req.path}`;
+      const queryNoPage = new URLSearchParams(req.query);
+      queryNoPage.delete('page');
+      const qStr = queryNoPage.toString();
+      const canonical = qStr ? `${baseUrl}?${qStr}` : baseUrl;
+
+      const mkUrl = (p) => {
+        const sp = new URLSearchParams(req.query);
+        sp.set('page', p);
+        return `${baseUrl}?${sp.toString()}`;
+      };
+
+      res.render('trend', {
+        Metatags: onPageSeo.blogPage,
+        CommonMetaTags: onPageSeo.commonMetaTags,
+        msg: '',
+        category: req.categories,
+        fullUrl: req.fullUrl,
+        result,
+        active: 'blog',
+        graduation_type_send: '',
+        pagination: {
+          page,
+          pageSize,
+          total,
+          totalPages,
+          hasPrev: page > 1,
+          hasNext: page < totalPages,
+          prevUrl: page > 1 ? mkUrl(page - 1) : null,
+          nextUrl: page < totalPages ? mkUrl(page + 1) : null,
+          canonical,
+          baseUrl
+        },
+        filters: { q, cat, order }
+      });
+    });
+  });
+});
+
+
+
+
+
+router.get('/us/trends/:name', dataService.allCategory, (req, res) => {
+    const blogSlug = req.params.name;
+
+    // Query to fetch the requested blog
+    const blogQuery = `
+        SELECT * FROM posts WHERE slug = ?;
+    `;
+
+    // Query to fetch the latest 10 blogs
+    const recentBlogsQuery = `
+        SELECT id, meta_title, slug, thumbnail_url, published_at 
+        FROM posts 
+        ORDER BY published_at DESC 
+        LIMIT 10;
+    `;
+
+    // Execute both queries
+    pool.query(blogQuery, [blogSlug], (err, blogResult) => {
+        if (err) throw err;
+
+        pool.query(recentBlogsQuery, (err2, recentBlogs) => {
+            if (err2) throw err2;
+
+            res.render('trend_details', {
+                result: blogResult,
+                recentBlogs, // Pass recent blogs to the view
+                Metatags: onPageSeo.contactPage,
+                CommonMetaTags: onPageSeo.commonMetaTags,
+                msg: '',
+                category: req.categories,
+                fullUrl: req.fullUrl,
+                active:'',graduation_type_send:''
+            });
+            // res.json(recentBlogs)
+        });
+    });
+});
 
 module.exports = router;
