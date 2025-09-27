@@ -14,7 +14,7 @@
       <li class="breadcrumb-item">
         <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
       </li>
-      <li class="breadcrumb-item"><a href="/us/trends">Us Trends</a></li>
+      <li class="breadcrumb-item"><a href="/us/trends">Uss Trends</a></li>
       <li class="breadcrumb-item active" aria-current="page"><%= result[0].meta_title %></li>
     </ol>
   </div>
@@ -185,6 +185,73 @@
 .post-main{ background:#fff; }
 .post-grid{ display:grid; gap:18px; grid-template-columns: minmax(0, 1fr) 360px; padding:22px 0; }
 @media (max-width: 1199.98px){ .post-grid{ grid-template-columns:1fr; } }
+
+/* ===== Fix: prevent overflow from long, unbroken text ===== */
+
+/* Global helpers */
+.break-anywhere,
+.post-hero__copy,
+.post-title,
+.post-sub,
+.post-meta,
+.breadcrumb,
+.post-content,
+.post-content p,
+.post-content li,
+.post-content blockquote,
+.post-content code,
+.post-content pre,
+.post-content a,
+.post-content td,
+.post-content th,
+.card,
+.tag,
+.toc-nav a,
+.recent-title {
+  /* Prefer normal wrapping; allow breaking anywhere if needed */
+  overflow-wrap: anywhere;      /* modern, best behavior */
+  word-break: break-word;       /* fallback */
+}
+
+/* Breadcrumb should wrap instead of pushing horizontally */
+.breadcrumb { 
+  flex-wrap: wrap;
+}
+
+/* Long keywords / tags shouldn’t blow up the chip */
+.tag { 
+  max-width: 100%;
+}
+
+/* Links inside content can be extremely long (raw URLs) */
+.post-content a {
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Code blocks should wrap rather than overflow the card */
+.post-content pre,
+.post-content code {
+  white-space: pre-wrap;        /* allow wrapping */
+  word-break: break-word;
+}
+
+/* Tables: keep cells from overflowing; horizontal scroll is already enabled by .table-wrap */
+.post-content td,
+.post-content th {
+  max-width: 0;                 /* enables wrapping within grid/table layouts */
+}
+
+/* Hero title can be very long */
+.post-title, .post-sub {
+  hyphens: auto;                /* nicer word breaks where supported */
+}
+
+/* Safety for side cards */
+.recent-item { min-width: 0; }  /* allows children to shrink and wrap */
+.recent-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
 
 /* Article */
 .post-article{ min-width:0; }

@@ -177,7 +177,7 @@ async function markUsed(pool, title) {
 // npm i axios
 const axios = require('axios');
 
-async function fetchTrendingNow(countryCode, timeWindow='past_24_hours') {
+async function fetchTrendingNow(countryCode, timeWindow='past_24_hours',id) {
   // SearchAPI: https://www.searchapi.io/docs/google-trends-trending-now-api
   const url = 'https://www.searchapi.io/api/v1/search';
   const params = {
@@ -193,16 +193,16 @@ async function fetchTrendingNow(countryCode, timeWindow='past_24_hours') {
 
   // Normalize to { title, related[] } similar to your pipeline
   // SearchAPI returns items in "trending_now" array with "title" and "queries"
-  const items =  data.trends[0]
+  const items =  data.trends[id]
 
   console.log('trend fetch',items)
   return items;
 }
 
-async function getHotTopic() {
+async function getHotTopic(id) {
   console.log('[autoblog] using SearchAPI.io for trends (US+UK)...');
   // Fetch in sequence with a small delay to be gentle
-  const us = await fetchTrendingNow('US', 'past_24_hours').catch(()=>[]);
+  const us = await fetchTrendingNow('US', 'past_24_hours',id).catch(()=>[]);
  return us;
 }
 
@@ -384,8 +384,8 @@ JSON-LD (Article)
 - "@type": "Article"
 - headline, description (match meta)
 - mainEntityOfPage: canonical placeholder allowed
-- author: { "@type": "Person", "name": "Staff Writer" }
-- publisher: { "@type": "Organization", "name": "Your Site Name", "logo": { "@type": "ImageObject", "url": "https://example.com/logo.png" } }
+- author: { "@type": "Person", "name": "FileMakr" }
+- publisher: { "@type": "Organization", "name": "FileMakr", "logo": { "@type": "ImageObject", "url": "https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" } }
 - image: use thumbnail_url
 - datePublished & dateModified: ISO 8601 using today’s date
 - articleSection: derive from Categories
@@ -571,9 +571,9 @@ async function publish(pkg, title) {
 
 
 // Whole job
-async function runOneCycle() {
+async function runOneCycle(value) {
   try {
-    const topic = await getHotTopic();
+    const topic = await getHotTopic(value);
     if (!topic) { console.warn('No topic found'); return; }
 
     console.log('topic',topic)
@@ -594,33 +594,45 @@ async function runOneCycle() {
 // }, { timezone: 'Asia/Kolkata' });
 
 
-// runOneCycle()
+// runOneCycle(1)
 
 
-// avoid overlapping runs (optional safety)
+
 let isRunning = false;
-async function safeRun() {
+let currentIndex = 0;
+const MAX_INDEX = 12;           // 0..12 => 13 slots
+
+async function safeRun(index = 0) {
   if (isRunning) return console.warn('[autoblog] skip: job already running');
   isRunning = true;
-  try { await runOneCycle(); } finally { isRunning = false; }
+  try {
+    await runOneCycle(index);
+  } catch (e) {
+    console.error('safeRun error:', e?.message, e);
+  } finally {
+    isRunning = false;
+  }
 }
 
-// Add a small random jitter (0–180s) to avoid a robotic pattern
-function withJitter(fn) {
-  const delay = Math.floor(Math.random() * 180) * 1000;
-  setTimeout(fn, delay);
+// Jitter helper that forwards args to the function
+function withJitter(fn, ...args) {
+  const delay = Math.floor(Math.random() * 180) * 1000; // 0–180s
+  setTimeout(() => fn(...args), delay);
 }
 
-// 8:15 AM ET
-cron.schedule('15 8 * * *', () => withJitter(safeRun), { timezone: 'America/New_York' });
+// Every 2 hours on the hour, ET
+cron.schedule(
+  '0 */2 * * *',
+  () => {
+    const index = currentIndex;                  // use current
+    currentIndex = (currentIndex >= MAX_INDEX)   // advance & wrap
+      ? 0
+      : currentIndex + 1;
 
-// 12:30 PM ET
-cron.schedule('30 12 * * *', () => withJitter(safeRun), { timezone: 'America/New_York' });
-
-// 8:30 PM ET
-cron.schedule('30 20 * * *', () => withJitter(safeRun), { timezone: 'America/New_York' });
-
-
+    withJitter(safeRun, index);                  // run with jitter
+  },
+  { timezone: 'America/New_York' }
+);
 
 router.get('/trends/debug', async (req, res) => {
   try {
