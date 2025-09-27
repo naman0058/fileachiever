@@ -539,6 +539,8 @@ async function resolveInternalLinks(html) {
 // Insert into DB
 // Insert into DB
 async function publish(pkg, title) {
+
+    console.log('ttile',title)
   const contentWithLinks = await resolveInternalLinks(pkg.body_html);
 
   const result = await queryAsync(
@@ -557,7 +559,7 @@ async function publish(pkg, title) {
       'published',
       pkg.thumbnail_url,
       pkg.mid_thumbnail_url,
-      (title.Keywords || []).join(','),   // ✅ join keywords
+      (title.keywords || []).join(','),   // ✅ join keywords
       title.location || '',                    // ✅ keep safe default
       (title.categories || []).join(',')       // ✅ join categories
     ]
@@ -593,6 +595,32 @@ async function runOneCycle() {
 
 
 // runOneCycle()
+
+
+// avoid overlapping runs (optional safety)
+let isRunning = false;
+async function safeRun() {
+  if (isRunning) return console.warn('[autoblog] skip: job already running');
+  isRunning = true;
+  try { await runOneCycle(); } finally { isRunning = false; }
+}
+
+// Add a small random jitter (0–180s) to avoid a robotic pattern
+function withJitter(fn) {
+  const delay = Math.floor(Math.random() * 180) * 1000;
+  setTimeout(fn, delay);
+}
+
+// 8:15 AM ET
+cron.schedule('15 8 * * *', () => withJitter(safeRun), { timezone: 'America/New_York' });
+
+// 12:30 PM ET
+cron.schedule('30 12 * * *', () => withJitter(safeRun), { timezone: 'America/New_York' });
+
+// 8:30 PM ET
+cron.schedule('30 20 * * *', () => withJitter(safeRun), { timezone: 'America/New_York' });
+
+
 
 router.get('/trends/debug', async (req, res) => {
   try {
