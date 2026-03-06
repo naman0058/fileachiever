@@ -1,0 +1,104 @@
+<script src="/socket.io/socket.io.js"></script>
+
+<audio id="leadSiren" preload="auto">
+  <source src="/sounds/new-lead.wav" type="audio/mpeg">
+</audio>
+
+<div id="soundUnlockWrap" style="position:fixed; right:16px; bottom:16px; z-index:9999; display:none;">
+  <button id="soundUnlockBtn" class="btn btn-dark btn-sm">Enable New Lead Sound</button>
+</div>
+
+<div id="leadToast"
+     style="position:fixed; left:16px; bottom:16px; z-index:9999; display:none; min-width:260px;
+            background:#111827; color:#fff; padding:12px 14px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.25);">
+  <div style="font-weight:800; margin-bottom:2px;">New Lead</div>
+  <div id="leadToastText" style="font-size:13px; opacity:.9;"></div>
+</div>
+
+<script>
+(function () {
+  console.log('[lead-alert] script loaded');
+
+  if (typeof io === 'undefined') {
+    console.warn('[lead-alert] socket.io client not loaded');
+    return;
+  }
+
+  const siren = document.getElementById('leadSiren');
+  const unlockWrap = document.getElementById('soundUnlockWrap');
+  const unlockBtn = document.getElementById('soundUnlockBtn');
+  const toast = document.getElementById('leadToast');
+  const toastText = document.getElementById('leadToastText');
+
+  function showToast(msg) {
+    if (!toast || !toastText) return;
+    toastText.textContent = msg || '';
+    toast.style.display = 'block';
+    clearTimeout(window.__leadToastTimer);
+    window.__leadToastTimer = setTimeout(() => { toast.style.display = 'none'; }, 6000);
+  }
+
+  async function playSiren() {
+    if (!siren) return false;
+    try {
+      siren.currentTime = 0;
+      await siren.play();
+      return true;
+    } catch (e) {
+      console.warn('[lead-alert] play blocked:', e && e.message);
+      return false;
+    }
+  }
+
+  async function unlockSound() {
+    const ok = await playSiren();
+    if (!ok) {
+      showToast('Browser blocked sound. Try again.');
+      if (unlockWrap) unlockWrap.style.display = 'block';
+      return;
+    }
+    try { siren.pause(); siren.currentTime = 0; } catch (e) {}
+    localStorage.setItem('leadSoundUnlocked', '1');
+    if (unlockWrap) unlockWrap.style.display = 'none';
+    showToast('New lead sound enabled.');
+  }
+
+  const unlockedAlready = localStorage.getItem('leadSoundUnlocked') === '1';
+  if (!unlockedAlready && unlockWrap) unlockWrap.style.display = 'block';
+
+  if (unlockBtn) unlockBtn.addEventListener('click', unlockSound);
+
+  const socket = io({
+    withCredentials: true,
+    transports: ['websocket', 'polling']
+  });
+
+  socket.on('connect', () => {
+    console.log('[lead-alert] connected:', socket.id);
+    showToast('Realtime alerts connected.');
+  });
+
+  socket.on('connect_error', (err) => {
+    console.error('[lead-alert] connect_error:', err && err.message);
+    showToast('Realtime alerts NOT connected. Refresh.');
+  });
+
+  socket.on('socket:ready', (data) => {
+    console.log('[lead-alert] socket:ready:', data);
+  });
+
+  socket.on('lead:new', async (lead) => {
+    console.log('[lead-alert] lead:new received:', lead);
+
+    const msg = `tempid=${lead?.tempid || '-'} • ${lead?.name || 'Unnamed'} • ${lead?.phone || '-'}`;
+    showToast(msg);
+
+    if (localStorage.getItem('leadSoundUnlocked') === '1') {
+      const ok = await playSiren();
+      if (!ok && unlockWrap) unlockWrap.style.display = 'block';
+    } else {
+      if (unlockWrap) unlockWrap.style.display = 'block';
+    }
+  });
+})();
+</script>

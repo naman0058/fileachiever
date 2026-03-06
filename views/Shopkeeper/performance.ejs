@@ -1,0 +1,201 @@
+<% include ./header.ejs %>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="content-body">
+  <div class="container-fluid">
+    <div class="row">
+
+      <!-- Performance Overview -->
+   <section class="mb-5">
+  <div class="card ">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center ">
+      <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance Overview</h5>
+      <a href="/shopkeeper/dashboard" class="btn btn-sm btn-light text-primary fw-semibold">
+        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <div class="card-body px-4 py-4">
+
+      <!-- Eligibility Criteria -->
+      <div class="alert alert-light border-start border-4 border-info d-flex align-items-start gap-3 shadow-sm rounded-3 mb-4">
+        <i class="fas fa-info-circle text-info fs-4 mt-1"></i>
+        <div>
+          <h6 class="mb-1 text-info fw-bold">Eligibility Criteria</h6>
+          <ul class="mb-0 ps-3 small text-secondary">
+            <li>✅ Minimum <strong>3 months</strong> of active participation</li>
+            <li>✅ Performance Score above <strong>70</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="row g-3">
+
+        <% const cards = [
+          { title: "Total Posts", icon: "fa-envelope", color: "text-primary", value: performance.total_post },
+          { title: "Total Likes", icon: "fa-thumbs-up", color: "text-success", value: performance.total_like },
+          { title: "Total Comments", icon: "fa-comment-alt", color: "text-warning", value: performance.total_comment },
+          { title: "Engagement Ratio", icon: "fa-chart-line", color: "text-info", value: (performance.engagement_ratio * 100).toFixed(2) + " %" }
+        ]; %>
+
+        <% cards.forEach(card => { %>
+          <div class="col-6 col-lg-3">
+            <div class="border rounded p-3 text-center h-100">
+                 <h6> <%= card.title %></h6>
+                   <p class="mb-0 fw-bold fs-5"><%= card.value %></p>
+             
+            </div>
+          </div>
+        <% }) %>
+
+        <!-- Performance Score -->
+        <div class="col-6 col-lg-4">
+          <div class="card shadow-sm border h-100 rounded-3">
+            <div class="card-body">
+              <div class="text-success small mb-2"><i class="fas fa-award me-2"></i>Performance Score</div>
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold fs-5"><%= performance.performance_score %> / 100</span>
+                <div class="flex-grow-1 ms-3">
+                  <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: <%= performance.performance_score %>%;" role="progressbar"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Duration Completed -->
+        <div class="col-6 col-lg-4">
+          <div class="card shadow-sm border h-100 rounded-3">
+            <div class="card-body">
+              <div class="text-primary small mb-2"><i class="fas fa-calendar-alt me-2"></i>Duration Completed</div>
+              <% const monthsCompleted = Math.floor((new Date() - new Date(performance.created_at)) / (1000 * 60 * 60 * 24 * 30)); %>
+              <h5 class="fw-bold"><%= monthsCompleted %> month<%= monthsCompleted !== 1 ? 's' : '' %></h5>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certificate Status -->
+        <div class="col-6 col-lg-4">
+          <div class="card shadow-sm border h-100 rounded-3">
+            <div class="card-body">
+              <div class="text-secondary small mb-2"><i class="fas fa-certificate me-2"></i>Certificate Status</div>
+              <% const isEligible = monthsCompleted >= 3 && performance.performance_score > 70; %>
+              <% if (isEligible) { %>
+                <span class="badge bg-success fs-6 mt-2 px-3 py-2"><i class="fas fa-check-circle me-1"></i> Eligible</span>
+              <% } else { %>
+                <span class="badge bg-danger fs-6 mt-2 px-3 py-2"><i class="fas fa-times-circle me-1"></i> Not Eligible</span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Final Message -->
+      <div class="mt-4">
+        <% if (isEligible) { %>
+          <div class="alert alert-success shadow-sm text-center rounded-3">
+            🎉 <strong>Great job!</strong> You're now eligible for the <strong>Experience Letter</strong>. Keep going strong!
+          </div>
+        <% } else { %>
+          <div class="alert alert-warning shadow-sm text-center rounded-3">
+            ⚠️ You're <strong>not eligible</strong> yet. Please complete <strong>3 months</strong> and aim for a <strong>Performance Score above 70</strong>.
+          </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+      <!-- Post Engagement Table -->
+  <section class="mt-5">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0" style="color: white;"><i class="fas fa-chart-line me-2" style="color: white;"></i>Post Engagement Breakdown</h5>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-primary text-white">
+            <tr>
+              <th>Post</th>
+              <th class="text-center">Liked</th>
+              <th class="text-center">Commented</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (engagementList.length === 0) { %>
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">No engagement records found.</td>
+              </tr>
+            <% } else { %>
+              <% engagementList.forEach((item, index) => { %>
+                <tr>
+
+                  <!-- Post link -->
+                  <td>
+                   
+                      Post ID: <%= item.post_id %>
+                    
+                  </td>
+
+                  <!-- Liked -->
+                  <td class="text-center">
+                    <% if (item.liked) { %>
+                      <i class="fas fa-check-circle text-success fs-5"></i>
+                    <% } else { %>
+                      <i class="fas fa-times-circle text-danger fs-5"></i>
+                    <% } %>
+                  </td>
+
+                  <!-- Commented -->
+                  <td class="text-center">
+                    <% if (item.commented) { %>
+                      <i class="fas fa-check-circle text-success fs-5"></i>
+                    <% } else { %>
+                      <i class="fas fa-times-circle text-danger fs-5"></i>
+                    <% } %>
+                  </td>
+
+                  <!-- Take Action -->
+                  <td class="text-center">
+                    <% if (item.liked && item.commented) { %>
+                      <span class="text-muted">—</span>
+                    <% } else { %>
+                      <a href="<%= item.link %>" class="btn btn-sm btn-outline-primary">Complete Task</a>
+                    <% } %>
+                  </td>
+
+                
+                 
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+    </div> <!-- /.row -->
+  </div> <!-- /.container-fluid -->
+</div> <!-- /.content-body -->
+
+<% include ./footer.ejs %>

@@ -1,0 +1,174 @@
+<%include ./header.ejs %>
+
+
+<style>
+    .table td, .table th {
+    vertical-align: middle;
+}
+
+.img-thumbnail {
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+</style>
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+            <!-- row -->	
+			
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card">
+							<div class="card-body p-0">
+								<div class="table-responsive active-projects style-1">
+								<div class="tbl-caption">
+									<h4 class="heading mb-0">Source Code</h4>
+									<div>
+										
+                                        <div class="mt-3">
+                                            <button class="btn btn-success" id="bulk-accept">Accept Selected</button>
+                                            <button class="btn btn-danger" id="bulk-reject">Reject Selected</button>
+                                        </div>
+                                                
+									</div>
+								</div>
+                                <table id="employees-tblwrapper" class="table table-striped align-middle table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col">
+                                                <input type="checkbox" id="select-all" class="form-check-input">
+                                            </th>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Activity</th>
+                                            <th scope="col">Proof</th>
+                                            <th scope="col">Points</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% for(let i = 0; i < result.length; i++) { %>
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" class="form-check-input activity-checkbox"
+                                                    data-id="<%= result[i].id %>"
+                                                    data-user="<%= result[i].user_id %>"
+                                                    data-points="<%= result[i].points %>">
+                                            </td>
+                                            <td><%= result[i].id %></td>
+                                            <td><%= result[i].user_name %></td>
+                                            <td><%= result[i].activity %></td>
+                                            <td>
+                                                <img src="<%= result[i].proof %>" alt="Proof" class="img-thumbnail" style="width: 100px;">
+                                            </td>
+                                            <td><%= result[i].points %></td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-success btn-sm btn-action"
+                                                        data-id="<%= result[i].id %>"
+                                                        data-user="<%= result[i].user_id %>"
+                                                        data-points="<%= result[i].points %>"
+                                                        data-action="accept">Accept</button>
+                                
+                                                    <button type="button" class="btn btn-danger btn-sm btn-action"
+                                                        data-id="<%= result[i].id %>"
+                                                        data-user="<%= result[i].user_id %>"
+                                                        data-points="<%= result[i].points %>"
+                                                        data-action="reject">Reject</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                                
+
+
+                                  
+                                    
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			</div>
+        </div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%include ./footer.ejs %>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.querySelectorAll(".btn-action").forEach(button => {
+                    button.addEventListener("click", function() {
+                        let activityId = this.dataset.id;
+                        let userId = this.dataset.user;
+                        let points = this.dataset.points;
+                        let action = this.dataset.action; // 'accept' or 'reject'
+            
+                        if (!confirm(`Are you sure you want to ${action} this activity?`)) return;
+            
+                        fetch("/affiliate/dashboard/updateActivity", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ id: activityId, user_id: userId, points: points, action: action })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(data.message);
+                            location.reload(); // Reload page after action
+                        })
+                        .catch(error => console.error("Error:", error));
+                    });
+                });
+            });
+            </script>
+            
+
+
+
+            <script>
+                document.getElementById("select-all").addEventListener("change", function() {
+    document.querySelectorAll(".activity-checkbox").forEach(cb => cb.checked = this.checked);
+});
+
+function handleBulkAction(action) {
+    const selected = Array.from(document.querySelectorAll(".activity-checkbox:checked")).map(cb => ({
+        id: cb.dataset.id,
+        user_id: cb.dataset.user,
+        points: cb.dataset.points
+    }));
+
+    if (selected.length === 0) return alert("No activities selected");
+
+    if (!confirm(`Are you sure you want to ${action} all selected activities?`)) return;
+
+    fetch("/affiliate/dashboard/bulkUpdate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activities: selected, action })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        location.reload();
+    })
+    .catch(err => console.error("Error:", err));
+}
+
+document.getElementById("bulk-accept").addEventListener("click", () => handleBulkAction("accept"));
+document.getElementById("bulk-reject").addEventListener("click", () => handleBulkAction("reject"));
+
+            </script>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/head %>
+</head>
+<body>
+  <% include ../partials/nav %>
+
+  <section class="container">
+    <h1 class="h1">Analytics Overview</h1>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Views</div>
+        <div class="kpi-value"><%= totals.views.toLocaleString() %></div>
+        <div class="kpi-sub">Views counted when ≥ 60s watch</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Watch Time</div>
+        <div class="kpi-value"><%= Math.floor(totals.watch_time_seconds/60).toLocaleString() %> min</div>
+        <div class="kpi-sub"><%= totals.watch_time_seconds.toLocaleString() %> sec</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Link Clicks</div>
+        <div class="kpi-value"><%= totals.clicks.toLocaleString() %></div>
+        <div class="kpi-sub">From clicks table</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Quick Trend (Last 28 days)</h2>
+        <div class="chip-row">
+          <button class="chip" data-range="7d">7d</button>
+          <button class="chip chip--active" data-range="28d">28d</button>
+          <button class="chip" data-range="90d">90d</button>
+        </div>
+      </div>
+      <canvas id="overviewChart" height="96"></canvas>
+      <div class="legend-note">Views (bars), Watch Time in minutes (line)</div>
+    </div>
+  </section>
+
+  <script>
+  const chips = document.querySelectorAll('.chip');
+  const ctx = document.getElementById('overviewChart');
+  let chart;
+
+  function asPoints(obj) {
+    if (!obj || typeof obj !== 'object') return [];
+    const pts = Array.isArray(obj.points) ? obj.points : [];
+    return pts.map(p => ({ label: String(p.label), value: Number(p.value) || 0 }));
+  }
+
+  async function load(range='28d') {
+    // fetch both series
+    const [viewsRes, watchRes] = await Promise.all([
+      fetch(`/analytics/api/timeseries?metric=views&granularity=daily&range=${range}`).then(r=>r.json()),
+      fetch(`/analytics/api/timeseries?metric=watch&granularity=daily&range=${range}`).then(r=>r.json())
+    ]);
+
+    const viewsPts = asPoints(viewsRes);
+    const watchPts = asPoints(watchRes);
+
+    // align by label in case one series has missing days
+    const labels = [...new Set([...viewsPts.map(p=>p.label), ...watchPts.map(p=>p.label)])].sort();
+    const views = labels.map(l => (viewsPts.find(p=>p.label===l)?.value) || 0);
+    const watchMin = labels.map(l => Math.round((watchPts.find(p=>p.label===l)?.value || 0) / 60));
+
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Views', data: views },
+          { type: 'line', label: 'Watch Time (min)', data: watchMin }
+        ]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  chips.forEach(c => c.addEventListener('click', () => {
+    chips.forEach(x=>x.classList.remove('chip--active'));
+    c.classList.add('chip--active');
+    load(c.dataset.range);
+  }));
+
+  load(); // initial
+</script>
+
+</body>
+</html>

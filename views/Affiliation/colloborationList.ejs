@@ -1,0 +1,71 @@
+<% include ./header.ejs %>
+
+<div class="content-body">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-xl-12">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-primary  d-flex justify-content-between align-items-center px-4 py-3">
+            <h4 class="mb-0 fw-semibold text-white">
+              Ambassador Collaboration Groups - <%= result.length > 0 ? result[0].month : '' %>
+            </h4>
+            <form action="/affiliate/collaboration/generate" method="POST" class="m-0">
+              <button type="submit" class="btn btn-dark btn-sm text-white" 
+                <%= alreadyGenerated ? 'disabled title="Already generated for this month"' : '' %>>
+                <i class="bi bi-shuffle me-1"></i> Generate Group
+              </button>
+            </form>
+          </div>
+
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width: 15%">Group #</th>
+                    <th style="width: 45%">Ambassador Names</th>
+                    <th style="width: 40%">Instagram Handles</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% 
+                    const grouped = {};
+                    result.forEach(item => {
+                      if (!grouped[item.serial_number]) {
+                        grouped[item.serial_number] = [];
+                      }
+                      grouped[item.serial_number].push(item);
+                    });
+
+                    for (let group in grouped) {
+                  %>
+                    <tr>
+                      <td><strong>Group <%= group %></strong></td>
+                      <td>
+                        <% grouped[group].forEach(member => { %>
+                          <div><i class="bi bi-person me-1 text-muted"></i> <%= member.ambassdor_name %></div>
+                        <% }) %>
+                      </td>
+                      <td>
+                        <% grouped[group].forEach(member => { %>
+                          <div>
+                            <a href="https://instagram.com/<%= member.ambassdor_instagram_id %>" target="_blank" class="text-decoration-none text-dark">
+                              <i class="bi bi-instagram me-1 text-danger"></i>@<%= member.ambassdor_instagram_id %>
+                            </a>
+                          </div>
+                        <% }) %>
+                      </td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% include ./footer.ejs %>

@@ -1,0 +1,32 @@
+# robots.txt for https://www.filemakr.com
+
+# Default: allow everything
+User-agent: *
+Allow: /
+
+# Major crawlers (explicit allow)
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+# Google News is handled by Googlebot, but this is fine to include
+User-agent: Googlebot-News
+Allow: /
+
+# Safari-related: Apple's web crawler
+User-agent: Applebot
+Allow: /
+
+# Other common bots
+User-agent: Bingbot
+Allow: /
+User-agent: Slurp
+Allow: /
+User-agent: DuckDuckBot
+Allow: /
+
+# Sitemaps (use your canonical hostname)
+Sitemap: https://www.filemakr.com/sitemap.xml
+Sitemap: https://www.filemakr.com/sitemap-news.xml

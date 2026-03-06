@@ -1,0 +1,89 @@
+<%include ./header.ejs %>
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+            <!-- row -->	
+			
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card">
+							<div class="card-body p-0">
+								<div class="table-responsive active-projects style-1">
+								<div class="tbl-caption">
+									<h4 class="heading mb-0">Blogs</h4>
+									<div>
+										
+                                                
+                                                <input type="text" class="form-control" placeholder="Search">
+									</div>
+								</div>
+									<table id="empoloyees-tblwrapper" class="table">
+										<thead>
+											<tr>
+												<th>ID</th>
+												<th>Image</th>
+												<th>Title</th>
+												
+												
+													<th>Update Data</th>
+
+												
+														<th>Delete</th>
+
+														
+
+
+											</tr>
+										</thead>
+										<tbody>
+
+<% for(i=0;i<result.length;i++){ %>
+
+											<tr>
+												<td><span><%=result[i].id%></span></td>
+												<td>
+													<span><img src="<%=result[i].thumbnail_url%>" style="width:100px"></span>
+												</td>
+												<td><span><%=result[i].meta_title%></span></td>
+
+											
+												
+												
+												
+													<td>
+														<a href="/affiliate/blog/update/<%=result[i].id%>" target="_blank"><span class="badge badge-primary light border-0">Update Data</span></a>
+													</td>
+													
+													<td>
+														<a href="/affiliate/dashboard/delete/blogs?id=<%=result[i].id%>" target="_blank"><span class="badge badge-danger light border-0">Delete</span></a>
+													</td>
+
+											</tr>
+
+
+                                            <% } %>
+										
+											
+										</tbody>
+										
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			</div>
+        </div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%include ./footer.ejs %>

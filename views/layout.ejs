@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= typeof title !== 'undefined' ? title : 'Video Analytics' %></title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/custom.css" />
+</head>
+
+<body class="bg-zinc-50 text-zinc-900" style="font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;">
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-zinc-200">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-9 w-9 rounded-xl bg-zinc-900 text-white grid place-items-center font-bold">FA</div>
+        <div>
+          <div class="text-xl font-extrabold">FileAchiever Studio</div>
+          <div class="text-xs text-zinc-500">YouTube-style Video Analytics</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <form action="/" method="get" class="hidden md:flex items-center gap-2">
+        <input type="date" name="start" value="<%= typeof start !== 'undefined' ? start : '' %>" class="border rounded-lg px-3 py-2 text-sm" />
+<input type="date" name="end"   value="<%= typeof end   !== 'undefined' ? end   : '' %>" class="border rounded-lg px-3 py-2 text-sm" />
+
+          <button class="px-4 py-2 rounded-lg bg-zinc-900 text-white text-sm font-semibold">Apply</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+  <%- body %>
+</main>
+
+  <footer class="max-w-7xl mx-auto px-4 py-6 text-xs text-zinc-500">
+    © <%= new Date().getFullYear() %> FileAchiever. All rights reserved.
+  </footer>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

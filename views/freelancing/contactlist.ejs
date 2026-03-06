@@ -1,0 +1,121 @@
+<%include ./header.ejs %>
+
+<style>
+.scrollable-cell {
+    max-height: 100px; /* Set the maximum height for the cell content */
+    overflow-y: auto;  /* Enable vertical scrolling for content that exceeds the max height */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+    display: block;    /* Treat the content as a block element */
+    white-space: normal; /* Allow text to wrap within the block */
+    text-align: left;
+}
+</style>
+
+<!--**********************************
+    Content body start
+***********************************-->
+<div class="content-body">
+    <!-- row -->    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive active-projects style-1">
+                            <div class="tbl-caption">
+                                <h4 class="heading mb-0">Contact Us List</h4>
+                                
+                                <div class="d-flex justify-content-start gap-2">
+                                    <button type="button" onclick="mergeData('contactus')" class="btn btn-primary btn-sm">Merge Duplicate Data</button>
+                                    <button type="button" onclick="exportTableToCSV('data.csv')" class="btn btn-dark btn-sm">Download Data</button>
+                                    <button type="button" onclick="updateStatus('interested')" class="btn btn-success btn-sm">Mark as Interested</button>
+                                    <button type="button" onclick="updateStatus('notinterested')" class="btn btn-danger btn-sm">Mark as Not Interested</button>
+                                </div>
+                            </div>
+                            <table id="empoloyees-tblwrapper" class="table">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll()"></th>
+                                        <th>Id</th>
+                                        <th>Date</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Subject</th>
+                                        <th>Message</th>
+                                        <th>Interested</th>
+                                        <th>Not Interested</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(i=0; i<result.length; i++){ %>
+                                    <tr>
+                                        <td><input type="checkbox" class="rowCheckbox" value="<%=result[i].id%>"></td>
+                                        <td><span><%=i%></span></td>
+                                        <td><span><%=result[i].date%></span></td>
+                                        <td><span><%=result[i].name%></span></td>
+                                        <td><span><%=result[i].email%></span></td>
+                                        <td><div class="scrollable-cell"><%=result[i].subject%></div></td>
+                                        <td><div class="scrollable-cell"><%=result[i].message%></div></td>
+                                        <td>
+                                            <a href="/affiliate/dashboard/contact/interested?id=<%=result[i].id%>">
+                                                <span class="badge badge-primary light border-0">Interested</span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="/affiliate/dashboard/contact/notinterested?id=<%=result[i].id%>">
+                                                <span class="badge badge-danger light border-0">Not Interested</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--**********************************
+    Content body end
+***********************************-->
+
+<%include ./footer.ejs %>
+
+<script>
+function toggleSelectAll() {
+    let checkboxes = document.querySelectorAll('.rowCheckbox');
+    let selectAll = document.getElementById('selectAll').checked;
+    checkboxes.forEach(checkbox => checkbox.checked = selectAll);
+}
+
+function updateStatus(status) {
+    let selectedIds = [];
+    document.querySelectorAll('.rowCheckbox:checked').forEach(checkbox => {
+        selectedIds.push(checkbox.value);
+    });
+
+    if (selectedIds.length === 0) {
+        alert("Please select at least one row.");
+        return;
+    }
+
+    fetch('/affiliate/dashboard/contact/bulk-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds, status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Status updated successfully!");
+            location.reload();
+        } else {
+            alert("Failed to update status.");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>

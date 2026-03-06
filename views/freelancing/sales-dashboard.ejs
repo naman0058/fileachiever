@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sales CRM Dashboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a2d;
+      --card:#111f36;
+      --border:rgba(255,255,255,.08);
+      --muted:rgba(255,255,255,.7);
+      --text:#fff;
+      --chip:#1c2e52;
+      --good:#16a34a;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --accent:#60a5fa;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 600px at 10% 0%, #14264a 0%, var(--bg) 55%);
+      color:var(--text);
+    }
+    header{
+      padding:18px 22px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .brand{ display:flex; gap:12px; align-items:center; font-weight:800; letter-spacing:.2px; }
+    .brand .dot{
+      width:10px; height:10px; background:var(--accent); border-radius:50%;
+      box-shadow:0 0 0 4px rgba(96,165,250,.15);
+    }
+    .sub{ color:var(--muted); font-weight:500; font-size:13px; }
+    .controls{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    select{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      outline:none;
+    }
+    .btnTop{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:12px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btnTop:hover{ border-color: rgba(96,165,250,.55); }
+
+    .wrap{ padding:18px 22px; }
+    .board{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(320px, 1fr));
+      gap:14px;
+      align-items:start;
+    }
+    .col{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      min-height: 240px;
+      display:flex;
+      flex-direction:column;
+    }
+    .colhead{
+      padding:12px 12px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background: rgba(255,255,255,.02);
+    }
+    .coltitle{ font-weight:800; font-size:14px; display:flex; gap:10px; align-items:center; }
+    .count{
+      font-size:12px; color:var(--muted);
+      background:rgba(255,255,255,.06);
+      padding:4px 10px; border-radius:999px;
+      border:1px solid var(--border);
+    }
+    .list{
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height: 220px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      cursor:grab;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+      position:relative;
+    }
+    .card:active{ cursor:grabbing; }
+    .row{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .name{ font-weight:800; font-size:14px; }
+    .temp{ color:var(--muted); font-size:12px; }
+    .meta{ margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35; }
+    .phoneLine{ display:flex; gap:10px; align-items:center; margin-top:6px; }
+    .phoneBtn{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:6px 10px;
+      border-radius:10px;
+      font-weight:800;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .phoneLink{
+      cursor:pointer;
+      text-decoration: underline;
+      color: rgba(255,255,255,.88);
+    }
+    .actions{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
+    .btn{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:10px;
+      font-weight:800;
+      font-size:12px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn:hover{ border-color: rgba(96,165,250,.5); }
+    .btn.primary{ background: rgba(96,165,250,.18); border-color: rgba(96,165,250,.45); }
+    .btn.danger{ background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.35); }
+    .btn.success{ background: rgba(22,163,74,.14); border-color: rgba(22,163,74,.35); }
+
+    .selector{
+      display:flex; gap:10px; align-items:center;
+      color: rgba(255,255,255,.9);
+      font-size:12px;
+      margin-bottom: 6px;
+    }
+    .selector input{ width:16px; height:16px; accent-color: var(--accent); }
+
+    .followPreview{
+      margin-top:10px;
+      border:1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.12);
+      border-radius:12px;
+      padding:10px;
+      font-size:12px;
+      color: rgba(255,255,255,.86);
+      line-height:1.35;
+    }
+    .followPreview .line1{
+      display:flex; justify-content:space-between; gap:10px;
+      color: rgba(255,255,255,.92);
+      font-weight:800;
+    }
+    .followPreview .small{ color: var(--muted); font-weight:600; font-size:12px; }
+
+    .modalBack{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+    .modal{
+      width:min(860px, 100%);
+      border-radius:16px;
+      background: var(--panel);
+      border:1px solid var(--border);
+      box-shadow:0 20px 80px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .modalTitle{ font-weight:900; }
+    .modalBody{ padding:16px; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+    input, textarea{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      outline:none;
+    }
+    textarea{ min-height:100px; resize:vertical; }
+    .foot{
+      padding:14px 16px;
+      border-top:1px solid var(--border);
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .note{ font-size:12px; color:var(--muted); margin-top:10px; }
+
+    .timeline{
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+      margin-top:12px;
+    }
+    .trow{
+      padding:10px 12px;
+      border-bottom:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    .trow:last-child{ border-bottom:none; }
+    .tTop{ display:flex; justify-content:space-between; gap:10px; }
+    .tDay{ font-weight:900; }
+    .tDate{ color:var(--muted); font-size:12px; }
+    .tNote{ margin-top:6px; color:rgba(255,255,255,.86); font-size:13px; white-space:pre-wrap; }
+
+    @media (max-width: 1100px){
+      .board{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        Sales CRM Dashboard
+        <div class="sub">Current month by default • Copy phones: selected or per column</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="sub">Month</div>
+      <select id="monthSelect" onchange="onMonthChange()">
+        <% monthOptions.forEach(function(m){ %>
+          <option value="<%= m %>" <%= m === selectedMonth ? 'selected' : '' %>><%= m %></option>
+        <% }) %>
+      </select>
+
+      <button class="btnTop" onclick="copySelectedPhones()">Copy Selected Phones</button>
+      <button class="btnTop" onclick="copyStagePhones('new')">Copy All New</button>
+      <button class="btnTop" onclick="copyStagePhones('followup')">Copy All Follow-up</button>
+      <button class="btnTop" onclick="copyStagePhones('interested')">Copy All Interested</button>
+
+      <button class="btnTop" onclick="window.location.href='/sales/rejected?month=' + encodeURIComponent(getSelectedMonth())">Rejected Leads</button>
+
+      <button class="btnTop" onclick="selectAllVisible(true)">Select All</button>
+      <button class="btnTop" onclick="selectAllVisible(false)">Clear</button>
+      <div class="sub" id="selCount">Selected: 0</div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="board">
+      <% stages.forEach(function(s){ %>
+        <div class="col">
+          <div class="colhead">
+            <div class="coltitle">
+              <%= s.label %>
+              <span class="count" id="count-<%= s.key %>"><%= (byStage[s.key] || []).length %></span>
+            </div>
+          </div>
+
+          <div class="list" id="list-<%= s.key %>" data-stage="<%= s.key %>">
+            <% (byStage[s.key] || []).forEach(function(l){ %>
+              <div class="card"
+                data-id="<%= l.id %>"
+                data-name="<%- (l.name || '') %>"
+                data-phone="<%- (l.phone || '') %>"
+                data-assign="<%- (l.crm_assign || '') %>">
+
+                <div class="selector" onclick="toggleCardSelect(event, <%= l.id %>)">
+                  <input class="selBox" type="checkbox" data-id="<%= l.id %>" data-phone="<%- (l.phone || '') %>" onclick="onBoxClick(event)"/>
+                  <span>Select</span>
+                </div>
+
+                <div class="row">
+                  <div class="name"><%= l.name || 'Unnamed Lead' %></div>
+                  <div class="temp">#<%= l.tempid %></div>
+                </div>
+
+                <div class="meta">
+                  <div class="phoneLine">
+                    <span><strong>Phone:</strong></span>
+                    <span class="phoneLink" onclick="copyPhone('<%= (l.phone || '') %>')"><%= l.phone || '-' %></span>
+                    <% if (l.phone) { %>
+                      <button class="phoneBtn" onclick="copyPhone('<%= l.phone %>')">Copy</button>
+                    <% } %>
+                  </div>
+
+                  <div style="margin-top:6px;">
+                    <strong>Enquiry:</strong> <%= (l.enquiry_title || '-').slice(0, 90) %>
+                  </div>
+
+                  <% if (s.key === 'followup') { %>
+                    <div class="followPreview">
+                      <div class="line1">
+                        <div>
+                          <%= l.last_day_label ? l.last_day_label : 'No call logs yet' %>
+                          <% if (l.last_next_followup_date) { %>
+                            <span class="small">• Next: <%= l.last_next_followup_date %></span>
+                          <% } %>
+                        </div>
+                        <div class="small">
+                          <%= l.last_call_at ? new Date(l.last_call_at).toLocaleString() : '' %>
+                        </div>
+                      </div>
+                      <div style="margin-top:6px;">
+                        <%= l.last_note ? (l.last_note.length > 120 ? l.last_note.slice(0,120) + '…' : l.last_note) : 'Add a call log to start tracking follow-ups.' %>
+                      </div>
+                    </div>
+                  <% } %>
+                </div>
+
+                <div class="actions">
+                  <button class="btn primary" onclick="openCallLogs(this)">Status</button>
+                  <button class="btn" onclick="openEditModal(this)">Edit</button>
+
+                  <!-- IMPORTANT: Reject now rejects immediately + redirects to rejected page -->
+                  <button class="btn danger" onclick="rejectNow(this)">Reject</button>
+
+                  <button class="btn success" onclick="openConvertModal(this)">Convert</button>
+                </div>
+
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <!-- Call Logs Modal -->
+  <div class="modalBack" id="callsBack">
+    <div class="modal">
+      <div class="modalHead">
+        <div class="modalTitle" id="callsTitle">Call Logs</div>
+        <button class="btn" onclick="closeCalls()">Close</button>
+      </div>
+
+      <div class="modalBody">
+        <input type="hidden" id="callsLeadId" />
+
+        <div class="grid">
+          <div>
+            <label>Next Follow-up Date (optional)</label>
+            <input id="callsNextDate" type="date" />
+          </div>
+          <div>
+            <label>Auto Day</label>
+            <input id="callsAutoDay" disabled value="Auto (Day 1 / Day 2 ...)" />
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label>Note</label>
+          <textarea id="callsNote" placeholder="Not picked, sent proposal, asked to call tomorrow, etc."></textarea>
+        </div>
+
+        <div class="note">Adding a call log automatically moves lead to Follow-up.</div>
+
+        <div class="foot" style="padding:0; border-top:none; justify-content:flex-end; margin-top:12px;">
+          <button class="btn success" onclick="addCallLog()">Add Entry</button>
+        </div>
+
+        <div class="timeline" id="timelineBox"></div>
+      </div>
+
+      <div class="foot">
+        <button class="btn" onclick="closeCalls()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Convert Modal -->
+  <div class="modalBack" id="convertBack">
+    <div class="modal">
+      <div class="modalHead">
+        <div class="modalTitle" id="convertTitle">Convert Lead to Sales</div>
+        <button class="btn" onclick="closeConvertModal()">Close</button>
+      </div>
+      <div class="modalBody">
+        <input type="hidden" id="convertLeadId" />
+
+        <div class="grid">
+          <div>
+            <label>Lead Price (Required)</label>
+            <input id="convertLeadPrice" type="number" min="0" step="0.01" placeholder="e.g. 12000" />
+          </div>
+          <div>
+            <label>Agent Price (Required)</label>
+            <input id="convertAgentPrice" type="number" min="0" step="0.01" placeholder="e.g. 8000" />
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top:12px;">
+          <div>
+            <label>Deadline (optional)</label>
+            <input id="convertDeadline" type="date"/>
+          </div>
+          <div>
+            <label>Assign (optional)</label>
+            <input id="convertAssign" placeholder="Agent name / Team"/>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top:12px;">
+          <div>
+            <label>Advance Amount (optional)</label>
+            <input id="convertAdvance" type="number" min="0" step="0.01" placeholder="e.g. 2000" />
+          </div>
+          <div>
+            <label>Pakistani Price (optional)</label>
+            <input id="convertPakPrice" type="number" min="0" step="0.01" placeholder="if applicable" />
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label>Sheet UID (optional)</label>
+          <input id="convertSheetUid" placeholder="Any identifier you want to store"/>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label>Remarks (optional)</label>
+          <textarea id="convertRemarks" placeholder="Payment terms, scope summary, promised delivery, etc."></textarea>
+        </div>
+
+        <div class="note">Converted leads are removed from Kanban and inserted into sales leads table.</div>
+      </div>
+      <div class="foot">
+        <button class="btn danger" onclick="closeConvertModal()">Cancel</button>
+        <button class="btn success" onclick="convertLead()">Convert</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Lead Modal -->
+  <div class="modalBack" id="editBack">
+    <div class="modal">
+      <div class="modalHead">
+        <div class="modalTitle" id="editTitle">Edit Lead</div>
+        <button class="btn" onclick="closeEditModal()">Close</button>
+      </div>
+
+      <div class="modalBody">
+        <input type="hidden" id="editLeadId" />
+
+        <div class="grid">
+          <div>
+            <label>Name</label>
+            <input id="editName" placeholder="Customer name"/>
+          </div>
+          <div>
+            <label>Phone</label>
+            <input id="editPhone" placeholder="10-digit phone"/>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top:12px;">
+          <div>
+            <label>Enquiry Title</label>
+            <input id="editTitleField" placeholder="Enquiry title"/>
+          </div>
+          <div>
+            <label>Assign</label>
+            <input id="editAssign" placeholder="Agent / Team"/>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label>Enquiry Description</label>
+          <textarea id="editDesc" placeholder="Lead description..."></textarea>
+        </div>
+      </div>
+
+      <div class="foot">
+        <button class="btn danger" onclick="closeEditModal()">Cancel</button>
+        <button class="btn success" onclick="saveLeadEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function onMonthChange(){
+      const m = document.getElementById('monthSelect').value;
+      const url = new URL(window.location.href);
+      url.searchParams.set('month', m);
+      window.location.href = url.toString();
+    }
+    function getSelectedMonth(){ return document.getElementById('monthSelect')?.value || ''; }
+
+    // Drag & drop
+    const stageKeys = <%- JSON.stringify(stages.map(s => s.key)) %>;
+    stageKeys.forEach(stage => {
+      const el = document.getElementById('list-' + stage);
+      if(!el) return;
+
+      new Sortable(el, {
+        group: 'kanban',
+        animation: 160,
+        onEnd: async function(evt) {
+          const card = evt.item;
+          const id = card.getAttribute('data-id');
+          const newStage = evt.to.getAttribute('data-stage');
+
+          try {
+            const resp = await fetch('/sales/api/stage', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id, stage: newStage })
+            });
+            const data = await resp.json();
+            if (!data.ok) throw new Error(data.message || 'Failed');
+            updateCounts();
+          } catch (e) {
+            alert("Stage update failed: " + e.message);
+            location.reload();
+          }
+        }
+      });
+    });
+
+    function updateCounts(){
+      stageKeys.forEach(stage => {
+        const c = document.querySelectorAll('#list-' + stage + ' .card').length;
+        const node = document.getElementById('count-' + stage);
+        if (node) node.innerText = c;
+      });
+    }
+
+    // Copy
+    async function copyPhone(phone){
+      if(!phone){ alert('No phone to copy'); return; }
+      await copyText(String(phone));
+      toast('Copied: ' + phone);
+    }
+    async function copyStagePhones(stage){
+      const cards = Array.from(document.querySelectorAll('#list-' + stage + ' .card'));
+      const phones = cards.map(c => (c.getAttribute('data-phone') || '').trim()).filter(Boolean);
+      const unique = Array.from(new Set(phones));
+      if(!unique.length){ alert('No phone numbers in this column.'); return; }
+      await copyText(unique.join('\n'));
+      toast('Copied ' + unique.length + ' phone(s)');
+    }
+    async function copySelectedPhones(){
+      const boxes = Array.from(document.querySelectorAll('.selBox:checked'));
+      const phones = boxes.map(b => (b.getAttribute('data-phone') || '').trim()).filter(Boolean);
+      const unique = Array.from(new Set(phones));
+      if(!unique.length){ alert('No leads selected.'); return; }
+      await copyText(unique.join('\n'));
+      toast('Copied ' + unique.length + ' phone(s)');
+    }
+    async function copyText(text){
+      try{ await navigator.clipboard.writeText(text); }
+      catch(e){
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+    }
+    function toast(msg){
+      const t = document.createElement('div');
+      t.innerText = msg;
+      t.style.position = 'fixed';
+      t.style.bottom = '18px';
+      t.style.right = '18px';
+      t.style.padding = '10px 12px';
+      t.style.background = 'rgba(0,0,0,.7)';
+      t.style.border = '1px solid rgba(255,255,255,.15)';
+      t.style.borderRadius = '12px';
+      t.style.color = '#fff';
+      t.style.zIndex = 99999;
+      document.body.appendChild(t);
+      setTimeout(()=> t.remove(), 1400);
+    }
+
+    // Selection
+    function onBoxClick(e){ e.stopPropagation(); updateSelCount(); }
+    function toggleCardSelect(e, id){
+      const target = e.target;
+      if(target && (target.classList.contains('selBox'))) return;
+      const box = document.querySelector('.selBox[data-id="' + id + '"]');
+      if(!box) return;
+      box.checked = !box.checked;
+      updateSelCount();
+    }
+    function selectAllVisible(yes){
+      document.querySelectorAll('.selBox').forEach(b => b.checked = !!yes);
+      updateSelCount();
+    }
+    function updateSelCount(){
+      const n = document.querySelectorAll('.selBox:checked').length;
+      const node = document.getElementById('selCount');
+      if(node) node.innerText = 'Selected: ' + n;
+    }
+    updateSelCount();
+
+    // Reject immediately, then redirect to rejected page
+    async function rejectNow(btn){
+      const card = btn.closest('.card');
+      const id = card?.dataset?.id;
+      if(!id) return;
+
+      const reason = prompt('Reject reason (optional):') || '';
+
+      try{
+        const resp = await fetch('/sales/api/reject', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ id, reason })
+        });
+        const data = await resp.json();
+        if(!data.ok) throw new Error(data.message || 'Reject failed');
+
+        // window.location.href = '/sales/rejected?month=' + encodeURIComponent(getSelectedMonth());
+        window.location.reload()
+      }catch(e){
+        alert('Reject failed: ' + e.message);
+      }
+    }
+
+    // Call logs
+    function openCallLogs(btn){
+      const card = btn.closest('.card');
+      const id = card.dataset.id;
+
+      document.getElementById('callsLeadId').value = id;
+      document.getElementById('callsTitle').innerText = 'Call Logs • ' + (card.dataset.name || 'Lead');
+      document.getElementById('callsNote').value = '';
+      document.getElementById('callsNextDate').value = '';
+      document.getElementById('timelineBox').innerHTML = '';
+
+      document.getElementById('callsBack').style.display = 'flex';
+      loadCallLogs(id);
+    }
+    function closeCalls(){ document.getElementById('callsBack').style.display = 'none'; }
+
+    async function loadCallLogs(id){
+      try{
+        const resp = await fetch('/sales/api/calls/' + id);
+        const data = await resp.json();
+        if(!data.ok) throw new Error(data.message || 'Failed');
+        const box = document.getElementById('timelineBox');
+        if(!data.rows.length){
+          box.innerHTML = '<div class="trow"><div class="tNote">No call logs yet.</div></div>';
+          return;
+        }
+        box.innerHTML = data.rows.map(r => {
+          const dt = new Date(r.created_at).toLocaleString();
+          const next = r.next_followup_date ? (' • Next: ' + r.next_followup_date) : '';
+          return `
+            <div class="trow">
+              <div class="tTop">
+                <div class="tDay">${escapeHtml(r.day_label)}</div>
+                <div class="tDate">${dt}${next}</div>
+              </div>
+              <div class="tNote">${escapeHtml(r.note)}</div>
+            </div>
+          `;
+        }).join('');
+      }catch(e){
+        alert('Failed to load call logs: ' + e.message);
+      }
+    }
+
+    async function addCallLog(){
+      const id = document.getElementById('callsLeadId').value;
+      const note = document.getElementById('callsNote').value.trim();
+      const next_followup_date = document.getElementById('callsNextDate').value || null;
+      if(!note){ alert('Note required'); return; }
+
+      try{
+        const resp = await fetch('/sales/api/calls', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ id, note, next_followup_date })
+        });
+        const data = await resp.json();
+        if(!data.ok) throw new Error(data.message || 'Failed');
+        document.getElementById('callsNote').value = '';
+        document.getElementById('callsNextDate').value = '';
+        await loadCallLogs(id);
+        setTimeout(()=> location.reload(), 400);
+      }catch(e){
+        alert('Add call log failed: ' + e.message);
+      }
+    }
+
+    function escapeHtml(s){
+      return String(s ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    // Convert modal
+    function openConvertModal(btn){
+      const card = btn.closest('.card');
+      document.getElementById('convertLeadId').value = card.dataset.id;
+      document.getElementById('convertTitle').innerText = 'Convert • ' + (card.dataset.name || 'Lead');
+
+      document.getElementById('convertAssign').value = card.dataset.assign || '';
+      document.getElementById('convertRemarks').value = '';
+      document.getElementById('convertLeadPrice').value = '';
+      document.getElementById('convertAgentPrice').value = '';
+      document.getElementById('convertDeadline').value = '';
+      document.getElementById('convertAdvance').value = '';
+      document.getElementById('convertPakPrice').value = '';
+      document.getElementById('convertSheetUid').value = '';
+
+      document.getElementById('convertBack').style.display = 'flex';
+    }
+    function closeConvertModal(){ document.getElementById('convertBack').style.display = 'none'; }
+
+    async function convertLead(){
+      const id = document.getElementById('convertLeadId').value;
+      const lead_price = document.getElementById('convertLeadPrice').value;
+      const agent_price = document.getElementById('convertAgentPrice').value;
+
+      if(lead_price === '' || Number(lead_price) < 0){ alert('Lead Price is required.'); return; }
+      if(agent_price === '' || Number(agent_price) < 0){ alert('Agent Price is required.'); return; }
+
+      const payload = {
+        id,
+        lead_price,
+        agent_price,
+        deadline: document.getElementById('convertDeadline').value || null,
+        assign: document.getElementById('convertAssign').value || null,
+        remarks: document.getElementById('convertRemarks').value || null,
+        advance_amount: document.getElementById('convertAdvance').value || null,
+        pakistani_price: document.getElementById('convertPakPrice').value || null,
+        sheet_uid: document.getElementById('convertSheetUid').value || null,
+      };
+
+      try{
+        const resp = await fetch('/sales/api/convert', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if(!data.ok) throw new Error(data.message || 'Conversion failed');
+        closeConvertModal();
+        location.reload();
+      }catch(e){
+        alert('Convert failed: ' + e.message);
+      }
+    }
+
+    // Edit modal (same as before)
+    function openEditModal(btn){
+      const card = btn.closest('.card');
+      const id = card.dataset.id;
+
+      document.getElementById('editLeadId').value = id;
+      document.getElementById('editTitle').innerText = 'Edit • ' + (card.dataset.name || 'Lead');
+      document.getElementById('editBack').style.display = 'flex';
+      loadLeadForEdit(id);
+    }
+    function closeEditModal(){ document.getElementById('editBack').style.display = 'none'; }
+
+    async function loadLeadForEdit(id){
+      try{
+        const resp = await fetch('/sales/api/lead/' + id);
+        const data = await resp.json();
+        if(!data.ok) throw new Error(data.message || 'Failed to load lead');
+        const l = data.lead;
+        document.getElementById('editName').value = l.name || '';
+        document.getElementById('editPhone').value = l.phone || '';
+        document.getElementById('editTitleField').value = l.enquiry_title || '';
+        document.getElementById('editDesc').value = l.enquiry_description || '';
+        document.getElementById('editAssign').value = l.crm_assign || '';
+      }catch(e){
+        alert('Edit load failed: ' + e.message);
+        closeEditModal();
+      }
+    }
+
+    async function saveLeadEdit(){
+      const id = document.getElementById('editLeadId').value;
+      const payload = {
+        id,
+        name: document.getElementById('editName').value.trim(),
+        phone: document.getElementById('editPhone').value.trim(),
+        enquiry_title: document.getElementById('editTitleField').value.trim(),
+        enquiry_description: document.getElementById('editDesc').value.trim(),
+        crm_assign: document.getElementById('editAssign').value.trim(),
+      };
+      if(payload.phone && !/^\d{10,15}$/.test(payload.phone)){
+        alert('Phone looks invalid. Use 10–15 digits only.');
+        return;
+      }
+
+      try{
+        const resp = await fetch('/sales/api/lead/update', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if(!data.ok) throw new Error(data.message || 'Save failed');
+        closeEditModal();
+        location.reload();
+      }catch(e){
+        alert('Save failed: ' + e.message);
+      }
+    }
+  </script>
+</body>
+</html>

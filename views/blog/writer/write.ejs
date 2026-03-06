@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= blog ? 'Edit Blog' : 'Write Blog' %> | FileMakr Writer</title>
+  <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+  <script>CKEDITOR.config.versionCheck=false;</script>
+  <style>
+    body{font-family:'Inter',system-ui,sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+    .blog-navbar{background:linear-gradient(135deg,#1e293b 0%,#334155 100%)!important;box-shadow:0 4px 20px rgba(0,0,0,.15);padding:.75rem 1.5rem}
+    .blog-navbar .btn-outline-light:hover{background:rgba(255,255,255,.2);border-color:transparent}
+    .blog-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    .blog-card .card-header{background:#fff;border-bottom:1px solid #e2e8f0;padding:1rem 1.25rem;font-weight:600}
+    .writer-links-header{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%)!important;color:#fff!important;border:none!important}
+    .form-control:focus,.form-select:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+    .link-item{cursor:pointer;border-radius:8px;padding:4px 0}
+    .link-item:hover{background:#f1f5f9}
+    .btn-blog-primary{background:#4f46e5;border-color:#4f46e5;font-weight:600;border-radius:8px}
+    .btn-blog-primary:hover{background:#4338ca;border-color:#4338ca}
+    @media(min-width:992px){.writer-sidebar-sticky{position:sticky;top:1rem}}
+    .cke_notifications_area,.cke_notification{display:none!important}
+    .cke_chrome{border:1px solid #e2e8f0!important;border-radius:8px!important}
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark blog-navbar">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/blog-writer/dashboard">
+        <i class="bi bi-journal-richtext fs-5"></i>
+        FileMakr Writer
+      </a>
+      <div class="navbar-nav ms-auto">
+        <a href="/blog-writer/dashboard" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-grid me-1"></i> Dashboard
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid py-4 px-4 blog-writer-page">
+    <div class="mb-4">
+      <h4 class="fw-bold mb-1" style="color:#1e293b"><%= blog ? 'Edit Blog' : 'Write New Blog' %></h4>
+      <p class="text-muted small mb-0">Create SEO-optimized content with internal linking</p>
+    </div>
+
+    <form id="blogForm">
+      <input type="hidden" name="id" value="<%= blog ? blog.id : '' %>">
+
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="card blog-card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+              <i class="bi bi-file-earmark-text text-primary"></i>
+              Content
+            </div>
+            <div class="card-body">
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Title</label>
+                <input type="text" name="title" class="form-control form-control-lg" required value="<%= blog ? (blog.title || '') : '' %>" placeholder="Blog post title">
+              </div>
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Slug</label>
+                <input type="text" name="slug" class="form-control" value="<%= blog ? (blog.slug || '') : '' %>" placeholder="url-friendly-slug">
+                <div class="form-text">Auto-generated from title if empty. Used in URL: /blog/your-slug</div>
+              </div>
+              <div class="mb-0">
+                <label class="form-label fw-semibold">Content</label>
+                <textarea id="content" name="content" rows="12"><%= blog ? (blog.content || '') : '' %></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="writer-sidebar-sticky">
+            <div class="card blog-card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center writer-links-header">
+                <span><i class="bi bi-link-45deg me-1"></i> Internal Links</span>
+                <button type="button" class="btn btn-sm btn-light" id="refreshLinks">Refresh</button>
+              </div>
+              <div class="card-body p-3" style="max-height: 260px; overflow-y: auto;">
+                <input type="text" id="linkSearch" class="form-control form-control-sm mb-2" placeholder="Search links (blog, source code, report)...">
+                <div id="internalLinksList"></div>
+              </div>
+            </div>
+
+            <div class="card blog-card mb-4">
+              <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-search text-primary"></i>
+                SEO
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Meta Title</label>
+                  <input type="text" name="meta_title" class="form-control form-control-sm" value="<%= blog ? (blog.meta_title || '') : '' %>" maxlength="255">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Meta Description</label>
+                  <textarea name="meta_description" class="form-control form-control-sm" rows="2" maxlength="500"><%= blog ? (blog.meta_description || '') : '' %></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Focus Keyword</label>
+                  <input type="text" name="focus_keyword" class="form-control form-control-sm" value="<%= blog ? (blog.focus_keyword || '') : '' %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Meta Keywords</label>
+                  <input type="text" name="meta_keywords" class="form-control form-control-sm" value="<%= blog ? (blog.meta_keywords || '') : '' %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Tags</label>
+                  <input type="text" name="tags" class="form-control form-control-sm" value="<%= blog ? (blog.tags || '') : '' %>" placeholder="tag1, tag2">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Canonical URL</label>
+                  <input type="text" name="canonical_url" id="canonicalUrl" class="form-control form-control-sm" value="<%= blog ? (blog.canonical_url || '') : '' %>" placeholder="Auto-set from slug" readonly>
+                  <div class="form-text" id="canonicalHint">Must match slug URL: <span id="expectedCanonical"></span></div>
+                  <div class="invalid-feedback" id="canonicalError"></div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span>Schema Markup (JSON-LD)</span>
+                    <span class="d-flex gap-1">
+                      <button type="button" class="btn btn-sm btn-outline-success" id="fillSeoFromSchema" title="Fill Meta Title, Keywords, etc. from Schema">Fill SEO from Schema</button>
+                      <button type="button" class="btn btn-sm btn-outline-primary" id="fillSchemaFromSeo" title="Fill Schema from SEO fields">Fill from SEO</button>
+                    </span>
+                  </label>
+                  <textarea name="schema_markup" id="schemaMarkup" class="form-control form-control-sm font-monospace" rows="6" placeholder='{"@context":"https://schema.org","@type":"Article",...}'><%= blog && blog.schema_markup ? blog.schema_markup : '' %></textarea>
+                  <div class="form-text">Enter schema first, then "Fill SEO from Schema" — or fill SEO fields first, then "Fill from SEO". Must have @context and @type.</div>
+                  <div id="schemaValidation" class="small mt-1"></div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Thumbnail URL</label>
+                  <input type="text" name="thumbnail_url" class="form-control form-control-sm" value="<%= blog ? (blog.thumbnail_url || '') : '' %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Category</label>
+                  <select name="category" class="form-select form-select-sm">
+                    <option value="all" <%= blog && blog.category === 'all' ? 'selected' : '' %>>All</option>
+                    <option value="resume-roaster" <%= blog && blog.category === 'resume-roaster' ? 'selected' : '' %>>Resume Roaster</option>
+                    <option value="stack-attack" <%= blog && blog.category === 'stack-attack' ? 'selected' : '' %>>Stack Attack</option>
+                    <option value="explainer-blog" <%= blog && blog.category === 'explainer-blog' ? 'selected' : '' %>>Explainer Blog</option>
+                    <option value="internship-alert" <%= blog && blog.category === 'internship-alert' ? 'selected' : '' %>>Internship Alert</option>
+                    <option value="project_report" <%= blog && blog.category === 'project_report' ? 'selected' : '' %>>Project Report</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Status</label>
+                  <select name="status" class="form-select form-select-sm">
+                    <option value="draft" <%= !blog || !blog.status || blog.status === 'draft' ? 'selected' : '' %>>Draft</option>
+                    <option value="pending_review" <%= blog && blog.status === 'pending_review' ? 'selected' : '' %>>Pending Review</option>
+                    <option value="published" <%= blog && blog.status === 'published' ? 'selected' : '' %>>Published</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-blog-primary w-100 mb-2 py-3 d-inline-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-check2-square"></i>
+              Save Blog
+            </button>
+            <div id="saveStatus" class="text-center small"></div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    CKEDITOR.replace('content', {
+      height: 420,
+      format_tags: 'p;h2;h3;h4',
+      allowedContent: true,
+      versionCheck: false
+    });
+
+    const form = document.getElementById('blogForm');
+    const slugInput = form.querySelector('[name="slug"]');
+    const titleInput = form.querySelector('[name="title"]');
+    const metaTitleInput = form.querySelector('[name="meta_title"]');
+    const metaDescInput = form.querySelector('[name="meta_description"]');
+    const focusKwInput = form.querySelector('[name="focus_keyword"]');
+    const metaKwInput = form.querySelector('[name="meta_keywords"]');
+    const tagsInput = form.querySelector('[name="tags"]');
+    const thumbnailInput = form.querySelector('[name="thumbnail_url"]');
+    const canonicalInput = document.getElementById('canonicalUrl');
+    const expectedCanonicalEl = document.getElementById('expectedCanonical');
+    const schemaTextarea = document.getElementById('schemaMarkup');
+    const schemaValidationEl = document.getElementById('schemaValidation');
+    const siteBase = '<%= typeof siteBase !== "undefined" ? siteBase : "https://filemakr.com" %>'.replace(/\/$/, '');
+
+    function fillSeoFromSchema() {
+      const val = (schemaTextarea.value || '').trim();
+      if (!val) return;
+      try {
+        const s = JSON.parse(val);
+        const headline = s.headline || s.name || '';
+        const desc = s.description || '';
+        const kw = s.keywords;
+        const kwStr = Array.isArray(kw) ? kw.join(', ') : (typeof kw === 'string' ? kw : '');
+        let img = s.image;
+        if (Array.isArray(img)) img = img[0];
+        if (img && typeof img === 'object') img = img.url || img.contentUrl || '';
+        else if (typeof img !== 'string') img = '';
+        if (headline) {
+          metaTitleInput.value = headline;
+          if (!titleInput.value) {
+            titleInput.value = headline;
+            if (!slugInput.value) {
+              slugInput.value = headline.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+            }
+          }
+        }
+        if (desc) metaDescInput.value = desc;
+        if (kwStr) {
+          const arr = kwStr.split(',').map(k => k.trim()).filter(Boolean);
+          metaKwInput.value = kwStr;
+          if (arr.length && !focusKwInput.value) focusKwInput.value = arr[0];
+        }
+        if (img) thumbnailInput.value = img;
+        updateCanonical();
+      } catch (e) {
+        schemaValidationEl.textContent = 'Invalid JSON: cannot fill SEO';
+        schemaValidationEl.className = 'small mt-1 text-danger';
+      }
+    }
+
+    function buildSchemaFromSeo() {
+      updateCanonical();
+      const headline = (metaTitleInput?.value || titleInput?.value || '').trim();
+      const description = (metaDescInput?.value || '').trim();
+      const focusKw = (focusKwInput?.value || '').trim();
+      const metaKw = (metaKwInput?.value || '').trim();
+      const tags = (tagsInput?.value || '').trim();
+      const keywords = [focusKw, metaKw, tags].filter(Boolean).join(', ').replace(/,+/g, ',').split(',').map(k => k.trim()).filter(Boolean);
+      const image = (thumbnailInput?.value || '').trim();
+      const url = (canonicalInput?.value || '').trim();
+      if (!headline && !description) return;
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": headline || undefined,
+        "description": description || undefined,
+        "url": url || undefined,
+        "image": image || undefined,
+        "datePublished": new Date().toISOString().split('T')[0],
+        "author": { "@type": "Organization", "name": "FileMakr" }
+      };
+      if (keywords.length) schema.keywords = keywords.join(', ');
+      schemaTextarea.value = JSON.stringify(schema, null, 2);
+      validateSchema();
+    }
+
+    function updateCanonical() {
+      const slug = (slugInput.value || '').trim();
+      const expected = slug ? `${siteBase}/blog/${slug}` : '';
+      expectedCanonicalEl.textContent = expected || '(enter slug first)';
+      canonicalInput.value = expected;
+    }
+
+    titleInput.addEventListener('input', function() {
+      if (!slugInput.value) {
+        slugInput.value = this.value.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9\-]/g, '');
+      }
+      updateCanonical();
+    });
+    slugInput.addEventListener('input', updateCanonical);
+    slugInput.addEventListener('blur', updateCanonical);
+    updateCanonical();
+
+    [metaTitleInput, metaDescInput, focusKwInput, metaKwInput, tagsInput, thumbnailInput].filter(Boolean).forEach(el => {
+      el.addEventListener('blur', function() {
+        if (!(schemaTextarea.value || '').trim() && (metaTitleInput?.value || metaDescInput?.value || titleInput?.value)) {
+          buildSchemaFromSeo();
+        }
+      });
+    });
+    document.getElementById('fillSchemaFromSeo').addEventListener('click', buildSchemaFromSeo);
+    document.getElementById('fillSeoFromSchema').addEventListener('click', fillSeoFromSchema);
+    if (!(schemaTextarea.value || '').trim() && (metaTitleInput?.value || metaDescInput?.value)) {
+      buildSchemaFromSeo();
+    }
+
+    function validateSchema() {
+      const val = (schemaTextarea.value || '').trim();
+      if (!val) {
+        schemaValidationEl.textContent = '';
+        schemaValidationEl.className = 'small mt-1';
+        return true;
+      }
+      try {
+        const p = JSON.parse(val);
+        if (!p['@context'] || !p['@type']) {
+          schemaValidationEl.textContent = 'Include @context and @type for valid JSON-LD';
+          schemaValidationEl.className = 'small mt-1 text-warning';
+          return false;
+        }
+        schemaValidationEl.textContent = 'Valid JSON-LD (' + (p['@type'] || '') + ')';
+        schemaValidationEl.className = 'small mt-1 text-success';
+        return true;
+      } catch (e) {
+        schemaValidationEl.textContent = 'Invalid JSON: ' + (e.message || 'parse error');
+        schemaValidationEl.className = 'small mt-1 text-danger';
+        return false;
+      }
+    }
+    schemaTextarea.addEventListener('input', validateSchema);
+    schemaTextarea.addEventListener('blur', validateSchema);
+    validateSchema();
+
+    let allLinks = [];
+    const linksList = document.getElementById('internalLinksList');
+    const linkSearch = document.getElementById('linkSearch');
+
+    async function loadLinks() {
+      try {
+        const r = await fetch('/blog-writer/api/internal-links');
+        const d = await r.json();
+        allLinks = d.links || [];
+        renderLinks(allLinks);
+      } catch (e) {
+        linksList.innerHTML = '<div class="text-muted small p-2">Failed to load links</div>';
+      }
+    }
+
+    function typeBadge(type) {
+      const map = { blog: 'primary', 'source code': 'success', report: 'info' };
+      const c = map[type] || 'secondary';
+      return `<span class="badge bg-${c} ms-1" style="font-size:0.65rem">${type || ''}</span>`;
+    }
+    function renderLinks(links) {
+      if (!links.length) {
+        linksList.innerHTML = '<div class="text-muted small p-2">No links found</div>';
+        return;
+      }
+      linksList.innerHTML = links.map(l => `
+        <div class="border-bottom py-2 px-2 link-item" data-url="${(l.url || '').replace(/"/g, '&quot;')}" data-title="${(l.title || '').replace(/"/g, '&quot;')}">
+          <div class="small fw-bold text-truncate d-flex align-items-center flex-wrap">${l.title || l.slug || ''}${typeBadge(l.type)}</div>
+          <div class="small text-muted">${l.url || l.slug || ''}</div>
+        </div>
+      `).join('');
+      linksList.querySelectorAll('.link-item').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', () => {
+          const url = el.dataset.url;
+          const title = el.dataset.title;
+          const html = `<a href="${url}" title="${title}">${title}</a>`;
+          CKEDITOR.instances.content.insertHtml(html);
+        });
+      });
+    }
+
+    linkSearch.addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      const filtered = allLinks.filter(l =>
+        (l.title && l.title.toLowerCase().includes(q)) ||
+        (l.slug && l.slug.toLowerCase().includes(q)) ||
+        (l.type && l.type.toLowerCase().includes(q))
+      );
+      renderLinks(filtered);
+    });
+
+    document.getElementById('refreshLinks').addEventListener('click', loadLinks);
+    loadLinks();
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      updateCanonical();
+      if (!validateSchema()) {
+        schemaTextarea.focus();
+        return;
+      }
+      const statusEl = document.getElementById('saveStatus');
+      statusEl.textContent = 'Saving...';
+      statusEl.className = 'text-center small text-primary';
+
+      const data = new FormData(form);
+      data.append('content', CKEDITOR.instances.content.getData());
+      const obj = Object.fromEntries(data);
+
+      try {
+        const r = await fetch('/blog-writer/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(obj)
+        });
+        const res = await r.json();
+        if (res.success) {
+          statusEl.textContent = res.msg;
+          statusEl.className = 'text-center small text-success';
+          if (res.id && !form.querySelector('[name="id"]').value) {
+            form.querySelector('[name="id"]').value = res.id;
+            window.history.replaceState({}, '', '/blog-writer/edit/' + res.id);
+          }
+        } else {
+          statusEl.textContent = res.msg || 'Error';
+          statusEl.className = 'text-center small text-danger';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Network error';
+        statusEl.className = 'text-center small text-danger';
+      }
+    });
+  </script>
+</body>
+</html>

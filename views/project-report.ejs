@@ -1,0 +1,169 @@
+<% include Includes/projectReportNavbar.ejs %>
+<% include Includes/projectReport.ejs %>
+
+
+
+
+<div class="container">
+  <div class="brand-accent"></div>
+
+  <nav aria-label="breadcrumb" class="page-breadcrumb mb-2">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="<%= typeof homeUrl !== 'undefined' ? homeUrl : '/' %>" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page"><%= graduation_type_send %> Project Reports</li>
+    </ol>
+  </nav>
+
+  <section class="page-hero">
+    <h1><%= graduation_type_send %> Final Year Project Reports</h1>
+   <p>Download premium <%= graduation_type_send %> final year project report PDFs with complete documentation, source code, PPT & synopsis — IEEE format, ER/DFD, Gantt, test cases, output screens. Affordable, ready-to-submit topics: ERP, Real Estate, Vehicle Rental, Expense Tracker & more.</p>
+
+
+    <!-- Highlighted WhatsApp CTA -->
+    <div class="cta-strip">
+      <span><strong>Need a Custom Report?</strong> Get it on WhatsApp.</span>
+      <a id="WhatsAppHero" class="cta-btn" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+        <i class="feather-message-circle"></i> Chat on WhatsApp
+      </a>
+    </div>
+  </section>
+
+  <!-- Project Report Includes -->
+  <section class="inc-wrap">
+    <div class="section-title"><i class="feather-check-circle" style="color:var(--brandBlue)"></i><h3>Project Report Includes</h3></div>
+    <div class="inc-grid">
+      <div class="inc-item"><i class="feather-share-2"></i><span>ER Diagram</span></div>
+      <div class="inc-item"><i class="feather-git-merge"></i><span>DFD Diagram</span></div>
+      <div class="inc-item"><i class="feather-droplet"></i><span>Waterfall Model</span></div>
+      <div class="inc-item"><i class="feather-git-branch"></i><span>Flow Chart</span></div>
+      <div class="inc-item"><i class="feather-cpu"></i><span>Technology</span></div>
+      <div class="inc-item"><i class="feather-check-square"></i><span>Testing Case</span></div>
+      <div class="inc-item"><i class="feather-link"></i><span>References</span></div>
+      <div class="inc-item"><i class="feather-list"></i><span>Indexing</span></div>
+      <div class="inc-item"><i class="feather-award"></i><span>IEEE Standard</span></div>
+      <div class="inc-item"><i class="feather-calendar"></i><span>Gantt Chart</span></div>
+      <div class="inc-item"><i class="feather-monitor"></i><span>Output Screens</span></div>
+    </div>
+  </section>
+
+  <!-- Most Demanding Reports -->
+ <section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
+    <h3>Most Demanding Reports</h3>
+  </div>
+  <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
+</section>
+
+  <section class="toolbar">
+    <div class="row g-2 align-items-center">
+      <div class="col-lg-9">
+        <div class="search-group">
+          <i class="feather-search"></i>
+          <input id="Search" class="form-control search-input" type="text" placeholder="Search project report… e.g., ERP, Real Estate, Daily Expense Tracker" autocomplete="off" />
+        </div>
+      </div>
+      <div class="col-lg-3 text-lg-end">
+        <select id="Sort" class="form-select sort-select" aria-label="Sort results">
+          <option value="relevance">Sort: Relevance</option>
+          <option value="alpha">Sort: A → Z</option>
+          <option value="alphaDesc">Sort: Z → A</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="course-content mt-3">
+    <div class="row">
+      <!-- Main grid -->
+      <div class="col-lg-9" style="margin-top: 10px;">
+
+
+        <div class="row g-3" id="Grid">
+          <% for (let i = 0; i < result.length; i++) { %>
+            <div class="col-md-6 col-xl-4 target"
+                 data-name="<%= result[i].name %>"
+                 data-desc="<%= result[i].short_description %>"
+                 data-url="<%= original %>-final-year-project-report-<%= result[i].seo_name %>">
+              <div class="course-box h-100 d-flex flex-column">
+                <h2>
+                  <a href="<%= original %>-final-year-project-report-<%= result[i].seo_name %>"
+                     title="<%= result[i].name %> | PDF for <%= graduation_type_send %> Final Year">
+                    <%= result[i].name %>
+                  </a>
+                </h2>
+                <p><%= result[i].short_description %></p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <a class="link-arrow" href="<%= original %>-final-year-project-report-<%= result[i].seo_name %>">View details →</a>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Empty state -->
+        <div id="EmptyState" class="empty empty-app mt-3" style="display:none;">
+  <div class="empty-topbar"></div>
+
+  <div class="empty-head">
+    <div class="icon-wrap-sm"><i class="feather-search"></i></div>
+    <h3 class="empty-title">Didn't find it?</h3>
+    <p class="empty-subtitle">Send your topic—we'll share the report on WhatsApp.</p>
+  </div>
+
+  <div class="empty-action">
+    <div class="empty-field">
+      <i class="feather-type"></i>
+      <input id="EmptyTopicInput" type="text" placeholder="e.g., Smart Parking System" autocomplete="off" />
+    </div>
+    <a id="WhatsAppEmpty" class="wa-cta" href="#" aria-label="Send on WhatsApp">
+      <span class="pulse" aria-hidden="true"></span>
+      <i class="feather-message-circle"></i> Send on WhatsApp
+    </a>
+  </div>
+
+  
+</div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-3" style="margin-top: 10px;">
+        <div class="sticky-side">
+          <div class="side-card">
+            <div class="side-title"><i class="feather-zap"></i><h4>Quick actions</h4></div>
+            <div class="qa-list">
+              <a class="qa-item" href="<%= typeof codeUrl !== 'undefined' ? codeUrl : '/source-code' %>">
+                <i class="feather-code"></i>
+                <div class="qa-text"><strong>Browse Source Code</strong><span>Working projects with docs</span></div>
+              </a>
+              <a class="qa-item" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>">
+                <i class="feather-play-circle"></i>
+                <div class="qa-text"><strong>See Live Demos</strong><span>Preview before you choose</span></div>
+              </a>
+              <a class="qa-item" href="<%= typeof blogUrl !== 'undefined' ? blogUrl : '/blog' %>">
+                <i class="feather-book-open"></i>
+                <div class="qa-text"><strong>Guides & Blogs</strong><span>Tips, checklists & more</span></div>
+              </a>
+              <a class="qa-item" id="WhatsAppSide" href="#">
+                <i class="feather-message-circle"></i>
+                <div class="qa-text"><strong>Request Custom Report</strong><span>Fast reply on WhatsApp</span></div>
+              </a>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-title"><i class="feather-info"></i><h4>What we provide</h4></div>
+            <p class="mb-0" style="color:var(--muted)">Project reports, source code, and PPTs tailored for final-year students. Explore, or message us for a custom build.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Floating WhatsApp CTA -->
+
+
+<% include Includes/footer.ejs %>

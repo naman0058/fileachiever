@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Upload example with response</title>
+  </head>
+  <body>
+    <form method="post" enctype="multipart/form-data">
+      <input type="file" name="files[]" multiple />
+      <input type="submit" value="Upload Files" name="submit" />
+      <input type="hidden" value="<%=id%>" id="source_code_id"/>
+    </form>
+    <div id="loader" style="display: none;">Loading...</div>
+
+    <p id="data"></p>
+
+    <!-- <script src="./src/upload.js"></script>
+     -->
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+     <script>
+        // Example code to show how to upload images using an unsigned preset
+        // and a form.
+        // Note, for security reasons, the upload preset used in this example
+        // sets the access control mode of the uploaded assets to restricted,
+        // so the URLs returned in the response will return 404 errors.
+        const url = "https://api.cloudinary.com/v1_1/dggf8vl9p/image/upload";
+        const form = document.querySelector("form");
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const loader = document.getElementById("loader");
+            loader.style.display = "block"; // Show loader
+            const a = [];
+            let id = $('#source_code_id').val();
+            const files = document.querySelector("[type=file]").files;
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                formData.append("file", file);
+                formData.append("upload_preset", "docs_upload_example_us_preset");
+                fetch(url, {
+                    method: "POST",
+                    body: formData,
+                })
+                    .then((response) => response.json()) // Parse the response as JSON
+                    .then((data) => {
+                        document.getElementById("data").innerHTML += JSON.stringify(data.url);
+                        a.push({ url: data.url });
+                        if (a.length === files.length) {
+                            $.post('/affiliate/dashboard/upload/screenshots', { url: a, source_code_id: id }, (data) => {
+                                if (data.msg == 'success') {
+                                    alert('Success');
+                                    window.location.href = '/affiliate/dashboard/list/source_code/pending';
+                                } else {
+                                    alert('Failed');
+                                }
+                                loader.style.display = "none"; // Hide loader after response
+                            });
+                        }
+                    })
+                    .catch((error) => console.error("Error:", error));
+            }
+        });
+     </script>
+  </body>
+</html>

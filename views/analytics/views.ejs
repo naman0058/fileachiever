@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/head %>
+</head>
+<body>
+  <% include ../partials/nav %>
+
+  <section class="container">
+    <h1 class="h1">Views</h1>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Overall</h2>
+        <div class="control-row">
+          <select id="gran">
+            <option value="daily" selected>Daily</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <select id="preset">
+            <option value="7d">Last 7 days</option>
+            <option value="28d" selected>Last 28 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="year">Year (Jan–Dec)</option>
+          </select>
+          <input id="year" type="number" placeholder="YYYY" style="display:none;" />
+          <button id="apply" class="btn">Apply</button>
+        </div>
+      </div>
+      <canvas id="viewsChart" height="96"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>By Original URL</h2></div>
+      <div class="control-row">
+        <select id="urlGran">
+          <option value="daily" selected>Daily</option>
+          <option value="monthly">Monthly</option>
+        </select>
+        <select id="urlPreset">
+          <option value="7d">Last 7 days</option>
+          <option value="28d" selected>Last 28 days</option>
+          <option value="90d">Last 90 days</option>
+          <option value="year">Year (Jan–Dec)</option>
+        </select>
+        <input id="urlYear" type="number" placeholder="YYYY" style="display:none;" />
+        <button id="urlApply" class="btn">Apply</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Bucket</th><th>Original URL</th><th>Views</th><th>Watch Time (min)</th></tr>
+          </thead>
+          <tbody id="urlBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const ctx = document.getElementById('viewsChart');
+
+  const gran = document.getElementById('gran');
+  const preset = document.getElementById('preset');
+  const year = document.getElementById('year');
+  const apply = document.getElementById('apply');
+
+  const urlGran = document.getElementById('urlGran');
+  const urlPreset = document.getElementById('urlPreset');
+  const urlYear = document.getElementById('urlYear');
+  const urlApply = document.getElementById('urlApply');
+  const urlBody = document.getElementById('urlBody');
+
+  preset.addEventListener('change', () => year.style.display = (preset.value==='year'?'inline-block':'none'));
+  urlPreset.addEventListener('change', () => urlYear.style.display = (urlPreset.value==='year'?'inline-block':'none'));
+
+  let chart;
+
+  function asPoints(obj) {
+    const pts = Array.isArray(obj?.points) ? obj.points : [];
+    return pts.map(p => ({ label: String(p.label), value: Number(p.value) || 0 }));
+  }
+
+  async function loadOverall() {
+    const params = new URLSearchParams({ metric:'views', granularity:gran.value });
+    if (preset.value==='year') params.set('year', year.value || new Date().getFullYear());
+    else params.set('range', preset.value);
+
+    const resp = await fetch(`/analytics/api/timeseries?${params}`).then(r=>r.json());
+    const pts = asPoints(resp);
+    const labels = pts.map(p=>p.label);
+    const values = pts.map(p=>p.value);
+
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Views', data: values }]},
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  async function loadByUrl() {
+    const params = new URLSearchParams({ granularity:urlGran.value });
+    if (urlPreset.value==='year') params.set('year', urlYear.value || new Date().getFullYear());
+    else params.set('range', urlPreset.value);
+
+    const resp = await fetch(`/analytics/api/original-url?${params}`).then(r=>r.json());
+    const items = Array.isArray(resp?.items) ? resp.items : [];
+    urlBody.innerHTML = items.map(row => `
+      <tr>
+        <td>${row.bucket}</td>
+        <td><a href="${row.original_url}" target="_blank" rel="noopener">${row.original_url}</a></td>
+        <td>${Number(row.views||0).toLocaleString()}</td>
+        <td>${Math.round(Number(row.watch_time_seconds||0)/60).toLocaleString()}</td>
+      </tr>
+    `).join('');
+  }
+
+  apply.addEventListener('click', loadOverall);
+  urlApply.addEventListener('click', loadByUrl);
+
+  loadOverall();
+  loadByUrl();
+</script>
+</body>
+</html>

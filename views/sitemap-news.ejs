@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+<% items.forEach(function(item){ %>
+  <url>
+    <loc><%= siteOrigin %>/us/trends/<%= encodeURIComponent(item.slug) %></loc>
+    <news:news>
+      <news:publication>
+        <news:name><%= publicationName %></news:name>
+        <news:language><%= publicationLang %></news:language>
+      </news:publication>
+      <news:publication_date><%= new Date(item.published_at).toISOString() %></news:publication_date>
+      <news:title><%- item.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') %></news:title>
+    </news:news>
+  </url>
+<% }) %>
+</urlset>

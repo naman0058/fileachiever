@@ -1,0 +1,493 @@
+<% include ./header.ejs %>
+
+<!-- Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- Custom Styles -->
+<style>
+  :root{
+    --brand-primary:#0d6efd;
+    --brand-dark:#111827;
+    --brand-muted:#6b7280;
+    --card-bg:#ffffff;
+    --soft:#f8fafc;
+    --border:#eef2f7;
+    --success:#16a34a;
+    --warning:#f59e0b;
+    --danger:#dc2626;
+  }
+
+  .page-wrap { background: #f3f4f6; }
+  .section-title { font-weight: 700; color: var(--brand-dark); letter-spacing:.2px; }
+  .subtle { color: var(--brand-muted); font-size: .95rem; }
+
+  .kpi-card{
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 18px;
+    height: 100%;
+    box-shadow: 0 4px 14px rgba(17,24,39,0.04);
+  }
+  .kpi-value{ font-size: 1.75rem; font-weight: 800; color: var(--brand-dark); }
+  .kpi-label{ font-weight: 600; color: var(--brand-muted); font-size:.9rem; }
+  .kpi-trend{
+    font-size: .85rem; font-weight:700; padding: 4px 8px; border-radius: 999px; display:inline-flex; align-items:center; gap:.35rem;
+  }
+  .kpi-trend.up{ color: #065f46; background:#ecfdf5; }
+  .kpi-trend.down{ color: #7f1d1d; background:#fef2f2; }
+
+  .panel{
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(17,24,39,0.05);
+  }
+
+  .panel-header{
+    padding: 16px 20px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .panel-body{ padding: 20px; }
+
+  .btn-pill{ border-radius: 999px; }
+  .btn-light-brand{
+    background: #eef2ff; color:#3730a3; border:1px solid #e5e7eb;
+  }
+  .btn-light-brand:hover{ background:#e0e7ff; color:#111827; }
+
+  .table thead th{
+    font-size:.9rem; color:#6b7280; font-weight:700; border-bottom:1px solid var(--border)!important;
+  }
+  .table tbody td{ vertical-align: middle; }
+
+  .copy-btn {
+    border: none; background: none; color: var(--brand-primary);
+    font-size: 1rem; cursor: pointer;
+  }
+  .copy-btn:hover { color: #084298; }
+
+  .badge-soft{
+    font-weight:700; font-size:.75rem; border-radius:999px; padding:.4rem .6rem;
+    background:#f1f5f9; color:#0f172a; border:1px solid #e2e8f0;
+  }
+
+  .search-input{
+    border-radius: 12px!important; border:1px solid var(--border)!important;
+  }
+
+  .empty-state{
+    text-align:center; padding:48px 16px; color:var(--brand-muted);
+  }
+
+  /* small helpers */
+  .text-xxs{ font-size:.75rem; }
+  .w-44{ width:11rem; }
+</style>
+
+<div class="content-body page-wrap py-4" style="margin-top: 20px;">
+  <div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+      <div>
+        <h2 class="section-title mb-1">Promoter Performance Dashboard</h2>
+        <div class="subtle">Track your links, views, watch time, and growth at a glance.</div>
+      </div>
+      <div class="d-flex gap-2">
+     
+
+        <!-- NEW: Open Generate Modal -->
+        <button id="openGenerateModalBtn" class="btn btn-primary btn-sm btn-pill">
+          <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generate Link
+        </button>
+
+        <button id="exportCsvBtn" class="btn btn-outline-secondary btn-sm btn-pill">
+          <i class="fa-regular fa-file-lines me-1"></i> Export CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Summary -->
+    <%
+      const isArr = Array.isArray(links);
+      const totalLinks = isArr ? links.length : 0;
+      let totalUnique = 0, totalViews = 0, totalWatch = 0;
+      if (isArr) {
+        links.forEach(l => {
+          totalUnique += (l.unique_clicks || 0);
+          totalViews  += (l.total_views || 0);
+          totalWatch  += (l.total_watch_time || 0);
+        });
+      }
+      const avgWatchPerView = totalViews ? (totalWatch / totalViews) : 0;
+    %>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4 col-sm-6">
+        <div class="kpi-card">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="kpi-label">Total Links</span>
+            <span class="badge-soft">All-time</span>
+          </div>
+          <div class="kpi-value"><%= totalLinks %></div>
+          <div class="subtle mt-1"><i class="fa-solid fa-link me-1"></i> Active link assignments</div>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="kpi-card">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="kpi-label">Unique Clicks</span>
+            <span class="kpi-trend up" title="Week-over-Week"><i class="fa-solid fa-arrow-trend-up"></i> est.</span>
+          </div>
+          <div class="kpi-value"><%= totalUnique %></div>
+          <div class="subtle mt-1"><i class="fa-regular fa-hand-pointer me-1"></i> Distinct visitors</div>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="kpi-card">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="kpi-label">Total Views</span>
+            <span class="badge-soft">All-time</span>
+          </div>
+          <div class="kpi-value"><%= totalViews %></div>
+          <div class="subtle mt-1"><i class="fa-regular fa-eye me-1"></i> Page/video views</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Generator + Insights -->
+    <div class="row g-3">
+      <!-- Keep panel for context/help; primary action via modal button -->
+     
+
+      <!-- Insights + Chart -->
+      <div class="col-lg-12">
+        <div class="panel h-100">
+          <div class="panel-header">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-lightbulb text-warning fs-5"></i>
+              <h5 class="mb-0 fw-bold">Performance Insights</h5>
+            </div>
+            <span class="subtle">Top links • Quick trends</span>
+          </div>
+          <div class="panel-body">
+            <!-- Top 3 Links -->
+            <div class="row g-3 mb-3" id="topLinksContainer">
+              <!-- JS renders top 3 cards here -->
+            </div>
+
+            <!-- Chart -->
+            <canvas id="viewsChart" height="120" aria-label="Link views chart" role="img"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Links Table -->
+    <div class="panel mt-4">
+      <div class="panel-header">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fa-solid fa-chart-simple text-primary fs-5"></i>
+          <h5 class="mb-0 fw-bold">Your Links & Stats</h5>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-soft"><%= totalLinks %> total</span>
+          <button id="copyAllBtn" class="btn btn-light-brand btn-sm btn-pill">
+            <i class="fa-regular fa-copy me-1"></i> Copy All Links
+          </button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead class="table-light text-center">
+              <tr>
+                <th>#</th>
+                <th>Short Link</th>
+                <th>Unique Clicks</th>
+                <th>Total Views</th>
+                <th>Total Watch Time</th>
+                <th>Avg Watch / View</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="linksTbody">
+              <% if (!Array.isArray(links) || links.length === 0) { %>
+                <tr>
+                  <td colspan="7">
+                    <div class="empty-state">
+                      <i class="fa-regular fa-folder-open fa-2xl mb-3"></i>
+                      <div class="mb-1 fw-bold">No links created yet</div>
+                      <div class="subtle">Generate your first short link to start tracking performance.</div>
+                    </div>
+                  </td>
+                </tr>
+              <% } else { %>
+                <% links.forEach((link, index) => { 
+                     const views = link.total_views || 0;
+                     const watch = link.total_watch_time || 0;
+                     const avg   = views ? Math.round(watch / views) : 0;
+                     const fullUrl = `https://filemakr.com/blog/video/${link.short_code}`;
+                %>
+                  <tr class="text-center">
+                    <td><%= index + 1 %></td>
+                    <td class="text-start">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-link text-primary"></i>
+                        <a href="https://filemakr.com/blog/video/<%= link.short_code %>" target="_blank" class="text-decoration-none fw-semibold">
+                          filemakr.com/blog/video/<%= link.short_code %>
+                        </a>
+                        <span class="badge-soft text-xxs">/<%= link.short_code %></span>
+                      </div>
+                    </td>
+                    <td class="fw-semibold text-success"><%= link.unique_clicks || 0 %></td>
+                    <td class="fw-semibold text-primary"><%= views %></td>
+                    <td class="fw-semibold" data-seconds="<%= watch %>"><span class="watchFmt">--:--</span></td>
+                    <td class="fw-semibold" data-seconds="<%= avg %>"><span class="watchFmt">--:--</span></td>
+                    <td>
+                      <div class="d-flex justify-content-center gap-2">
+                        <!-- NEW: explicit Copy Link button -->
+                        <button class="btn btn-sm btn-outline-primary btn-pill" 
+                                onclick="copyToClipboard('<%= fullUrl %>')" 
+                                title="Copy link" aria-label="Copy link">
+                          <i class="fas fa-copy me-1"></i> Copy Link
+                        </button>
+                        <a class="btn btn-sm btn-outline-secondary btn-pill" target="_blank" href="https://filemakr.com/blog/video/<%= link.short_code %>">
+                          Open
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NEW: Generate Link Modal -->
+<div class="modal fade" id="generateLinkModal" tabindex="-1" aria-labelledby="generateLinkLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="generateLinkLabel">
+          <i class="fa-solid fa-wand-magic-sparkles me-2 text-primary"></i>
+          Generate New Short Link
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="/shopkeeper/generate-link" class="needs-validation" novalidate>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="modalOriginalUrl" class="form-label fw-semibold">YouTube Link</label>
+            <input type="url" class="form-control form-control-lg" id="modalOriginalUrl" name="originalUrl" placeholder="https://youtube.com/watch?v=..." required>
+            <input type="hidden" name="promoterId" value="<%= promoterId %>">
+            <div class="form-text">We’ll auto-create a branded short link you can share anywhere.</div>
+            <div class="invalid-feedback">Please enter a valid YouTube URL.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-pill">
+            <i class="fa-solid fa-link me-1"></i> Generate
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<% include ./footer.ejs %>
+
+<script>
+  // Data from server
+  const linksData = <%- JSON.stringify(Array.isArray(links) ? links : []) %>;
+
+  // Utilities
+  function secondsToHMS(sec = 0){
+    sec = Math.max(0, Math.floor(sec));
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    const pad = (n) => String(n).padStart(2,'0');
+    return (h ? pad(h)+':' : '') + pad(m)+':'+pad(s);
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function () {
+      const toast = document.createElement('div');
+      toast.innerText = "✓ Link copied";
+      toast.className = "position-fixed top-0 end-0 mt-3 me-3 p-2 px-3 bg-success text-white rounded shadow-sm";
+      toast.style.zIndex = 1080;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 1800);
+    }, function (err) {
+      alert("Failed to copy: " + err);
+    });
+  }
+
+  // Format watch-time fields
+  (function formatTimes(){
+    document.querySelectorAll('[data-seconds] .watchFmt, .watchFmt[data-seconds]').forEach(el=>{
+      const container = el.closest('[data-seconds]');
+      const sec = container ? Number(container.getAttribute('data-seconds')) : Number(el.getAttribute('data-seconds'));
+      el.textContent = secondsToHMS(sec);
+    });
+    const avgBadge = document.getElementById('avgWatchBadge');
+const avgValEl = document.getElementById('avgWatchValue');
+if (avgValEl){
+  const sec = Number(avgValEl.getAttribute('data-seconds')||0);
+  avgValEl.textContent = secondsToHMS(sec);
+  if (avgBadge) avgBadge.textContent = secondsToHMS(sec);
+}
+  })();
+
+  // Build Top 3 insights
+  (function renderTopLinks(){
+    const container = document.getElementById('topLinksContainer');
+    if (!container) return;
+    if (!Array.isArray(linksData) || !linksData.length){
+      container.innerHTML = '<div class="col-12 subtle">No insights yet — create a link to see performance.</div>';
+      return;
+    }
+    // Rank by views
+    const ranked = [...linksData].sort((a,b)=> (b.total_views||0) - (a.total_views||0)).slice(0,3);
+    container.innerHTML = ranked.map((l, i)=>{
+      const views = l.total_views||0, clicks = l.unique_clicks||0, watch = l.total_watch_time||0;
+      const avg = views ? Math.round(watch/views) : 0;
+      const badgeClr = i===0 ? 'success' : (i===1 ? 'primary' : 'secondary');
+      const url = `https://filemakr.com/blog/video/${l.short_code}`;
+      return `
+        <div class="col-md-4">
+          <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <span class="badge-soft">#${i+1}</span>
+              <span class="kpi-trend up"><i class="fa-solid fa-bolt"></i> Top</span>
+            </div>
+            <div class="mb-1 fw-bold text-truncate" title="${l.short_code}">
+              /${l.short_code}
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="small subtle"><i class="fa-regular fa-eye me-1"></i>${views} views</div>
+              <div class="small subtle"><i class="fa-regular fa-hand-pointer me-1"></i>${clicks} clicks</div>
+            </div>
+            <div class="mt-2 d-flex align-items-center justify-content-between">
+              <span class="badge bg-${badgeClr}-subtle text-${badgeClr} border border-${badgeClr} fw-bold">
+                Avg ${secondsToHMS(avg)}
+              </span>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary btn-pill" onclick="copyToClipboard('${url}')" title="Copy link">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+                <a href="https://filemakr.com/blog/video/${l.short_code}" target="_blank" class="btn btn-sm btn-outline-secondary btn-pill">Open</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  })();
+
+  // Chart: Views per Link (Top 10)
+  (function renderChart(){
+    const ctx = document.getElementById('viewsChart');
+    if (!ctx || !Array.isArray(linksData)) return;
+    const top = [...linksData]
+      .sort((a,b)=> (b.total_views||0) - (a.total_views||0))
+      .slice(0,10);
+    const labels = top.map(l=> `/${l.short_code}`);
+    const data = top.map(l=> (l.total_views||0));
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Total Views',
+          data,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          x: { grid: { display:false } },
+          y: { beginAtZero:true, ticks: { precision:0 } }
+        }
+      }
+    });
+  })();
+
+  // Copy All Links
+  document.getElementById('copyAllBtn')?.addEventListener('click', ()=>{
+    if (!Array.isArray(linksData) || !linksData.length) return;
+    const all = linksData.map(l=>`https://filemakr.com/blog/video/${l.short_code}`).join('\n');
+    copyToClipboard(all);
+  });
+
+  // Export CSV
+  document.getElementById('exportCsvBtn')?.addEventListener('click', ()=>{
+    const rows = [['short_code','unique_clicks','total_views','total_watch_time_seconds','avg_watch_per_view_seconds','full_url']];
+    (linksData||[]).forEach(l=>{
+      const views = l.total_views||0;
+      const watch = l.total_watch_time||0;
+      const avg = views ? Math.round(watch/views) : 0;
+      rows.push([
+        l.short_code,
+        l.unique_clicks||0,
+        views,
+        watch,
+        avg,
+        `https://filemakr.com/blog/video/${l.short_code}`
+      ]);
+    });
+    const csv = rows.map(r=>r.map((v)=> `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `promoter_links_export_${Date.now()}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Bootstrap validation
+  (function(){
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form=>{
+      form.addEventListener('submit', (event)=>{
+        if (!form.checkValidity()){
+          event.preventDefault(); event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+
+  // Modal: open button
+  (function(){
+    const btn = document.getElementById('openGenerateModalBtn');
+    const modalEl = document.getElementById('generateLinkModal');
+    if (!btn || !modalEl) return;
+    btn.addEventListener('click', ()=>{
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+      // focus input when opened
+      modalEl.addEventListener('shown.bs.modal', ()=>{
+        const input = document.getElementById('modalOriginalUrl');
+        input && input.focus();
+      }, { once:true });
+    });
+  })();
+</script>

@@ -1,0 +1,275 @@
+/**
+ * Blog Admin & Writer - Professional Design System
+ * FileMakr Content Management
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --blog-primary: #4f46e5;
+  --blog-primary-dark: #4338ca;
+  --blog-primary-light: #818cf8;
+  --blog-bg: #f8fafc;
+  --blog-card: #ffffff;
+  --blog-border: #e2e8f0;
+  --blog-text: #1e293b;
+  --blog-text-muted: #64748b;
+  --blog-success: #10b981;
+  --blog-warning: #f59e0b;
+  --blog-danger: #ef4444;
+  --blog-shadow: 0 1px 3px rgba(0,0,0,.08);
+  --blog-shadow-lg: 0 10px 40px rgba(0,0,0,.1);
+  --blog-radius: 12px;
+  --blog-radius-sm: 8px;
+}
+
+* { box-sizing: border-box; }
+body.blog-module {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--blog-bg);
+  color: var(--blog-text);
+  min-height: 100vh;
+}
+
+/* ========== Navbar ========== */
+.blog-navbar {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  padding: 0.75rem 1.5rem;
+}
+.blog-navbar .navbar-brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+.blog-navbar .nav-link {
+  font-weight: 500;
+  border-radius: var(--blog-radius-sm);
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s;
+}
+.blog-navbar .nav-link:hover {
+  background: rgba(255,255,255,.1);
+}
+.blog-navbar .btn-outline-light:hover {
+  background: rgba(255,255,255,.2);
+  border-color: transparent;
+}
+
+/* ========== Cards ========== */
+.blog-card {
+  background: var(--blog-card);
+  border: 1px solid var(--blog-border);
+  border-radius: var(--blog-radius);
+  box-shadow: var(--blog-shadow);
+  transition: box-shadow 0.2s;
+}
+.blog-card:hover {
+  box-shadow: var(--blog-shadow-lg);
+}
+.blog-card .card-header {
+  background: #fff;
+  border-bottom: 1px solid var(--blog-border);
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ========== Tables ========== */
+.blog-table {
+  border-collapse: collapse;
+}
+.blog-table thead th {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--blog-text-muted);
+  padding: 0.875rem 1.25rem;
+  border-bottom: 2px solid var(--blog-border);
+}
+.blog-table tbody td {
+  padding: 1rem 1.25rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--blog-border);
+}
+.blog-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* ========== Badges ========== */
+.badge-status {
+  font-weight: 500;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+/* ========== Buttons ========== */
+.btn-blog-primary {
+  background: var(--blog-primary);
+  border-color: var(--blog-primary);
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--blog-radius-sm);
+  transition: all 0.2s;
+}
+.btn-blog-primary:hover {
+  background: var(--blog-primary-dark);
+  border-color: var(--blog-primary-dark);
+  transform: translateY(-1px);
+}
+
+/* ========== Forms ========== */
+.blog-form .form-label {
+  font-weight: 500;
+  color: var(--blog-text);
+  margin-bottom: 0.35rem;
+}
+.blog-form .form-control,
+.blog-form .form-select {
+  border-radius: var(--blog-radius-sm);
+  border-color: var(--blog-border);
+  padding: 0.6rem 0.875rem;
+}
+.blog-form .form-control:focus {
+  border-color: var(--blog-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
+}
+
+/* ========== Breadcrumb ========== */
+.blog-breadcrumb {
+  background: transparent;
+  padding: 0;
+}
+.blog-breadcrumb .breadcrumb-item a {
+  color: var(--blog-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.blog-breadcrumb .breadcrumb-item.active {
+  color: var(--blog-text-muted);
+}
+
+/* ========== Login Page ========== */
+.blog-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+  position: relative;
+  overflow: hidden;
+}
+.blog-login-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+.blog-login-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255,255,255,.98);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.1);
+  padding: 3rem;
+  border: none;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+.blog-login-card h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+}
+.blog-login-card .subtitle {
+  color: var(--blog-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+/* Writer dashboard stat cards */
+.writer-stat-card {
+  background: #fff;
+  border-radius: var(--blog-radius);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--blog-border);
+  box-shadow: var(--blog-shadow);
+  transition: all 0.2s;
+}
+.writer-stat-card:hover {
+  box-shadow: var(--blog-shadow-lg);
+  transform: translateY(-2px);
+}
+.writer-stat-card.primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border: none;
+  color: #fff;
+}
+.writer-stat-card.primary .stat-value,
+.writer-stat-card.primary .stat-label { color: rgba(255,255,255,.95); }
+.writer-stat-card .stat-value { font-size: 1.75rem; font-weight: 700; }
+.writer-stat-card .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9; }
+
+/* ========== Dashboard Stats ========== */
+.blog-stat-card {
+  background: linear-gradient(135deg, var(--blog-primary) 0%, var(--blog-primary-dark) 100%);
+  color: #fff;
+  border-radius: var(--blog-radius);
+  padding: 1.25rem;
+  border: none;
+}
+
+/* ========== Alerts ========== */
+.blog-alert {
+  border-radius: var(--blog-radius-sm);
+  border: none;
+}
+
+/* ========== Empty State ========== */
+.blog-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--blog-text-muted);
+}
+
+/* ========== Internal Links (Writer) ========== */
+.writer-links-header {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  color: #fff !important;
+  border: none !important;
+}
+.link-item {
+  transition: background 0.15s;
+  border-radius: var(--blog-radius-sm);
+}
+.link-item:hover {
+  background: #f1f5f9;
+}
+
+/* ========== Writer Input Groups ========== */
+.blog-form .input-group:not(.has-validation) > .input-group-text {
+  border-radius: var(--blog-radius-sm) 0 0 var(--blog-radius-sm);
+}
+.blog-form .input-group:not(.has-validation) > .form-control {
+  border-radius: 0 var(--blog-radius-sm) var(--blog-radius-sm) 0;
+}
+
+/* ========== Write Page / Editor ========== */
+.blog-writer-page .row { align-items: flex-start; }
+@media (min-width: 992px) {
+  .blog-writer-page .writer-sidebar { position: sticky; top: 1rem; }
+}
+/* CKEditor wrapper - match card style */
+.blog-module .cke_chrome {
+  border: 1px solid var(--blog-border) !important;
+  border-radius: var(--blog-radius-sm) !important;
+}
+.blog-module .cke_top {
+  background: #f8fafc !important;
+  border-bottom: 1px solid var(--blog-border) !important;
+}

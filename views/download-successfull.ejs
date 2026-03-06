@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>FileMakr | Download Successful</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <!-- Brand Fav -->
+  <link rel="icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif">
+
+  <!-- Minimal in-file styles for a premium look -->
+  <style>
+    :root{
+      --ink:#0f172a; --muted:#64748b; --bg:#f7f8fc; --card:#fff;
+      --brandBlue:#2A47FF; --brandOrange:#F17F23; --ring:rgba(42,71,255,.2);
+      --border:#e5e7eb; --green:#22c55e; --radius:16px;
+    }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:var(--brandBlue);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .wrap{max-width:960px;margin:0 auto;padding:16px}
+    @media(min-width:768px){.wrap{padding:24px}}
+
+    .brand-accent{height:4px;background:linear-gradient(90deg,var(--brandBlue),var(--brandOrange));border-radius:999px;margin:8px 0 20px}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(2,6,23,.06);overflow:hidden}
+    .hero{padding:22px;display:grid;gap:14px;align-items:center}
+    @media(min-width:768px){.hero{grid-template-columns:120px 1fr;gap:18px}}
+
+    .check-wrap{display:grid;place-items:center}
+    .check{
+      width:90px;height:90px;border-radius:999px;background:#f0fdf4;border:1px solid #dcfce7;
+      display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--green);font-weight:900
+    }
+
+    .h1{margin:0;font-size:26px;line-height:1.2;font-weight:900}
+    .sub{margin:0;color:var(--muted)}
+    .row{display:flex;flex-wrap:wrap;gap:10px}
+    .btn{height:46px;border-radius:12px;padding:0 16px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;cursor:pointer}
+    .btn-brand{background:var(--brandBlue);color:#fff;border-color:var(--brandBlue);box-shadow:0 10px 24px rgba(42,71,255,.18)}
+    .btn-light{background:#fff;border:1px solid var(--border);color:#111}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:#111}
+    .btn:disabled{opacity:.7;cursor:not-allowed}
+
+    .split{display:grid;gap:14px;padding:16px}
+    @media(min-width:992px){.split{grid-template-columns:1.2fr .8fr}}
+
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+    .panel h3{margin:2px 0 8px;font-size:18px;font-weight:900}
+    .list{list-style:none;margin:0;padding:0;display:grid;gap:8px;color:var(--muted)}
+    .list li{display:flex;align-items:center;gap:8px}
+
+    .summary{display:grid;gap:10px}
+    .line{display:flex;align-items:center;justify-content:space-between}
+    .total{font-weight:900}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#f1f5ff;color:#1e40af;border:1px solid #dbeafe;font-weight:800;font-size:12px}
+
+    .note{font-size:14px;color:var(--muted)}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    .pagefooter{margin-top:16px;padding:10px;color:var(--muted);font-size:13px;text-align:center}
+    /* Callouts */
+/* Shared highlight styles */
+.highlight {
+  border-radius: 20px;
+  padding: 20px 24px;
+  margin-top: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.highlight:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+}
+
+.highlight__content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.highlight__icon img {
+  width: 50px;
+  height: 50px;
+}
+.highlight__text h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.highlight__text p {
+  color: #4b5563;
+  margin: 0 0 8px;
+}
+.highlight__btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+}
+.highlight__btn:hover {
+  background: #1e4fc7;
+}
+.highlight__btn--light {
+  background: #fff;
+  color: #2563eb;
+  border: 2px solid #2563eb;
+}
+.highlight__btn--light:hover {
+  background: #f1f5ff;
+}
+
+/* Variations */
+.highlight--support {
+  background: linear-gradient(90deg, #f0fdf4, #dcfce7);
+}
+.highlight--whatsapp {
+  background: linear-gradient(90deg, #f0f9ff, #dbeafe);
+}
+
+  </style>
+</head>
+
+<body>
+  <% include Includes/navbar2.ejs %>
+  <% include Includes/projectReport.ejs %>
+
+  <div class="wrap">
+    <div class="brand-accent"></div>
+
+    <!-- Success hero -->
+   <section class="dl-hero">
+  <div class="dl-iconwrap" aria-hidden="true">
+    <i data-feather="download-cloud"></i>
+  </div>
+
+  <h1 class="dl-title">Your download is starting</h1>
+  <p class="dl-sub">
+    We’re preparing
+    <strong><%= (result && result[0]) ? (result[0].name || "your file") : "your file" %></strong>.
+    It should begin automatically in a moment.
+  </p>
+
+  <div class="dl-actions">
+    <!-- Download again -->
+    <button
+      class="btn btn-primary"
+      id="DownloadAgain"
+      data-url="/images/<%= (result && result[0] && result[0].source_code) ? result[0].source_code : '' %>"
+      data-filename="<%= (result && result[0] && result[0].source_code) ? result[0].source_code : 'download.zip' %>">
+      <i data-feather="download"></i>
+      <span>Download again</span>
+    </button>
+
+    <!-- Conditionally show project report link -->
+    <% if (typeof hasReport !== 'undefined' && hasReport && typeof reportUrl !== 'undefined' && reportUrl) { %>
+      <a class="btn btn-light" href="<%= reportUrl %>">
+        <i data-feather="file-text"></i>
+        <span>View Project Report</span>
+      </a>
+    <% } %>
+
+    <!-- Back home -->
+    <a class="btn btn-ghost" href="/">
+      <i data-feather="home"></i>
+      <span>Home</span>
+    </a>
+  </div>
+</section>
+
+<script>
+  // Render Feather icons
+  feather.replace();
+
+  // Robust re-download trigger
+  (function(){
+    const againBtn = document.getElementById('DownloadAgain');
+    if(!againBtn) return;
+
+    function triggerDownload(url, filename){
+      if(!url) return;
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename || '';
+      a.rel = 'noopener';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    againBtn.addEventListener('click', () => {
+      triggerDownload(againBtn.dataset.url, againBtn.dataset.filename);
+    });
+  })();
+</script>
+
+<style>
+  /* ========== Download Hero ========== */
+  .dl-hero{
+    max-width: 860px; margin: 28px auto 0; padding: 28px 22px;
+    background: linear-gradient(135deg, rgba(42,71,255,.06), rgba(241,127,35,.06));
+    border: 1px solid rgba(14,18,32,.08); border-radius: 18px;
+    text-align: center;
+  }
+  .dl-iconwrap{
+    width:64px; height:64px; margin: 0 auto 10px;
+    display:grid; place-items:center; border-radius:14px;
+    background:#fff; border:1px solid rgba(14,18,32,.08);
+    box-shadow: 0 6px 18px rgba(14,18,32,.06);
+  }
+  .dl-iconwrap svg{ width:28px; height:28px; color:#2A47FF; }
+  .dl-title{
+    margin: 6px 0 6px; font-weight: 900; font-size: clamp(22px, 3.2vw, 28px); color:#0e1220;
+  }
+  .dl-sub{
+    margin:0 auto 14px; max-width: 640px; color:#6b7280; font-size: 15px;
+  }
+
+  .dl-actions{
+    display:flex; gap:10px; flex-wrap: wrap; justify-content:center;
+    margin-top: 6px;
+  }
+
+  /* ========== Buttons ========== */
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    height:46px; padding:0 16px; border-radius:12px; cursor:pointer;
+    font-weight: 800; text-decoration:none; border:1px solid transparent;
+    transition: box-shadow .15s ease, transform .02s ease;
+  }
+  .btn svg{ width:18px; height:18px; }
+
+  .btn-primary{
+    background:#2A47FF; color:#fff; border-color:#2A47FF;
+    box-shadow: 0 8px 24px rgba(42,71,255,.18);
+  }
+  .btn-primary:hover{ filter:brightness(.98); }
+
+  .btn-light{
+    background:#fff; color:#0e1220; border:1px solid rgba(14,18,32,.12);
+  }
+  .btn-light:hover{ box-shadow: 0 0 0 4px rgba(42,71,255,.12); }
+
+  .btn-ghost{
+    background:transparent; color:#0e1220; border:1px dashed rgba(14,18,32,.16);
+  }
+  .btn-ghost:hover{ background:#fff; box-shadow: 0 0 0 4px rgba(42,71,255,.10); }
+
+  @media (max-width: 480px){
+    .btn{ width:100%; justify-content:center; }
+  }
+</style>
+
+    <!-- Info + Summary -->
+   <div class="dl-split">
+  <!-- Left: Next steps -->
+  <section class="dl-card">
+    <header class="dl-card__head">
+      <span class="dl-kicker">
+        <i data-feather="zap"></i>
+        What happens next?
+      </span>
+    </header>
+
+    <ul class="dl-list">
+      <li class="dl-list__item">
+        <i data-feather="download-cloud" aria-hidden="true"></i>
+        <span>Your source code is downloading to your device.</span>
+      </li>
+      <li class="dl-list__item">
+        <i data-feather="shield" aria-hidden="true"></i>
+        <span>Keep your file safe—some links may expire for security.</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Right: Summary -->
+  <aside class="dl-card dl-card--summary">
+    <div class="dl-summary__row">
+      <span class="dl-badge">
+        <i data-feather="check-circle" aria-hidden="true"></i>
+        Download Ready
+      </span>
+      <time class="dl-note"><%= new Date().toLocaleDateString() %></time>
+    </div>
+
+    <div class="dl-divider" role="separator" aria-hidden="true"></div>
+
+    <div class="dl-summary__row">
+      <span class="dl-label">File name</span>
+      <strong class="dl-value" title="<%= result && result[0] ? (result[0].source_code || 'download.zip') : 'download.zip' %>">
+        <%= result && result[0] ? (result[0].source_code || 'download.zip') : 'download.zip' %>
+      </strong>
+    </div>
+
+    <div class="dl-summary__row dl-summary__row--status">
+      <span class="dl-label">Status</span>
+      <span class="dl-status">
+        <span class="dl-status__dot" aria-hidden="true"></span>
+        Completed
+      </span>
+    </div>
+  </aside>
+</div>
+
+
+<style>
+  /* ===== Premium Download Split ===== */
+.dl-split{
+  display:grid;
+  grid-template-columns: 1.4fr .9fr;
+  gap:16px;
+  margin-top:14px;
+}
+@media (max-width: 991.98px){
+  .dl-split{ grid-template-columns:1fr; }
+}
+
+/* Card */
+.dl-card{
+  background:#fff;
+  border:1px solid rgba(14,18,32,.08);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 8px 24px rgba(14,18,32,.06);
+}
+.dl-card__head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.dl-kicker{
+  display:inline-flex; align-items:center; gap:8px;
+  font-weight:800; letter-spacing:.02em;
+  color:#0e1220;
+}
+.dl-kicker svg{ width:18px; height:18px; color:#2A47FF; }
+
+/* List */
+.dl-list{
+  list-style:none; padding:0; margin:0; display:grid; gap:10px;
+}
+.dl-list__item{
+  display:flex; gap:10px; align-items:flex-start;
+  padding:10px 12px; border:1px solid rgba(14,18,32,.06);
+  border-radius:12px; background:#fafbff;
+}
+.dl-list__item svg{
+  width:18px; height:18px; color:#2A47FF; flex:0 0 auto; margin-top:2px;
+}
+.dl-list__item span{ color:#0e1220; font-weight:600; }
+
+/* Summary */
+.dl-card--summary{
+  position:sticky; top:96px;
+  display:flex; flex-direction:column; gap:10px;
+  background:linear-gradient(135deg, rgba(42,71,255,.04), rgba(241,127,35,.04));
+}
+.dl-summary__row{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.dl-divider{
+  height:1px; background:rgba(14,18,32,.08); margin:4px 0 6px;
+}
+.dl-label{ color:#6b7280; font-weight:700; }
+.dl-value{ color:#0e1220; font-weight:900; max-width:60%; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; }
+
+.dl-badge{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:999px;
+  font-weight:900; font-size:12px;
+  background:#eef2ff; color:#2A47FF; border:1px solid rgba(42,71,255,.25);
+}
+.dl-badge svg{ width:16px; height:16px; }
+
+.dl-note{ color:#6b7280; font-weight:700; font-size:12px; }
+
+/* Status pill */
+.dl-summary__row--status .dl-label{ color:#6b7280; }
+.dl-status{
+  display:inline-flex; align-items:center; gap:8px;
+  font-weight:900; color:#16a34a; background:#ecfdf5;
+  border:1px solid rgba(22,163,74,.2); border-radius:999px; padding:6px 10px;
+}
+.dl-status__dot{
+  width:8px; height:8px; border-radius:999px; background:#16a34a;
+  box-shadow:0 0 0 3px rgba(22,163,74,.15);
+}
+
+/* Light scheme helper for pages with tinted backgrounds */
+body{ background:#f7f8fc; }
+
+</style>
+
+
+    <!-- Code Setup Support callout -->
+<!-- Code Setup Support -->
+<!-- Feather Icons CDN -->
+<script src="https://unpkg.com/feather-icons"></script>
+
+<!-- Code Setup Support -->
+<section class="highlight highlight--support">
+  <div class="highlight__content">
+    <div class="highlight__icon">
+      <i data-feather="clock"></i>
+    </div>
+    <div class="highlight__text">
+      <% if (setupSupport) { %>
+        <h3>✅ Setup Support Activated</h3>
+        <p>Our team will reach out within <strong>24 hours</strong> to help you get everything running smoothly.</p>
+      <% } else { %>
+        <h3>Need Code Setup Support?</h3>
+        <p>Get your code installed, configured, and ready to run — all within <strong>24 hours</strong>.</p>
+        <a class="highlight__btn" href="https://wa.me/918319339945?text=Hi%20FileMakr%2C%20I%20want%20Code%20Setup%20Support." target="_blank" rel="noopener">
+          Request Support
+        </a>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- WhatsApp Help -->
+<section class="highlight highlight--whatsapp">
+  <div class="highlight__content">
+    <div class="highlight__icon">
+      <i data-feather="message-circle"></i>
+    </div>
+    <div class="highlight__text">
+      <h3>Need Help?</h3>
+      <p>Chat with us on WhatsApp for quick answers and friendly assistance.</p>
+      <a class="highlight__btn highlight__btn--light" href="https://wa.me/918319339945" target="_blank" rel="noopener">
+        Open WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Activate feather icons
+  feather.replace();
+</script>
+
+
+
+<!-- WhatsApp help callout -->
+
+
+
+
+  </div>
+
+  <% include Includes/footer.ejs %>
+
+  <script>
+    // Auto-start download after a short delay, with safe fallback.
+    (function(){
+      var row = <%- JSON.stringify(result && result[0] ? result[0] : {}) %>;
+      var sourceCode = row && row.source_code ? row.source_code : null;
+
+      function triggerDownload(filename){
+        if(!filename) return;
+        var url = '/images/' + encodeURIComponent(filename);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      // Auto download shortly after load
+      window.addEventListener('load', function(){
+        setTimeout(function(){
+          triggerDownload(sourceCode);
+        }, 900);
+      });
+
+      // "Download again" button
+      var again = document.getElementById('DownloadAgain');
+      if(again){
+        again.addEventListener('click', function(){
+          triggerDownload(sourceCode);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1159 @@
+<%include Includes/singleProjectReportNavbar.ejs %>
+<%include Includes/projectReport.ejs %>
+
+<!-- ====== Styles (scoped) ====== -->
+<style>
+/* ===== Premium UI mapped to FileMakr brand tokens ===== */
+/* Assumes your brand :root is already defined (brandBlue, brandOrange, ink, bg, card, ring, muted) */
+
+body{ background:var(--bg); }
+.container-narrow{ max-width:1120px; margin:0 auto; }
+
+.shadow-soft{ box-shadow:0 6px 18px rgba(14,18,32,.06); }
+.card-surface{
+  background:var(--card);
+  border:1px solid rgba(14,18,32,.08);
+  border-radius:16px;
+  padding:1rem;
+}
+
+/* Pills */
+.pill{
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.5rem .9rem; border-radius:999px;
+  background:#f3f4f6; border:1px solid transparent;
+  color:var(--ink); text-decoration:none; font-weight:700; white-space:nowrap; transition:.2s;
+}
+.pill:hover{ background:#eef2f7; }
+.pill.active{
+  background:#fff; color:var(--brandBlue);
+  border-color:var(--brandBlue);
+  box-shadow:0 4px 14px rgba(42,71,255,.15);
+}
+
+/* Buttons */
+.btn-brand{
+  background:var(--brandBlue); color:#fff;
+  border-radius:999px; border:0; padding:.8rem 1.1rem; font-weight:800;
+  box-shadow:0 8px 24px rgba(42,71,255,.15);
+}
+.btn-brand:hover{ filter:brightness(.98); }
+.btn-outline{
+  background:#fff; color:var(--ink);
+  border:1px solid rgba(14,18,32,.08);
+  border-radius:999px; padding:.8rem 1.1rem; font-weight:800;
+}
+.btn-outline:hover{ border-color:var(--brandBlue); box-shadow:0 0 0 4px var(--ring); }
+
+
+
+.badge-soft{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  padding:.35rem .6rem; border-radius:999px;
+}
+.media-thumb{ border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.15); }
+
+/* Pricing option cards */
+.option-card{
+  border-radius:16px; border:1px solid rgba(14,18,32,.08);
+  background:#fff; padding:1rem; transition:.2s;
+}
+.option-card:hover{ box-shadow:0 10px 28px rgba(14,18,32,.10); transform:translateY(-2px); }
+.option-title{ font-weight:800; margin:0; color:var(--ink); }
+.tiny{ font-size:.85rem; color:var(--muted); }
+
+/* Chips */
+.chips{ display:flex; gap:.5rem; flex-wrap:wrap; }
+.chip{
+  font-size:.8rem; padding:.3rem .6rem;
+  background:#f7f8fc; color:var(--ink);
+  border-radius:999px; border:1px solid rgba(14,18,32,.08);
+  font-weight:800;
+}
+
+/* Tabs */
+.tab-content.card-surface{ padding:1rem; }
+.nav-tabs{ border:0; margin:0; }
+.nav-tabs .nav-link{
+  border:1px solid rgba(14,18,32,.08) !important;
+  border-radius:999px; margin-right:.4rem; color:var(--ink); font-weight:800;
+}
+.nav-tabs .nav-link.active{
+  background:#fff; color:var(--brandBlue);
+  border-color:var(--brandBlue) !important;
+  box-shadow:0 6px 18px rgba(42,71,255,.15);
+}
+
+/* Lists */
+.list-clean{ list-style:none; padding-left:0; margin:0; }
+.list-clean li{ padding:.5rem .25rem; border-bottom:1px dashed rgba(14,18,32,.12); }
+.list-clean li:last-child{ border-bottom:0; }
+
+/* Utilities */
+.muted{ color:var(--muted); }
+.rounded-xl{ border-radius:16px; }
+.gap-6{ gap:1.5rem; }
+.w-100{ width:100%; }
+.pointer{ cursor:pointer; }
+.sticky-side{ position:sticky; top:92px; }
+
+
+/* ===== Pro hero layout (clean, spacious) ===== */
+
+
+
+
+</style>
+
+<!-- table of contents -->
+<style>
+ /* Container */
+.toc.pro{ border:1px solid rgba(14,18,32,.08); border-radius:16px; overflow:hidden; }
+
+/* Header */
+.toc-head{
+  display:grid; grid-template-columns:120px 1fr; gap:8px;
+  background:rgba(42,71,255,.06);
+  border-bottom:1px solid rgba(14,18,32,.08);
+  padding:.65rem .9rem; color:var(--muted);
+  font-weight:900; text-transform:uppercase; font-size:.78rem; letter-spacing:.04em;
+}
+.toc-col.sno{ white-space:nowrap; }
+
+/* Chapter header row */
+.toc-chapter{ border-top:1px solid rgba(14,18,32,.06); }
+.toc-chapter:first-of-type{ border-top:0; }
+
+.toc-chapter-head{
+  width:100%; background:#f9fbff; border:0; text-align:left;
+  display:grid; grid-template-columns:120px 1fr 24px; gap:8px;
+  padding:.7rem .9rem; align-items:center; cursor:pointer;
+}
+.toc-ch-label{ font-weight:800; color:#111; }
+.toc-ch-title{ font-weight:900; color:#111; }
+.toc-ch-caret{ color:#9aa1ae; transition:.2s transform ease; }
+.toc-chapter-head[aria-expanded="true"] .toc-ch-caret{ transform:rotate(180deg); }
+
+/* Items */
+.toc-list{ margin:0; padding:.25rem .9rem .6rem; list-style:none; }
+.toc-row{
+  display:grid; grid-template-columns:120px 1fr; gap:8px;
+  padding:.48rem 0; border-bottom:1px dashed rgba(14,18,32,.08);
+}
+.toc-row:last-child{ border-bottom:0; }
+.toc-col.idx{
+  position:relative; padding-left:1rem;
+}
+.toc-col.idx::before{
+  content:""; position:absolute; left:.25rem; top:50%; transform:translateY(-50%);
+  width:6px; height:6px; border-radius:999px; background:rgba(42,71,255,.35);
+}
+
+/* Density + hover */
+.toc-row:hover .toc-col.idx{ color:#0e1220; }
+.toc-chapter-head:hover{ background:#f2f6ff; }
+
+/* Mobile */
+@media (max-width:575.98px){
+  .toc-head, .toc-row, .toc-chapter-head{ grid-template-columns:88px 1fr !important; }
+  .toc-ch-caret{ display:none; } /* less noise on tiny screens */
+}
+
+</style>
+
+
+
+<!-- description -->
+
+
+<style>
+  /* Description tab — premium, uncluttered */
+#pane-description .desc-intro{
+  border:1px solid rgba(14,18,32,.08);
+  border-radius:14px; padding:12px; background:#fff; margin-bottom:12px;
+}
+#pane-description .desc-intro p{ margin:0; color:#111; }
+
+#pane-description .desc-block{ margin-top:14px; }
+#pane-description .desc-heading{
+  margin:0 0 8px; font-weight:900; color:#111; font-size:1rem;
+}
+
+#pane-description .desc-check{
+  list-style:none; margin:0; padding:0; display:grid; gap:8px;
+}
+#pane-description .desc-check li{
+  display:flex; align-items:flex-start; gap:8px; background:#fff;
+  border:1px solid rgba(14,18,32,.08); border-radius:12px; padding:10px 12px;
+}
+#pane-description .desc-check i{ color:var(--brandBlue); margin-top:2px; }
+
+#pane-description .desc-grid{
+  display:grid; gap:10px;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+}
+@media (min-width: 768px){
+  #pane-description .desc-grid{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+}
+#pane-description .desc-item{
+  display:flex; gap:10px; align-items:flex-start;
+  border:1px solid rgba(14,18,32,.08); border-radius:12px; background:#fff; padding:10px 12px;
+}
+#pane-description .desc-item i{
+  color:var(--brandBlue); font-size:18px; line-height:1; margin-top:2px;
+}
+#pane-description .desc-item strong{ display:block; color:#111; }
+#pane-description .desc-item span{ display:block; color:var(--muted); font-size:.9rem; }
+
+#pane-description .desc-note{
+  display:flex; gap:8px; align-items:flex-start; margin-top:14px;
+  padding:10px 12px; border-radius:12px;
+  background:linear-gradient(90deg, rgba(42,71,255,.06), rgba(241,127,35,.06));
+  border:1px solid rgba(14,18,32,.06);
+}
+#pane-description .desc-note i{ color:var(--brandBlue); margin-top:2px; }
+
+
+/* Quick facts */
+.facts{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:10px; }
+@media (max-width:767.98px){ .facts{ grid-template-columns:1fr; } }
+.fact{
+  background:#fff; border:1px solid rgba(14,18,32,.08); border-radius:12px; padding:10px 12px;
+  display:flex; gap:10px; align-items:flex-start;
+}
+.fact i{ color:var(--brandBlue); margin-top:2px; }
+.fact b{ display:block; color:#111; }
+.fact span{ color:var(--muted); font-size:.92rem; }
+
+
+/* Horizontal "peek" tab slider */
+.tabslider{
+  position:relative; margin-bottom:10px;
+  padding:0 8px; /* small gutter so next tab peeks */
+  /* mask creates soft edges and shows a hint of the next tab */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 10px, #000 calc(100% - 38px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 10px, #000 calc(100% - 38px), transparent 100%);
+}
+.pro-tabs{
+  display:flex; flex-wrap:nowrap; gap:8px; overflow-x:auto; scrollbar-width:none;
+  border:0; padding:6px 0;
+  scroll-snap-type:x mandatory;
+}
+.pro-tabs::-webkit-scrollbar{ display:none; }
+.pro-tabs .nav-item{ flex:0 0 auto; scroll-snap-align:center; }
+
+.pro-tabs .nav-link{
+  display:inline-flex; align-items:center; gap:8px;
+  height:40px; padding:0 14px; border-radius:999px;
+  background:#fff; color:#111; font-weight:800;
+  border:1px solid rgba(14,18,32,.10)!important;
+  box-shadow:0 1px 2px rgba(14,18,32,.04);
+  transition:box-shadow .15s, border-color .15s, transform .06s;
+}
+.pro-tabs .nav-link i{ opacity:.85; }
+.pro-tabs .nav-link:active{ transform:translateY(1px); }
+.pro-tabs .nav-link:hover{ border-color:var(--brandBlue); }
+
+.pro-tabs .nav-link.active{
+  color:var(--brandBlue);
+  border-color:var(--brandBlue)!important;
+  box-shadow:0 6px 18px rgba(42,71,255,.15);
+  background:#fff;
+}
+
+/* active underline that glides under the active pill */
+.tab-underline{
+  position:absolute; left:12px; bottom:-2px; height:3px; width:64px;
+  background:linear-gradient(90deg,var(--brandBlue),var(--brandOrange));
+  border-radius:999px; transition:left .25s ease,width .25s ease;
+}
+
+/* Desktop: center the tab row and soften the peek */
+@media (min-width:992px){
+  .tabslider{ -webkit-mask-image:none; mask-image:none; }
+  .pro-tabs{ justify-content:flex-start; }
+}
+
+
+</style>
+
+
+<style>
+  /* Layout */
+.pro-hero{background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));
+  border:1px solid rgba(14,18,32,.06); border-radius:20px; padding:18px;}
+.pro-hero-grid{display:grid; gap:18px; align-items:center;
+  grid-template-columns:1.2fr .8fr;}
+@media(max-width:992px){ .pro-hero-grid{grid-template-columns:1fr} }
+
+.pro-hero-title{margin:.25rem 0; font-weight:900}
+.pro-hero-sub{color:var(--muted); margin:0}
+.pro-hero-chips{display:flex;gap:8px;flex-wrap:wrap;list-style:none;padding:0;margin:10px 0 12px}
+.pro-hero-chips li{padding:6px 10px;border-radius:999px;background:#fff;border:1px solid rgba(14,18,32,.08);font-weight:800}
+.pro-hero-ctas{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Poster */
+.thumb{position:relative; width:100%; aspect-ratio:16/9; border:1px solid rgba(14,18,32,.08);
+  border-radius:14px; overflow:hidden; padding:0; background:#fff; cursor:pointer}
+.thumb-img{width:100%; height:100%; object-fit:cover; display:block}
+.thumb-play{position:absolute; inset:auto auto 12px 12px; display:inline-flex; align-items:center;
+  gap:8px; padding:8px 12px; border-radius:999px; background:#fff; font-weight:900;
+  border:1px solid rgba(14,18,32,.08); box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.thumb:hover{box-shadow:0 10px 28px rgba(14,18,32,.10); transform:translateY(-1px)}
+
+/* Modal */
+.preview-modal{position:fixed; inset:0; background:rgba(14,18,32,.55); display:none; z-index:10000;
+  align-items:center; justify-content:center; padding:18px}
+.preview-modal.is-open{display:flex}
+.preview-dialog{width:min(1200px,500px); background:#fff; border-radius:16px; overflow:hidden;
+  box-shadow:0 18px 60px rgba(14,18,32,.25); position:relative;height:500px}
+.preview-close{position:absolute; top:10px; right:10px; border:1px solid rgba(14,18,32,.12);
+  background:#fff; border-radius:10px; padding:6px 8px; cursor:pointer}
+.preview-frame{position:relative; width:100%; aspect-ratio:16/9; background:#000;height:500px}
+.preview-skeleton{position:absolute; inset:0; background:
+  linear-gradient(90deg,#f5f7ff 25%,#eef2ff 37%,#f5f7ff 63%);
+  animation:shimmer 1.4s infinite; }
+@keyframes shimmer{0%{transform:translateX(-30%)} 100%{transform:translateX(30%)}}
+
+.preview-iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+
+</style>
+
+<!-- ====== Breadcrumb ====== -->
+<div class="container">
+  <div class="brand-accent"></div>
+
+  <nav aria-label="breadcrumb" class="page-breadcrumb mb-2">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="<%= typeof homeUrl !== 'undefined' ? homeUrl : '/' %>" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page"><%= graduation_type_send %> Final Year Project Source Code Download</li>
+    </ol>
+  </nav>
+
+
+  <style>
+    .thumb-live {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  display: block;
+}
+
+.thumb-bg {
+  background: url('/design/img/video.jpg') center/cover no-repeat;
+  width: 100%;
+  height: 100%;
+  filter: blur(6px) brightness(0.6);
+  transform: scale(1.05);
+}
+
+.thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+}
+
+.thumb-content {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.thumb-icon {
+  font-size: 42px;
+  color: white;
+  background: rgba(0,0,0,0.5);
+  padding: 14px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.thumb-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.thumb-live:hover .thumb-icon {
+  background: rgba(255,255,255,0.2);
+}
+
+  </style>
+
+<!-- ====== Hero (Product Header with Price/Preview/Download) ====== -->
+<section class="product-hero pro-hero">
+  <div class="pro-hero-grid">
+    <!-- Copy -->
+    <div class="pro-hero-left">
+      <span class="badge-soft"><%=graduation_type_send%> • Final Year Project Report</span>
+      <h1 class="pro-hero-title"><%=result[0][0].name%> Project Report</h1>
+      <p class="pro-hero-sub">PDF for <%=graduation_type_send%> Final Year · Explained in simple language</p>
+
+      <ul class="pro-hero-chips">
+        <li>35+ pages</li><li>Fast customization</li><li>Student-friendly</li>
+      </ul>
+
+      
+    </div>
+
+    <!-- Poster (lightweight) -->
+    <div class="pro-hero-right">
+      <button class="thumb thumb-live" data-preview aria-label="Open live preview">
+  <div class="thumb-bg"></div>
+  <div class="thumb-overlay"></div>
+  <div class="thumb-content">
+    <i class="fa-solid fa-play thumb-icon"></i>
+    <span class="thumb-text">Live Preview</span>
+  </div>
+</button>
+
+    </div>
+  </div>
+</section>
+
+<!-- Preview modal (iframe injected on open) -->
+<div class="preview-modal" id="PreviewModal" aria-hidden="true">
+  <div class="preview-dialog" role="dialog" aria-modal="true" aria-label="Live Preview">
+    <button class="preview-close" data-close aria-label="Close"><i class="feather-x"></i></button>
+    <div class="preview-frame">
+      <!-- skeleton until iframe mounts -->
+      <div class="preview-skeleton"></div>
+    </div>
+  </div>
+</div>
+
+<noscript>
+  <p style="text-align:center;margin-top:8px">
+    <a href="https://online.visual-paradigm.com/share/book/sample-project-report-1uzumhkivv" target="_blank" rel="noopener">
+      Open Live Preview
+    </a>
+  </p>
+</noscript>
+
+
+
+
+
+ <section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-eye" style="color:var(--brandOrange)"></i>
+    <h3>View Project Report</h3>
+  </div>
+  <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
+</section>
+
+
+<!-- ====== Smart Filter + Search (for related reports) ====== -->
+
+
+<!-- ====== Tabs: Overview / Includes / Description / Chapters ====== -->
+<section class="md-wrap md-app">
+  <div class="row g-2 align-items-center">
+    <div class="tabslider" aria-label="Report sections">
+  <ul class="nav pro-tabs" id="reportTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-overview"
+              data-bs-toggle="tab" data-bs-target="#pane-description" type="button" role="tab">
+        <i class="feather-info"></i> Overview
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-includes"
+              data-bs-toggle="tab" data-bs-target="#pane-includes" type="button" role="tab">
+        <i class="feather-box"></i> What’s Included
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-chapters"
+              data-bs-toggle="tab" data-bs-target="#pane-chapters" type="button" role="tab">
+        <i class="feather-list"></i> Table of Contents
+      </button>
+    </li>
+
+      <li class="nav-item" role="presentation">
+  <button class="nav-link" id="tab-tags"
+          data-bs-toggle="tab" data-bs-target="#pane-tags" type="button" role="tab">
+    <i class="feather-tag"></i> Tags
+  </button>
+</li>
+  </ul>
+  <!-- active underline -->
+  <span class="tab-underline" id="TabUnderline"></span>
+</div>
+
+    <div class="tab-content card-surface shadow-soft">
+      <!-- Overview -->
+  
+
+      <!-- Includes -->
+      <div class="tab-pane fade" id="pane-includes" role="tabpanel">
+        <h5 class="fw-bold mb-2">What’s Included</h5>
+         <section class="inc-wrap">
+    <div class="section-title"><i class="feather-check-circle" style="color:var(--brandBlue)"></i><h3>Project Report Includes</h3></div>
+    <div class="inc-grid">
+      <div class="inc-item"><i class="feather-share-2"></i><span>ER Diagram</span></div>
+      <div class="inc-item"><i class="feather-git-merge"></i><span>DFD Diagram</span></div>
+      <div class="inc-item"><i class="feather-droplet"></i><span>Waterfall Model</span></div>
+      <div class="inc-item"><i class="feather-git-branch"></i><span>Flow Chart</span></div>
+      <div class="inc-item"><i class="feather-cpu"></i><span>Technology</span></div>
+      <div class="inc-item"><i class="feather-check-square"></i><span>Testing Case</span></div>
+      <div class="inc-item"><i class="feather-link"></i><span>References</span></div>
+      <div class="inc-item"><i class="feather-list"></i><span>Indexing</span></div>
+      <div class="inc-item"><i class="feather-award"></i><span>IEEE Standard</span></div>
+      <div class="inc-item"><i class="feather-calendar"></i><span>Gantt Chart</span></div>
+      <div class="inc-item"><i class="feather-monitor"></i><span>Output Screens</span></div>
+    </div>
+  </section>
+        <div class="tiny mt-2">Need extra diagrams (Class, Sequence, Architecture, Deployment)? Choose <b>Pre Defined + Extra Diagrams</b> above.</div>
+      </div>
+
+      <!-- Description -->
+     <div class="tab-pane fade show active" id="pane-description" role="tabpanel" aria-labelledby="tab-description">
+  <h5 class="fw-bold mb-2">Description</h5>
+
+  <!-- Intro -->
+  <div class="desc-intro card-surface">
+
+    <p>
+      This <strong><%=graduation_type_send%></strong> final-year <strong><%=result[0][0].name%></strong> project report is crafted to be easy to follow and quick to adapt. You’ll get concise documentation, implementation guidance, and the assets needed to present confidently.
+    </p>
+  </div>
+
+
+   <div class="facts">
+          <div class="fact"><i class="feather-file-text"></i><b>35+ pages</b><span>Concise & student-friendly</span></div>
+          <div class="fact"><i class="feather-zap"></i><b>Quick edit</b><span>Customize in minutes</span></div>
+          <div class="fact"><i class="feather-shield"></i><b>Faculty-ready</b><span>Clean academic style</span></div>
+        </div>
+
+  <!-- Outcomes -->
+  <div class="desc-block">
+    <h6 class="desc-heading">What you’ll achieve</h6>
+    <ul class="desc-check">
+      <li><i class="feather-check"></i> Understand the complete system design and workflow</li>
+      <li><i class="feather-check"></i> Implement a working prototype with clear modules</li>
+      <li><i class="feather-check"></i> Present a structured report that meets faculty expectations</li>
+    </ul>
+  </div>
+
+  <!-- Deliverables -->
+  <div class="desc-block">
+    <h6 class="desc-heading">Included deliverables</h6>
+    <div class="desc-grid">
+      <div class="desc-item">
+        <i class="feather-database"></i>
+        <div><strong>ER Diagram</strong><span>Database entities & relations</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-git-merge"></i>
+        <div><strong>DFD</strong><span>Context & levels for data flow</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-droplet"></i>
+        <div><strong>Waterfall Model</strong><span>Stage-wise plan & scope</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-git-branch"></i>
+        <div><strong>Flow Chart</strong><span>End-to-end process logic</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-cpu"></i>
+        <div><strong>Tech Stack</strong><span>Chosen tools with rationale</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-check-square"></i>
+        <div><strong>Test Cases</strong><span>Unit, integration & system</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-link"></i>
+        <div><strong>References</strong><span>Citations & reading list</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-list"></i>
+        <div><strong>Indexing</strong><span>Neat navigation structure</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-award"></i>
+        <div><strong>IEEE Format</strong><span>Polished academic styling</span></div>
+      </div>
+      <div class="desc-item">
+        <i class="feather-calendar"></i>
+        <div><strong>Gantt Chart</strong><span>Timeline & milestones</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subtle note -->
+  <div class="desc-note">
+    <i class="feather-info"></i>
+    <span>Need institute-specific format or word limits? Choose <strong>Customized Report</strong> and message us on WhatsApp.</span>
+  </div>
+</div>
+
+
+      <!-- Chapters -->
+    <div class="tab-pane fade show" id="pane-chapters" role="tabpanel" aria-labelledby="tab-chapters">
+
+<h5 class="fw-bold mb-2">Description</h5>
+
+  <!-- Intro -->
+  <div class="desc-intro card-surface">
+
+    <p>
+      This <strong><%=result[0][0].name%></strong> Project Report project report includes comprehensive documentation and source code, divided into 10 chapters: Introduction, Software Requirements Specification, Design & Planning, Implementation Details, Testing, Result, Advantages, Conclusion, and Bibliography. Ideal for those working on a <strong><%=result[0][0].name%></strong>, this project report offers a thorough guide to developing a <strong><%=result[0][0].name%></strong>
+    </p>
+  </div>
+
+ 
+  <h5 class="fw-bold mb-2 mt-3">Table of Contents</h5>
+
+
+  <div class="toc pro card-surface shadow-soft">
+    <!-- Header row -->
+    <div class="toc-head">
+      <span class="toc-col sno">S.No.</span>
+      <span class="toc-col idx">Index</span>
+    </div>
+
+    <!-- Chapter 1 -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">Chapter 1</span>
+        <span class="toc-ch-title">INTRODUCTION</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true">
+        <li class="toc-row"><span class="toc-col sno">1.1</span><span class="toc-col idx">Introduction</span></li>
+        <li class="toc-row"><span class="toc-col sno">1.2</span><span class="toc-col idx">Aim</span></li>
+        <li class="toc-row"><span class="toc-col sno">1.3</span><span class="toc-col idx">Existing System</span></li>
+        <li class="toc-row"><span class="toc-col sno">1.4</span><span class="toc-col idx">Proposed System</span></li>
+        <li class="toc-row"><span class="toc-col sno">1.5</span><span class="toc-col idx">Feasibility Study</span></li>
+        <li class="toc-row"><span class="toc-col sno">1.6</span><span class="toc-col idx">Project Work Schedule</span></li>
+        <li class="toc-row"><span class="toc-col sno">1.7</span><span class="toc-col idx">Organisation of Report</span></li>
+      </ul>
+    </section>
+
+    <!-- Chapter 2 -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">Chapter 2</span>
+        <span class="toc-ch-title">SOFTWARE REQUIREMENTS SPECIFICATION</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true">
+        <li class="toc-row"><span class="toc-col sno">2.1</span><span class="toc-col idx">Hardware Requirement</span></li>
+        <li class="toc-row"><span class="toc-col sno">2.2</span><span class="toc-col idx">Software Requirement</span></li>
+      </ul>
+    </section>
+
+    <!-- Chapter 3 -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">Chapter 3</span>
+        <span class="toc-ch-title">DESIGN &amp; PLANNING</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true">
+        <li class="toc-row"><span class="toc-col sno">3.1</span><span class="toc-col idx">Software Development Life Cycle Model</span></li>
+        <li class="toc-row"><span class="toc-col sno">3.2</span><span class="toc-col idx">General Overview</span></li>
+        <li class="toc-row"><span class="toc-col sno">3.3</span><span class="toc-col idx">User Flow Diagram</span></li>
+        <li class="toc-row"><span class="toc-col sno">3.4</span><span class="toc-col idx">ER Diagram</span></li>
+        <li class="toc-row"><span class="toc-col sno">3.5</span><span class="toc-col idx">DFD Diagram</span></li>
+      </ul>
+    </section>
+
+    <!-- Chapter 4 -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">Chapter 4</span>
+        <span class="toc-ch-title">IMPLEMENTATION DETAILS</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true">
+        <li class="toc-row"><span class="toc-col sno">4.1</span><span class="toc-col idx">Front End</span></li>
+        <li class="toc-row"><span class="toc-col sno">4.2</span><span class="toc-col idx">Back End</span></li>
+      </ul>
+    </section>
+
+    <!-- Chapter 5 -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">Chapter 5</span>
+        <span class="toc-ch-title">TESTING</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true">
+        <li class="toc-row"><span class="toc-col sno">5.1</span><span class="toc-col idx">Unit Testing</span></li>
+        <li class="toc-row"><span class="toc-col sno">5.2</span><span class="toc-col idx">Integration Testing</span></li>
+        <li class="toc-row"><span class="toc-col sno">5.3</span><span class="toc-col idx">Software Verification &amp; Validation</span></li>
+        <li class="toc-row"><span class="toc-col sno">5.4</span><span class="toc-col idx">Black-Box Testing</span></li>
+        <li class="toc-row"><span class="toc-col sno">5.5</span><span class="toc-col idx">White-Box Testing</span></li>
+        <li class="toc-row"><span class="toc-col sno">5.6</span><span class="toc-col idx">System Testing</span></li>
+      </ul>
+    </section>
+
+    <!-- Chapter 6 -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">Chapter 6</span>
+        <span class="toc-ch-title">RESULTS</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true"></ul>
+    </section>
+
+    <!-- Chapter 7 -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">Chapter 7</span>
+        <span class="toc-ch-title">ADVANTAGES</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true"></ul>
+    </section>
+
+    <!-- Chapter 8 -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">Chapter 8</span>
+        <span class="toc-ch-title">CONCLUSION</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true"></ul>
+    </section>
+
+    <!-- Bibliography -->
+    <section class="toc-chapter">
+      <button class="toc-chapter-head" type="button" aria-expanded="true">
+        <span class="toc-ch-label">—</span>
+        <span class="toc-ch-title">BIBLIOGRAPHY</span>
+        <i class="feather-chevron-down toc-ch-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="toc-list" data-open="true"></ul>
+    </section>
+  </div>
+</div>
+
+
+
+<!-- tags -->
+
+<div class="tab-pane fade" id="pane-tags" role="tabpanel">
+  <h5 class="fw-bold mb-2"><%=result[0][0].name%> Project Report Tags</h5>
+
+  <div class="facts">
+    <!-- Core Project Name Variations -->
+    <div class="fact"><i class="feather-file-text"></i><b><%=result[0][0].name%> System</b></div>
+    <div class="fact"><i class="feather-cpu"></i><b><%=result[0][0].name%> Software</b></div>
+    <div class="fact"><i class="feather-book"></i><b><%=result[0][0].name%> Project Report</b></div>
+
+    <!-- Degree / Academic Variations -->
+    <div class="fact"><i class="feather-award"></i><b><%=graduation_type_send%> Final Year Project Report</b></div>
+    <div class="fact"><i class="feather-award"></i><b>Final Year Project Report</b></div>
+    <div class="fact"><i class="feather-briefcase"></i><b>B.Tech <%=result[0][0].name%> Project</b></div>
+    <div class="fact"><i class="feather-briefcase"></i><b>M.Tech <%=result[0][0].name%> Report</b></div>
+    <div class="fact"><i class="feather-briefcase"></i><b>BCA <%=result[0][0].name%> Project Report</b></div>
+    <div class="fact"><i class="feather-briefcase"></i><b>MCA <%=result[0][0].name%> Report</b></div>
+    <div class="fact"><i class="feather-briefcase"></i><b>B.E. <%=result[0][0].name%> Final Year Project</b></div>
+    <div class="fact"><i class="feather-briefcase"></i><b>M.E. <%=result[0][0].name%> Report</b></div>
+
+    <!-- Format / Content Variations -->
+    <div class="fact"><i class="feather-download"></i><b>Download <%=result[0][0].name%> Report PDF</b></div>
+    <div class="fact"><i class="feather-file"></i><b>Editable <%=result[0][0].name%> Project Report DOC</b></div>
+    <div class="fact"><i class="feather-edit"></i><b>Custom <%=result[0][0].name%> Report</b></div>
+    <div class="fact"><i class="feather-layers"></i><b>Diagrams for <%=result[0][0].name%> Project</b></div>
+
+    <!-- Niche / Extra Keywords -->
+    <div class="fact"><i class="feather-shield"></i><b>Plagiarism-Free <%=result[0][0].name%> Report</b></div>
+    <div class="fact"><i class="feather-trending-up"></i><b>Best <%=result[0][0].name%> Project Idea</b></div>
+    <div class="fact"><i class="feather-zap"></i><b>Faculty-Ready <%=result[0][0].name%> Report</b></div>
+    <div class="fact"><i class="feather-check-circle"></i><b>Turnitin Safe <%=result[0][0].name%> Report</b></div>
+  </div>
+</div>
+
+      <!-- /tab panes -->
+    </div>
+  </div>
+</section>
+
+<!-- ====== Related / Popular (uses your existing result[1]) ====== -->
+
+
+<style>
+  /* Premium section header */
+.pro-sechead{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:12px; margin:6px 0 14px;
+  border-bottom:1px solid rgba(14,18,32,.06); padding-bottom:10px;
+}
+.pro-sechead__left{ max-width:900px; }
+.pro-kicker{
+  display:inline-flex; align-items:center; gap:6px;
+  font-weight:800; font-size:.8rem; letter-spacing:.02em;
+  color:var(--brandBlue);
+  background:linear-gradient(90deg,rgba(42,71,255,.08),rgba(241,127,35,.08));
+  border:1px solid rgba(14,18,32,.06);
+  padding:6px 10px; border-radius:999px;
+}
+.pro-kicker i{ font-size:14px; }
+
+.pro-title{
+  margin:8px 0 2px; font-weight:900;
+  letter-spacing:-.01em; color:#111;
+}
+.pro-sub{
+  margin:0; color:var(--muted); font-size:.95rem;
+}
+
+/* Pill CTA */
+.pro-sechead__right{ flex:0 0 auto; }
+.pro-cta{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 14px; border-radius:999px; text-decoration:none;
+  font-weight:900; color:#111; background:#fff;
+  border:1px solid rgba(14,18,32,.10);
+  box-shadow:0 1px 2px rgba(14,18,32,.04);
+  transition:box-shadow .15s, border-color .15s, transform .06s;
+}
+.pro-cta:hover{
+  border-color:var(--brandBlue);
+  box-shadow:0 0 0 3px rgba(42,71,255,.15);
+}
+.pro-cta i{ opacity:.9; }
+
+/* Mobile stacking */
+@media (max-width: 767.98px){
+  .pro-sechead{
+    flex-direction:column; align-items:flex-start; gap:10px;
+  }
+  .pro-sechead__right{ width:100%; }
+  .pro-cta{ width:100%; justify-content:center; }
+}
+
+</style>
+
+  <section class="course-content mt-3">
+
+  <div class="pro-sechead">
+  <div class="pro-sechead__left">
+    <span class="pro-kicker">
+      <i class="feather-trending-up"></i> Recommended for you
+    </span>
+    <h2 class="pro-title">Related & Popular Project Reports</h2>
+    <p class="pro-sub">Explore more final-year projects you might be interested in</p>
+  </div>
+
+  <div class="pro-sechead__right">
+    <a href="/final-year-project-ideas" class="pro-cta">
+      View all
+      <i class="feather-arrow-right"></i>
+    </a>
+  </div>
+</div>
+    <div class="row">
+      <!-- Main grid -->
+      <div class="col-lg-9" style="margin-top: 10px;">
+
+
+        <div class="row g-3" id="Grid">
+          <% for (let i=0;i<12 && result[1] && result[1][i]; i++) { %>
+            <div class="col-md-6 col-xl-4 target"
+                 data-name="<%= result[1][i].name %>"
+                 data-desc="<%= result[1][i].short_description %>"
+                 data-url="/final-year-project-report-<%= result[1][i].seo_name %>">
+              <div class="course-box h-100 d-flex flex-column">
+                <h2>
+                  <a href="/final-year-project-report-<%= result[1][i].seo_name %>"
+                     title="<%= result[1][i].name %> | PDF for <%= graduation_type_send %> Final Year">
+                    <%= result[1][i].name %>
+                  </a>
+                </h2>
+                <p><%= result[1][i].short_description %></p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <a class="link-arrow" href="/final-year-project-report-<%= result[1][i].seo_name %>">View details →</a>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Empty state -->
+      
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-3" style="margin-top: 10px;">
+        <div class="sticky-side">
+          <div class="side-card">
+            <div class="side-title"><i class="feather-zap"></i><h4>Quick actions</h4></div>
+            <div class="qa-list">
+              <a class="qa-item" href="<%= typeof codeUrl !== 'undefined' ? codeUrl : '/source-code' %>">
+                <i class="feather-code"></i>
+                <div class="qa-text"><strong>Browse Source Code</strong><span>Working projects with docs</span></div>
+              </a>
+              <a class="qa-item" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>">
+                <i class="feather-play-circle"></i>
+                <div class="qa-text"><strong>See Live Demos</strong><span>Preview before you choose</span></div>
+              </a>
+              <a class="qa-item" href="<%= typeof blogUrl !== 'undefined' ? blogUrl : '/blog' %>">
+                <i class="feather-book-open"></i>
+                <div class="qa-text"><strong>Guides & Blogs</strong><span>Tips, checklists & more</span></div>
+              </a>
+              <a class="qa-item" id="WhatsAppSide" href="#">
+                <i class="feather-message-circle"></i>
+                <div class="qa-text"><strong>Request Custom Report</strong><span>Fast reply on WhatsApp</span></div>
+              </a>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-title"><i class="feather-info"></i><h4>What we provide</h4></div>
+            <p class="mb-0" style="color:var(--muted)">Project reports, source code, and PPTs tailored for final-year students. Explore, or message us for a custom build.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+</div>
+
+<%include Includes/footer.ejs %>
+
+<!-- ====== Scripts ====== -->
+<script>
+  // Primary download handler (keeps your route)
+  $('.edit').on('click', function(){
+    const seo_name = $(this).attr('seo_name');
+    window.location.href = `/final-year-project-report-${seo_name}/edit`;
+  });
+
+  // Activate degree pill based on path
+  (function(){
+    const path = location.pathname.toLowerCase();
+    document.querySelectorAll('.h-scroll .pill').forEach(p=>{
+      const href = (p.getAttribute('href')||'').toLowerCase();
+      p.classList.toggle('active', href && path.startsWith(href));
+    });
+  })();
+
+  // (Optional) Client-side search redirect for quick UX
+  document.getElementById('SearchInput')?.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){
+      const q = encodeURIComponent(this.value.trim());
+      if(q) window.location.href = `/final-year-project-report?search=${q}`;
+    }
+  });
+</script>
+
+
+
+<script>
+function populatePriceStrip(){
+  const container = document.getElementById('MostDemanding');
+  if(!container) return;
+  container.innerHTML = '';
+
+  const productSlug = "<%=result[0][0].seo_name%>";
+  const productName = "<%=result[0][0].name%>";
+
+  // Degree → path prefix map (all lowercase in URLs)
+  const reportTypes = [
+    { label: 'B.Tech Report', prefix: 'btech' },
+    { label: 'M.Tech Report', prefix: 'mtech' },
+    { label: 'BCA Report',   prefix: 'bca'   },
+    { label: 'MCA Report',   prefix: 'mca'   },
+    { label: 'B.E. Report',  prefix: 'be'    },
+    { label: 'M.E. Report',  prefix: 'me'    },
+    { label: 'MSc Report',   prefix: 'msc'   },
+    { label: 'BSc Report',   prefix: 'bsc'   },
+  ];
+
+  reportTypes.forEach(rt => {
+    const href = `/${rt.prefix}-final-year-project-report-${productSlug}`;
+
+    const card = document.createElement('div');
+    card.className = 'md-item';
+
+    card.innerHTML = `
+      <span class="md-chip"><i class="feather-book-open"></i> ${rt.label}</span>
+      <h4 class="md-title">${productName}</h4>
+      <p class="md-desc">View the <strong>${rt.label.replace(' Report','')} </strong> version of this project report.</p>
+
+      <div class="md-actions">
+        <a class="md-btn md-btn-light" href="${href}" target="_blank" rel="noopener">
+          <i class="feather-eye"></i> ${rt.label.replace(' Report','')}
+        </a>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+populatePriceStrip();
+</script>
+
+
+<script>
+(function(){
+  const chapters = document.querySelectorAll('.toc-chapter');
+  chapters.forEach(ch => {
+    const head = ch.querySelector('.toc-chapter-head');
+    const list = ch.querySelector('.toc-list');
+    if(!head || !list) return;
+
+    // default open if data-open="true"
+    head.setAttribute('aria-expanded', list.getAttribute('data-open') === 'true' ? 'true' : 'false');
+
+    head.addEventListener('click', () => {
+      const open = list.getAttribute('data-open') === 'true';
+      list.setAttribute('data-open', open ? 'false' : 'true');
+      head.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+  });
+})();
+</script>
+
+
+
+<script>
+(function(){
+  const row = document.getElementById('reportTabs');
+  const underline = document.getElementById('TabUnderline');
+  if(!row || !underline) return;
+
+function positionUnderline() {
+  const active = row.querySelector('.nav-link.active');
+  if (!active) return;
+
+  // --- Measure using offsets (stable with horizontal scrolling) ---
+  const leftInRow = active.offsetLeft - row.scrollLeft;      // visible x within the row viewport
+  const w = Math.max(32, active.offsetWidth - 24);           // keep a sane min width
+  underline.style.left = `${leftInRow + 12}px`;              // match your pill’s inner padding
+  underline.style.width = `${w}px`;
+
+  // --- Center the active tab WITHOUT overscrolling ---
+  const desired = active.offsetLeft - (row.clientWidth - active.offsetWidth)/2;
+  const maxScroll = Math.max(0, row.scrollWidth - row.clientWidth);
+  const safeScrollLeft = Math.min(Math.max(0, desired), maxScroll);
+
+  row.scrollTo({ left: safeScrollLeft, behavior: 'smooth' });
+}
+
+
+
+row.addEventListener('scroll', () => {
+  // avoid fighting the smooth() call: only update the underline
+  const active = row.querySelector('.nav-link.active');
+  if (!active) return;
+  const leftInRow = active.offsetLeft - row.scrollLeft;
+  underline.style.left = `${leftInRow + 12}px`;
+});
+
+// make sure we recalc after fonts load / layout changes
+window.addEventListener('resize', () => requestAnimationFrame(positionUnderline));
+document.fonts?.ready?.then(() => requestAnimationFrame(positionUnderline));
+setTimeout(positionUnderline, 0); // initial
+
+
+
+  // initial + on tab change + on resize
+  positionUnderline();
+  window.addEventListener('resize', positionUnderline);
+  row.addEventListener('click', e=>{
+    const btn = e.target.closest('.nav-link');
+    if(btn){ setTimeout(positionUnderline, 0); } // after BS toggles .active
+  });
+
+  // keyboard support: arrow keys to navigate tabs
+  row.addEventListener('keydown', (e)=>{
+    if(!['ArrowLeft','ArrowRight'].includes(e.key)) return;
+    const tabs = [...row.querySelectorAll('.nav-link')];
+    const i = tabs.findIndex(t=>t.classList.contains('active'));
+    if(i<0) return;
+    const next = e.key==='ArrowRight' ? tabs[Math.min(i+1, tabs.length-1)] : tabs[Math.max(i-1,0)];
+    if(next && next!==tabs[i]) next.click();
+  });
+})();
+</script>
+
+<script>
+// Preconnect for faster first byte once user opens the preview
+const vpPreconnect = document.createElement('link');
+vpPreconnect.rel = 'preconnect';
+vpPreconnect.href = 'https://online.visual-paradigm.com';
+document.head.appendChild(vpPreconnect);
+
+(function () {
+  const modal     = document.getElementById('PreviewModal');
+  const frameWrap = modal?.querySelector('.preview-frame');
+  const openBtns  = document.querySelectorAll('[data-preview]');
+  const closeBtn  = modal?.querySelector('[data-close]');
+
+  // Use embed-friendly URL if available
+  const PREVIEW_URL = 'https://online.visual-paradigm.com/share/book/sample-project-report-1uzumhkivv?embed=true';
+
+  function injectIframeDirect() {
+    // if already injected, do nothing
+    if (frameWrap.querySelector('iframe')) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.className = 'preview-iframe';
+    iframe.src = PREVIEW_URL;              // ← Direct src (no srcdoc)
+    iframe.loading = 'eager';
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = 'no-referrer-when-downgrade';
+    // Optional, sometimes helps with embedded viewers:
+    iframe.allow = 'fullscreen; clipboard-read; clipboard-write';
+
+    frameWrap.appendChild(iframe);
+
+    // Graceful fallback if the site blocks iframing
+    let fallbackTimer = setTimeout(() => {
+      // If the iframe is blocked by X-Frame-Options, users would see a blank view.
+      // Open the preview in a new tab automatically.
+      window.open(PREVIEW_URL, '_blank', 'noopener,noreferrer');
+    }, 1500);
+
+    iframe.addEventListener('load', () => {
+      // If load fires, cancel fallback. (Note: some blocked frames still trigger 'load';
+      // this is best-effort. Users at least get the new-tab fallback if content remains blank.)
+      clearTimeout(fallbackTimer);
+    });
+  }
+
+  function openModal() {
+    if (!modal || !frameWrap) return;
+    modal.classList.add('is-open');
+    injectIframeDirect();
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('is-open');
+  }
+
+  openBtns.forEach(btn => btn.addEventListener('click', openModal));
+  closeBtn?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+})();
+</script>
+
+

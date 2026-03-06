@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title><%= pageTitle %></title>
+
+  <!-- Bootstrap first -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Your CRM UI last -->
+  <link rel="stylesheet" href="/sales/sales.css?v=4">
+</head>
+<body>
+
+<%
+  // Safe totals (fix precedence bugs)
+  const rejectedTotal =
+    (stageCounts['new:rejected'] || 0) +
+    (stageCounts['followup:rejected'] || 0) +
+    (stageCounts['interested:rejected'] || 0);
+
+  const closedTotal =
+    (stageCounts['new:closed'] || 0) +
+    (stageCounts['followup:closed'] || 0) +
+    (stageCounts['interested:closed'] || 0);
+
+  const basePath = (mode === 'admin') ? '/sales/admin/overview' : '/sales/my/overview';
+  const assignmentsPath = (mode === 'admin') ? '/sales/admin' : '/sales/my';
+%>
+
+<div class="crm-layout">
+  <aside class="crm-sidebar-wrap">
+    <%- include('partials/sidebar', { user, active }) %>
+  </aside>
+
+  <main class="crm-main">
+
+    <!-- Topbar -->
+    <div class="topbar d-flex align-items-start justify-content-between gap-3 flex-wrap">
+      <div>
+        <div class="h1 mb-1"><%= pageTitle %></div>
+        <div class="mutedSmall">Month-wise overview, pipeline snapshot, and follow-ups due.</div>
+      </div>
+
+      <div class="d-flex align-items-end gap-2">
+        <form method="GET" action="<%= basePath %>" class="d-flex align-items-end gap-2">
+          <div class="field" style="min-width:180px;">
+            <label>Month</label>
+            <select name="month" onchange="this.form.submit()">
+              <% filters.monthOptions.forEach(function(m){ %>
+                <option value="<%= m %>" <%= m===filters.selectedMonth ? 'selected' : '' %>><%= m %></option>
+              <% }) %>
+            </select>
+          </div>
+        </form>
+
+        <a class="btn btn-primary" href="<%= assignmentsPath %>">Open Assignments</a>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="crm-card p-3">
+          <div class="crm-small text-uppercase" style="letter-spacing:.06em;">Total Leads (Open)</div>
+          <div class="display-6 fw-bold mt-1"><%= kpis.totalLeads %></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="crm-card p-3">
+          <div class="crm-small text-uppercase" style="letter-spacing:.06em;">Open Assignments</div>
+          <div class="display-6 fw-bold mt-1"><%= kpis.openAssignments %></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="crm-card p-3">
+          <div class="crm-small text-uppercase" style="letter-spacing:.06em;">Sales This Month</div>
+          <div class="display-6 fw-bold mt-1"><%= kpis.totalSales %></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="crm-card p-3">
+          <div class="crm-small text-uppercase" style="letter-spacing:.06em;">Revenue (Lead Price)</div>
+          <div class="display-6 fw-bold mt-1">₹<%= Number(kpis.totalRevenue || 0).toFixed(0) %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline Snapshot -->
+    <div class="crm-card mb-3">
+      <div class="p-3 border-bottom" style="border-color: var(--line) !important;">
+        <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+          <div>
+            <div class="fw-bold">Pipeline Snapshot</div>
+            <div class="mutedSmall">Counts by stage and status for the selected month.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3">
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge rounded-pill text-primary border border-primary-subtle bg-primary-subtle px-3 py-2">
+            New (Open): <%= stageCounts['new:open'] || 0 %>
+          </span>
+
+          <span class="badge rounded-pill text-primary border border-primary-subtle bg-primary-subtle px-3 py-2">
+            Follow-up (Open): <%= stageCounts['followup:open'] || 0 %>
+          </span>
+
+          <span class="badge rounded-pill text-primary border border-primary-subtle bg-primary-subtle px-3 py-2">
+            Interested (Open): <%= stageCounts['interested:open'] || 0 %>
+          </span>
+
+          <span class="badge rounded-pill text-danger border border-danger-subtle bg-danger-subtle px-3 py-2">
+            Rejected: <%= rejectedTotal %>
+          </span>
+
+          <span class="badge rounded-pill text-success border border-success-subtle bg-success-subtle px-3 py-2">
+            Closed: <%= closedTotal %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Follow-ups Due -->
+    <div class="crm-card">
+      <div class="p-3 border-bottom" style="border-color: var(--line) !important;">
+        <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+          <div>
+            <div class="fw-bold">Follow-ups Due</div>
+            <div class="mutedSmall">Latest log next_followup_date ≤ today.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <% if (mode==='admin') { %><th>Agent</th><% } %>
+                <th>Lead</th>
+                <th>Phone</th>
+                <th>Enquiry</th>
+                <th>Next Follow-up</th>
+                <th>Last Note</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% if (!due.length) { %>
+                <tr>
+                  <td colspan="<%= (mode==='admin') ? 6 : 5 %>" class="mutedSmall py-4">
+                    No due follow-ups for this month.
+                  </td>
+                </tr>
+              <% } %>
+
+              <% due.forEach(function(r){ %>
+                <tr>
+                  <% if (mode==='admin') { %>
+                    <td class="fw-semibold"><%= r.user_name %></td>
+                  <% } %>
+
+                  <td>
+                    <div class="fw-bold"><%= r.name || 'Unnamed' %></div>
+                    <div class="mutedSmall">#<%= r.lead_id %></div>
+                  </td>
+
+                  <td>
+                    <% if (r.phone) { %>
+                      <span class="link" onclick="copyText('<%= r.phone %>')"><%= r.phone %></span>
+                      <div class="mutedSmall">Click to copy</div>
+                    <% } else { %>
+                      <span class="mutedSmall">-</span>
+                    <% } %>
+                  </td>
+
+                  <td class="clamp2" style="max-width:420px;">
+                    <%= (r.enquiry_title || '-').slice(0, 140) %>
+                  </td>
+
+                  <td class="fw-semibold">
+                    <%= r.next_followup_date %>
+                  </td>
+
+                  <td class="clamp2" style="max-width:520px;">
+                    <%= (r.note || '-').slice(0, 200) %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Global helper used in multiple pages -->
+<script>
+  window.copyText = async function(text){
+    try{
+      await navigator.clipboard.writeText(text || '');
+    }catch(e){
+      const ta = document.createElement('textarea');
+      ta.value = text || '';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,424 @@
+<% include ./header.ejs %>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: { brandOrange: '#F17F23', brandBlue: '#2A47FF' },
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      }
+    }
+  }
+</script>
+
+<div class="content-body bg-gray-50 min-h-screen font-sans">
+  <div class="container mx-auto px-4 py-6 space-y-6">
+
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 px-6 py-5 border-b border-gray-200">
+        <h2 class="text-2xl font-semibold text-gray-800">🎯 Brand Ambassador Performance Dashboard</h2>
+
+        <!-- Filters -->
+        <form id="filters" class="flex flex-wrap items-center gap-3" method="GET" action="">
+  <label for="startDate" class="text-sm text-gray-600">Start</label>
+  <input id="startDate" type="date" name="start" value="<%= start %>"
+         class="px-3 py-2 border rounded-lg relative z-10"
+         onchange="handleDateChange()">
+
+  <label for="endDate" class="text-sm text-gray-600">End</label>
+  <input id="endDate" type="date" name="end" value="<%= end %>"
+         class="px-3 py-2 border rounded-lg relative z-10"
+         onchange="handleDateChange()">
+
+  <input id="qSearch" type="text" name="q" value="<%= qSearch %>" placeholder="🔍 Name or Number"
+         class="px-3 py-2 border rounded-lg w-48"
+         onkeydown="if(event.key==='Enter'){this.form.submit()}">
+
+  <select id="statusFilter" name="status" class="px-3 py-2 border rounded-lg" onchange="this.form.submit()">
+    <option value="all"      <%= statusFilter==='all'?'selected':'' %>>All</option>
+    <option value="verified" <%= statusFilter==='verified'?'selected':'' %>>Verified (in range)</option>
+    <option value="pending"  <%= statusFilter==='pending'?'selected':'' %>>Pending (in range)</option>
+    <option value="rejected" <%= statusFilter==='rejected'?'selected':'' %>>Rejected (in range)</option>
+  </select>
+
+  <select id="sortBy" name="sort" class="px-3 py-2 border rounded-lg" onchange="this.form.submit()">
+    <option value="created_at"     <%= sort==='created_at'?'selected':'' %>>Sort: Created</option>
+    <option value="name"           <%= sort==='name'?'selected':'' %>>Sort: Name</option>
+    <option value="performance"    <%= sort==='performance'?'selected':'' %>>Sort: Performance</option>
+    <option value="verified_range" <%= sort==='verified_range'?'selected':'' %>>Sort: Verified (range)</option>
+  </select>
+
+  <select id="sortOrder" name="order" class="px-3 py-2 border rounded-lg" onchange="this.form.submit()">
+    <option value="desc" <%= order==='desc'?'selected':'' %>>Desc</option>
+    <option value="asc"  <%= order==='asc'?'selected':'' %>>Asc</option>
+  </select>
+
+  <input id="minPerf" type="number" step="1" min="0" max="100" name="minPerf" value="<%= minPerf %>"
+         placeholder="Min %"
+         class="px-3 py-2 border rounded-lg w-24"
+         onchange="this.form.submit()">
+
+  <button type="submit" class="bg-brandBlue text-white px-4 py-2 rounded-lg hover:bg-blue-700">Apply</button>
+
+  <!-- Export Main -->
+  <a href="/affiliate/internship/export/main.csv?<%= `start=${start}&end=${end}&q=${encodeURIComponent(qSearch||'')}&status=${statusFilter}&minPerf=${minPerf}` %>"
+     class="px-4 py-2 rounded-lg border text-brandBlue hover:bg-blue-50">⬇️ Export (Main)</a>
+
+  <!-- Reset -->
+  <a href="/affiliate/internship"
+     class="px-3 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Reset</a>
+</form>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="bg-white p-5 rounded-xl shadow-md">
+        <p class="text-sm text-gray-500">Total Ambassadors</p>
+        <p class="text-3xl font-bold text-brandBlue"><%= totalAmbassadors %></p>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow-md">
+        <p class="text-sm text-gray-500">Eligible Today</p>
+        <p class="text-3xl font-bold text-gray-800"><%= eligibleToday %></p>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow-md">
+        <p class="text-sm text-gray-500">Today Verified</p>
+        <p class="text-3xl font-bold text-green-600"><%= todayVerifiedCount %></p>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow-md">
+        <p class="text-sm text-gray-500">Today Missed</p>
+        <p class="text-3xl font-bold text-red-500"><%= todayMissedCount %></p>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow-md">
+        <p class="text-sm text-gray-500">Today Completion</p>
+        <p class="text-3xl font-bold <%= todayCompletionRate>=70?'text-green-600':(todayCompletionRate<30?'text-red-500':'text-yellow-600') %>">
+          <%= todayCompletionRate %>%</p>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Top 10 -->
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-semibold text-gray-800">📊 Top 10 Performance (Selected Range)</h3>
+        </div>
+        <canvas id="top10Chart"></canvas>
+      </div>
+
+      <!-- Trend -->
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-semibold text-gray-800">📈 Daily Trend (<%= start %> → <%= end %>)</h3>
+        </div>
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Today: Verified -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">✅ Today: Verified Ambassadors</h3>
+        <a href="/affiliate/internship/export/today-verified.csv" class="px-4 py-2 rounded-lg border text-brandBlue hover:bg-blue-50">⬇️ Export</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left">
+          <thead class="bg-brandBlue text-white uppercase">
+            <tr>
+              <th class="px-4 py-3">#</th>
+              <th class="px-4 py-3">Name</th>
+              <th class="px-4 py-3">Number</th>
+              <th class="px-4 py-3">Email</th>
+              <th class="px-4 py-3">Date</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <% if (todayVerified.length === 0) { %>
+              <tr><td colspan="6" class="px-4 py-4 text-gray-500">No verified submissions today.</td></tr>
+            <% } else { %>
+              <% todayVerified.forEach((r, idx) => { %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3"><%= idx+1 %></td>
+                  <td class="px-4 py-3"><%= r.name %></td>
+                  <td class="px-4 py-3"><%= r.number %></td>
+                  <td class="px-4 py-3"><%= r.email %></td>
+                  <td class="px-4 py-3"><%= r.on_date %></td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Today: Missed -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">❌ Today: Missed (No Verified Submission)</h3>
+        <a href="/affiliate/internship/export/today-missed.csv" class="px-4 py-2 rounded-lg border text-brandBlue hover:bg-blue-50">⬇️ Export</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left">
+          <thead class="bg-red-500 text-white uppercase">
+            <tr>
+              <th class="px-4 py-3">#</th>
+              <th class="px-4 py-3">Name</th>
+              <th class="px-4 py-3">Number</th>
+              <th class="px-4 py-3">Joined</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <% if (todayMissed.length === 0) { %>
+              <tr><td colspan="4" class="px-4 py-4 text-gray-500">No one missed today 🎉</td></tr>
+            <% } else { %>
+              <% todayMissed.forEach((r, idx) => { %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3"><%= idx+1 %></td>
+                  <td class="px-4 py-3"><%= r.name %></td>
+                  <td class="px-4 py-3"><%= r.number %></td>
+                  <td class="px-4 py-3"><%= (new Date(r.created_at)).toISOString().slice(0,10) %></td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Weekly Heatmap (last 7 days) -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">🗓️ Last 7 Days: Per-Ambassador Task Status</h3>
+        <a href="/affiliate/internship/export/weekly-matrix.csv" class="px-4 py-2 rounded-lg border text-brandBlue hover:bg-blue-50">⬇️ Export</a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left">
+          <thead>
+            <tr class="bg-gray-800 text-white">
+              <th class="px-4 py-3">#</th>
+              <th class="px-4 py-3">Name</th>
+              <th class="px-4 py-3">Number</th>
+              <% for (let i=6; i>=0; i--) { 
+                   const d = new Date(); d.setDate(d.getDate()-i);
+                   const label = d.toISOString().slice(0,10);
+              %>
+                <th class="px-2 py-3 text-center"><%= label %></th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <% if (weekly.length === 0) { %>
+              <tr><td colspan="11" class="px-4 py-4 text-gray-500">No data.</td></tr>
+            <% } else { %>
+              <% weekly.forEach((w, idx) => { %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3"><%= idx+1 %></td>
+                  <td class="px-4 py-3"><%= w.name %></td>
+                  <td class="px-4 py-3"><%= w.number %></td>
+                  <% for (let k=6; k>=0; k--) { 
+                       const key = 'd'+k; const yes = (w[key]||0) > 0;
+                  %>
+                    <td class="px-2 py-2 text-center">
+                      <span class="inline-block w-5 h-5 rounded-full <%= yes?'bg-green-500':'bg-red-400' %>"></span>
+                    </td>
+                  <% } %>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Main: All Ambassadors (filtered) -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">📋 All Ambassadors (Filtered)</h3>
+        <div class="flex items-center gap-3">
+          <input id="clientSearch" type="text" placeholder="Quick search…" class="px-3 py-2 border rounded-lg">
+          <button id="downloadClientCSV" class="px-4 py-2 rounded-lg border text-brandBlue hover:bg-blue-50">⬇️ Export (Client View)</button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[600px] overflow-y-scroll">
+        <table id="ambTable" class="min-w-full text-left">
+          <thead class="bg-brandBlue text-white text-xs uppercase sticky top-0">
+            <tr>
+              <th class="px-4 py-3">#</th>
+              <th class="px-4 py-3">Name</th>
+              <th class="px-4 py-3">Number</th>
+              <th class="px-4 py-3">Joined</th>
+              <th class="px-4 py-3">Total Days</th>
+              <th class="px-4 py-3">Verified (Range)</th>
+              <th class="px-4 py-3">Pending (Range)</th>
+              <th class="px-4 py-3">Rejected (Range)</th>
+              <th class="px-4 py-3">Days in Range</th>
+              <th class="px-4 py-3">Performance (%)</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-100">
+            <% if (result.length === 0) { %>
+              <tr><td colspan="10" class="px-4 py-6 text-gray-500">No data available</td></tr>
+            <% } else { %>
+              <% result.forEach((row, index) => { %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3"><%= index+1 %></td>
+                  <td class="px-4 py-3">
+                    <a href="/affiliate/dashboard/performance?shopkeeper=<%= row.brand_ambassador_id %>"
+                       class="text-brandBlue font-medium hover:underline"><%= row.name %></a>
+                  </td>
+                  <td class="px-4 py-3"><%= row.number %></td>
+                  <td class="px-4 py-3"><%= (new Date(row.created_at)).toISOString().slice(0,10) %></td>
+                  <td class="px-4 py-3"><%= row.total_days %></td>
+                  <td class="px-4 py-3"><%= row.verified_range %></td>
+                  <td class="px-4 py-3"><%= row.pending_range %></td>
+                  <td class="px-4 py-3"><%= row.rejected_range %></td>
+                  <td class="px-4 py-3"><%= row.range_total_days %></td>
+                  <td class="px-4 py-3 font-semibold"><%= row.performance_range %></td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<% include ./footer.ejs %>
+
+<script>
+  // ====== Client search on main table ======
+  (function () {
+    const input = document.getElementById('clientSearch');
+    const rows = () => Array.from(document.querySelectorAll('#ambTable tbody tr'));
+    input && input.addEventListener('keyup', function () {
+      const f = this.value.toLowerCase();
+      rows().forEach(r => {
+        const text = r.innerText.toLowerCase();
+        r.style.display = text.includes(f) ? '' : 'none';
+      });
+    });
+  })();
+
+  // ====== Client CSV export of currently visible main table ======
+  (function () {
+    const btn = document.getElementById('downloadClientCSV');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      const table = document.getElementById('ambTable');
+      const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+      const rows = Array.from(table.querySelectorAll('tbody tr')).filter(r => r.style.display !== 'none');
+      const escape = (s) => {
+        s = String(s ?? '');
+        return (s.includes('"')||s.includes(',')||s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s;
+      };
+      const csv = [
+        headers.join(','),
+        ...rows.map(r => Array.from(r.querySelectorAll('td')).map(td => escape(td.textContent.trim())).join(','))
+      ].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ambassadors_client_view.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+  })();
+
+  // ====== Charts ======
+  const top10 = <%- JSON.stringify(top10.map(t => ({
+    name: t.name,
+    perf: t.performance_range
+  }))) %>;
+
+  const trend = <%- JSON.stringify(timeseries) %>;
+
+  // Top 10 bar
+  (function () {
+    const ctx = document.getElementById('top10Chart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: top10.map(x => x.name),
+        datasets: [{
+          label: 'Performance %',
+          data: top10.map(x => x.perf),
+          backgroundColor: '#2A47FF'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => c.raw + '%' } }
+        },
+        scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Performance %' } } }
+      }
+    });
+  })();
+
+  // Trend line
+  (function () {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const labels = trend.map(t => t.d);
+    const verified = trend.map(t => Number(t.verified || 0));
+    const pending = trend.map(t => Number(t.pending || 0));
+    const rejected = trend.map(t => Number(t.rejected || 0));
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Verified', data: verified, tension: 0.2, borderWidth: 2 },
+          { label: 'Pending', data: pending, tension: 0.2, borderWidth: 2 },
+          { label: 'Rejected', data: rejected, tension: 0.2, borderWidth: 2 },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'Tasks' } } }
+      }
+    });
+  })();
+</script>
+
+<script>
+  function handleDateChange() {
+    const form = document.getElementById('filters');
+    const s = document.getElementById('startDate');
+    const e = document.getElementById('endDate');
+
+    // keep logical range and set min/max to avoid picking wrong side
+    if (s.value && e.value && s.value > e.value) {
+      // if user changed start beyond end, set end = start
+      e.value = s.value;
+    }
+    e.min = s.value || '';
+    s.max = e.value || '';
+
+    form.submit();
+  }
+
+  // Ensure inputs are always clickable even if some parent has an overlay
+  // (helps when unknown styles in header.ejs create a covering element)
+  ['startDate','endDate','qSearch','statusFilter','sortBy','sortOrder','minPerf'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.position = 'relative';
+      el.style.zIndex = 10;
+      el.style.pointerEvents = 'auto';
+    }
+  });
+
+
+
+
+  
+</script>

@@ -1,0 +1,101 @@
+<% include ./header.ejs %>
+
+<style>
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+.card-header {
+  background-color: #fff;
+  border-bottom: none;
+  padding: 24px;
+}
+.card-header h4 {
+  font-weight: 600;
+  font-size: 20px;
+  margin-bottom: 0;
+  color: #333;
+}
+#searchInput {
+  max-width: 400px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  font-size: 14px;
+}
+.table {
+  font-size: 15px;
+}
+.table td,
+.table th {
+  vertical-align: middle;
+  text-align: left;
+}
+.table-hover tbody tr:hover {
+  background-color: #f5f8ff;
+}
+.promoters-cell {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+</style>
+
+<div class="content-body">
+  <div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-xl-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">📊 Promoter Unique Clicks by Original URL</h4>
+            <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search URL or Promoter..." onkeyup="filterTable()">
+          </div>
+
+          <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 45%">Original URL</th>
+                  <th>Promoters (Unique Clicks)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (links.length === 0) { %>
+                  <tr>
+                    <td colspan="2" class="text-muted text-center">No data available.</td>
+                  </tr>
+                <% } else { %>
+                  <% links.forEach(link => { %>
+                    <tr>
+                      <td class="text-break">
+                        <a href="<%= link.original_url %>" target="_blank">
+                          <%= link.original_url.length > 80 ? link.original_url.slice(0, 80) + '...' : link.original_url %>
+                        </a>
+                      </td>
+                      <td class="promoters-cell"><%= link.promoter_clicks %></td>
+                    </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% include ./footer.ejs %>
+
+<script>
+function filterTable() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const rows = document.querySelectorAll("table tbody tr");
+
+  rows.forEach(row => {
+    const url = row.cells[0]?.textContent.toLowerCase();
+    const promoters = row.cells[1]?.textContent.toLowerCase();
+    row.style.display = (url + promoters).includes(input) ? "" : "none";
+  });
+}
+</script>

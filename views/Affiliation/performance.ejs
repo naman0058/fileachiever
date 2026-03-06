@@ -1,0 +1,222 @@
+<% include ./header.ejs %>
+
+
+<style>
+.table td, .table th {
+    vertical-align: middle;
+    text-align: center;
+}
+.table-hover tbody tr:hover {
+    background-color: #f2f6fc;
+}
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+.card-header {
+    background-color: #fff;
+    border-bottom: none;
+    padding: 24px;
+}
+.card-header h4 {
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 0;
+    color: #333;
+}
+.table thead th {
+    background-color: #343a40;
+    color: #fff;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.table td {
+    font-size: 14px;
+    color: black;
+}
+</style>
+
+<div class="content-body">
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">🎯 Brand Ambassador Performance Overview</h4>
+
+<div class="mb-0">
+  <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search by Ambassador Name">
+</div>
+
+
+<button id="downloadCSV" class="btn btn-outline-success my-3">
+  ⬇️ Download CSV
+</button>
+
+                    </div>
+
+
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Brand Ambassador Name</th>
+                                        <th>Number</th>
+                                        <th>Total Posts</th>
+                                        <th>Total Likes</th>
+                                        <th>Total Comments</th>
+                                        <th>Performance Score</th>
+                                        <th>Engagement Ratio</th>
+                                        <th>Duration Completed</th>
+                                        <th>Last Mailed</th>
+                                        <th>Send Report</th>
+                                        <th>Certificate</th>
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (result.length === 0) { %>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">No data available</td>
+                                        </tr>
+                                    <% } else { %>
+                                        <% result.forEach((row, index) => { %>
+                                            <tr>
+                                                <td><%= index + 1 %></td>
+                                              <td class="text-start ps-4">
+   <a href="/affiliate/dashboard/performance?shopkeeper=<%= row.id %>"> <%= row.name %></a>
+    <% for (let i = 0; i < 5; i++) { %>
+        <% if (i < row.rating_star) { %>
+            <i class="bi bi-star-fill text-warning"></i>
+        <% } else { %>
+            <i class="bi bi-star text-muted"></i>
+        <% } %>
+    <% } %>
+</td>
+                                                <td><%= row.number %></td>
+
+                                                <td><%= row.total_post %></td>
+                                                <td><%= row.total_like %></td>
+                                                <td><%= row.total_comment %></td>
+                                                <td><%= row.performance_score %></td>
+                                                <td><%= row.engagement_ratio %></td>
+                                                <td>
+<%
+  const joinedDate = new Date(row.created_at);
+  const today = new Date(); // renamed from 'now' to avoid conflict
+  const timeDiff = today - joinedDate;
+  const totalDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  const monthsCompleted = Math.floor(totalDays / 30);
+  const daysCompleted = totalDays % 30;
+%>
+<%= monthsCompleted %> month(s), <%= daysCompleted %> day(s)
+ 
+</td>
+                                                <td>
+  <% if (row.last_update) { %>
+    <%= new Date(row.last_update).toLocaleDateString() %><br/>
+    <small class="text-muted"><%= new Date(row.last_update).toLocaleTimeString() %></small>
+  <% } else { %>
+    <span class="text-danger">Not Sent</span>
+  <% } %>
+</td>
+                                                <td>
+  <form action="/affiliate/performance/email/<%= row.id %>" method="POST">
+    <button class="btn btn-sm btn-primary">Send Email</button>
+  </form>
+</td>
+
+
+<td>
+  <% 
+    const joined = new Date(row.created_at);
+    const now = new Date();
+    const threeMonthsLater = new Date(joined);
+    threeMonthsLater.setMonth(joined.getMonth() + 3);
+    const eligible = now >= threeMonthsLater && row.performance_score >= 70;
+  %>
+
+  <% if (row.certificate_issued) { %>
+    <button class="btn btn-sm btn-secondary" disabled>Certificate Issued</button>
+
+  <% } else if (eligible) { %>
+    <form action="/affiliate/performance/certificate/<%= row.id %>" method="POST">
+      <button class="btn btn-sm btn-success">Issue Certificate</button>
+    </form>
+
+  <% } else { %>
+    <button class="btn btn-sm btn-outline-warning" disabled 
+            title="Minimum 3 months required & score ≥ 70">
+      Not Eligible
+    </button>
+
+    
+  <% } %>
+</td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-muted small mt-3">
+                            <i class="bi bi-info-circle"></i> This table reflects the engagement performance for each ambassador based on post activity.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ./footer.ejs %>
+
+
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function () {
+  const filter = this.value.toLowerCase();
+  const rows = document.querySelectorAll('tbody tr');
+
+  rows.forEach(row => {
+    const nameCell = row.querySelector('td:nth-child(2)');
+    if (nameCell && nameCell.textContent.toLowerCase().includes(filter)) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+});
+</script>
+
+
+<script>
+document.getElementById('downloadCSV').addEventListener('click', function () {
+    const rows = Array.from(document.querySelectorAll("table tbody tr"));
+    const headers = Array.from(document.querySelectorAll("table thead th")).map(th => th.textContent.trim());
+
+    let csv = [headers.join(",")];
+
+    rows.forEach(row => {
+        const cols = Array.from(row.querySelectorAll("td")).map(td => {
+            // Escape double quotes
+            const text = td.innerText.replace(/"/g, '""');
+            return `"${text}"`;
+        });
+        if (cols.length) csv.push(cols.join(","));
+    });
+
+    const csvContent = csv.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+    const link = document.createElement("a");
+    link.setAttribute("href", URL.createObjectURL(blob));
+    link.setAttribute("download", "brand_ambassador_performance.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+</script>

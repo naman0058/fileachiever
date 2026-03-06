@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/head %>
+</head>
+<body>
+  <% include ../partials/nav %>
+
+  <section class="container">
+    <h1 class="h1">Watch Time</h1>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Watch Time Trend</h2>
+        <div class="control-row">
+          <select id="gran">
+            <option value="daily" selected>Daily</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <select id="preset">
+            <option value="7d">Last 7 days</option>
+            <option value="28d" selected>Last 28 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="year">Year (Jan–Dec)</option>
+          </select>
+          <input id="year" type="number" placeholder="YYYY" style="display:none;" />
+          <button id="apply" class="btn">Apply</button>
+        </div>
+      </div>
+      <canvas id="watchChart" height="96"></canvas>
+      <div class="legend-note">Watch Time in minutes</div>
+    </div>
+  </section>
+
+  <script>
+  const ctx = document.getElementById('watchChart');
+  const gran = document.getElementById('gran');
+  const preset = document.getElementById('preset');
+  const year = document.getElementById('year');
+  const apply = document.getElementById('apply');
+
+  preset.addEventListener('change', ()=> year.style.display = (preset.value==='year'?'inline-block':'none'));
+
+  let chart;
+
+  async function load() {
+    const params = new URLSearchParams({ metric:'watch', granularity:gran.value });
+    if (preset.value==='year') {
+      params.set('year', year.value || new Date().getFullYear());
+    } else {
+      params.set('range', preset.value);
+    }
+
+    const resp = await fetch(`/analytics/api/timeseries?${params}`).then(r=>r.json());
+    const pts = Array.isArray(resp?.points) ? resp.points : [];
+
+    const labels = pts.map(p => p.label);
+    // ✅ Convert to hours
+    const hours = pts.map(p => (p.value / 3600).toFixed(2));
+
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: { 
+        labels, 
+        datasets: [{ 
+          label: 'Watch Time (hours)', 
+          data: hours 
+        }]
+      },
+      options: { 
+        responsive: true, 
+        scales: { y: { beginAtZero: true } } 
+      }
+    });
+  }
+
+  apply.addEventListener('click', load);
+  load();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit <%=graduation_type_send%> Final Year Project Report — <%=result[0][0].name%> | Filemakr</title>
+
+<link rel="stylesheet" href="/design/css/bootstrap.min.css">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="/design/css/feather.css">
+<link rel="stylesheet" href="/design/css/style.css">
+<%include Includes/projectReport.ejs %>
+
+<style>
+:root{
+  --ink:#0e1220; --muted:#6b7280; --bg:#f7f8fc; --card:#fff;
+  --brandBlue:#2A47FF; --brandOrange:#F17F23; --ring:rgba(42,71,255,.25);
+  --border:rgba(14,18,32,.08); --radius:16px;
+}
+html,body{background:var(--bg);}
+.container-narrow{max-width:1120px;margin:0 auto;}
+.card-surface{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);}
+.shadow-soft{box-shadow:0 10px 30px rgba(14,18,32,.06)}
+
+/* Hero */
+.checkout-hero{padding:18px 0 4px;}
+.checkout-hero .crumbs{font-size:.9rem;color:var(--muted)}
+.checkout-hero h1{font-weight:800;margin:.25rem 0 .5rem;color:var(--ink);}
+
+/* Stepper */
+.stepper{display:flex;gap:10px;align-items:center;margin:10px 0 18px;overflow-x:auto;scrollbar-width:none}
+.stepper::-webkit-scrollbar{display:none}
+.step{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.step__dot{width:30px;height:30px;border-radius:999px;border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-weight:800;background:#fff;color:var(--muted)}
+.step--active .step__dot{border-color:var(--brandBlue);color:var(--brandBlue);box-shadow:0 0 0 3px var(--ring)}
+.step__label{font-weight:700;color:#111}
+.step__bar{height:2px;width:44px;background:var(--border);border-radius:999px}
+.step--done .step__bar{background:linear-gradient(90deg,var(--brandBlue),var(--brandOrange))}
+
+/* Form wrapper */
+.checkout{margin:6px 0 36px}
+.section{padding:14px}
+.section+.section{margin-top:12px}
+.section .title{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.section .title h4{margin:0;font-weight:800}
+
+/* Inputs */
+.form-control, .form-select{
+  border:1px solid var(--border)!important;border-radius:12px;height:44px;
+}
+.form-control:focus, .form-select:focus{
+  border-color:var(--brandBlue)!important; box-shadow:0 0 0 4px var(--ring)!important;
+}
+.help{font-size:.85rem;color:var(--muted);margin-top:4px}
+.error{font-size:.85rem;color:#b42318;margin-top:4px;display:none}
+.invalid .error{display:block}
+
+/* Upload tiles */
+.upload-tile{border:1.5px dashed var(--border);border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:14px;height:132px;cursor:pointer;transition:.2s}
+.upload-tile:hover{border-color:var(--brandBlue);box-shadow:0 0 0 3px var(--ring)}
+.upload-tile i{font-size:24px;color:var(--brandBlue)}
+.upload-tile .hint{font-weight:800}
+.upload-tile input{display:none}
+
+/* Toggle chips grid */
+.tech-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:768px){.tech-grid{grid-template-columns:repeat(3,1fr)}}
+.tech-chip{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px 12px}
+.switch{position:relative;width:48px;height:24px}
+.switch input{opacity:0;position:absolute;inset:0}
+.switch span{position:absolute;inset:0;background:#e5e7eb;border-radius:999px;transition:.2s}
+.switch span::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.12);transition:.2s}
+.switch input:checked + span{background:#22c55e}
+.switch input:checked + span::after{transform:translateX(24px)}
+
+/* Sticky summary */
+.summary{position:sticky;top:90px}
+.summary .price{display:flex;align-items:end;gap:6px}
+.summary .price h2{margin:0;font-weight:900}
+.summary .badge{background:rgba(42,71,255,.08);color:var(--brandBlue);font-weight:800;border-radius:999px}
+
+/* CTA bar mobile */
+.cta-bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);padding:10px;z-index:1000;display:none}
+@media(max-width:991.98px){.cta-bar{display:block} .summary .cta{display:none}}
+.btn-brand{background:linear-gradient(90deg,var(--brandBlue),var(--brandOrange));color:#fff;border:none;border-radius:12px;height:48px;font-weight:900}
+.btn-outline{background:#fff;border:1px solid var(--border);border-radius:12px;height:48px;font-weight:900}
+.badge-soft{background:rgba(42,71,255,.08);color:var(--brandBlue);border:1px solid rgba(42,71,255,.15);padding:.35rem .6rem;border-radius:999px;font-weight:800}
+.small-muted{color:var(--muted);font-size:.9rem}
+
+/* Errors summary */
+.form-errors{display:none;margin-top:8px}
+.form-errors.active{display:block}
+</style>
+</head>
+
+<body>
+<div class="main-wrapper">
+  <%include Includes/navbar2.ejs %>
+
+  <!-- HERO -->
+  <section class="checkout-hero">
+    <div class="container container-narrow">
+      <div class="crumbs"><a href="/">Home</a> · <span>Edit Project Report</span></div>
+      <h1>Edit <%=graduation_type_send%> Project Report: <span class="small-muted"><%=result[0][0].name%></span></h1>
+
+      <!-- STEP INDICATOR -->
+      <div class="stepper" id="stepper">
+        <div class="step step--active"><span class="step__dot">1</span><span class="step__label">Personal & College</span><span class="step__bar"></span></div>
+        <div class="step"><span class="step__dot">2</span><span class="step__label">Tech Stack</span><span class="step__bar"></span></div>
+        <div class="step"><span class="step__dot">3</span><span class="step__label">Group (Optional)</span><span class="step__bar"></span></div>
+        <div class="step"><span class="step__dot">4</span><span class="step__label">Review & Pay</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKOUT -->
+  <section class="checkout">
+    <div class="container container-narrow">
+      <div class="row g-3">
+
+        <!-- LEFT -->
+        <div class="col-lg-8">
+          <form action="/btech-final-year-project-report/insert" method="post" enctype="multipart/form-data" id="checkoutForm" novalidate>
+            <input type="hidden" name="report_type" value="<%=graduation_type_send%>">
+            <input type="hidden" name="projectid" value="<%=result[0][0].id%>">
+            <input type="hidden" name="seo_name" value="<%=result[0][0].seo_name%>">
+
+            <!-- SECTION 1: Personal & College -->
+            <div class="section card-surface shadow-soft" data-step="1">
+              <div class="title"><i class="feather-user"></i><h4>Personal & College Details</h4></div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Choose Project Report</label>
+                  <select class="form-select" name="project_type" id="projecttype" required>
+                    <option value="" disabled selected>Choose Project Report Type</option>
+                    <option value="Major Project">Major Project Report</option>
+                    <option value="Minor Project">Minor Project Report</option>
+                    <option value="Synopsis">Synopsis</option>
+                  </select>
+                  <div class="error">Please select project type.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" name="email" id="email" placeholder="e.g., you@college.edu" required>
+                  <div class="error">Enter a valid email.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" class="form-control" name="name" id="name" placeholder="Your full name" required>
+                  <div class="error">Name is required.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Mobile Number</label>
+                  <input type="tel" class="form-control" name="number" id="number" inputmode="numeric" pattern="[0-9]{10}" placeholder="10-digit number" required>
+                  <div class="error">Enter a valid 10-digit number.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">College Name</label>
+                  <input type="text" class="form-control" name="college_name" id="college_name" placeholder="Your college" required>
+                  <div class="error">College name is required.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Roll Number</label>
+                  <input type="text" class="form-control" name="roll_number" id="roll_number" placeholder="Your roll number" required>
+                  <div class="error">Roll number is required.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Department</label>
+                  <select class="form-select" name="department" id="department" required>
+                    <option value="" disabled selected>Choose Department</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                  </select>
+                  <div class="error">Select department.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Semester</label>
+                  <select class="form-select" name="semester" id="semester" required>
+                    <option value="" disabled selected>Choose Semester</option>
+                    <option>First Semester</option><option>Second Semester</option><option>Third Semester</option>
+                    <option>Fourth Semester</option><option>Fifth Semester</option><option>Six Semester</option>
+                    <option>Seven Semester</option><option>Eight Semester</option>
+                  </select>
+                  <div class="error">Select semester.</div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">College Address</label>
+                  <input type="text" class="form-control" name="college_address" id="college_address" placeholder="Address with city & state" required>
+                  <div class="error">Address is required.</div>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">Director Name</label>
+                  <input type="text" class="form-control" name="director_name" id="director_name" required>
+                  <div class="error">Director name is required.</div>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">Professor Name</label>
+                  <input type="text" class="form-control" name="professor_name" id="professor_name" required>
+                  <div class="error">Professor name is required.</div>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">HOD Name</label>
+                  <input type="text" class="form-control" name="hod_name" id="hod_name" required>
+                  <div class="error">HOD name is required.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Affiliated College Name</label>
+                  <input type="text" class="form-control" name="affilated_college_name" id="aff_name" required>
+                  <div class="error">Affiliated college name is required.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Affiliated College Address</label>
+                  <input type="text" class="form-control" name="affilated_college_address" id="aff_address" required>
+                  <div class="error">Affiliated college address is required.</div>
+                </div>
+
+                <!-- Uploads -->
+                <div class="col-md-6">
+                  <label class="form-label">College Logo</label>
+                  <label class="upload-tile" for="FileInput">
+                    <i class="fa-regular fa-file-image"></i>
+                    <div class="hint">Upload image</div>
+                    <div class="small-muted">JPG/PNG</div>
+                    <input id="FileInput" type="file" name="college_logo" accept=".jpg,.jpeg,.png" required>
+                  </label>
+                  <div class="error">College logo is required.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Affiliated College Logo</label>
+                  <label class="upload-tile" for="FileInput1">
+                    <i class="fa-regular fa-file-image"></i>
+                    <div class="hint">Upload image</div>
+                    <div class="small-muted">JPG/PNG</div>
+                    <input id="FileInput1" type="file" name="affilated_college_logo" accept=".jpg,.jpeg,.png" required>
+                  </label>
+                  <div class="error">Affiliated logo is required.</div>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end">
+                  <button type="button" class="btn-brand px-4" data-next>Continue</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2: Tech Stack -->
+            <div class="section card-surface shadow-soft d-none" data-step="2">
+              <div class="title"><i class="feather-cpu"></i><h4>Choose Tech Stack</h4></div>
+
+              <h6 class="mb-2 fw-bold">Back-End Technology</h6>
+              <div class="tech-grid mb-3">
+                <% for(i=0;i<result[1].length;i++) { %>
+                  <label class="tech-chip">
+                    <span><%=result[1][i].name%></span>
+                    <span class="switch">
+                      <input type="checkbox" id="bopis<%=result[1][i].id%>" name="backend[]" value="<%=result[1][i].id%>">
+                      <span></span>
+                    </span>
+                  </label>
+                <% } %>
+              </div>
+              <div class="error" id="err-backend">Select at least one back-end tech.</div>
+
+              <h6 class="mb-2 fw-bold mt-2">Front-End Technology</h6>
+              <div class="tech-grid">
+                <% for(i=0;i<result[2].length;i++) { %>
+                  <label class="tech-chip">
+                    <span><%=result[2][i].name%></span>
+                    <span class="switch">
+                      <input type="checkbox" id="fep<%=result[2][i].id%>" name="frontend[]" value="<%=result[2][i].id%>">
+                      <span></span>
+                    </span>
+                  </label>
+                <% } %>
+              </div>
+              <div class="error" id="err-frontend">Select at least one front-end tech.</div>
+
+              <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn-outline px-4" data-prev>Back</button>
+                <button type="button" class="btn-brand px-4" data-next>Continue</button>
+              </div>
+            </div>
+
+            <!-- SECTION 3: Group (Optional) -->
+            <div class="section card-surface shadow-soft d-none" data-step="3">
+              <div class="title"><i class="feather-users"></i><h4>Group File (Optional)</h4></div>
+              <div class="row g-3">
+                <!-- Pair 1 -->
+                <div class="col-md-6">
+                  <label class="form-label">Friend Name</label>
+                  <input type="text" class="form-control" name="friend" placeholder="Friend Name">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Friend Roll Number</label>
+                  <input type="text" class="form-control" name="roll_number1" placeholder="Roll Number">
+                </div>
+                <!-- Pair 2 -->
+                <div class="col-md-6">
+                  <label class="form-label">Friend Name</label>
+                  <input type="text" class="form-control" name="friend1" placeholder="Friend Name">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Friend Roll Number</label>
+                  <input type="text" class="form-control" name="roll_number2" placeholder="Roll Number">
+                </div>
+                <!-- Pair 3 -->
+                <div class="col-md-6">
+                  <label class="form-label">Friend Name</label>
+                  <input type="text" class="form-control" name="friend3" placeholder="Friend Name">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Friend Roll Number</label>
+                  <input type="text" class="form-control" name="roll_number3" placeholder="Roll Number">
+                </div>
+                <!-- Pair 4 -->
+                <div class="col-md-6">
+                  <label class="form-label">Friend Name</label>
+                  <input type="text" class="form-control" name="friend4" placeholder="Friend Name">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Friend Roll Number</label>
+                  <input type="text" class="form-control" name="roll_number4" placeholder="Roll Number">
+                </div>
+
+                <div class="d-flex justify-content-between mt-2">
+                  <button type="button" class="btn-outline px-4" data-prev>Back</button>
+                  <button type="button" class="btn-brand px-4" data-next>Review & Pay</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 4: Review & Pay -->
+        <!-- SECTION 4: Review & Pay -->
+<div class="section card-surface shadow-soft d-none" data-step="4">
+  <div class="title"><i class="feather-credit-card"></i><h4>Review & Pay</h4></div>
+  <p class="small-muted mb-2">Submit your details to generate the customized report draft. We’ll send the file to your email and WhatsApp (if provided).</p>
+
+  <!-- Coupon row -->
+  <div class="row g-2 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label">Coupon Code (optional)</label>
+      <input type="text" class="form-control" id="coupon_code" placeholder="Enter coupon">
+      <div id="coupon_msg" class="help"></div>
+    </div>
+    <div class="col-md-3">
+      <button type="button" class="btn-outline w-100" id="applyCouponBtn">Apply</button>
+    </div>
+    <div class="col-md-3 d-none" id="removeCouponCol">
+      <button type="button" class="btn-outline w-100" id="removeCouponBtn">Remove</button>
+    </div>
+  </div>
+
+  <!-- Errors -->
+  <div class="form-errors alert alert-danger mt-2" id="formErrors">Please fix the highlighted fields above.</div>
+
+  <!-- Hidden fields sent to server -->
+  <input type="hidden" name="coupon_code" id="coupon_code_hidden" value="">
+  <input type="hidden" name="final_amount" id="final_amount_hidden" value="10.00">
+
+  <div class="d-flex justify-content-between mt-2">
+    <button type="button" class="btn-outline px-4" data-prev>Back</button>
+    <button type="submit" class="btn-brand px-4" id="submitBtn">Make a Payment</button>
+  </div>
+</div>
+
+          </form>
+        </div>
+
+
+        <style>
+          .summary-card{padding:16px;border-radius:16px;display:flex;
+  flex-direction:column;
+  gap:12px;}
+
+
+/* New premium price block */
+.price-card{
+  position:relative;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#fff;
+  padding:12px;
+  box-shadow:0 6px 18px rgba(14,18,32,.06);
+}
+
+/* slim gradient accent on top edge */
+.price-card::before{
+  content:"";
+  position:absolute; left:10px; right:10px; top:-1px; height:3px;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--brandBlue),var(--brandOrange));
+  opacity:.9;
+}
+
+/* header row */
+.price-head{
+  display:flex; align-items:baseline; justify-content:space-between;
+  margin-bottom:6px;
+}
+.price-label{
+  font-weight:800; color:#111; letter-spacing:.02em;
+}
+.price-amt{
+  font-size:26px; font-weight:900; line-height:1;
+}
+
+/* divider */
+.price-card .divider{
+  height:1px; background:rgba(14,18,32,.06); margin:8px 0;
+}
+
+/* breakdown rows */
+.price-break{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 0;
+  font-weight:700;
+}
+.price-row-label{ color:var(--muted); }
+.price-row-val{ color:#111; }
+.price-break.is-coupon .price-row-label{ color:#0e1220; }
+.price-row-val.save{ color:#16a34a; }
+
+/* subtle footnote */
+.price-note{
+  margin-top:6px;
+  font-size:.8rem; color:var(--muted);
+}
+
+/* spacing on small screens */
+@media (max-width:575.98px){
+  .price-card{ padding:10px; }
+  .price-amt{ font-size:24px; }
+}
+
+.summary-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.summary-tag{color:var(--muted);font-weight:700}
+.summary-title{margin:4px 0 4px;font-weight:900}
+.summary-sub{margin:0 0 10px;color:var(--muted)}
+.price-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff;margin-bottom:12px}
+.price-amt .amt{font-size:24px;font-weight:900;line-height:1}
+.price-amt .note{display:block;color:var(--muted);font-size:.85rem}
+.pill-save{font-weight:800;border:1px solid rgba(241,127,35,.2);background:rgba(241,127,35,.08);color:var(--brandOrange);padding:.25rem .5rem;border-radius:999px}
+.perk-list{list-style:none;padding:0;margin:10px 0 12px;display:grid;gap:8px}
+.perk-list li{display:flex;align-items:center;gap:8px;color:#111;font-weight:600}
+.perk-list i{color:var(--brandBlue)}
+.trust-row{display:flex;justify-content:space-between;gap:8px;margin-top:10px;color:var(--muted);font-size:.9rem}
+.trust-row i{color:var(--brandBlue)}
+@media (max-width:991.98px){
+  .summary{position:static}
+}
+
+.btn-whatsapp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid rgba(37, 211, 102, 0.3);
+  background: rgba(37, 211, 102, 0.05);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.btn-whatsapp:hover {
+  background: rgba(37, 211, 102, 0.1);
+  border-color: rgba(37, 211, 102, 0.6);
+}
+.wa-icon {
+  flex-shrink: 0;
+  font-size: 1.3rem;
+  color: #25D366;
+}
+.wa-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  color: #111;
+}
+.wa-text small {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+
+        </style>
+
+        <!-- RIGHT (SUMMARY) -->
+        <div class="col-lg-4">
+         <aside class="summary">
+
+  <div class="summary-card card-surface shadow-soft">
+
+<!-- PRICE CARD -->
+<div class="price-card" role="group" aria-label="Order total">
+  <div class="price-head">
+    <span class="price-label">Total</span>
+    <span class="price-amt" id="summaryTotal">₹10.00</span>
+  </div>
+
+  <div class="price-break">
+    <span class="price-row-label">Base price</span>
+    <span class="price-row-val">₹10.00</span>
+  </div>
+
+  <!-- This row is shown only when a coupon applies -->
+  <div class="price-break is-coupon d-none" id="PriceCouponRow">
+    <span class="price-row-label">
+      Coupon <strong id="CouponName">—</strong>
+    </span>
+    <span class="price-row-val save" id="CouponSave">−₹0.00</span>
+  </div>
+
+  <!-- tiny note line (optional) -->
+  <div class="price-note" id="summaryCouponNote">No coupon</div>
+</div>
+
+
+    <!-- Top meta -->
+    <div class="summary-meta">
+      <span class="badge-soft">Project Report</span>
+      <span class="summary-tag"><%=graduation_type_send%></span>
+    </div>
+
+    <!-- Title -->
+    <h5 class="summary-title"><%=result[0][0].name%></h5>
+
+
+
+
+    <p class="summary-sub"><%=result[0][0].short_description%></p>
+
+    <!-- Price -->
+   
+
+    <!-- Perks -->
+    <ul class="perk-list">
+      <li><i class="feather-check"></i> Faculty-ready formatting</li>
+      <li><i class="feather-check"></i> Help & edits via WhatsApp</li>
+    </ul>
+
+    <!-- Help -->
+  <a class="btn-whatsapp w-100 mb-2"
+   href="https://wa.me/918319339945?text=Questions%20about%20<%=encodeURIComponent(result[0][0].name)%>"
+   target="_blank" rel="noopener">
+  <span class="wa-icon">
+    <i class="fa-brands fa-whatsapp"></i>
+  </span>
+  <span class="wa-text">
+    <strong>Chat on WhatsApp</strong>
+    <small>Quick support & answers</small>
+  </span>
+</a>
+
+    <!-- Primary CTA -->
+    <button form="checkoutForm" class="btn-brand w-100">Make a Payment</button>
+
+    <!-- Trust row -->
+    <div class="trust-row">
+      <span><i class="feather-lock"></i> Secure checkout</span>
+      <span><i class="feather-download"></i> Instant report delivery </span>
+    </div>
+  </div>
+</aside>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA for mobile -->
+  <div class="cta-bar">
+    <div class="container container-narrow">
+      <div class="d-flex gap-2">
+        <button form="checkoutForm" class="btn-brand w-100">Make a Payment — ₹10</button>
+      </div>
+    </div>
+  </div>
+
+  <%include Includes/footer.ejs %>
+</div>
+
+<script src="/design/js/bootstrap.bundle.min.js"></script>
+<script src="/design/js/jquery-3.6.0.min.js"></script>
+
+<script>
+(function(){
+  const form = document.getElementById('checkoutForm');
+  const steps = Array.from(document.querySelectorAll('[data-step]'));
+  const stepper = document.getElementById('stepper');
+
+  // ==== PRICING STATE ====
+  const BASE_PRICE = 10.00;
+  let discountApplied = 0.00;
+  let appliedCode = '';
+
+  // DOM hooks (FIXED IDS)
+  const summaryTotalEl = document.getElementById('summaryTotal');
+  const summaryCouponNoteEl = document.getElementById('summaryCouponNote');
+  const bottomCta = document.querySelector('.cta-bar .btn-brand');
+
+  const codeInput   = document.getElementById('coupon_code');     // <-- input
+  const msgEl       = document.getElementById('coupon_msg');      // <-- message line
+  const applyBtn    = document.getElementById('applyCouponBtn');
+  const removeCol   = document.getElementById('removeCouponCol');
+  const removeBtn   = document.getElementById('removeCouponBtn');
+
+  const rowCoupon   = document.getElementById('PriceCouponRow');
+  const couponName  = document.getElementById('CouponName');
+  const couponSave  = document.getElementById('CouponSave');
+
+  const hiddenCode  = document.getElementById('coupon_code_hidden');
+  const hiddenFinal = document.getElementById('final_amount_hidden');
+  const submitBtn   = document.getElementById('submitBtn');
+
+  // Start hidden
+  rowCoupon.classList.add('d-none');
+
+  const money = n => '₹' + Number(n).toFixed(2);
+
+  function updateTotals(){
+    const total = Math.max(0, BASE_PRICE - discountApplied);
+    summaryTotalEl.textContent = money(total);
+    hiddenFinal.value = total.toFixed(2);
+
+    summaryCouponNoteEl.textContent = appliedCode
+      ? `Coupon “${appliedCode}” − ${money(discountApplied)}`
+      : 'No coupon';
+
+    if (bottomCta) bottomCta.textContent = `Make a Payment — ${money(total)}`;
+  }
+
+  async function validateCoupon(code){
+    // Update this endpoint to your real one
+    const url = `/api/coupon/validate?code=${encodeURIComponent(code)}`;
+    try{
+      const res = await fetch(url, { headers:{ 'Accept':'application/json' } });
+      if(!res.ok) throw new Error('Network');
+      return await res.json(); // expect { valid: boolean, code: string, discount: number }
+    }catch(e){
+      return { valid:false };
+    }
+  }
+
+  async function applyCoupon(){
+    const code = (codeInput.value || '').trim();
+    msgEl.textContent = '';
+    msgEl.style.color = '';
+
+    if(!code){
+      msgEl.textContent = 'Enter a coupon code.';
+      msgEl.style.color = '#b42318';
+      return;
+    }
+
+    applyBtn.disabled = true; applyBtn.textContent = 'Checking…';
+    const { valid, discount, code: serverCode } = await validateCoupon(code);
+    applyBtn.disabled = false; applyBtn.textContent = 'Apply';
+
+    if(valid && Number(discount) > 0){
+      appliedCode = serverCode || code;
+      discountApplied = Math.round((BASE_PRICE * Number(discount) / 100) * 100) / 100;
+
+
+       hiddenCode.value = appliedCode;
+  couponName.textContent = `“${appliedCode}”`;
+  couponSave.textContent = '−' + money(discountApplied);
+  rowCoupon.classList.remove('d-none');
+  removeCol.classList.remove('d-none');
+
+  msgEl.textContent = `Coupon applied. You saved ${money(discountApplied)}.`;
+  msgEl.style.color = '#16a34a';
+
+      updateTotals();
+    } else {
+      // invalid
+      appliedCode = '';
+      discountApplied = 0;
+      hiddenCode.value = '';
+      rowCoupon.classList.add('d-none');
+      removeCol.classList.add('d-none');
+
+      msgEl.textContent = 'Invalid or expired coupon.';
+      msgEl.style.color = '#b42318';
+
+      updateTotals();
+    }
+  }
+
+  function removeCoupon(){
+    appliedCode = '';
+    discountApplied = 0;
+    hiddenCode.value = '';
+    codeInput.value = '';
+    rowCoupon.classList.add('d-none');
+    removeCol.classList.add('d-none');
+
+    msgEl.textContent = 'Coupon removed.';
+    msgEl.style.color = '#6b7280';
+
+    updateTotals();
+  }
+
+  // Wire events (will work even when step 4 first opens)
+  if (applyBtn) applyBtn.addEventListener('click', applyCoupon);
+  if (removeBtn) removeBtn.addEventListener('click', removeCoupon);
+  if (codeInput) codeInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); applyCoupon(); }
+  });
+
+  // ===== KEEP YOUR EXISTING STEPPER/VALIDATION BELOW =====
+  let current = 1;
+  function showStep(n){
+    current = n;
+    steps.forEach(sec => sec.classList.toggle('d-none', +sec.dataset.step !== n));
+    const nodes = stepper.querySelectorAll('.step');
+    nodes.forEach((s,i)=>{
+      s.classList.toggle('step--active', (i+1)===n);
+      s.classList.toggle('step--done', (i+1)<n);
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click', async ()=>{
+    const ok = await validateSection(current);
+    if(!ok) return;
+    showStep(Math.min(current+1, 4));
+  }));
+  document.querySelectorAll('[data-prev]').forEach(b=>b.addEventListener('click', ()=> showStep(Math.max(current-1, 1))));
+
+  function setInvalid(el, invalid){
+    const wrapper = el.closest('.col-md-6, .col-12, .col-md-4, .section');
+    if(!wrapper) return;
+    wrapper.classList.toggle('invalid', invalid);
+  }
+
+  function validateSection(stepNo){
+    if(stepNo===1){
+      const reqIds = ['projecttype','email','name','number','college_name','roll_number','department','semester','college_address','director_name','professor_name','hod_name','aff_name','aff_address','FileInput','FileInput1'];
+      let ok = true;
+      reqIds.forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        let valid = true;
+        if(el.type==='file'){ valid = el.files && el.files.length>0; }
+        else if(el.id==='number'){ valid = /^[0-9]{10}$/.test(el.value.trim()); }
+        else{ valid = !!el.value; }
+        setInvalid(el, !valid);
+        ok = ok && valid;
+      });
+      return ok;
+    }
+    if(stepNo===2){
+      const back = !!document.querySelector('input[name="backend[]"]:checked');
+      const front = !!document.querySelector('input[name="frontend[]"]:checked');
+      document.getElementById('err-backend').style.display = back ? 'none':'block';
+      document.getElementById('err-frontend').style.display = front ? 'none':'block';
+      return back && front;
+    }
+    return true;
+  }
+
+  form.addEventListener('submit', async (e)=>{
+    let good = true;
+    for(let s=1;s<=4;s++){
+      const ok = await validateSection(s);
+      if(!ok){ showStep(s); good=false; break; }
+    }
+    const errors = document.getElementById('formErrors');
+    if(!good){
+      e.preventDefault();
+      errors.classList.add('active');
+      errors.scrollIntoView({behavior:'smooth',block:'center'});
+    }else{
+      errors.classList.remove('active');
+      if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+    }
+  });
+
+  // Show chosen filenames
+  ['FileInput','FileInput1'].forEach(id=>{
+    const input = document.getElementById(id);
+    if(!input) return;
+    input.addEventListener('change', ()=>{
+      const tile = input.closest('.upload-tile');
+      const hint = tile && tile.querySelector('.hint');
+      if(hint && input.files && input.files[0]) hint.textContent = input.files[0].name;
+      setInvalid(input, !(input.files && input.files.length>0));
+    });
+  });
+
+  // Device info ping
+  (function(){
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    fetch('/customization',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deviceInfo: isMobile?'mobile':'Desktop'})});
+  })();
+
+  // init
+  updateTotals();
+  showStep(1);
+})();
+</script>
+
+
+</body>
+</html>

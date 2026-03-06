@@ -1,0 +1,930 @@
+<% include ./header.ejs %>
+
+<style>
+  :root{
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: rgba(15, 23, 42, 0.60);
+    --border: rgba(15, 23, 42, 0.08);
+    --shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
+    --shadowHover: 0 16px 44px rgba(2, 6, 23, 0.10);
+    --radius: 16px;
+
+    --primary: #0d6efd;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --warning: #f59e0b;
+    --info: #06b6d4;
+    --violet: #7c3aed;
+    --slate: #64748b;
+  }
+
+  .dash-shell { padding: 18px 0 44px; background: var(--bg); min-height: calc(100vh - 80px); }
+  .container-fluid { max-width: 1480px; }
+
+  /* Page header */
+  .page-head {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap: 12px; flex-wrap: wrap;
+    padding: 8px 4px 16px;
+  }
+  .page-title { margin: 6px 0 4px; font-weight: 900; color: var(--text); letter-spacing: -0.2px; }
+  .page-sub { margin: 0; color: var(--muted); font-size: 13px; }
+
+  /* Layout helpers */
+  .grid-2 { display:grid; grid-template-columns: 1.6fr 1fr; gap: 14px; }
+  @media (max-width: 1200px){ .grid-2{ grid-template-columns: 1fr; } }
+
+  .panel-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .panel-head{
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .panel-head h5{ margin:0; font-weight: 900; color: var(--text); font-size: 16px; }
+  .panel-head .hint{ margin:0; color: var(--muted); font-size: 12px; }
+  .panel-body{ padding: 16px; }
+
+  /* Buttons */
+  .btn-mnc{
+    border-radius: 14px;
+    height: 42px;
+    font-weight: 900;
+    letter-spacing: 0.1px;
+  }
+  .btn-soft{
+    background: rgba(13,110,253,0.08);
+    border: 1px solid rgba(13,110,253,0.18);
+    color: #0b5ed7;
+  }
+  .btn-soft:hover{ background: rgba(13,110,253,0.12); }
+
+  /* Filter bar */
+  .filter-grid{
+    display:grid;
+    grid-template-columns: 150px 150px 260px 1fr 220px;
+    gap: 10px;
+    align-items:end;
+  }
+  @media (max-width: 1200px){ .filter-grid{ grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 680px){ .filter-grid{ grid-template-columns: 1fr; } }
+
+  .label-mini{
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(15, 23, 42, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+  }
+  .form-control, .form-select{
+    height: 42px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: #fff;
+  }
+
+  .quick-pills{
+    display:flex; flex-wrap:wrap; gap: 8px;
+    padding-top: 10px;
+  }
+  .pill{
+    display:inline-flex; gap:8px; align-items:center;
+    border:1px solid rgba(15,23,42,0.10);
+    border-radius:999px;
+    padding:8px 12px;
+    background:#fff;
+    font-weight:900;
+    font-size:12px;
+    color:#0f172a;
+    text-decoration:none;
+    transition: all .12s ease;
+  }
+  .pill:hover{ transform: translateY(-1px); box-shadow: 0 8px 18px rgba(2,6,23,0.06); }
+  .pill.active{ background: var(--primary); color:#fff; border-color: var(--primary); }
+
+  /* KPI cards */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 1200px){ .kpi-grid{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px){ .kpi-grid{ grid-template-columns: 1fr; } }
+
+  .kpi{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 14px 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .12s ease, box-shadow .12s ease;
+    text-decoration: none;
+    display:block;
+    color: inherit;
+  }
+  .kpi:hover{ transform: translateY(-2px); box-shadow: var(--shadowHover); }
+  .kpi:before{
+    content:"";
+    position:absolute; inset:0 0 auto 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--violet));
+  }
+  .kpi .t{ font-size: 11px; font-weight: 900; color: rgba(15,23,42,0.55); text-transform: uppercase; letter-spacing: 0.45px; }
+  .kpi .v{ font-size: 28px; font-weight: 950; line-height: 1.1; margin-top: 6px; color: var(--text); }
+  .kpi .s{ font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .kpi .icon{
+    width: 44px; height: 44px; border-radius: 14px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(13,110,253,0.10);
+  }
+  .kpi .rowx{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+
+  .kpi-danger:before{ background: linear-gradient(90deg, var(--danger), #fb7185); }
+  .kpi-success:before{ background: linear-gradient(90deg, var(--success), #22c55e); }
+  .kpi-warning:before{ background: linear-gradient(90deg, var(--warning), #fbbf24); }
+  .kpi-slate:before{ background: linear-gradient(90deg, var(--slate), #0f172a); }
+
+  /* Mini KPI inside panels */
+  .mini-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 680px){ .mini-grid{ grid-template-columns: 1fr; } }
+  .mini{
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    background:#fff;
+    box-shadow: 0 8px 18px rgba(2,6,23,0.04);
+    text-decoration:none;
+    display:block;
+    color: inherit;
+    transition: all .12s ease;
+  }
+  .mini:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px rgba(2,6,23,0.08); }
+  .mini .t{ font-size: 11px; font-weight: 900; color: rgba(15,23,42,0.55); text-transform: uppercase; letter-spacing: 0.45px; }
+  .mini .v{ font-size: 22px; font-weight: 950; margin-top: 6px; color: var(--text); }
+  .mini .right{
+    width: 40px; height: 40px; border-radius: 14px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(15,23,42,0.06);
+  }
+  .mini .rowx{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+
+  /* Finance box */
+  .money-row{ display:flex; align-items:center; justify-content:space-between; padding: 10px 0; border-bottom: 1px dashed rgba(15,23,42,0.10); }
+  .money-row:last-child{ border-bottom: none; }
+  .money-row .l{ color: var(--muted); font-weight: 800; font-size: 13px; }
+  .money-row .r{ font-weight: 950; color: var(--text); }
+  .money-row .r.danger{ color: var(--danger); }
+
+  /* Tables */
+  .table{ margin: 0; }
+  .table thead th{
+    background: #0b5ed7;
+    color:#fff;
+    border-color: rgba(255,255,255,0.15);
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+  .table td{ vertical-align: middle; }
+  .muted{ color: var(--muted); }
+
+  .badge-soft{
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-weight: 950;
+    font-size: 12px;
+    border: 1px solid rgba(15,23,42,0.08);
+  }
+  .b-today{ background: rgba(22,163,74,0.12); color: var(--success); }
+  .b-overdue{ background: rgba(220,38,38,0.12); color: var(--danger); }
+  .b-upcoming{ background: rgba(245,158,11,0.14); color: #a16207; }
+  .b-review{ background: rgba(6,182,212,0.12); color: var(--info); }
+  .b-hold{ background: rgba(100,116,139,0.14); color: var(--slate); }
+  .b-pay{ background: rgba(124,58,237,0.12); color: var(--violet); }
+
+  /* Charts */
+  .chart-shell{
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background:#fff;
+    box-shadow: var(--shadow);
+  }
+  .chart-title{ margin: 0; font-weight: 950; color: var(--text); font-size: 15px; }
+  .chart-sub{ margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+</style>
+
+<div class="content-body dash-shell">
+  <div class="container-fluid">
+
+    <!-- HEADER -->
+    <div class="page-head">
+      <div>
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+          <li class="breadcrumb-item active">Dashboard</li>
+        </ol>
+        <h4 class="page-title">Work & Sales Command Center</h4>
+        <p class="page-sub">Operational queues, SLA visibility, team workload, and profitability—optimized for daily execution.</p>
+      </div>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-soft btn-mnc" href="/freelancing/sync-leads?mode=daily">
+          <i class="fas fa-sync-alt me-2"></i>Daily Sync
+        </a>
+        <a class="btn btn-outline-dark btn-mnc" href="/freelancing/sync-leads?mode=backfill">
+          <i class="fas fa-database me-2"></i>Backup Sync
+        </a>
+        <a class="btn btn-primary btn-mnc" data-bs-toggle="offcanvas" href="#offcanvasExample1" role="button" aria-controls="offcanvasExample1">
+          <i class="fas fa-plus me-2"></i>Add Task
+        </a>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="panel-card mb-3">
+      <div class="panel-body">
+        <form method="GET" action="/freelancing/dashboard">
+          <div class="filter-grid">
+            <div>
+              <div class="label-mini">From</div>
+              <input class="form-control" type="date" name="from" value="<%= dashboard.meta.filters.from %>">
+            </div>
+
+            <div>
+              <div class="label-mini">To</div>
+              <input class="form-control" type="date" name="to" value="<%= dashboard.meta.filters.to %>">
+            </div>
+
+            <div>
+              <div class="label-mini">Agent</div>
+              <select class="form-select" name="agent">
+                <option value="">All Agents</option>
+                <% (dashboard.agentsList || []).forEach(a => { %>
+                  <option value="<%= a %>" <%= dashboard.meta.filters.agent === a ? 'selected' : '' %>><%= a %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div>
+              <div class="label-mini">Search</div>
+              <input class="form-control" type="text" name="q" placeholder="Client / Project / Number" value="<%= dashboard.meta.filters.q %>">
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary btn-mnc w-100" type="submit">
+              Apply
+              </button>
+              <a class="btn btn-outline-secondary btn-mnc w-100" href="/freelancing/dashboard">Reset</a>
+            </div>
+          </div>
+
+          <input type="hidden" name="quick" value="<%= dashboard.meta.filters.quick %>">
+        </form>
+
+        <div class="quick-pills">
+          <% const base = `/freelancing/dashboard?from=${dashboard.meta.filters.from}&to=${dashboard.meta.filters.to}&agent=${encodeURIComponent(dashboard.meta.filters.agent || '')}&q=${encodeURIComponent(dashboard.meta.filters.q || '')}`; %>
+          <a class="pill <%= dashboard.meta.filters.quick === '' ? 'active' : '' %>" href="<%= base %>">Overview</a>
+          <a class="pill <%= dashboard.meta.filters.quick === 'overdue' ? 'active' : '' %>" href="<%= base + '&quick=overdue' %>">Overdue</a>
+          <a class="pill <%= dashboard.meta.filters.quick === 'today' ? 'active' : '' %>" href="<%= base + '&quick=today' %>">Due Today</a>
+          <a class="pill <%= dashboard.meta.filters.quick === 'next48' ? 'active' : '' %>" href="<%= base + '&quick=next48' %>">Next 48</a>
+          <a class="pill <%= dashboard.meta.filters.quick === 'pay_pending' ? 'active' : '' %>" href="<%= base + '&quick=pay_pending' %>">Payment Pending</a>
+          <a class="pill <%= dashboard.meta.filters.quick === 'agent_pay_pending' ? 'active' : '' %>" href="<%= base + '&quick=agent_pay_pending' %>">Agent Pay Pending</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP KPI ROW -->
+    <div class="kpi-grid mb-3">
+      <a class="kpi kpi-success" href="/freelancing/leads/today_deliveries" target="_blank">
+        <div class="rowx">
+          <div>
+            <div class="t">Due Today</div>
+            <div class="v"><%= dashboard.kpis.today_deliveries %></div>
+            <div class="s">Deadline = today</div>
+          </div>
+          <div class="icon" style="background: rgba(22,163,74,0.12);">
+            <i class="fas fa-truck" style="color: var(--success)"></i>
+          </div>
+        </div>
+      </a>
+
+      <a class="kpi kpi-danger" href="/freelancing/leads/overdue" target="_blank">
+        <div class="rowx">
+          <div>
+            <div class="t">Overdue</div>
+            <div class="v"><%= dashboard.kpis.overdue %></div>
+            <div class="s">SLA breached</div>
+          </div>
+          <div class="icon" style="background: rgba(220,38,38,0.12);">
+            <i class="fas fa-exclamation-triangle" style="color: var(--danger)"></i>
+          </div>
+        </div>
+      </a>
+
+      <a class="kpi kpi-warning" href="/freelancing/leads/next_two_days" target="_blank">
+        <div class="rowx">
+          <div>
+            <div class="t">Next 48</div>
+            <div class="v"><%= dashboard.kpis.upcoming_48h %></div>
+            <div class="s">Deadline within 2 days</div>
+          </div>
+          <div class="icon" style="background: rgba(245,158,11,0.14);">
+            <i class="fas fa-calendar-alt" style="color: #a16207"></i>
+          </div>
+        </div>
+      </a>
+
+      <a class="kpi kpi-slate" href="/freelancing/leads/upcoming" target="_blank">
+        <div class="rowx">
+          <div>
+            <div class="t">Undelivered</div>
+            <div class="v"><%= dashboard.kpis.undelivered_total %></div>
+            <div class="s">All active pending</div>
+          </div>
+          <div class="icon" style="background: rgba(15,23,42,0.08);">
+            <i class="fas fa-box-open" style="color: #0f172a"></i>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- OPERATIONS + FINANCE -->
+    <div class="grid-2 mb-3">
+      <!-- Operations -->
+      <div class="panel-card">
+        <div class="panel-head">
+          <div>
+            <h5>Operations</h5>
+            <p class="hint">Key queues to unblock delivery and close revenue.</p>
+          </div>
+          <div class="hint">Updated: <b><%= dashboard.meta.today %></b></div>
+        </div>
+        <div class="panel-body">
+          <div class="mini-grid">
+            <a class="mini" href="/freelancing/leads/in_progress" target="_blank">
+              <div class="rowx">
+                <div>
+                  <div class="t">In Progress</div>
+                  <div class="v"><%= dashboard.kpis.in_progress %></div>
+                </div>
+                <div class="right" style="background: rgba(245,158,11,0.14);">
+                  <i class="fas fa-tasks" style="color:#a16207"></i>
+                </div>
+              </div>
+            </a>
+
+            <a class="mini" href="/freelancing/leads/client_review" target="_blank">
+              <div class="rowx">
+                <div>
+                  <div class="t">Client Review</div>
+                  <div class="v"><%= dashboard.kpis.client_review %></div>
+                </div>
+                <div class="right" style="background: rgba(6,182,212,0.12);">
+                  <i class="fas fa-comments" style="color: var(--info)"></i>
+                </div>
+              </div>
+            </a>
+
+            <a class="mini" href="/freelancing/leads/in_changes" target="_blank">
+              <div class="rowx">
+                <div>
+                  <div class="t">Revisions</div>
+                  <div class="v"><%= dashboard.kpis.in_changes %></div>
+                </div>
+                <div class="right" style="background: rgba(245,158,11,0.14);">
+                  <i class="fas fa-edit" style="color:#a16207"></i>
+                </div>
+              </div>
+            </a>
+
+            <a class="mini" href="/freelancing/leads/hold" target="_blank">
+              <div class="rowx">
+                <div>
+                  <div class="t">Hold</div>
+                  <div class="v"><%= dashboard.kpis.hold %></div>
+                </div>
+                <div class="right" style="background: rgba(100,116,139,0.14);">
+                  <i class="fas fa-pause-circle" style="color: var(--slate)"></i>
+                </div>
+              </div>
+            </a>
+
+            <a class="mini" href="/freelancing/leads/pending" target="_blank">
+              <div class="rowx">
+                <div>
+                  <div class="t">Not Assigned</div>
+                  <div class="v"><%= dashboard.kpis.not_assigned %></div>
+                </div>
+                <div class="right" style="background: rgba(100,116,139,0.14);">
+                  <i class="fas fa-user-times" style="color: var(--slate)"></i>
+                </div>
+              </div>
+            </a>
+
+            <a class="mini" href="/freelancing/leads/client_payment_pending" target="_blank">
+              <div class="rowx">
+                <div>
+                  <div class="t">Payment Pending</div>
+                  <div class="v"><%= dashboard.kpis.client_payment_pending %></div>
+                </div>
+                <div class="right" style="background: rgba(124,58,237,0.12);">
+                  <i class="fas fa-credit-card" style="color: var(--violet)"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finance -->
+      <div class="panel-card">
+        <div class="panel-head">
+          <div>
+            <h5>Sales & Finance</h5>
+            <p class="hint">Window: <b><%= dashboard.meta.filters.from %></b> → <b><%= dashboard.meta.filters.to %></b></p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="money-row">
+            <div class="l">Revenue</div>
+            <div class="r">₹ <%= dashboard.finance.revenue %></div>
+          </div>
+          <div class="money-row">
+            <div class="l">Agent Cost</div>
+            <div class="r">₹ <%= dashboard.finance.agent_cost %></div>
+          </div>
+          <div class="money-row">
+            <div class="l">Profit</div>
+            <div class="r">₹ <%= dashboard.finance.profit %></div>
+          </div>
+          <div class="money-row">
+            <div class="l">Pending Amount</div>
+            <div class="r danger">₹ <%= dashboard.finance.pending_amount %></div>
+          </div>
+
+          <div class="mt-3 d-flex gap-2 flex-wrap">
+            <a class="btn btn-outline-primary btn-mnc w-100" href="/freelancing/leads/client_payment_pending" target="_blank">
+              <i class="fas fa-file-invoice-dollar me-2"></i>Open Payment Pending
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="row g-3 mb-3">
+      <div class="col-xl-6">
+        <div class="chart-shell">
+          <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+            <div>
+              <div class="chart-title">Profit Trend (Year)</div>
+              <div class="chart-sub">Revenue vs Agent Cost vs Profit</div>
+            </div>
+          </div>
+          <div class="mt-3"><canvas id="profitChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="col-xl-3">
+        <div class="chart-shell">
+          <div class="chart-title">Status Mix</div>
+          <div class="chart-sub">Distribution in selected date range</div>
+          <div class="mt-3"><canvas id="statusDonut"></canvas></div>
+        </div>
+      </div>
+
+      <div class="col-xl-3">
+        <div class="chart-shell">
+          <div class="chart-title">Workload</div>
+          <div class="chart-sub">Top agents (active, excluding hold)</div>
+          <div class="mt-3"><canvas id="workloadBar"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-12">
+        <div class="chart-shell">
+          <div class="chart-title">Delivery Trend (Last 14 Days)</div>
+          <div class="chart-sub">Due vs Overdue vs Done (by deadline)</div>
+          <div class="mt-3"><canvas id="deliveryTrend"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MONTHLY PERFORMANCE + MONTHLY STATUS (clean) -->
+    <div class="row g-3 mb-3">
+      <div class="col-12">
+        <div class="panel-card">
+          <div class="panel-head">
+            <div>
+              <h5>Monthly Overview (Current Year)</h5>
+              <p class="hint">Performance (revenue/profit/leads) + month-wise work status counters.</p>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <%
+              const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+              const mp = dashboard.monthlyPerformance || [];
+              const ms = dashboard.monthlyStatusCounters || [];
+            %>
+
+            <div class="row g-3">
+              <% for (let i = 1; i <= 12; i++) {
+                  const perf = mp.find(x => Number(x.month) === i) || { leads_count: 0, revenue: 0, profit: 0 };
+                  const stat = ms.find(x => Number(x.month) === i) || {};
+              %>
+                <div class="col-xxl-3 col-xl-4 col-lg-6">
+                  <div class="panel-card" style="box-shadow: 0 8px 22px rgba(2,6,23,0.05);">
+                    <div class="panel-head" style="padding: 12px 14px;">
+                      <div>
+                        <h5 style="font-size:14px;margin:0;"><%= monthNames[i-1] %></h5>
+                        <p class="hint" style="margin:2px 0 0;">Month: <b><%= i %></b></p>
+                      </div>
+                      <a href="/freelancing/convertedleads/<%= i %>" target="_blank" class="btn btn-sm btn-outline-primary btn-mnc" style="height:36px;">
+                        View Leads
+                      </a>
+                    </div>
+
+                    <div class="panel-body" style="padding: 14px;">
+                      <!-- Performance -->
+                      <div class="d-flex justify-content-between">
+                        <div class="muted fw-bold" style="font-size:12px;">Revenue</div>
+                        <div class="fw-bold">₹ <%= perf.revenue %></div>
+                      </div>
+                      <div class="d-flex justify-content-between mt-1">
+                        <div class="muted fw-bold" style="font-size:12px;">Profit</div>
+                        <div class="fw-bold">₹ <%= perf.profit %></div>
+                      </div>
+                      <div class="d-flex justify-content-between mt-1">
+                        <div class="muted fw-bold" style="font-size:12px;">Leads</div>
+                        <div class="fw-bold"><%= perf.leads_count %></div>
+                      </div>
+
+                      <hr class="my-3"/>
+
+                      <!-- Work status -->
+                      <div class="d-flex justify-content-between">
+                        <div class="muted fw-bold" style="font-size:12px;">Pending Work</div>
+                        <div class="fw-bold"><%= Number(stat.pending_work || 0) %></div>
+                      </div>
+                      <div class="d-flex justify-content-between mt-1">
+                        <div class="muted fw-bold" style="font-size:12px;">Done Work</div>
+                        <div class="fw-bold"><%= Number(stat.done_work || 0) %></div>
+                      </div>
+
+                      <div class="mt-2 d-flex flex-wrap gap-2">
+                        <span class="badge-soft b-upcoming">In Prog: <%= Number(stat.in_progress || 0) %></span>
+                        <span class="badge-soft b-review">Review: <%= Number(stat.client_review || 0) %></span>
+                        <span class="badge-soft b-upcoming">Revise: <%= Number(stat.in_changes || 0) %></span>
+                        <span class="badge-soft b-hold">Hold: <%= Number(stat.hold || 0) %></span>
+                      </div>
+
+                      <div class="mt-2 d-flex flex-wrap gap-2">
+                        <span class="badge-soft b-hold">Unassigned: <%= Number(stat.not_assigned || 0) %></span>
+                        <span class="badge-soft b-pay">Pay Pend: <%= Number(stat.client_payment_pending || 0) %></span>
+                        <span class="badge-soft b-pay">Agent Pay: <%= Number(stat.agent_payment_pending || 0) %></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="row g-3 mt-2">
+              <div class="col-12">
+                <div class="chart-shell">
+                  <div class="chart-title">Monthly Status Breakdown</div>
+                  <div class="chart-sub">Pending / Done / In Progress / Client Review / Revisions / Hold</div>
+                  <div class="mt-3"><canvas id="monthlyStatusChart"></canvas></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIORITY TABLE -->
+    <div class="row g-3 mb-3">
+      <div class="col-12">
+        <div class="panel-card">
+          <div class="panel-head">
+            <div>
+              <h5>Operational Priority Queue</h5>
+              <p class="hint">Delivery + Payment + Review queues in one list (filtered/searchable)</p>
+            </div>
+            <div class="hint">Updated: <b><%= dashboard.meta.today %></b></div>
+          </div>
+
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th style="width:60px;">#</th>
+                    <th>Project</th>
+                    <th>Client</th>
+                    <th>Deadline</th>
+                    <th>Agent</th>
+                    <th>Remarks</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (!dashboard.priorityQueue || dashboard.priorityQueue.length === 0) { %>
+                    <tr><td colspan="7" class="text-center py-4 text-muted">No records found for current filter.</td></tr>
+                  <% } %>
+
+                  <% (dashboard.priorityQueue || []).forEach((p, i) => { %>
+                    <tr>
+                      <td><%= i + 1 %></td>
+                      <td class="fw-bold"><%= p.enquiry %></td>
+                      <td><%= p.name %></td>
+                      <td><%= p.deadline || '—' %></td>
+                      <td><%= p.agent_name && p.agent_name.trim() ? p.agent_name : 'Unassigned' %></td>
+                      <td class="muted"><%= p.remarks || '—' %></td>
+                      <td>
+                        <% if (p.queue_status === 'OVERDUE') { %>
+                          <span class="badge-soft b-overdue">Overdue</span>
+                        <% } else if (p.queue_status === 'TODAY') { %>
+                          <span class="badge-soft b-today">Today</span>
+                        <% } else if (p.queue_status === 'UPCOMING') { %>
+                          <span class="badge-soft b-upcoming">Upcoming</span>
+                        <% } else if (p.queue_status === 'PAYMENT_PENDING') { %>
+                          <span class="badge-soft b-pay">Payment Pending</span>
+                        <% } else if (p.queue_status === 'AGENT_PAY_PENDING') { %>
+                          <span class="badge-soft b-pay">Agent Pay Pending</span>
+                        <% } else if (p.queue_status === 'CLIENT_REVIEW') { %>
+                          <span class="badge-soft b-review">Client Review</span>
+                        <% } else if (p.queue_status === 'REVISION') { %>
+                          <span class="badge-soft b-upcoming">Revision</span>
+                        <% } else if (p.queue_status === 'HOLD') { %>
+                          <span class="badge-soft b-hold">Hold</span>
+                        <% } else { %>
+                          <span class="badge-soft b-hold">Other</span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKLOAD + AGENT PAY -->
+    <div class="row g-3 mb-3">
+      <div class="col-xl-6">
+        <div class="panel-card">
+          <div class="panel-head">
+            <div>
+              <h5>Workload by Agent</h5>
+              <p class="hint">Active projects only (not done), excluding hold. Includes overdue + due today.</p>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th class="text-end">Active</th>
+                    <th class="text-end">Overdue</th>
+                    <th class="text-end">Due Today</th>
+                    <th class="text-end">Open</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (!dashboard.workload || dashboard.workload.length === 0) { %>
+                    <tr><td colspan="5" class="text-center py-4 text-muted">No workload data.</td></tr>
+                  <% } %>
+
+                  <% (dashboard.workload || []).forEach(w => { %>
+                    <tr>
+                      <td class="fw-bold"><%= w.assign %></td>
+                      <td class="text-end"><%= w.project_count %></td>
+                      <td class="text-end text-danger fw-bold"><%= w.overdue_count %></td>
+                      <td class="text-end text-success fw-bold"><%= w.due_today_count %></td>
+                      <td class="text-end">
+                        <% if (w.assign === 'Unassigned') { %>
+                          <a class="btn btn-sm btn-outline-secondary btn-mnc" style="height:34px;" href="/freelancing/leads/pending" target="_blank">Open</a>
+                        <% } else { %>
+                          <a class="btn btn-sm btn-outline-primary btn-mnc" style="height:34px;" href="/freelancing/workload/<%= w.assign %>" target="_blank">Open</a>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-6">
+        <div class="panel-card">
+          <div class="panel-head">
+            <div>
+              <h5>Agent Payment Pending</h5>
+              <p class="hint">Client payment received but agent payment not done.</p>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th class="text-end">Count</th>
+                    <th class="text-end">Open</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (!dashboard.agentPaymentPending || dashboard.agentPaymentPending.length === 0) { %>
+                    <tr><td colspan="3" class="text-center py-4 text-muted">No pending agent payments.</td></tr>
+                  <% } %>
+
+                  <% (dashboard.agentPaymentPending || []).forEach(a => { %>
+                    <tr>
+                      <td class="fw-bold"><%= a.assign %></td>
+                      <td class="text-end"><%= a.project_count %></td>
+                      <td class="text-end">
+                        <% if (a.assign === 'Unassigned') { %>
+                          <a class="btn btn-sm btn-outline-secondary btn-mnc" style="height:34px;" href="/freelancing/assign/" target="_blank">Open</a>
+                        <% } else { %>
+                          <a class="btn btn-sm btn-outline-danger btn-mnc" style="height:34px;" href="/freelancing/assign/<%= a.assign %>" target="_blank">Open</a>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // ---------------- Profit Chart ----------------
+  fetch('/freelancing/profit/yearly')
+    .then(r => r.json())
+    .then(json => {
+      const data = Array.isArray(json) ? json : (json.data || []);
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const labels = data.map(d => months[(d.month || 1) - 1]);
+      const revenue = data.map(d => Number(d.total_lead_price || 0));
+      const cost = data.map(d => Number(d.total_agent_price || 0));
+      const profit = data.map(d => Number(d.profit || 0));
+
+      const el = document.getElementById('profitChart');
+      if(!el) return;
+
+      const ctx = el.getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Revenue', data: revenue, tension: 0.3, pointRadius: 3, pointHoverRadius: 5, fill: false },
+            { label: 'Agent Cost', data: cost, tension: 0.3, pointRadius: 3, pointHoverRadius: 5, fill: false },
+            { label: 'Profit', data: profit, tension: 0.3, pointRadius: 3, pointHoverRadius: 5, fill: false }
+          ]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+      });
+    })
+    .catch(err => console.error('profit/yearly error:', err));
+
+  // ---------------- Status Donut ----------------
+  (function(){
+    const rows = <%- JSON.stringify(dashboard.analytics.statusDist || []) %>;
+    const labels = rows.map(r => r.status || 'unknown');
+    const values = rows.map(r => Number(r.c || 0));
+
+    const el = document.getElementById('statusDonut');
+    if(!el) return;
+
+    const ctx = el.getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: values }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  })();
+
+  // ---------------- Delivery Trend (Last 14 days) ----------------
+  (function(){
+    const rows = <%- JSON.stringify(dashboard.analytics.deliveryTrend || []) %>;
+    const labels = rows.map(r => (r.day || '').toString().slice(0,10));
+    const dueTotal = rows.map(r => Number(r.due_total || 0));
+    const overdue = rows.map(r => Number(r.overdue || 0));
+    const done = rows.map(r => Number(r.done || 0));
+
+    const el = document.getElementById('deliveryTrend');
+    if(!el) return;
+
+    const ctx = el.getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Due (Total)', data: dueTotal },
+          { label: 'Overdue', data: overdue },
+          { label: 'Done', data: done }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  })();
+
+  // ---------------- Workload Bar (Top agents) ----------------
+  (function(){
+    const rows = <%- JSON.stringify(dashboard.workload || []) %>;
+    const top = rows.slice(0, 10);
+    const labels = top.map(r => r.assign);
+    const values = top.map(r => Number(r.project_count || 0));
+
+    const el = document.getElementById('workloadBar');
+    if(!el) return;
+
+    const ctx = el.getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Active Projects', data: values }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  })();
+
+  // ---------------- Monthly Status Chart (stacked bar) ----------------
+  (function () {
+    const rows = <%- JSON.stringify(dashboard.monthlyStatusCounters || []) %>;
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    const byMonth = {};
+    (rows || []).forEach(r => { byMonth[Number(r.month)] = r; });
+
+    const pending = months.map((_, idx) => Number((byMonth[idx + 1]?.pending_work) || 0));
+    const done = months.map((_, idx) => Number((byMonth[idx + 1]?.done_work) || 0));
+    const inProgress = months.map((_, idx) => Number((byMonth[idx + 1]?.in_progress) || 0));
+    const clientReview = months.map((_, idx) => Number((byMonth[idx + 1]?.client_review) || 0));
+    const revisions = months.map((_, idx) => Number((byMonth[idx + 1]?.in_changes) || 0));
+    const hold = months.map((_, idx) => Number((byMonth[idx + 1]?.hold) || 0));
+
+    const el = document.getElementById('monthlyStatusChart');
+    if (!el) return;
+
+    const ctx = el.getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets: [
+          { label: 'Pending Work', data: pending, stack: 'stack1' },
+          { label: 'Done Work', data: done, stack: 'stack1' },
+          { label: 'In Progress', data: inProgress, stack: 'stack2' },
+          { label: 'Client Review', data: clientReview, stack: 'stack2' },
+          { label: 'Revisions', data: revisions, stack: 'stack2' },
+          { label: 'Hold', data: hold, stack: 'stack2' }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: true }
+        }
+      }
+    });
+  })();
+</script>
+
+<% include ./footer.ejs %>

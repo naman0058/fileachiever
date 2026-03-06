@@ -1,0 +1,15 @@
+<button 
+  class="w-full text-left p-5 bg-white rounded-2xl shadow-sm border border-zinc-200 hover:shadow transition cursor-pointer group"
+  data-open-modal="<%= modalId %>"
+  data-context="<%= context %>"
+  aria-label="<%= subtitle %> drilldown"
+>
+  <div class="text-sm text-zinc-500 flex items-center justify-between">
+    <span><%= subtitle %></span>
+    <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2"/></svg>
+  </div>
+  <div class="mt-1 text-3xl font-extrabold tracking-tight"><%= value %></div>
+  <% if (hint) { %>
+    <div class="mt-2 text-xs text-zinc-400"><%= hint %></div>
+  <% } %>
+</button>

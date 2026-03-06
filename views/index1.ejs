@@ -1,0 +1,667 @@
+<%include Includes/navbar.ejs %>  
+
+<% include Includes/projectReport.ejs %>
+
+
+<style>
+  /* Base wrap */
+.inc-wrap { margin-top: 1rem; }
+
+/* Title */
+.section-title {
+  display: flex; align-items: center; gap: .5rem;
+}
+.section-title h3 { margin: 0; }
+
+/* Grid — upgraded style */
+.inc-grid--code {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: .75rem;
+  margin-top: .75rem;
+}
+@media (max-width: 992px) {
+  .inc-grid--code { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 576px) {
+  .inc-grid--code { grid-template-columns: 1fr 1fr; }
+}
+
+.inc-item {
+  background: #fff;
+  border: 1px solid var(--border, #E8EAED);
+  border-radius: 14px;
+  padding: .9rem .95rem;
+  display: grid;
+  gap: .25rem;
+  box-shadow: 0 3px 12px rgba(17,24,39,.05);
+  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.inc-item i {
+  font-size: 18px;
+  opacity: .8;
+}
+.inc-item span {
+  font-weight: 600;
+  color: #111827;
+}
+.inc-item small {
+  color: var(--muted, #6B7280);
+  line-height: 1.25;
+}
+.inc-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(17,24,39,.08);
+  border-color: rgba(32,99,255,.25);
+}
+
+/* USP row */
+.usp-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (max-width: 992px) {
+  .usp-row { grid-template-columns: 1fr; }
+}
+
+/* USP cards — distinct styling to stand out */
+.usp-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--border, #E8EAED);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 6px 20px rgba(17,24,39,.07);
+  overflow: hidden;
+}
+.usp-card .usp-head {
+  display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem;
+}
+.usp-badge {
+  font-size: .7rem; font-weight: 700; letter-spacing: .02em;
+  background: #111827; color: #fff; padding: .15rem .45rem; border-radius: 999px;
+}
+.usp-card h4 { margin: 0 0 .25rem; }
+.usp-card p { margin: 0 0 .5rem; color: var(--muted, #6B7280); }
+.usp-card i { opacity: .9; }
+
+/* Accent variants */
+.usp-demo {
+  border-color: rgba(32,99,255,.25);
+  background:
+    radial-gradient(1200px 200px at 10% -10%, rgba(32,99,255,.06), transparent 60%),
+    #fff;
+}
+.usp-support {
+  border-color: rgba(16,185,129,.25);
+  background:
+    radial-gradient(1200px 200px at 10% -10%, rgba(16,185,129,.08), transparent 60%),
+    #fff;
+}
+
+/* CTA link */
+.usp-cta {
+  display: inline-flex; align-items: center; gap: .25rem;
+  font-weight: 600; text-decoration: none;
+  color: var(--brandBlue, #2063FF);
+  padding: .4rem .6rem;
+  border-radius: 10px;
+  transition: background .2s ease, transform .1s ease;
+}
+.usp-cta:hover { background: rgba(32,99,255,.08); }
+.muted { color: var(--muted, #6B7280); font-weight: 500; }
+
+
+
+
+
+@media (min-width: 992px) {
+  .hero .row {
+    align-items: flex-start;  /* top aligned */
+  }
+  .hero .col-lg-7 {
+    margin-top: 1rem; /* slight breathing room */
+  }
+}
+
+</style>
+
+
+
+
+
+<div class="container">
+  <div class="brand-accent"></div>
+
+
+
+
+
+
+
+  <section class="page-hero">
+
+<span class="eyebrow" aria-label="Offer">
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+            Effortless Final Year Projects, Ready in Minutes
+          </span>
+    
+    <h1>            <%= graduation_type_send %> Final Year <span class="hero-accent">Projects</span> Made Easy</h1>
+    <p class="hero-sub">
+            Explore fully working <%= graduation_type_send %> project
+            <strong>reports, source code &amp; live demos</strong> you can test in your browser
+            <em>before</em> you buy. Every project includes
+            <strong>frontend, backend &amp; database</strong>—plus setup support.
+            Perfect for B.Tech, M.Tech, BE, ME, BCA, MCA students.
+          </p>
+
+
+
+            <div class="hero-cta" role="group" aria-label="Primary actions">
+            <a href="/final-year-project-ideas" class="btn btn-brand">Browse Project Reports</a>
+            <a href="/source-code" class="btn btn-brand-outline">Get Source Code @ ₹99</a>
+          </div>
+
+
+           <ul class="trust-pills" aria-label="Student trust">
+            <li class="pill">🎓 12,000+ Students since 2019</li>
+            <li class="pill">⭐ 4.4/5 Rated</li>
+            <li class="pill">⚙️ 500+ Custom Projects</li>
+          </ul>
+
+    <!-- Highlighted WhatsApp CTA -->
+
+  </section>
+
+<!-- ======================= STYLES ======================= -->
+<style>
+:root{
+  --brand:#2063FF;
+  --ink:#0f172a;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --bg:#ffffff;
+}
+
+.hero--elevated{
+  position:relative;
+  padding:clamp(1.75rem, 3.5vw, 4rem) 0;
+  background:
+    radial-gradient(1200px 400px at -10% -20%, rgba(32, 99, 255, .06), transparent 60%),
+    radial-gradient(1000px 300px at 110% 120%, rgba(241, 127, 35, .07), transparent 60%),
+    #fff;
+  /* allow shadows to render on mobile */
+  overflow: visible;
+}
+
+.hero .container{padding-inline:clamp(1rem,3vw,1.5rem);}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.35rem .6rem;border-radius:999px;
+  background:#0f172a0d;color:var(--muted);
+  font-size:.8rem;font-weight:600;letter-spacing:.04em;
+}
+
+.hero-title{
+  margin:.6rem 0 .4rem;font-weight:800;line-height:1.1;
+  font-size:clamp(1.9rem, 4vw, 3.15rem);color:var(--ink);
+}
+.hero-accent{color:var(--brand);}
+.hero-sub{color:#374151;font-size:clamp(1rem,1.2vw,1.125rem);margin:0 0 1rem;}
+.hero-cta{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.4rem;}
+
+.btn-brand{
+  background:var(--brand);border:1px solid transparent;color:#fff!important;
+  padding:.65rem 1rem;border-radius:.75rem;font-weight:700;
+  transition:transform .1s ease, box-shadow .2s ease;
+}
+.btn-brand:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(32,99,255,.15)}
+.btn-brand-outline{
+  background:#fff;border:1.5px solid var(--border);
+  color:var(--ink)!important;padding:.65rem 1rem;border-radius:.75rem;font-weight:700;
+}
+.btn-brand-outline:hover{border-color:rgba(32,99,255,.35)}
+
+.trust-pills{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.9rem 0 0;list-style:none}
+.pill{
+  background:#f8fafc;border:1px solid #eef2f7;color:#111827;font-weight:600;
+  border-radius:999px;padding:.35rem .65rem;font-size:.86rem
+}
+
+/* Visual */
+.hero-visual{
+  display:grid;place-items:center;padding:.6rem;border-radius:16px;
+  background:linear-gradient(180deg,#ffffff,#fafafa);
+  border:1px solid #eef2f7;box-shadow:0 10px 30px rgba(2,6,23,.06)
+}
+.hero-visual img{border-radius:14px;width:100%;height:auto}
+
+
+/* Desktop: put select inline left of input */
+@media (min-width: 992px){
+  .hero-search{gap:.7rem}
+  .type-select{max-width:260px}
+}
+
+/* Motion safety */
+@media (prefers-reduced-motion: reduce){
+  .btn-brand{transition:none}
+}
+
+/* Fix any accidental horizontal scroll on tiny screens */
+</style>
+
+<!-- ======================= JS (tabs + sync) ======================= -->
+<script>
+/* Keep mobile tabs and desktop select in sync; ensure form submits correct "type" */
+(function(){
+  const tabs = document.querySelectorAll('.search-type-tabs .tab');
+  const hidden = document.getElementById('type-hidden');
+  const select = document.getElementById('hero-type');
+
+  // Tab click -> update hidden + select
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-selected','false'); });
+      btn.classList.add('is-active'); btn.setAttribute('aria-selected','true');
+      const val = btn.getAttribute('data-type');
+      if(hidden) hidden.value = val;
+      if(select) select.value = val;
+    });
+  });
+
+  // Select change -> update hidden + tabs
+  select?.addEventListener('change', () => {
+    const val = select.value;
+    if(hidden) hidden.value = val;
+    tabs.forEach(b => {
+      const active = b.getAttribute('data-type') === val;
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  });
+
+  // Keyboard niceties: "/" focus search, "Esc" clear
+  const q = document.getElementById('hero-q');
+  window.addEventListener('keydown', (e) => {
+    if(e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey){
+      e.preventDefault(); q?.focus(); q?.select();
+    }
+    if(e.key === 'Escape' && document.activeElement === q){ q.value = ''; }
+  });
+})();
+</script>
+
+
+
+
+
+
+
+
+
+  <!-- Project Report Includes -->
+<section class="inc-wrap" aria-labelledby="inc-title">
+  <div class="section-title">
+    <h3 id="inc-title">Everything Included — Built for Final-Year Success</h3>
+  </div>
+
+  <div class="inc-grid--code">
+    <!-- Project Report -->
+    <article class="inc-item" aria-label="Project Report">
+      <i class="feather-file-text" aria-hidden="true"></i>
+      <span>Project Report</span>
+      
+      <div class="inc-cta">
+        <a class="usp-cta" href="/final-year-project-ideas">Explore Reports →</a>
+      </div>
+    </article>
+
+    <!-- Source Code -->
+    <article class="inc-item" aria-label="Source Code">
+      <i class="feather-terminal" aria-hidden="true"></i>
+      <span>Source Code</span>
+    
+      <div class="inc-cta">
+        <a class="usp-cta" href="/source-code">Browse Source Code</a>
+      </div>
+    </article>
+
+    <!-- Live Demo -->
+    <article class="inc-item" aria-label="Live Demo Before Pay">
+      <i class="feather-play-circle" aria-hidden="true"></i>
+      <span>Live Demo Before You Pay</span>
+      
+      <div class="inc-cta">
+        <a class="usp-cta" href="/demo">See Live Demos →</a>
+      </div>
+    </article>
+
+    <!-- Code Setup Support -->
+    <article class="inc-item" aria-label="Code Setup Support">
+      <i class="feather-life-buoy" aria-hidden="true"></i>
+      <span>Code Setup Support</span>
+      
+      <div class="inc-cta">
+        <a class="usp-cta" 
+       href="https://wa.me/918319339945?text=Hi%2C%20I%20need%20help%20with%20code%20setup." 
+       target="_blank" 
+       rel="noopener noreferrer">
+       Message on WhatsApp →
+    </a>
+      </div>
+    </article>
+  </div>
+</section>
+
+
+
+
+
+  <!-- Most Demanding Reports -->
+ <section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
+    <h3>Most Demanding Source Code</h3>
+  </div>
+  <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
+</section>
+
+  
+
+<section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
+    <h3>Most Trending Project Reports</h3>
+  </div>
+  <div class="h-scroll" id="StripTrendingReports" aria-label="Most trending reports"></div>
+</section>
+
+<section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-play-circle" style="color:var(--brandBlue)"></i>
+    <h3>Live Demos (Preview Before You Pay)</h3>
+  </div>
+  <div class="h-scroll" id="StripLiveDemos" aria-label="Live demo projects"></div>
+</section>
+
+<section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-code" style="color:#E34F26"></i>
+    <h3>PHP Source Code</h3>
+  </div>
+  <div class="h-scroll" id="StripPHP" aria-label="PHP source code"></div>
+</section>
+
+<section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-box" style="color:#689F63"></i>
+    <h3>Node.js Source Code</h3>
+  </div>
+  <div class="h-scroll" id="StripNode" aria-label="Node.js source code"></div>
+</section>
+
+
+<section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-cpu" style="color:#3776AB"></i>
+    <h3>Python Source Code</h3>
+  </div>
+  <div class="h-scroll" id="StripPython"></div>
+</section>
+
+
+
+<section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-cpu" style="color:#3776AB"></i>
+    <h3>Machine Learning Code</h3>
+  </div>
+  <div class="h-scroll" id="StripMachine"></div>
+</section>
+
+
+
+  <section class="md-wrap md-app">
+  <div class="section-title">
+    <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
+    <h3>BCA Project Reports</h3>
+  </div>
+  <div class="h-scroll" id="StripBCAReports" aria-label="BCA reports"></div>
+</section>
+
+
+
+
+
+  <section class="course-content mt-3" style="display: none;">
+    <div class="row">
+      <!-- Main grid -->
+      <div class="col-lg-9" style="margin-top: 10px;">
+
+
+        <div class="row g-3" id="Grid">
+          <% for (let i = 0; i < sourceCode.length; i++) { %>
+            <div class="col-md-6 col-xl-4 target"
+                 data-name="<%= sourceCode[i].name %>"
+                 data-desc="<%= sourceCode[i].description %>"
+                 data-url="<%= sourceCode[i].seo_name %>/source-code">
+              
+            </div>
+          <% } %>
+        </div>
+
+
+        
+
+
+        <!-- ======= FEATURE STRIPS ======= -->
+
+
+     
+      </div>
+
+      <!-- Sidebar -->
+    
+    </div>
+  </section>
+</div>
+
+<!-- Floating WhatsApp CTA -->
+
+
+
+
+
+<% include Includes/footer.ejs %>
+
+
+<script>
+  // Safely serialize server data
+  window.FM = {
+    projects: <%- JSON.stringify(project || []) %>,
+    source:   <%- JSON.stringify(sourceCode || []) %>,
+    demos:    <%- JSON.stringify(liveproject || []) %>
+  };
+</script>
+
+
+
+<script>
+  // Utility: pick first N
+  const take = (arr, n=8) => (Array.isArray(arr) ? arr.slice(0, n) : []);
+
+  // Utility: robust accessors
+  const text = (v, d='') => (v == null ? d : String(v));
+  const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj || {}, key);
+
+  // Detect language/stack in a forgiving way
+  function detectLang(item){
+    const t1 = (item.language || item.lang || item.stack || '').toString().toLowerCase();
+    const t2 = (item.tags || '').toString().toLowerCase();
+    const t3 = (item.name || '').toString().toLowerCase();
+    return [t1, t2, t3].join(' ');
+  }
+
+  // Card builders
+  function cardReport(p){
+    const name = text(p.name);
+    const url  = `/${text(p.seo_name) ? 'final-year-project-report-' + p.seo_name : '#'}`;
+    const desc = text(p.short_description || p.description || 'High-quality academic project documentation.');
+    return `
+      <div class="md-item">
+        <span class="md-chip"><i class="feather-trending-up"></i> Trending</span>
+        <h4 class="md-title">${name}</h4>
+        <p class="md-desc">${desc}</p>
+        <div class="md-actions">
+          <a class="md-btn md-btn-light" href="${url}" aria-label="Open ${name} report">View Report</a>
+        </div>
+      </div>`;
+  }
+
+
+
+   function degreeReport(p, category) {
+  const name = text(p.name);
+ const url = text(p.seo_name) 
+  ? `/${category ? category + '-' : ''}final-year-project-report-${p.seo_name}` 
+  : '#';
+  const desc = text(p.short_description || p.description || 'High-quality academic project documentation.');
+  return `
+    <div class="md-item">
+      <span class="md-chip"><i class="feather-trending-up"></i> ${category.toUpperCase() || 'Trending'} Project Report</span>
+      <h4 class="md-title">${name}</h4>
+      <p class="md-desc">${desc}</p>
+      <div class="md-actions">
+        <a class="md-btn md-btn-light" href="${url}" aria-label="Open ${name} report">View Report</a>
+      </div>
+    </div>`;
+}
+
+
+  function cardDemo(s){
+    const name = text(s.name);
+    const url  = text(s.demo_url || '#');
+    const desc = text(s.description || 'Preview the working app in your browser before you pay.');
+    return `
+      <div class="md-item">
+        <span class="md-chip"><i class="feather-play-circle"></i> Live</span>
+        <h4 class="md-title">${name}</h4>
+        <p class="md-desc">${desc}</p>
+        <div class="md-actions">
+          <a class="md-btn md-btn-light" href="${url}" target="_blank" rel="noopener" aria-label="Live demo ${name}">Open Live Demo</a>
+        </div>
+      </div>`;
+  }
+
+  function cardSource(s){
+    const name = text(s.name);
+    const category = text(s.category);
+
+    const desc = text(s.description || 'Clean frontend, backend, and database with README.');
+    const url  = `/${text(s.seo_name)}/source-code`;
+    return `
+      <div class="md-item">
+        <span class="md-chip"><i class="feather-code"></i>${category} Source Code</span>
+        <h4 class="md-title">${name}</h4>
+        <p class="md-desc">${desc}</p>
+        <div class="md-actions">
+          <a class="md-btn md-btn-light" href="${url}" aria-label="Open ${name} source code">View Details</a>
+        </div>
+      </div>`;
+  }
+
+  // Generic strip renderer
+  function renderStrip(containerId, items, builder){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    el.innerHTML = take(items, 8).map(builder).join('');
+  }
+
+
+  function degreeRenderStrip(containerId, items, category, builder) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = take(items, 8).map(p => builder(p, category)).join('');
+}
+
+  // Filters
+  function filterPHP(list){
+    return (list || []).filter(i => /php|laravel|codeigniter|mysql/i.test(detectLang(i)));
+  }
+  function filterNode(list){
+    return (list || []).filter(i => /mern|nodejs|node/i.test(detectLang(i)));
+  }
+  function filterPython(list){
+    return (list || []).filter(i => /python|nodejs|nestjs/i.test(detectLang(i)));
+  }
+
+   function filterMachine(list){
+    return (list || []).filter(i => /machine-learning|machine|nestjs/i.test(detectLang(i)));
+  }
+
+  // Render all strips
+  (function initStrips(){
+    try{
+      const P = window.FM?.projects || [];
+      const S = window.FM?.source   || [];
+      const D = window.FM?.demos    || [];
+
+      renderStrip('StripTrendingReports', P, cardReport);
+      renderStrip('StripLiveDemos',     D, cardDemo);
+      renderStrip('StripPHP',           filterPHP(S),  cardSource);
+      renderStrip('StripNode',          filterNode(S), cardSource);
+      renderStrip('StripPython',          filterPython(S), cardSource);
+      renderStrip('StripMachine',          filterMachine(S), cardSource);
+      degreeRenderStrip('StripBCAReports', P,'bca', degreeReport);
+
+
+
+    }catch(e){ console.error('Strip render error:', e); }
+  })();
+</script>
+
+
+
+<script>
+  function filterPython(list){ return (list||[]).filter(i => /python|django|flask/i.test(detectLang(i))); }
+  // …inside initStrips()
+  renderStrip('StripPython', filterPython(S), cardSource);
+</script>
+
+
+<script>
+  function populateMostDemanding(){
+  const container = document.getElementById('MostDemanding');
+  if(!container) return;
+  container.innerHTML = '';
+
+  const items = shuffle(nodes.slice()).slice(0, Math.min(8, nodes.length));
+  items.forEach(n=>{
+    const name = n.getAttribute('data-name') || '';
+    const desc = n.getAttribute('data-desc') || '';
+    const url  = n.getAttribute('data-url')  || '#';
+    const wa   = waLink(`Need details for "${name}"`);
+
+    const card = document.createElement('div');
+    card.className = 'md-item';
+    card.innerHTML = `
+      <span class="md-chip"><i class="feather-trending-up"></i> Popular</span>
+      <h4 class="md-title">${name}</h4>
+      <p class="md-desc">${desc}</p>
+      <div class="md-actions">
+        <a class="md-btn md-btn-light" href="${url}" aria-label="View ${name} details">View Details</a>
+        
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+
+populateMostDemanding()
+
+</script>

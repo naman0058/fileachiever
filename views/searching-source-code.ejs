@@ -1,0 +1,199 @@
+<%include Includes/navbar2.ejs %>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Protest+Riot&display=swap" rel="stylesheet">
+
+    
+<div class="main-wrapper">
+
+
+
+
+
+
+
+<section class="course-content">
+<div class="container">
+  
+<div class="row">
+<div class="col-lg-12">
+
+<div class="showing-list">
+<div class="row">
+<div class="col-lg-6">
+<div class="d-flex align-items-center">
+
+<div class="show-result">
+<h1>Source Codes</h1>
+</div>
+</div>
+</div>
+<div class="col-lg-6">
+<div class="show-filter add-course-info">
+<form action="#">
+<div class="row gx-2 align-items-center">
+<div class="col-md-6 col-item">
+
+</div>
+<div class="col-md-6 col-lg-6 col-item">
+  <div class=" search-group">
+    <i class="feather-search"></i>
+    <input type="text" class="form-control"  id="Search" onkeyup="myFunction()"    placeholder="Search Topic">
+   
+  </div>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+
+<% if(!result[0]) { %>
+<div id="contactForm1" style="display: block;">
+  <div class="col-lg-12 col-md-8 mx-auto">
+    <div class="support-wrap">
+      <h5>Source Code Not Found? Fill out this form, and our team will contact you.</h5>
+      <h5 style="font-size: 15px;color: #F17F23;"><%=msg%>
+      </h5>
+      <form action="/contact-us" method="post" id="contact" class="contactForm">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" required />
+        </div>
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input type="number" class="form-control" name="email" id="email" placeholder="Your Mobile Number" data-rule="minlen:10" data-msg="Please enter a valid mobile number" required />
+        </div>
+        <div class="form-group">
+          <label>Topic</label>
+          <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject"  required/>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message" required></textarea>
+        </div>
+        <button class="btn btn-submit">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<% } %>
+
+
+<div id="contactForm" style="display: none;">
+  <div class="col-lg-12 col-md-8 mx-auto">
+    <div class="support-wrap">
+      <h5>Source Code Not Found? Fill out this form, and our team will contact you.</h5>
+      <h5 style="font-size: 15px;color: #F17F23;"><%=msg%>
+      </h5>
+      <form action="/contact-us" method="post" id="contact" class="contactForm">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" required />
+        </div>
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input type="number" class="form-control" name="email" id="email" placeholder="Your Mobile Number" data-rule="minlen:10" data-msg="Please enter a valid mobile number" required />
+        </div>
+        <div class="form-group">
+          <label>Topic</label>
+          <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject"  required/>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message" required></textarea>
+        </div>
+        <button class="btn btn-submit">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+
+
+  
+
+  <% for(i=0;i<result.length;i++){%>
+
+    <div class="col-lg-3 target col-md-6">
+      <div class="course-box course-design d-flex ">
+      <div class="product">
+      <div class="product-content">
+      <div class="course-group d-flex">
+      <div class="course-group-img d-flex">
+      <div class="course-name">
+      <h4 style="font-family: 'Times New Roman', Times, serif"><a href="/<%=result[i].seo_name%>/source-code"><%=result[i].name%></a></h4>
+      </div>
+      </div>
+     
+      </div>
+      <p class="description" style=" overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;font-family: 'Times New Roman', Times, serif;"><%=result[i].description%></p>
+     
+      </div>
+      </div>
+      </div>
+      </div>
+
+<% } %>
+</div>
+
+
+
+</div>
+
+</div>
+</div>
+</section>
+
+<%include Includes/footer.ejs %>
+
+
+
+<script>
+//   function myFunction() {
+//   var input = document.getElementById("Search");
+//   var filter = input.value.toLowerCase();
+//   var nodes = document.getElementsByClassName('target');
+
+//   for (i = 0; i < nodes.length; i++) {
+
+//    if (nodes[i].innerText.toLowerCase().includes(filter)) {
+//        nodes[i].style.display = "block";
+       
+//    } else {
+//        nodes[i].style.display = "none";
+//    }
+// }
+//   }
+
+
+
+function myFunction() {
+   var input = document.getElementById("Search");
+   var filter = input.value.toLowerCase();
+   var nodes = document.getElementsByClassName('target');
+   var foundMatch = false;
+   for (var i = 0; i < nodes.length; i++) {
+       if (nodes[i].innerText.toLowerCase().includes(filter)) {
+           nodes[i].style.display = "block";
+           foundMatch = true;
+       } else {
+           nodes[i].style.display = "none";
+       }
+   }
+   // Show the contact form if no match is found
+   var contactForm = document.getElementById("contactForm");
+   contactForm.style.display = foundMatch ? "none" : "block";
+}
+</script>
+

@@ -1,0 +1,114 @@
+<% include ./header.ejs %>
+
+<div class="content-body">
+  <div class="container-fluid">
+<div class="container my-4">
+  <div class="row align-items-center justify-content-between">
+    <!-- Left side: Post title -->
+    <div class="col-md-8">
+      <h4 class="mb-0">Post Engagement Details - Post ID: <%= postId %></h4>
+    </div>
+
+    <!-- Right side: Button -->
+    <div class="col-md-4 text-md-end text-start mt-3 mt-md-0">
+      <form action="/affiliate/update-youtube-id/<%= postId %>?platform=<%= platform.toLowerCase() %>" method="POST"
+            onsubmit="return confirm('Are you sure you want to update this post with <%= platform %> ID?');">
+        <button type="submit" class="btn btn-primary px-4">
+          Update <%= platform %> ID
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+    <div class="row">
+      
+      <!-- Left Table: Engaged Users -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            <strong>Liked or Commented</strong>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered table-sm text-center">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Instagram ID</th>
+                  <th>Liked</th>
+                  <th>Commented</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (engaged.length > 0) { %>
+
+
+                  <% engaged.forEach((user, index) => { %>
+                    <tr>
+                      <td><%= index + 1 %></td>
+                      <td><%= user.ambassador_name %></td>
+                      <td><%= user.ambassador_instagram_id %></td>
+                      <td><%= user.liked ? 'Yes' : 'No' %></td>
+                      <td><%= user.commented ? 'Yes' : 'No' %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr><td colspan="5">No engaged users.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Table: Not Engaged Users -->
+      <div class="col-md-6">
+        <div class="card">
+
+
+            
+          <div class="card-header bg-danger text-white">
+            <strong>Not Liked or Commented</strong>
+            <% if (notEngaged.length > 0) { %>
+  <form action="/affiliate/dashboard/post/<%= postId %>/remind" method="POST">
+    <input type="hidden" name="platform" value="<%= platform %>">
+    <input type="hidden" name="link" value="<%= link %>">
+    <button type="submit" class="btn btn-dark btn-sm mt-3">
+      Send Reminder Email to All
+    </button>
+  </form>
+<% } %>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered table-sm text-center">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Instagram ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (notEngaged.length > 0) { %>
+                  <% notEngaged.forEach((user, index) => { %>
+                    <tr>
+                      <td><%= index + 1 %></td>
+                      <td><%= user.ambassador_name %></td>
+                      <td><%= user.ambassador_instagram_id %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr><td colspan="3">All users engaged.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<% include ./footer.ejs %>

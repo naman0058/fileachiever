@@ -1,0 +1,49 @@
+<aside class="crm-sidebar">
+  <div class="crm-sidebar__brand">
+    <div class="crm-brand">Sales CRM</div>
+    <div class="crm-sub">Team pipeline management</div>
+  </div>
+
+  <nav class="crm-nav">
+    <% if (user.role === 'admin') { %>
+      <a class="crm-link <%= active === 'overview' ? 'active' : '' %>" href="/sales/admin/overview">
+        Overview
+      </a>
+      <a class="crm-link <%= active === 'assignments' ? 'active' : '' %>" href="/sales/admin">
+        Assignments
+      </a>
+      <a class="crm-link <%= active === 'sales' ? 'active' : '' %>" href="/sales/admin/sales">
+        Sales
+      </a>
+      <a class="crm-link <%= active === 'logs' ? 'active' : '' %>" href="/sales/logs">
+        Team Logs
+      </a>
+      <a class="crm-link <%= active === 'salesReport' ? 'active' : '' %>" href="/sales/admin/sales-report">Sales Report</a>
+
+      <a class="crm-link <%= active === 'newSale' ? 'active' : '' %>" href="/sales/admin/new-sale">
+        Direct Sale Entry
+      </a>
+    <% } else { %>
+      <a class="crm-link <%= active === 'overview' ? 'active' : '' %>" href="/sales/my/overview">
+        Overview
+      </a>
+      <a class="crm-link <%= active === 'assignments' ? 'active' : '' %>" href="/sales/my">
+        My Leads
+      </a>
+      <a class="crm-link <%= active === 'sales' ? 'active' : '' %>" href="/sales/my/sales">
+        My Sales
+      </a>
+    <% } %>
+
+    <div class="crm-nav__sep"></div>
+
+    <a class="crm-link danger" href="/auth/logout">Logout</a>
+  </nav>
+
+  <div class="crm-user">
+    <div class="crm-user__name"><%= user.name %></div>
+    <div class="crm-user__meta">Role: <%= user.role %></div>
+  </div>
+</aside>
+
+<%- include('./lead-socket-alert') %>

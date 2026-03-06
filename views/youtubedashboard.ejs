@@ -1,0 +1,120 @@
+<% /* Remove the line below if you use express-ejs-layouts */ %>
+<% /* <% layout('layout') %> */ %>
+
+<!-- KPI ROW -->
+<div class="grid md:grid-cols-4 gap-4">
+  <%- include('partials/statCard', {
+    subtitle: 'Total Watch Time (hrs)',
+    value: ((tiles.totals?.total_watch_seconds || 0) / 3600).toFixed(2),
+    hint: 'Only sessions > 60s are counted',
+    modalId: 'drillModal',
+    context: 'overall-watchtime'
+  }) %>
+
+  <%- include('partials/statCard', {
+    subtitle: 'Total Views (≥60s)',
+    value: (tiles.totals?.total_views || 0).toLocaleString(),
+    hint: 'Views only if watched_seconds > 60',
+    modalId: 'drillModal',
+    context: 'overall-views'
+  }) %>
+
+  <%- include('partials/statCard', {
+    subtitle: 'Unique Viewers',
+    value: (tiles.totals?.total_unique_viewers || 0).toLocaleString(),
+    hint: 'Distinct cookied_id',
+    modalId: 'drillModal',
+    context: 'unique-viewers'
+  }) %>
+
+  <%- include('partials/statCard', {
+    subtitle: 'Avg Watch Time (s)',
+    value: Math.round(tiles.totals?.avg_watch_seconds || 0).toLocaleString(),
+    hint: 'Average of counted sessions',
+    modalId: 'drillModal',
+    context: 'avg-watchtime'
+  }) %>
+</div>
+
+<!-- Top lists (still visible at a glance) -->
+<div class="grid md:grid-cols-2 gap-4 mt-4">
+  <div class="p-5 bg-white rounded-2xl shadow-sm border border-zinc-200">
+    <div class="text-sm text-zinc-500">Top Videos</div>
+    <ul class="mt-3 space-y-2 text-sm text-zinc-700">
+      <% (tiles.topVideos || []).forEach(v => { %>
+        <li class="flex justify-between">
+          <span class="truncate max-w-[75%]"><span class="font-medium"><%= v.short_code %></span> — <%= v.original_url %></span>
+          <span><%= (v.watch_seconds/3600).toFixed(2) %> hrs</span>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <div class="p-5 bg-white rounded-2xl shadow-sm border border-zinc-200">
+    <div class="text-sm text-zinc-500">Top Promoters</div>
+    <ul class="mt-3 space-y-2 text-sm text-zinc-700">
+      <% (tiles.topPromoters || []).forEach(p => { %>
+        <li class="flex justify-between">
+          <span class="truncate max-w-[75%] font-medium"><%= p.promoter_name %></span>
+          <span><%= (p.watch_seconds/3600).toFixed(2) %> hrs</span>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+</div>
+
+<!-- Single reusable MODAL for all drilldowns -->
+<div id="drillModal" class="fixed inset-0 hidden items-center justify-center z-50">
+  <div class="absolute inset-0 bg-black/40" data-close-modal></div>
+
+  <div class="relative bg-white w-[96%] max-w-5xl max-h-[86vh] rounded-2xl shadow-xl overflow-hidden">
+    <!-- Header -->
+    <div class="px-5 py-4 border-b border-zinc-200 flex items-center justify-between">
+      <div>
+        <div id="drill-title" class="text-lg font-semibold">Details</div>
+        <div class="text-xs text-zinc-500">Click tabs to switch Daily / Monthly</div>
+      </div>
+      <button class="rounded-lg px-3 py-2 text-sm border" data-close-modal>&times;</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="px-5 pt-3">
+      <div class="inline-flex rounded-xl overflow-hidden border border-zinc-200">
+        <button class="px-4 py-2 text-sm tabBtn active" data-range="daily">Daily</button>
+        <button class="px-4 py-2 text-sm tabBtn" data-range="monthly">Monthly</button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-5 grid lg:grid-cols-3 gap-5">
+      <div class="lg:col-span-2">
+        <div class="aspect-[16/9]">
+          <canvas id="drillChart"></canvas>
+        </div>
+      </div>
+      <div>
+        <div class="text-sm font-semibold mb-2">Highlights</div>
+        <ul id="drillHighlights" class="space-y-2 text-sm text-zinc-700"></ul>
+
+        <div class="text-sm font-semibold mt-5 mb-2">Filters</div>
+        <form id="drillFilters" class="grid grid-cols-2 gap-2">
+          <input type="date" name="start" class="border rounded-lg px-3 py-2 text-sm" value="<%= start || '' %>">
+          <input type="date" name="end"   class="border rounded-lg px-3 py-2 text-sm" value="<%= end || '' %>">
+          <select name="dimension" class="border rounded-lg px-3 py-2 text-sm col-span-2">
+            <option value="overall">Overall</option>
+            <option value="url">By Original URL</option>
+            <option value="promoter">By Promoter</option>
+          </select>
+          <button class="px-3 py-2 rounded-lg bg-zinc-900 text-white text-sm mt-1 col-span-2">Apply</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.__FA_FILTERS__ = {
+    start: "<%= start || '' %>",
+    end: "<%= end || '' %>"
+  };
+</script>

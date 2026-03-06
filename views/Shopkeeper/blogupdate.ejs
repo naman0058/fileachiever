@@ -1,0 +1,300 @@
+<%include ./header.ejs %>
+<link rel="stylesheet" href="https://elusiveicons.com/assets/elusive-icons/css/elusive-icons.css">
+
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+			<div class="page-titles">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item"><a href="javascript:void(0)">CMS</a></li>
+						<li class="breadcrumb-item active"><a href="javascript:void(0)">Add Blogs</a></li>
+					</ol>
+                </div>
+			<div class="container-fluid">
+				<!-- Row -->
+				<div class="row">
+					
+					<div class="col-xl-12">
+						<div class="filter cm-content-box box-primary">
+							<div class="content-title">
+								<div class="cpa">
+									<i class="fa-solid fa-envelope me-1"></i>Add Blogs	
+
+
+								</div>
+                                
+								<div class="tools">
+									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>
+									<a href="/blog/<%= blog[0].slug %>" target="_blank" style="color: blue;"><p style="text-align: right;">Preview</p></a>
+
+								</div>
+							</div>
+							<div class="cm-content-body form excerpt">
+								<div class="card-body">
+		<form action="/shopkeeper/dashboard/blogs/update" method="post" class="uploadImage">
+
+  <div class="row">
+    <div class="col-xl-6">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-control" id="title" value="<%= blog[0].title %>" readonly>
+    </div>
+    <div class="col-xl-6">
+      <label class="form-label">Slug</label>
+      <input type="text" class="form-control" id="slug" value="<%= blog[0].slug %>" readonly>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 20px;">
+    <div class="col-xl-12">
+      <label class="form-label">Content</label>
+      <textarea id="contentEditor"  class="form-control" rows="6"><%= blog[0].content %></textarea>
+    </div>
+  </div>
+
+
+
+
+
+  
+
+ 
+
+  <div class="text-end" style="margin-top: 20px;">
+    <button type="submit" class="btn btn-primary save">Update Blog</button>
+    
+  </div>
+
+</form>
+
+
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%include ./footer.ejs %>
+
+
+        <script src="https://cdn.ckeditor.com/4.7.0/full/ckeditor.js"></script>
+        <script src="https://unpkg.com/vue@2.3.4"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+        <script>
+            var exampleArray = [
+  {
+    id: 100,
+    user: "Carlos pira longo",
+    date: "22/10/2016",
+    content: "1 dato mas"
+  },
+  {
+    id: 200,
+    user: "Andres de lprimer",
+    date: "22/10/2017",
+    content: "2 datos mas"
+  },
+  {
+    id: 300,
+    user: "Daniel de segundo",
+    date: "22/10/2014",
+    content: "3 datos mas"
+  }
+];
+
+var contenttext = '12';
+
+// register modal component
+Vue.component("history", {
+  template: "#history-template",
+  props: {
+    history: {
+      type: Array,
+      required: true
+    },
+    value: {
+      type: String
+    },
+  },
+  
+
+});
+
+
+// start app
+var vm = new Vue({
+  el: "#loadHistorys",
+  data: {
+    hist: exampleArray,
+    value: contenttext
+  }
+});
+
+ CKEDITOR.replace('admin_features');
+
+
+
+
+
+$.getJSON(`/affiliate/dashboard/category/show`, data => {
+    addgroup = data
+    console.log('leagues',data)
+    fillDropDown('language', data, 'Choose Language', 0)
+  
+})
+
+
+function fillDropDown(id, data, label, selectedid = 0) {
+    $(`#${id}`).empty()
+    $(`#${id}`).append($('<option>').val("null").text(label))
+
+    $.each(data, (i, item) => {
+        if (item.id == selectedid) {
+            $(`#${id}`).append($('<option selected>').val(item.seo_name).text(item.name))
+        } else {
+            $(`#${id}`).append($('<option>').val(item.seo_name).text(item.name))
+        }
+    })
+}
+        </script>
+
+
+<script src="https://cdn.ckeditor.com/4.7.0/full/ckeditor.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.11.3/cloudinary-core.min.js"></script>
+
+
+<script>
+  // Initialize CKEditor
+  CKEDITOR.replace('contentEditor',{
+    height: 1200 // Set desired height here (in pixels)
+  });
+  // Auto-generate slug
+  $('#title').on('input', function () {
+    const slug = $(this).val().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+    $('#slug').val(slug);
+  });
+
+  // Load categories with selected
+  $.getJSON(`/shopkeeper/dashboard/category/show`, data => {
+    fillDropDown('category', data, 'Choose Category', $('#category').data('selected'));
+  });
+
+  function fillDropDown(id, data, label, selectedValue) {
+    $(`#${id}`).empty().append($('<option>').val("null").text(label));
+    data.forEach(item => {
+      const selected = item.seo_name === selectedValue ? 'selected' : '';
+      $(`#${id}`).append(`<option value="${item.seo_name}" ${selected}>${item.name}</option>`);
+    });
+  }
+
+  // Show existing thumbnail
+  const existingThumbnail = "<%= blog[0].thumbnail_url %>";
+  if (existingThumbnail) $('#thumbnailPreview').attr('src', existingThumbnail);
+
+  let uploadedThumbnailUrl = existingThumbnail;
+
+  // Handle Cloudinary Upload
+  $('#image').on('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "ml_default"); // Replace this
+    formData.append("cloud_name", "dr5dofa3x");        // Replace this
+
+    fetch(`https://api.cloudinary.com/v1_1/dr5dofa3x/image/upload`, {
+      method: 'POST',
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        uploadedThumbnailUrl = data.secure_url;
+        $('#thumbnailPreview').attr('src', uploadedThumbnailUrl);
+      })
+      .catch(err => {
+        console.error("Cloudinary upload failed:", err);
+        alert('Image upload failed');
+      });
+  });
+
+  // Handle blog update
+  $('.uploadImage').submit(function (e) {
+    e.preventDefault();
+
+    const data = {
+      title: $('#title').val(),
+      slug: $('#slug').val(),
+      content: CKEDITOR.instances['contentEditor'].getData(),
+      meta_title: $('#meta_title').val(),
+      meta_description: $('#meta_description').val(),
+      category: $('#category').val(),
+      meta_keywords: $('#meta_keywords').val(),
+      tags: $('#tags').val(),
+      meta_abstract: $('#meta_abstract').val(),
+      thumbnail_url: uploadedThumbnailUrl,
+      status: 'pending'
+    };
+
+
+    console.log('data pass',data)
+
+    // for (let key in data) {
+    //   if (!data[key]) {
+    //     alert(`Missing: ${key}`);
+    //     return;
+    //   }
+    // }
+
+    $(this).ajaxSubmit({
+      data: data,
+      success: function (response) {
+        if (response.msg === 'success') {
+          alert('Blog updated successfully!');
+          location.reload();
+        } else if (response.msg === 'exists') {
+          alert('Blog title already exists!');
+        } else {
+          alert('Failed to update blog!');
+        }
+      }
+    });
+  });
+</script>
+
+<script>
+  $('#fixBlogBtn').click(function () {
+    const blogId = "<%= blog[0].id %>"; // Pass current blog ID
+
+    if (!blogId) {
+      alert("Blog ID not found.");
+      return;
+    }
+
+    if (!confirm("Are you sure you want to auto-fix the blog content?")) return;
+
+    $.post('/affiliateblog/blogFix', { id: blogId }, function (response) {
+      if (response.msg === 'fix') {
+        alert('✅ Blog content fixed successfully!');
+        location.reload();
+      } else {
+        alert('❌ Blog fix failed. Try again.');
+      }
+    }).fail(function () {
+      alert('⚠️ Error contacting the server.');
+    });
+  });
+</script>
+

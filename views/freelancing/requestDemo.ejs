@@ -1,0 +1,127 @@
+<%include ./header.ejs %>
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+            <!-- row -->	
+			
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card">
+							<div class="card-body p-0">
+								<div class="table-responsive active-projects style-1">
+								<div class="tbl-caption">
+									<h4 class="heading mb-0">Demo Request List</h4>
+									<div class="d-flex justify-content-start gap-2"> <!-- Flex container with gap -->
+										<button type="button" onclick="mergeData('requestDemo')" class="btn btn-primary btn-sm">Merge Duplicate Data</button>
+										<button type="button" onclick="exportTableToCSV('data.csv')" class="btn btn-dark btn-sm">Download Data</button>
+									</div>
+								</div>
+									<table id="empoloyees-tblwrapper" class="table">
+										<thead>
+											<tr>
+												<th>Id</th>
+												<th>Name</th>
+												<th>Email</th>
+												<th>Number</th>
+												<th>Whtasapp Number</th>
+												<th>Source Code</th>
+												<th>Date</th>
+												<th>Send Whatsapp</th>
+												<th>Interested</th>
+												<th>Not Interested</th>
+
+
+												
+											</tr>
+										</thead>
+										<tbody>
+
+<% for(i=0;i<result.length;i++){ %>
+
+											<tr>
+												<td><span><%=i%></span></td>
+												<td><span><%=result[i].name%></span></td>
+
+												<td><span><%=result[i].email%></span></td>
+												<td>
+													<span><%=result[i].number%></span>
+												</td>
+                                                <td>
+													<span><%=result[i].whatsapp_number%></span>
+												</td>
+                                                <td>
+													<span><%=result[i].source_code%></span>
+												</td>
+												<td>
+													<span><%=result[i].date%></span>
+												</td>
+
+												<td>
+													<button class="badge badge-success light border-0" 
+															onclick="sendWhatsapp('<%=result[i].id%>', '<%=result[i].name%>', '<%=result[i].email%>', '<%=result[i].whatsapp_number%>', '<%=result[i].source_code%>')">
+													  Send Whatsapp
+													</button>
+												  </td>
+
+
+
+												<td>
+													<a href="/affiliate/dashboard/demo/request/status/interested?id=<%=result[i].id%>"><span class="badge badge-primary light border-0">Interested</span></a>
+												</td>
+												<td>
+													<a href="/affiliate/dashboard/demo/request/status/notinterested?id=<%=result[i].id%>"><span class="badge badge-danger light border-0">Not Interested</span></a>
+												</td>
+
+											</tr>
+
+
+                                            <% } %>
+										
+											
+										</tbody>
+										
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			</div>
+        </div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		<div id="dialog" title="Schedule Email">
+			<label for="datepicker">Date:</label>
+			<input type="text" class="form-control" id="datepicker" class="datepicker">
+			<label for="timepicker">Time:</label>
+			<input type="time" class="form-control" id="timepicker1" class="timepicker1" step="300">
+
+		</div>
+		
+
+
+		<script>
+			function sendWhatsapp(id, name, email, number, sourceCode) {
+    let message = `Hello ${name}, you checked out our ${sourceCode}%0A%0AWould you like a demo of this project, or do you have any questions?`;
+    
+    let whatsappUrl = `https://wa.me/${number}?text=${message}`;
+    
+    window.open(whatsappUrl, '_blank');
+}
+
+		</script>
+		
+        <%include ./footer.ejs %>
+
+
+
+
+
+		

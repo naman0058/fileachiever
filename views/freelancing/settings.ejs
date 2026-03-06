@@ -1,0 +1,101 @@
+<% include ./header.ejs %>
+
+<div class="content-body">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8 col-xl-7">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h4 class="mb-0">Rockerstop Bot Settings</h4>
+            </div>
+
+            <% if (message) { %>
+              <div class="alert alert-success" role="alert">
+                <%= message %>
+              </div>
+            <% } %>
+
+            <% if (error) { %>
+              <div class="alert alert-danger" role="alert">
+                <%= error %>
+              </div>
+            <% } %>
+
+            <form method="POST" action="/freelancing/settings" class="needs-validation" novalidate>
+              <div class="mb-3">
+                <label for="phpsessid" class="form-label fw-semibold">PHPSESSID</label>
+                <input
+                  type="text"
+                  id="phpsessid"
+                  name="phpsessid"
+                  class="form-control"
+                  value="<%= settings?.phpsessid || '' %>"
+                  placeholder="Paste PHPSESSID here"
+                  required
+                />
+                <div class="invalid-feedback">PHPSESSID is required.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="current_tempid" class="form-label fw-semibold">Current TempID</label>
+                <input
+                  type="number"
+                  id="current_tempid"
+                  name="current_tempid"
+                  class="form-control"
+                  value="<%= settings?.current_tempid || 1 %>"
+                  min="1"
+                  step="1"
+                  required
+                />
+                <div class="invalid-feedback">TempID must be 1 or higher.</div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                  Save Settings
+                </button>
+                <button type="reset" class="btn btn-outline-secondary">
+                  Reset
+                </button>
+              </div>
+            </form>
+
+            <hr class="my-4" />
+
+            <p class="text-muted mb-0 small">
+              Last updated:
+              <span class="fw-semibold">
+                <%= settings?.updated_at ? settings.updated_at : "N/A" %>
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Bootstrap client-side validation (optional but clean UX)
+  (function () {
+    "use strict";
+    var forms = document.querySelectorAll(".needs-validation");
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add("was-validated");
+        },
+        false
+      );
+    });
+  })();
+</script>
+
+<% include ./footer.ejs %>

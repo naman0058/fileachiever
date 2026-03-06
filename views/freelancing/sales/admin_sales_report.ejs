@@ -1,0 +1,236 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/sales/sales.css?v=4">
+
+<div class="crm-layout">
+  <div class="crm-sidebar-wrap">
+    <%- include('partials/sidebar', { user, active }) %>
+  </div>
+
+  <div class="crm-main">
+    <!-- Topbar -->
+    <div class="crm-topbar d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+      <div>
+        <div class="crm-title d-flex align-items-center gap-2">
+          <i class="bi bi-bar-chart-line-fill"></i>
+          <span><%= pageTitle %></span>
+        </div>
+        <div class="crm-subtitle">
+          Track agent monthly sales performance for incentives: <b><%= filters.selectedMonth %></b>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a class="btn btn-light btn-soft-outline" href="/sales/admin/sales">
+          <i class="bi bi-receipt"></i> Sales List
+        </a>
+        <a class="btn btn-primary btn-soft" href="/sales/admin/new-sale">
+          <i class="bi bi-plus-circle"></i> Direct Sale
+        </a>
+      </div>
+    </div>
+
+    <div class="crm-card">
+      <!-- Filters (single form) -->
+      <form method="GET" action="/sales/admin/sales-report" class="crm-filters">
+        <div class="crm-field">
+          <label>Month</label>
+          <select class="form-select" name="month">
+            <% filters.monthOptions.forEach(function(m){ %>
+              <option value="<%= m %>" <%= m===filters.selectedMonth ? 'selected' : '' %>><%= m %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="crm-field">
+          <label>Agent</label>
+          <select class="form-select" name="agent">
+            <option value="" <%= !filters.agent ? 'selected' : '' %>>All Agents</option>
+            <% agents.forEach(function(a){ %>
+              <option value="<%= a.id %>" <%= String(filters.agent)===String(a.id) ? 'selected' : '' %>>
+                <%= a.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="crm-field grow" style="min-width:260px;">
+          <label>Search</label>
+          <input class="form-control" name="q" value="<%= filters.q || '' %>" placeholder="Search name / phone / enquiry / assign">
+        </div>
+
+        <div class="crm-field" style="min-width:140px;">
+          <label class="d-none d-md-block">&nbsp;</label>
+          <button class="btn btn-primary btn-soft w-100" type="submit">
+            <i class="bi bi-funnel-fill"></i> Apply
+          </button>
+        </div>
+      </form>
+
+      <!-- KPI -->
+      <div class="row g-3 mt-2">
+        <div class="col-12 col-md-3">
+          <div class="crm-kpi">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <div class="crm-kpi-label">Total Sales</div>
+                <div class="crm-kpi-val"><%= totals.total_sales %></div>
+              </div>
+              <div class="crm-kpi-ico"><i class="bi bi-bag-check-fill"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="crm-kpi">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <div class="crm-kpi-label">Revenue</div>
+                <div class="crm-kpi-val"><%= Number(totals.total_revenue||0).toFixed(0) %></div>
+              </div>
+              <div class="crm-kpi-ico"><i class="bi bi-currency-rupee"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="crm-kpi">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <div class="crm-kpi-label">Advance Collected</div>
+                <div class="crm-kpi-val"><%= Number(totals.total_advance||0).toFixed(0) %></div>
+              </div>
+              <div class="crm-kpi-ico"><i class="bi bi-wallet2"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="crm-kpi">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <div class="crm-kpi-label">Agent Price Sum</div>
+                <div class="crm-kpi-val"><%= Number(totals.total_agent_price||0).toFixed(0) %></div>
+              </div>
+              <div class="crm-kpi-ico"><i class="bi bi-person-badge-fill"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent summary -->
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <div style="font-weight:950;">Agent Performance</div>
+        <div class="crm-small">Click an agent row to drill down</div>
+      </div>
+
+      <div class="crm-table-wrap table-responsive mt-2">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th class="text-end">Sales</th>
+              <th class="text-end">Revenue</th>
+              <th class="text-end">Advance</th>
+              <th class="text-end">Agent Price</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!byAgent || !byAgent.length) { %>
+              <tr>
+                <td colspan="6" class="crm-small" style="padding:16px;">
+                  No data available for <b><%= filters.selectedMonth %></b>.
+                </td>
+              </tr>
+            <% } %>
+
+            <% (byAgent || []).forEach(function(r){ %>
+              <tr class="crm-row-click"
+                  style="cursor:pointer;"
+                  onclick="applyAgent('<%= r.agent_name %>')">
+                <td style="font-weight:950;">
+                  <i class="bi bi-person-circle me-2"></i><%= r.agent_name %>
+                </td>
+                <td class="text-end"><%= r.total_sales %></td>
+                <td class="text-end"><%= Number(r.total_revenue||0).toFixed(0) %></td>
+                <td class="text-end"><%= Number(r.total_advance||0).toFixed(0) %></td>
+                <td class="text-end"><%= Number(r.total_agent_price||0).toFixed(0) %></td>
+                <td class="text-end">
+                  <a class="btn btn-light btn-soft-outline btn-sm"
+                     href="/sales/admin/sales-report?month=<%= encodeURIComponent(filters.selectedMonth) %>&agent=<%= encodeURIComponent(r.agent_name) %>">
+                    View
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Drilldown -->
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <div style="font-weight:950;">Sales Drill-down</div>
+        <div class="crm-small">
+          <% if (filters.agent) { %>
+            Filtered by: <b><%= filters.agent %></b>
+          <% } else { %>
+            Select an Agent to view rows
+          <% } %>
+        </div>
+      </div>
+
+      <div class="crm-table-wrap table-responsive mt-2">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Number</th>
+              <th>Enquiry</th>
+              <th class="text-end">Lead Price</th>
+              <th class="text-end">Advance</th>
+              <th>Status</th>
+              <th>Assign</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!rows || !rows.length) { %>
+              <tr>
+                <td colspan="9" class="crm-small" style="padding:16px;">
+                  No rows to show. Choose an agent or search to see details.
+                </td>
+              </tr>
+            <% } %>
+
+            <% (rows || []).forEach(function(r){ %>
+              <tr>
+                <td><%= r.id %></td>
+                <td style="font-weight:950;"><%= r.name || '-' %></td>
+                <td><%= r.number || '-' %></td>
+                <td class="crm-clamp2"><%= (r.enquiry || '-').slice(0,120) %></td>
+                <td class="text-end"><%= Number(r.lead_price||0).toFixed(0) %></td>
+                <td class="text-end"><%= Number(r.advance_amount||0).toFixed(0) %></td>
+                <td><%= r.status || '-' %></td>
+                <td><%= r.assign || '-' %></td>
+                <td class="crm-small"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Optional helper: click row -> apply agent filter using agent_name (since your DB uses assign text)
+  function applyAgent(agentName){
+    if(!agentName) return;
+    const month = "<%= String(filters.selectedMonth || '') %>";
+    const url = "/sales/admin/sales-report?month=" + encodeURIComponent(month) + "&agent=" + encodeURIComponent(agentName);
+    window.location.href = url;
+  }
+</script>

@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from dreamslms.dreamguystech.com/html/checkout.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:05:52 GMT -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+
+
+
+<meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<meta name=robots content="all,follow"/>
+<meta name=googlebot content="index, follow"/>
+<link rel="shortcut icon" type="images/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width:80px;" />
+<meta name=distribution content=Global />
+<meta name=author content="http://www.filemakr.com"/>
+<meta name=Language content=English />
+<meta name=rating content=general />
+<meta name=owner content=FileMakr. />
+<meta name=document-type content=public />
+<meta name=revisit-after content=daily />
+<meta name=country content=India />
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/design/img/favicon.svg">
+
+<link rel="stylesheet" href="/design/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
+
+<link rel="stylesheet" href="/design/css/feather.css">
+
+<link rel="stylesheet" href="/design/plugins/select2/css/select2.min.css">
+
+<link rel="stylesheet" href="/design/css/style.css">
+
+
+
+
+<style>
+ 
+ .filelabel {
+     
+     border: 2px dashed grey;
+     border-radius: 5px;
+     display: block;
+     padding: 10px;
+     transition: border 300ms ease;
+     cursor: pointer;
+     text-align: center;
+     margin: 10px;
+ }
+ .filelabel i {
+     display: block;
+     font-size: 30px;
+     padding-bottom: 5px;
+ }
+ .filelabel i,
+ .filelabel .title {
+   color: grey;
+   transition: 200ms color;
+ }
+ .filelabel:hover {
+   border: 2px solid #1665c4;
+ }
+ .filelabel:hover i,
+ .filelabel:hover .title {
+   color: #1665c4;
+ }
+ #FileInput{
+     display:none;
+ }
+ #FileInput1{
+     display:none;
+ }
+ .filelabel1 {
+     
+     border: 2px dashed grey;
+     border-radius: 5px;
+     display: block;
+     padding: 10px;
+     transition: border 300ms ease;
+     cursor: pointer;
+     text-align: center;
+     margin: 10px;
+ }
+ .filelabel1 i {
+     display: block;
+     font-size: 30px;
+     padding-bottom: 5px;
+ }
+ .filelabel1 i,
+ .filelabel1 .title {
+   color: grey;
+   transition: 200ms color;
+ }
+ .filelabel1:hover {
+   border: 2px solid #1665c4;
+ }
+ .filelabel1:hover i,
+ .filelabel1:hover .title {
+   color: #1665c4;
+ }
+ /** BEGIN CSS NEEDED FOR SWITCH **/
+ .on-off-toggle {
+   width: 56px;
+   height: 24px;
+   position: relative;
+   display: inline-block;
+ }
+ .on-off-toggle__slider {
+   
+   height: 24px;
+   display: block;
+   border-radius: 34px;
+   background-color: #d8d8d8;
+   -webkit-transition: background-color 0.4s;
+   transition: background-color 0.4s
+   
+ }
+ .on-off-toggle__slider:before {
+     content: '';
+     display: block;
+     background-color: #fff;
+     box-shadow: 0 0 0 1px #949494;
+     bottom: 3px;
+     height: 18px;
+     left: 3px;
+     position: absolute;
+     -webkit-transition: .4s;
+     transition: .4s;
+     width: 18px;
+     z-index: 5;
+     border-radius: 100%;
+   }
+ .on-off-toggle__slider:after {
+     display: block;
+     line-height: 24px;
+     text-transform: uppercase;
+     font-size: 12px;
+     font-weight: bold;
+     content: '';
+     color: #484848;
+     padding-left: 26px;
+     -webkit-transition: all 0.4s;
+     transition: all 0.4s;
+   }
+ .on-off-toggle__input {
+   /*
+     This way of hiding the default input is better 
+     for accessibility than using display: none;
+   */
+   position: absolute;
+   opacity: 0;
+ }
+ .on-off-toggle__input:checked + 
+ .on-off-toggle__slider {
+   background-color: #53d769;
+ }
+ .on-off-toggle__input:checked + 
+ .on-off-toggle__slider:before {
+     -webkit-transform: translateX(32px);
+             transform: translateX(32px);
+   }
+ .on-off-toggle__input:checked + 
+ .on-off-toggle__slider:after {
+     content: '';
+     color: #FFFFFF;
+     padding-left: 8px;
+   }
+ /*** END CSS NEEDED FOR SWITCH **/
+
+ /*--- Bottom Sticky Bar---*/
+ .btm-sticky {position:fixed; bottom:0; width:100%; height:50px; line-height:50px; background:#2c2926; z-index:9999; -webkit-transition:all .3s;-moz-transition:all .3s;transition:all .3s;}
+ .pull-left {position:absolute; display:block; left:0;}
+ .pull-right {position:absolute; display:block; right:0;}
+ .pull-center {position:absolute; display:block; margin:auto; left:0; right:0; float:none; text-align:center;}
+ img.responsive {
+     max-width:100%;
+     height:auto;
+     display:block;
+ }
+ .btm-sticky .container {position:relative !important;}
+ .btm-sticky .pull-left img {position:relative; max-width:240px; top:4px; left:0;}
+ .btm-sticky .pull-left img.small {display:none;}
+ .btm-sticky .pull-center p {font:italic 20px 'Arapey', serif; color:#fcbd28; line-height:50px; -webkit-transition:all .3s;-moz-transition:all .3s;transition:all .3s;}
+ .pull-right img {position:relative; max-width:185px; top:-51px; right:0;}
+ .btm-sticky:hover {background:#312d28;}
+ .btm-sticky:hover .pull-center p {color:#f4972c;}
+ .price {position:absolute; display:block; width:185px; right:40px; bottom:0; text-align:center;
+ background: rgba(44,41,38,1);
+ background: -moz-linear-gradient(left, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+ background: -webkit-gradient(left top, right top, color-stop(0%, rgba(44,41,38,1)), color-stop(42%, rgba(26,24,22,0.96)), color-stop(100%, rgba(0,0,0,0.19)));
+ background: -webkit-linear-gradient(left, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+ background: -o-linear-gradient(left, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+ background: -ms-linear-gradient(left, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+ background: linear-gradient(to right, rgba(44,41,38,1) 0%, rgba(26,24,22,0.96) 42%, rgba(0,0,0,0.19) 100%);
+ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2c2926', endColorstr='#000000', GradientType=1 );
+    -webkit-transition:all .3s;-moz-transition:all .3s;transition:all .3s;
+ }
+ .price p {font: 16px 'Arapey', serif; color:#fff; height:25px; line-height:25px;}
+ .price span {position:relative; top:1px;font-size:12px !important;}
+ .btm-sticky:hover .price {background: -moz-linear-gradient(left, rgba(49,45,40,1) 50%, rgba(49,45,40,0) 100%); /* FF3.6-15 */
+ background: -webkit-linear-gradient(left, rgba(49,45,40,1) 50%,rgba(49,45,40,0) 100%); /* Chrome10-25,Safari5.1-6 */
+ background: linear-gradient(to right, rgba(49,45,40,1) 50%,rgba(49,45,40,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#312d28', endColorstr='#00312d28',GradientType=1 ); /* IE6-9 */}
+ @media (max-width:960px) {
+   .btm-sticky .pull-left img {max-width:220px; top:5px; left:10px;}
+   .btm-sticky .pull-right img {max-width:145px; top:-28px; right:10px;}
+   .btm-sticky .pull-center p {display:none;}
+ }
+ @media (max-width:420px) {
+   .btm-sticky .pull-left img.big {display:none;}
+   .btm-sticky .pull-left img.small {display:inline;}
+   .btm-sticky .pull-left img {max-width:180px; left:10px; top:5px; }
+   .btm-sticky .pull-right img {max-width:140px; top:-24px; right:10px;}
+ }
+ /*-- Container like Bootstrap --*/
+ .container {
+   padding-right: 15px;
+   padding-left: 15px;
+   margin-right: auto;
+   margin-left: auto;
+ }
+ @media (min-width: 768px) {
+   .container {
+     width: 750px;
+   }
+ }
+ @media (min-width: 992px) {
+   .container {
+     width: 970px;
+   }
+ }
+ @media (min-width: 1200px) {
+   .container {
+     width: 1170px;
+   }
+ }
+ .container-fluid {
+   padding-right: 15px;
+   padding-left: 15px;
+   margin-right: auto;
+   margin-left: auto;
+ }
+ .container:before,
+ .container:after,
+ .container-fluid:before,
+ .container-fluid:after {
+   display: table;
+   content: " ";
+ }
+ .container:after,
+ .container-fluid:after {
+   clear: both;
+ }
+
+ </style>
+
+
+
+
+<style>
+    /* Style for the loader and overlay */
+    #loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+   </style>
+ 
+
+</head>
+<body>
+
+<div class="main-wrapper">
+
+  
+
+
+
+<div class="breadcrumb-bar">
+<div class="container">
+<div class="row">
+<div class="col-md-12 col-12">
+<div class="breadcrumb-list">
+<nav aria-label="breadcrumb" class="page-breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+<!-- <li class="breadcrumb-item" aria-current="page">Pages</li> -->
+<li class="breadcrumb-item" aria-current="page">Give Order</li>
+</ol>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="loader-overlay">
+    <div id="loader"></div>
+</div>
+
+<section class="course-content checkout-widget">
+<div class="container">
+<div class="row">
+
+
+<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1736714488/Source_Code_yucrya.avif">
+
+<div class="col-lg-8">
+
+  <form action="/shopkeeper/technical/order/insert"  method="post" enctype="multipart/form-data" class="uploadImage" id="orderForm">
+
+
+
+
+
+
+<div class="student-widget">
+<div class="student-widget-group add-course-info">
+<div class="cart-head">
+<h4 style="font-weight: bold;">Project Report & Source Code</h4>
+</div>
+<div class="checkout-form">
+
+<div class="row">
+
+
+  <div class="col-lg-12">
+    <div class="form-group">
+    <label class="form-control-label">Choose Order Type</label>
+    <select class="form-control" name="ordertype" id="ordertype" required>
+      <option value="" disabled selected>Choose Order Type </option>
+      <option value="Major Project">Major Project Report</option>
+      <option value="Minor Project">Minor Project Report</option>
+      <option value="Synopsis">Synopsis</option>
+      <option value="Source Code">Source Code</option>
+      <option value="Non Technical Report">Non Technical Report</option>
+      <option value="Research Paper">Research Paper</option>
+
+
+
+    
+    </select>
+    </div>
+    </div>
+
+
+   
+
+<div class="col-lg-6">
+<div class="form-group">
+<label class="form-control-label">Full name</label>
+<input type="text" name="name" id="name" class="form-control" placeholder="Enter your Full name" required>
+</div>
+</div>
+<div class="col-lg-6">
+<div class="form-group">
+<label class="form-control-label">Mobile Number</label>
+<input type="text" name="number" id="number"  class="form-control" placeholder="Enter your Mobile Number" required>
+</div>
+</div>
+
+
+<div class="col-lg-6">
+    <div class="form-group">
+    <label class="form-control-label">Email Id</label>
+    <input type="text" name="email" id="email"  class="form-control" placeholder="Enter your Email ID" required>
+    </div>
+    </div>
+
+
+<input type="hidden" name="total_amount" id="totalAmount" class="form-control" readonly />
+<input type="hidden" name="advance_amount" id="advanceAmount" class="form-control" readonly />
+
+<div class="col-lg-6">
+<div class="form-group">
+<label class="form-control-label">Enter Project Topic</label>
+<input type="text" id="materialRegisterFormCollegeName" class="form-control" name="topic" placeholder="Enter Project Topic" required >
+</div>
+</div>
+
+
+<input type="hidden" name="unique_code" value="<%=unique_code%>">
+
+
+<div class="col-lg-6">
+    <div class="form-group">
+        <label for="reportWay" class="form-control-label">Select Report Binding Method</label>
+        <select id="reportWay" name="reportWay" class="form-control">
+            <option value="spiral">Spiral Binding</option>
+            <option value="hardbound">Hard Bound Binding</option>
+        </select>
+    </div>
+</div>
+    
+
+    <div class="col-lg-6">
+        <div class="form-group">
+        <label class="form-control-label">Select Quantity</label>
+    <select name="quantity" id="quantity" onchange="calculateAmounts()" class="form-control">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>  
+    </div>
+        </div>
+        
+
+
+
+<div class="col-lg-6" id="pagesContainer">
+    <div class="form-group">
+    <label class="form-control-label">Enter Number of Pages</label>
+    <input type="number" class="form-control" name="pages" id="pages" min="1" placeholder="Enter number of pages">
+    </div>
+    </div>
+
+
+<div class="col-lg-6">
+    <div class="form-group">
+    <label class="form-control-label">Enter Technology (Optional)</label>
+    <input type="text" id="materialRegisterFormCollegeName" class="form-control" name="technology" placeholder="Enter Technology (Ex. PHP, MySQL)"  >
+    </div>
+    </div>
+
+
+
+
+   
+
+<div class="col-lg-6">
+<div class="form-group">
+<label class="form-control-label">Enter Your Full Delivery Address</label>
+<input type="text" id="materialRegisterFormCollegeAddress" placeholder="Enter Your Full Delivery Address" class="form-control" name="address"  required>
+</div>
+</div>
+
+
+
+<div class="col-lg-6">
+    <div class="form-group">
+    <label class="form-control-label">Enter Instruction (Optional)</label>
+    <input type="text" id="materialRegisterFormCollegeName" class="form-control" name="decsription" placeholder="Enter Instruction (Optional)" required >
+    </div>
+    </div>
+
+
+
+<div class="col-lg-6">
+    <div class="form-group">
+    <label class="form-control-label">References (Optional)</label>
+    <label class="filelabel" id="filelabel">
+      <i class="fa fa-paperclip">
+      </i>
+      <span class="title">
+          Upload References (Optional)
+      </span>
+      <input class="FileUpload1" id="FileInput" name="references" type="file"  />
+  </label>
+    </div>
+    </div>
+
+
+  
+
+
+  
+
+
+
+</div>
+
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+  <div class="col-lg-4 theiaStickySidebar">
+    <div class="student-widget select-plan-group">
+    <div class="student-widget-group">
+    <div class="plan-header">
+    <h4>Order Includes </h4>
+    </div>
+    <div class="basic-plan">
+    <h3></h3>
+    <p></p>
+    </div>
+    <div class="benifits-feature">
+    <h3>    </h3>
+    <ul style="font-weight: bold;color: black;">
+    
+    
+    </ul>
+    </div>
+    
+    
+    </div>
+    </div>
+    </div>
+
+
+
+
+    <div class="col-lg-4 theiaStickySidebar">
+        <div class="student-widget select-plan-group">
+        <div class="student-widget-group">
+        <div class="plan-header">
+        <h4>Amount Summary </h4>
+        </div>
+        <div class="basic-plan">
+        <h3></h3>
+        <p></p>
+        <h2><span></span></h2>
+        <h4 style="font-size: 18px;font-weight: bold;"><span></span></h4>
+
+        </div>
+        <div class="benifits-feature">
+        <h3>    </h3>
+        <ul>
+        
+        
+        </ul>
+        </div>
+        
+        
+        </div>
+        </div>
+        </div>
+  
+        <input type="hidden" id="singleorderprice">
+
+
+<div class="student-widget pay-method">
+  <div class="student-widget-group add-course-info">
+  
+  <div class="checkout-form">
+  <div class="row">
+  
+  
+     
+  
+  
+  <div class="payment-btn">
+   <button class="btn btn-primary" type="submit">Create Order</button>
+  </div>
+  </div>
+
+  </div>
+  </div>
+  </div>
+</form>
+
+</div>
+
+
+
+
+
+
+
+</div>
+</div>
+</section>
+
+
+ 
+
+
+</div>
+
+
+<script data-cfasync="false" src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="/design/js/jquery-3.6.0.min.js"></script>
+
+<script src="/design/js/bootstrap.bundle.min.js"></script>
+
+<script src="/design/plugins/select2/js/select2.min.js"></script>
+
+<script src="/design/plugins/theia-sticky-sidebar/ResizeSensor.js"></script>
+<script src="/design/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js"></script>
+
+<script src="/design/js/script.js"></script>
+</body>
+
+
+
+<script rel="preload" src="/javascripts/all.js" as="script" async></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.4.1/js/mdb.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.js"></script>
+
+<script src="https://unpkg.com/vue@2.3.4"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+
+<script>
+  document.querySelector('.uploadImage').addEventListener('submit', function(e) {
+     
+     let backend = false;
+     let frontend = false;
+ 
+     $('input[type="checkbox"][name="backend[]"]').each(function () {
+         if ($(this).prop('checked')) {
+             backend = true;
+             return false; // Exit the loop early once a checkbox is found checked
+         }
+     });
+ 
+     $('input[type="checkbox"][name="frontend[]"]').each(function () {
+         if ($(this).prop('checked')) {
+             frontend = true;
+             return false; // Exit the loop early once a checkbox is found checked
+         }
+     });
+
+
+   
+
+
+     document.getElementById('ordertype').addEventListener('change', function () {
+        var selectedValue = this.value;
+        if (!selectedValue) {
+            alert('Please select a Order Type.');
+        }
+    });
+
+     document.getElementById('select').addEventListener('change', function () {
+        var selectedValue = this.value;
+        if (!selectedValue) {
+            alert('Please select a department.');
+        }
+    });
+
+
+    document.getElementById('select1').addEventListener('change', function () {
+        var selectedValue = this.value;
+        if (!selectedValue) {
+            alert('Please select a Semester.');
+        }
+    });
+ 
+ 
+
+    if(!$('#ordertype').val()){
+      e.preventDefault();
+      alert('Select Order Type')
+     }
+
+
+      else if(!$('#name').val()){
+      e.preventDefault();
+      alert('Enter Name')
+     }
+
+    
+     else if(!$('#email').val()){
+      e.preventDefault();
+      alert('Enter Email')
+     }
+
+     else if(!$('#number').val()){
+      e.preventDefault();
+      alert('Enter Mobile Number')
+     }
+
+     else if(!$('#materialRegisterFormCollegeName').val()){
+      e.preventDefault();
+      alert('Enter College Name')
+     }
+
+     else if(!$('#materialRegisterFormRollNumber').val()){
+      e.preventDefault();
+      alert('Enter Roll Number')
+     }
+
+    else if(!$('#select').val()){
+      e.preventDefault();
+      alert('Select Department')
+     }
+
+     else if(!$('#select1').val()){
+      e.preventDefault();
+      alert('Select Semester')
+     }
+
+     else if(!$('#materialRegisterFormCollegeAddress').val()){
+      e.preventDefault();
+      alert('Enter College Address')
+     }
+
+     else if(!$('#materialRegisterFormDirectorName').val()){
+      e.preventDefault();
+      alert('Enter Director Name')
+     }
+
+     else if(!$('#materialRegisterProfessorName').val()){
+      e.preventDefault();
+      alert('Enter Professor Name')
+     }
+
+     else if(!$('#materialRegisterFormHODNAME').val()){
+      e.preventDefault();
+      alert('Enter HOD Name')
+     }
+
+
+     else if(!$('#materialRegisterFormAffilatedCollegeName').val()){
+      e.preventDefault();
+      alert('Enter Affiliated College Name')
+     }
+
+
+     else if(!$('#materialRegisterFormAffilatedCollegeAddress').val()){
+      e.preventDefault();
+      alert('Enter Affiliate College Address')
+     }
+     
+
+     else if(!$('#FileInput').val()){
+      e.preventDefault();
+      alert('Select College Logo')
+     }
+
+     else if(!$('#FileInput1').val()){
+      e.preventDefault();
+      alert('Select Affiliated College Logo')
+     }
+ 
+     else if(!backend){
+       e.preventDefault();
+       alert('Select atleast one Back-End Technologies')
+      
+      }
+
+      else if(!frontend){
+       e.preventDefault();
+       alert('Select atleast one Front-End Technologies')
+      
+      }
+      
+      
+
+ 
+     })
+ 
+    
+     
+  
+ </script>
+
+
+<!-- <script>
+  $('.uploadImage').submit(function (e) {
+      e.preventDefault();
+    //  alert('done')
+    let backend = false;
+    let frontend = false;
+
+    $('input[type="checkbox"][name="backend[]"]').each(function () {
+        if ($(this).prop('checked')) {
+            backend = true;
+            return false; // Exit the loop early once a checkbox is found checked
+        }
+    });
+
+    $('input[type="checkbox"][name="frontend[]"]').each(function () {
+        if ($(this).prop('checked')) {
+            frontend = true;
+            return false; // Exit the loop early once a checkbox is found checked
+        }
+    });
+
+
+    console.log(frontend)
+    console.log(backend)
+
+
+     if(backend && frontend){
+
+         $(this).ajaxSubmit({
+      
+        contentType: 'application/json',
+        success: function (response) {
+          console.log(response)
+             if (response.msg === 'success') {
+        // alert('Successfully updated');
+        window.location.href = '/btech-final-year-project-report/projects'
+    } 
+    else if(response.msg === 'exists'){
+      alert('Project Name Already Registered')
+    } else {
+        alert('Failed to update data');
+    }
+        }
+      });
+      return false;
+
+     }
+     else{
+      alert('Select atleast one Front-End and Back-End Technologies')
+     }
+ 
+
+   
+    
+    });
+</script> -->
+
+
+<script type="text/javascript">
+
+
+
+
+
+
+function convertImageToBase64(imgUrl, callback) {
+  const image = new Image();
+  image.crossOrigin='anonymous';
+  image.onload = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.height = image.naturalHeight;
+    canvas.width = image.naturalWidth;
+    ctx.drawImage(image, 0, 0);
+    const dataUrl = canvas.toDataURL();
+    callback && callback(dataUrl)
+  }
+  image.src = imgUrl;
+}
+
+  $("#FileInput").on('change',function (e) {
+            var labelVal = $(".title").text();
+            var oldfileName = $(this).val();
+                fileName = e.target.value.split( '\\' ).pop();
+                if (oldfileName == fileName) {return false;}
+                var extension = fileName.split('.').pop();
+            if ($.inArray(extension,['jpg','jpeg','png']) >= 0) {
+                $(".filelabel i").removeClass().addClass('fa fa-file-image-o');
+                $(".filelabel i, .filelabel .title").css({'color':'#208440'});
+                $(".filelabel").css({'border':' 2px solid #208440'});
+            }
+            else if(extension == 'pdf'){
+                $(".filelabel i").removeClass().addClass('fa fa-file-pdf-o');
+                $(".filelabel i, .filelabel .title").css({'color':'red'});
+                $(".filelabel").css({'border':' 2px solid red'});
+            }
+  else if(extension == 'doc' || extension == 'docx'){
+            $(".filelabel i").removeClass().addClass('fa fa-file-word-o');
+            $(".filelabel i, .filelabel .title").css({'color':'#2388df'});
+            $(".filelabel").css({'border':' 2px solid #2388df'});
+        }
+            else{
+                $(".filelabel i").removeClass().addClass('fa fa-file-o');
+                $(".filelabel i, .filelabel .title").css({'color':'black'});
+                $(".filelabel").css({'border':' 2px solid black'});
+            }
+            if(fileName ){
+                if (fileName.length > 10){
+                    $(".filelabel .title").text(fileName.slice(0,4)+'...'+extension);
+                }
+                else{
+                    $(".filelabel .title").text(fileName);
+                }
+            }
+            else{
+                $(".filelabel .title").text(labelVal);
+            }
+        });
+ 
+ 
+        $("#FileInput1").on('change',function (e) {
+            var labelVal = $(".title").text();
+            var oldfileName = $(this).val();
+                fileName = e.target.value.split( '\\' ).pop();
+                if (oldfileName == fileName) {return false;}
+                var extension = fileName.split('.').pop();
+            if ($.inArray(extension,['jpg','jpeg','png']) >= 0) {
+                $(".filelabel1 i").removeClass().addClass('fa fa-file-image-o');
+                $(".filelabel1 i, .filelabel .title").css({'color':'#208440'});
+                $(".filelabel1").css({'border':' 2px solid #208440'});
+            }
+            else if(extension == 'pdf'){
+                $(".filelabel1 i").removeClass().addClass('fa fa-file-pdf-o');
+                $(".filelabel1 i, .filelabel .title").css({'color':'red'});
+                $(".filelabel1").css({'border':' 2px solid red'});
+            }
+  else if(extension == 'doc' || extension == 'docx'){
+            $(".filelabel1 i").removeClass().addClass('fa fa-file-word-o');
+            $(".filelabel1 i, .filelabel .title").css({'color':'#2388df'});
+            $(".filelabel1").css({'border':' 2px solid #2388df'});
+        }
+            else{
+                $(".filelabel1 i").removeClass().addClass('fa fa-file-o');
+                $(".filelabel1 i, .filelabel .title").css({'color':'black'});
+                $(".filelabel1").css({'border':' 2px solid black'});
+            }
+            if(fileName ){
+      //         // convertImageToBase64(oldfileName,console.log(event.target.files))
+      //         const selectedfile = event.target.files;
+
+      //         const [imageFile] = selectedfile;
+      // const fileReader = new FileReader();
+      // fileReader.onload = () => {
+      //   const srcData = fileReader.result;
+      //   console.log('base64:', srcData)
+      // };
+      // fileReader.readAsDataURL(imageFile);
+
+      //         const data = new FormData()
+      //   data.append('file',
+      //     {
+      //       uri: imageFile,
+      //       name: `image.${extension}`,
+      //       type: `image/${extension}`,
+      //     });
+      //   // data.append('file', result.uri)
+      //   data.append('upload_preset', 'afordeals')
+      //   data.append("cloud_name", "dealsaaj")
+      //   fetch("https://api.cloudinary.com/v1_1/dealsaaj/upload", {
+      //     method: "POST",
+      //     body: data
+      //   })
+      //     .then(res => res.json()).
+      //     then(result => {
+      //       console.log('cnvert', data)
+      //       this.setState({ image: data.secure_url, imageType: data.resource_type });
+      //       // setPhoto(data.secure_url)
+      //     }).catch(err => {
+      //       Alert.alert("An Error Occured While Uploading")
+      //     })
+
+                if (fileName.length > 10){
+                    $(".filelabel1 .title").text(fileName.slice(0,4)+'...'+extension);
+                }
+                else{
+                    $(".filelabel1 .title").text(fileName);
+                }
+            }
+            else{
+                $(".filelabel1 .title").text(labelVal);
+            }
+            console.log($("#FileInput1").attr('src',URL.createObjectURL(event.target.files[0])))
+            // alert(oldfileName)
+        });
+/**
+ * Chosen: Multiple Dropdown
+ */
+window.WDS_Chosen_Multiple_Dropdown = {};
+( function( window, $, that ) {
+  // Constructor.
+  that.init = function() {
+    that.cache();
+    if ( that.meetsRequirements ) {
+      that.bindEvents();
+    }
+  };
+  // Cache all the things.
+  that.cache = function() {
+    that.$c = {
+      window: $(window),
+      theDropdown: $( '.dropdown' ),
+    };
+  };
+  // Combine all events.
+  that.bindEvents = function() {
+    that.$c.window.on( 'load', that.applyChosen );
+  };
+  // Do we meet the requirements?
+  that.meetsRequirements = function() {
+    return that.$c.theDropdown.length;
+  };
+  // Apply the Chosen.js library to a dropdown.
+  // https://harvesthq.github.io/chosen/options.html
+  that.applyChosen = function() {
+    that.$c.theDropdown.chosen({
+      inherit_select_classes: true,
+      width: '300px',
+    });
+  };
+  // Engage!
+  $( that.init );
+})( window, jQuery, window.WDS_Chosen_Multiple_Dropdown );
+</script>
+
+
+<script>
+  $( document ).ready(function() {
+     let deviceInfo = '';
+  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+     deviceInfo = 'mobile'
+    } else {
+      deviceInfo ='Desktop'
+    }
+  $.post('/customization',{deviceInfo},data=>{
+  })
+});
+</script>
+
+
+
+<script>
+  document.getElementById('ordertype').addEventListener('change', function () {
+    const selectedValue = this.value; // Get the selected value
+    const pagesContainer = document.getElementById('pagesContainer');
+    const totalAmountInput = document.getElementById('totalAmount'); // Input for total amount
+    const advanceAmountInput = document.getElementById('advanceAmount'); // Input for advance amount
+
+    // Toggle the visibility of the "Pages" input
+    if (selectedValue === 'Non Technical Report' || selectedValue === 'Research Paper') {
+            pagesContainer.style.display = 'block';
+            pagesInput.setAttribute('required', 'required'); // Make the pages input required
+        } else {
+            pagesContainer.style.display = 'none';
+            pagesInput.removeAttribute('required'); // Remove the required attribute
+            pagesInput.value = ''; // Clear the pages input value
+        }
+
+    // If there's a selected value, call the API
+    if (selectedValue) {
+        fetch(`/shopkeeper/mastercategory/details?ordertype=${selectedValue}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('API Response:', data);
+
+                // Extract data from API response
+                const orderDetails = data[0][0];
+                const features = data[1];
+
+                // Populate the 'Order Includes' section
+                const orderNameElement = document.querySelector('.basic-plan h3');
+                const orderPriceElement = document.querySelector('.basic-plan h2');
+                const advanceAmount = document.querySelector('.basic-plan h4');
+                const benefitsListElement = document.querySelector('.benifits-feature ul');
+                const quantityInput = document.getElementById('quantity').value; // Dropdown for quantity
+
+                // Update order name and price
+                orderNameElement.textContent = orderDetails.name;
+
+                if(orderDetails.price === '15 Per Page'){
+
+                }
+                else{
+                    orderPriceElement.innerHTML = `<span>Total Amount : Rs. ${orderDetails.price * quantityInput}</span>`;
+                    advanceAmount.innerHTML = `<span>Advance Amount: Rs. ${(orderDetails.price * orderDetails.advance_amount * quantityInput).toFixed(2)}</span>`;
+                   
+            singleorderprice.value = orderDetails.price;
+                   
+                    totalAmountInput.value = orderDetails.price;
+                    advanceAmountInput.value = (orderDetails.price * orderDetails.advance_amount).toFixed(2)
+                }
+
+                
+
+                // Clear the existing list
+                benefitsListElement.innerHTML = '';
+
+                // Populate benefits/features list
+                features.forEach(feature => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<i class="fas fa-circle"></i> ${feature.name}`;
+                    benefitsListElement.appendChild(listItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }
+});
+const pagesContainer = document.getElementById('pagesContainer');
+pagesContainer.style.display = 'none';
+  
+  </script>
+
+
+
+
+
+<script>
+
+const totalAmountInput = document.getElementById('totalAmount'); // Input for total amount
+const advanceAmountInput = document.getElementById('advanceAmount'); // Input for advance amount
+    const pagesInput = document.getElementById('pages');
+        const orderPriceElement = document.querySelector('.basic-plan h2');
+        const advanceAmountElement = document.querySelector('.basic-plan h4');
+        
+    pagesInput.addEventListener('input', function () {
+         
+    const quantityInput = document.getElementById('quantity').value; // Dropdown for quantity
+        
+        
+        const noOfPages = parseInt(pagesInput.value) || 0; // Get the number of pages (default to 0 if invalid)
+            const pricePerPage = 10; // Price per page
+            const advancePercentage = 0.15; // Advance percentage
+    
+            // Calculate total and advance amounts
+            const totalAmount = noOfPages * pricePerPage * quantityInput;
+            const advanceAmount = totalAmount * advancePercentage;
+    
+            // Update the display
+            orderPriceElement.innerHTML = `<span>Total Amount: Rs. ${totalAmount}</span>`;
+            advanceAmountElement.innerHTML = `<span>Advance Amount: Rs. ${advanceAmount.toFixed(2)}</span>`;
+
+
+            totalAmountInput.value = totalAmount;
+            advanceAmountInput.value = advanceAmount.toFixed(2);
+
+        });
+    </script>
+
+
+
+<script>
+
+
+function calculateAmounts() {
+    const quantityInput = document.getElementById('quantity').value; // Dropdown for quantity
+    const totalAmountInput = document.getElementById('totalAmount').value; // Input for total amount
+const advanceAmountInput = document.getElementById('advanceAmount').value;
+let pagesInput = document.getElementById('pages').value;
+const orderPriceElement = document.querySelector('.basic-plan h2');
+const advanceAmountElement = document.querySelector('.basic-plan h4');
+const singleorderprice = document.getElementById('singleorderprice').value; // Dropdown for quantity
+const selectedValue = document.getElementById('ordertype').value
+
+
+
+
+const pricePerPage = 10; // Price per page
+const advancePercentage = 0.15; // Advance percentage
+
+
+
+const OldtotalAmount = document.getElementById('totalAmount'); // Input for total amount
+const OldadvanceAmount = document.getElementById('advanceAmount');
+
+
+if(pagesInput==null || pagesInput == ''){
+    pagesInput = 1
+}
+
+let totalAmount;
+let advanceAmount;
+
+if (selectedValue === 'Non Technical Report' || selectedValue === 'Research Paper') {
+     totalAmount = pagesInput * pricePerPage * quantityInput;
+     advanceAmount = totalAmount * advancePercentage;
+        } 
+        else {
+             totalAmount = singleorderprice * quantityInput;
+             advanceAmount = totalAmount * advancePercentage;
+        }
+
+
+
+    
+
+orderPriceElement.innerHTML = `<span>Total Amount: Rs. ${totalAmount}</span>`;
+            advanceAmountElement.innerHTML = `<span>Advance Amount: Rs. ${advanceAmount.toFixed(2)}</span>`;
+
+
+            OldtotalAmount.value = totalAmount;
+            OldadvanceAmount.value = advanceAmount.toFixed(2);
+
+
+    }
+
+
+</script>
+
+
+
+<script>
+    // Get form and loader elements
+    const form = document.getElementById('orderForm');
+    const loader = document.getElementById('loader');
+
+
+
+
+    // Add submit event listener to the form
+    form.addEventListener('submit', function (event) {
+        // Show the loader
+        const loaderOverlay = document.getElementById("loader-overlay");
+
+    const loader = document.getElementById("loader");
+
+    loaderOverlay.style.display = "flex"; // Show overlay
+
+
+
+        // Optionally disable the form to prevent resubmission
+        form.querySelector('button[type="submit"]').disabled = true;
+    });
+
+    
+    // Hide loader after a response
+    window.addEventListener('load', function () {
+        const loaderOverlay = document.getElementById("loader-overlay");
+
+const loader = document.getElementById("loader");
+       loaderOverlay.style.display = 'none';
+        form.querySelector('button[type="submit"]').disabled = false;
+    });
+</script>
+
+
+<!-- Mirrored from dreamslms.dreamguystech.com/html/checkout.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:05:52 GMT -->
+</html>

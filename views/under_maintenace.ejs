@@ -1,0 +1,180 @@
+<% include Includes/navbar3.ejs %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ 
+
+ <style>
+  .contact-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    background-color: #fff;
+  }
+
+  .contact-card {
+    max-width: 100%;
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    text-align: center;
+  }
+
+  .contact-card h1 {
+    color: #007bff;
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+
+  .contact-card p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  .whatsapp-btn {
+    display: inline-block;
+    background-color: #25D366;
+    color: white;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .whatsapp-btn:hover {
+    background-color: #1ebe5d;
+  }
+
+  @media (max-width: 480px) {
+    .contact-card h1 { font-size: 24px; }
+    .contact-card p { font-size: 16px; }
+    .whatsapp-btn { font-size: 14px; padding: 12px 24px; }
+  }
+</style>
+
+<section class="contact-section">
+  <div class="contact-card">
+    <h1>🚀 Download <%= result[0][0].name %> Source Code Instantly</h1>
+    <p>
+      The <strong><%= result[0][0].name %> final year project</strong> is currently available and ready to be shared with you!<br>
+      We are now fulfilling all project requests directly via <strong>WhatsApp</strong> for a faster and more personalized experience.<br><br>
+      If you're a student, developer, or academic professional looking for <%= result[0][0].name %> source code, simply click below to connect with our team.
+    </p>
+
+    <a 
+  class="whatsapp-btn" 
+  href="https://wa.me/918319339945?text=Hello%2C%20I'm%20interested%20in%20the%20<%= encodeURIComponent(result[0][0].name) %>%20project.%20Please%20share%20the%20details." 
+  target="_blank"
+>
+      📲 Get Project on WhatsApp Now
+    </a>
+
+    <p style="margin-top: 30px; font-size: 14px; color: #888;">
+      Trusted by thousands of students across India for quality academic projects.
+      Our website remains active and updated with all project listings.
+    </p>
+  </div>
+</section>
+
+
+
+      <div class="container">
+
+              <div class="section-header aos" data-aos="fade-up">
+                <div class="section-sub-head">
+                  <h2>Trending <%=result[0][0].category.toUpperCase()%>  Source Code</h2>
+                </div>
+                <div class="all-btn all-category d-flex align-items-center">
+                  <a href="/source-code/<%=result[0][0].category%>" class="btn btn-primary">View All</a>
+                </div>
+              </div>
+              <div class="row">
+
+
+
+
+                <% for(i=0;i<result[1].length;i++){%>
+
+                  <div class="col-lg-3 target col-md-6">
+                    <div class="course-box course-design d-flex ">
+                      <div class="product">
+                        <div class="product-content">
+                          <div class="course-group d-flex">
+                            <div class="course-group-img d-flex">
+                              <div class="course-name">
+                                <h4><a
+                                    href="/<%=result[1][i].seo_name%>/source-code"
+                                    title=" <%=result[1][i].name%> | Source Code"
+                                    >
+                                    
+                                    <%=result[1][i].name%>
+                                  </a></h4>
+                              </div>
+                            </div>
+
+                          </div>
+                         
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <% } %>
+
+
+
+              </div>
+            </div>
+
+
+                         <% 
+                let metaKeywords = result[0][0].meta_keywords;
+                let keywordsArray = metaKeywords.split(',').map(keyword => keyword.trim());
+                %>
+
+                <% const string = result[0][0].name;
+const index = string.indexOf("Using");
+const keywordresult = index !== -1 ? string.slice(0, index).trim() : string;
+
+%>
+
+                <div class="card include-sec">
+									<div class="card-body">
+										<div class="cat-title">
+											<h4><%=result[0][0].name%> Source Code Tags</h4>
+										</div>
+                    <div class="row gx-2" style="margin-top: 20px;">
+                      
+                      <% for(let i = 0; i < keywordsArray.length; i++) { %>
+                      <div class="col-md-3">
+                      <a href="#" class="btn btn-wish w-100"><%=keywordsArray[i]%></a>
+                      </div>
+
+
+                      <% } %>
+
+
+                      <div class="col-md-3 col-lg-3">
+                        <a href="#" class="btn btn-wish w-100"><%=keywordresult%> Source Code</a>
+                        </div>
+                      
+                      </div>
+									</div>
+								</div>
+
+
+</body>
+</html>
+
+<% include Includes/footer.ejs %>

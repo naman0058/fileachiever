@@ -1,0 +1,87 @@
+<%
+  const monthBase = '/sales/rejected-leads';
+%>
+
+<div class="crm-card">
+  <!-- Header -->
+  <div class="p-3 border-bottom" style="border-color: var(--line) !important;">
+    <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+      <div>
+        <div class="fw-bold" style="font-size:18px;">Global Rejected Leads</div>
+        <div class="mutedSmall">These are rejected at lead level (crm_status = 'rejected').</div>
+      </div>
+
+      <div class="d-flex align-items-end gap-2 flex-wrap">
+        <div class="field" style="min-width:180px;">
+          <label>Month</label>
+          <select onchange="location.href=this.value">
+            <% filters.monthOptions.forEach(function(mm){ %>
+              <option
+                value="<%= monthBase %>?month=<%= encodeURIComponent(mm) %>"
+                <%= mm === filters.selectedMonth ? 'selected' : '' %>>
+                <%= mm %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="p-3">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="min-width:240px;">Lead</th>
+            <th style="min-width:340px;">Enquiry</th>
+            <th style="min-width:220px;">Reason</th>
+            <th style="width:200px;">Updated</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% if (!rows.length) { %>
+            <tr>
+              <td colspan="4" class="mutedSmall py-4">No rejected leads.</td>
+            </tr>
+          <% } %>
+
+          <% rows.forEach(function(r){ %>
+            <tr>
+              <!-- Lead -->
+              <td>
+                <div class="leadCell">
+                  <div class="leadName">
+                    <%= r.name || 'Unnamed' %>
+                    <span class="chip">#<%= r.tempid %></span>
+                  </div>
+                  <div class="leadMeta">
+                    <span class="mutedSmall"><%= r.phone || '-' %></span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Enquiry -->
+              <td>
+                <div class="enqTitle"><%= r.enquiry_title || '-' %></div>
+                <div class="mutedSmall clamp2"><%= r.enquiry_description || '' %></div>
+              </td>
+
+              <!-- Reason -->
+              <td>
+                <div class="clamp2"><%= r.crm_reject_reason || '—' %></div>
+              </td>
+
+              <!-- Updated -->
+              <td class="mutedSmall">
+                <%= r.crm_updated_at ? new Date(r.crm_updated_at).toLocaleString() : '-' %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

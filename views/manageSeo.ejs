@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage SEO</title>
+</head>
+<body>
+<form id="updateForm">
+    <input type="hidden" id="type" value="<%=type%>">
+<textarea  id="title"><%= fileContent.title %></textarea>
+<textarea  id="description"><%= fileContent.description %></textarea>
+<textarea  id="author"><%=fileContent.author %></textarea>
+<textarea  id="abstract"><%=fileContent.abstract %></textarea>
+<textarea  id="keywords"><%=fileContent.keywords %></textarea>
+
+<button type="button" onclick="updateContent()">Save Changes</button>
+</form>
+<script>
+   function updateContent() {
+     const title = document.getElementById('title').value;
+     const description = document.getElementById('description').value;
+     const author = document.getElementById('author').value;
+     const abstract = document.getElementById('abstract').value;
+     const keywords = document.getElementById('keywords').value;
+     const type = document.getElementById('type').value;
+
+
+     // Use fetch to send the updated content to the server
+     fetch('/manage-seo/update', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/x-www-form-urlencoded',
+       },
+       body: new URLSearchParams({ title,description,author,abstract,keywords,type }),
+     })
+     .then(response => response.text())
+     .then(message => alert(message)); // Show a message indicating success
+   }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Rejected Leads</title>
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a2d;
+      --border:rgba(255,255,255,.08);
+      --muted:rgba(255,255,255,.7);
+      --text:#fff;
+      --accent:#60a5fa;
+      --bad:#ef4444;
+      --good:#16a34a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 600px at 10% 0%, #14264a 0%, var(--bg) 55%);
+      color:var(--text);
+    }
+    header{
+      padding:18px 22px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .title{ font-weight:900; font-size:16px; }
+    .sub{ color:var(--muted); font-size:13px; margin-top:4px; }
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    select{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      outline:none;
+    }
+    .btnTop{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:900;
+      font-size:12px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btnTop:hover{ border-color: rgba(96,165,250,.55); }
+
+    .wrap{ padding:18px 22px; max-width:1200px; margin:0 auto; }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(360px, 1fr));
+      gap:12px;
+      align-items:start;
+    }
+    .card{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+    }
+    .row{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .name{ font-weight:900; font-size:14px; }
+    .temp{ color:var(--muted); font-size:12px; }
+    .meta{ margin-top:8px; color:var(--muted); font-size:12px; line-height:1.45; }
+    .pill{
+      display:inline-block;
+      margin-top:8px;
+      padding:5px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(239,68,68,.10);
+      color: rgba(255,255,255,.9);
+      font-size:12px;
+      font-weight:900;
+    }
+    .actions{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+    .btn{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:10px;
+      font-weight:900;
+      font-size:12px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn:hover{ border-color: rgba(96,165,250,.5); }
+    .btn.primary{ background: rgba(96,165,250,.18); border-color: rgba(96,165,250,.45); }
+    .btn.success{ background: rgba(22,163,74,.14); border-color: rgba(22,163,74,.35); }
+
+    /* Convert modal */
+    .modalBack{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+    .modal{
+      width:min(860px, 100%);
+      border-radius:16px;
+      background: var(--panel);
+      border:1px solid var(--border);
+      box-shadow:0 20px 80px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .modalTitle{ font-weight:900; }
+    .modalBody{ padding:16px; }
+    .formGrid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+    input, textarea{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      outline:none;
+    }
+    textarea{ min-height:100px; resize:vertical; }
+    .foot{
+      padding:14px 16px;
+      border-top:1px solid var(--border);
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .formGrid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="title">Rejected Leads</div>
+    <div class="sub">Rejected leads list • Convert to Sales or Move to More Interested</div>
+  </div>
+
+  <div class="controls">
+    <div class="sub">Month</div>
+    <select id="monthSelect" onchange="onMonthChange()">
+      <% monthOptions.forEach(function(m){ %>
+        <option value="<%= m %>" <%= m === selectedMonth ? 'selected' : '' %>><%= m %></option>
+      <% }) %>
+    </select>
+
+    <button class="btnTop" onclick="window.location.href='/sales?month=' + encodeURIComponent(getSelectedMonth())">Back to Dashboard</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <% if(!rows.length){ %>
+      <div class="card">
+        <div class="name">No rejected leads for this month.</div>
+        <div class="meta">Change month from top dropdown if needed.</div>
+      </div>
+    <% } %>
+
+    <% rows.forEach(function(l){ %>
+      <div class="card" data-id="<%= l.id %>" data-name="<%- (l.name || '') %>" data-assign="<%- (l.crm_assign || '') %>">
+        <div class="row">
+          <div class="name"><%= l.name || 'Unnamed Lead' %></div>
+          <div class="temp">#<%= l.tempid %></div>
+        </div>
+
+        <div class="meta">
+          <div><strong>Phone:</strong> <%= l.phone || '-' %></div>
+          <div style="margin-top:6px;"><strong>Enquiry:</strong> <%= (l.enquiry_title || '-').slice(0, 120) %></div>
+          <% if(l.reject_reason){ %>
+            <div style="margin-top:6px; white-space:pre-wrap;"><strong>Reason:</strong> <%= l.reject_reason %></div>
+          <% } %>
+          <div class="pill">Rejected</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" onclick="moveToInterested(<%= l.id %>)">Move to More Interested</button>
+          <button class="btn success" onclick="openConvertModal(<%= l.id %>, '<%- (l.name || 'Lead') %>', '<%- (l.crm_assign || '') %>')">Convert to Sales</button>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<!-- Convert Modal -->
+<div class="modalBack" id="convertBack">
+  <div class="modal">
+    <div class="modalHead">
+      <div class="modalTitle" id="convertTitle">Convert Lead to Sales</div>
+      <button class="btn" onclick="closeConvertModal()">Close</button>
+    </div>
+    <div class="modalBody">
+      <input type="hidden" id="convertLeadId" />
+
+      <div class="formGrid">
+        <div>
+          <label>Lead Price (Required)</label>
+          <input id="convertLeadPrice" type="number" min="0" step="0.01" placeholder="e.g. 12000" />
+        </div>
+        <div>
+          <label>Agent Price (Required)</label>
+          <input id="convertAgentPrice" type="number" min="0" step="0.01" placeholder="e.g. 8000" />
+        </div>
+      </div>
+
+      <div class="formGrid" style="margin-top:12px;">
+        <div>
+          <label>Deadline (optional)</label>
+          <input id="convertDeadline" type="date"/>
+        </div>
+        <div>
+          <label>Assign (optional)</label>
+          <input id="convertAssign" placeholder="Agent name / Team"/>
+        </div>
+      </div>
+
+      <div class="formGrid" style="margin-top:12px;">
+        <div>
+          <label>Advance Amount (optional)</label>
+          <input id="convertAdvance" type="number" min="0" step="0.01" placeholder="e.g. 2000" />
+        </div>
+        <div>
+          <label>Pakistani Price (optional)</label>
+          <input id="convertPakPrice" type="number" min="0" step="0.01" placeholder="if applicable" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <label>Sheet UID (optional)</label>
+        <input id="convertSheetUid" placeholder="Any identifier you want to store"/>
+      </div>
+
+      <div style="margin-top:12px;">
+        <label>Remarks (optional)</label>
+        <textarea id="convertRemarks" placeholder="Payment terms, scope summary, promised delivery, etc."></textarea>
+      </div>
+    </div>
+
+    <div class="foot">
+      <button class="btn" onclick="closeConvertModal()">Cancel</button>
+      <button class="btn success" onclick="convertLead()">Convert</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function getSelectedMonth(){ return document.getElementById('monthSelect')?.value || ''; }
+  function onMonthChange(){
+    const m = getSelectedMonth();
+    window.location.href = '/sales/rejected?month=' + encodeURIComponent(m);
+  }
+
+  async function moveToInterested(id){
+    try{
+      const resp = await fetch('/sales/api/rejected/move-to-interested', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ id })
+      });
+      const data = await resp.json();
+      if(!data.ok) throw new Error(data.message || 'Failed');
+      location.reload();
+    }catch(e){
+      alert('Move failed: ' + e.message);
+    }
+  }
+
+  function openConvertModal(id, name, assign){
+    document.getElementById('convertLeadId').value = id;
+    document.getElementById('convertTitle').innerText = 'Convert • ' + (name || 'Lead');
+
+    document.getElementById('convertAssign').value = assign || '';
+    document.getElementById('convertRemarks').value = '';
+    document.getElementById('convertLeadPrice').value = '';
+    document.getElementById('convertAgentPrice').value = '';
+    document.getElementById('convertDeadline').value = '';
+    document.getElementById('convertAdvance').value = '';
+    document.getElementById('convertPakPrice').value = '';
+    document.getElementById('convertSheetUid').value = '';
+
+    document.getElementById('convertBack').style.display = 'flex';
+  }
+
+  function closeConvertModal(){
+    document.getElementById('convertBack').style.display = 'none';
+  }
+
+  async function convertLead(){
+    const id = document.getElementById('convertLeadId').value;
+    const lead_price = document.getElementById('convertLeadPrice').value;
+    const agent_price = document.getElementById('convertAgentPrice').value;
+
+    if(lead_price === '' || Number(lead_price) < 0){ alert('Lead Price is required.'); return; }
+    if(agent_price === '' || Number(agent_price) < 0){ alert('Agent Price is required.'); return; }
+
+    const payload = {
+      id,
+      lead_price,
+      agent_price,
+      deadline: document.getElementById('convertDeadline').value || null,
+      assign: document.getElementById('convertAssign').value || null,
+      remarks: document.getElementById('convertRemarks').value || null,
+      advance_amount: document.getElementById('convertAdvance').value || null,
+      pakistani_price: document.getElementById('convertPakPrice').value || null,
+      sheet_uid: document.getElementById('convertSheetUid').value || null,
+    };
+
+    try{
+      const resp = await fetch('/sales/api/convert', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await resp.json();
+      if(!data.ok) throw new Error(data.message || 'Conversion failed');
+      closeConvertModal();
+      location.reload();
+    }catch(e){
+      alert('Convert failed: ' + e.message);
+    }
+  }
+</script>
+
+</body>
+</html>

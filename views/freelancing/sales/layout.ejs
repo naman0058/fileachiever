@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title><%= pageTitle || 'Sales CRM' %></title>
+  <link rel="stylesheet" href="/sales/sales.css"/>
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sbBrand">
+        <div class="sbLogo">CRM</div>
+        <div>
+          <div class="sbTitle">Sales Management</div>
+          <div class="sbSub"><%= user?.name || '' %> • <%= user?.role || '' %></div>
+        </div>
+      </div>
+
+      <% 
+        const base = (mode === 'admin') ? '/sales/admin' : '/sales/my';
+        const m = filters?.selectedMonth || '';
+      %>
+
+      <nav class="sbNav">
+        <a class="sbLink" href="<%= base %>?month=<%= encodeURIComponent(m) %>">Dashboard</a>
+        <a class="sbLink" href="<%= base %>?month=<%= encodeURIComponent(m) %>&stage=new">New</a>
+        <a class="sbLink" href="<%= base %>?month=<%= encodeURIComponent(m) %>&stage=followup">Follow-up</a>
+        <a class="sbLink" href="<%= base %>?month=<%= encodeURIComponent(m) %>&stage=interested">More Interested</a>
+        <a class="sbLink" href="<%= base %>?month=<%= encodeURIComponent(m) %>&status=rejected">Rejected</a>
+
+        <% if (mode === 'admin') { %>
+          <div class="sbDivider"></div>
+          <a class="sbLink" href="/sales/rejected-leads?month=<%= encodeURIComponent(m) %>">Global Rejected Leads</a>
+        <% } %>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="iconBtn" onclick="toggleSidebar()">☰</button>
+        <div class="topTitle"><%= pageTitle || '' %></div>
+        <div class="topRight">
+          <span class="pill"><%= mode === 'admin' ? 'Master Admin' : 'Agent Dashboard' %></span>
+        </div>
+      </header>
+
+      <section class="content">
+        <%- body %>
+      </section>
+    </main>
+  </div>
+
+  <script src="/sales/sales.js"></script>
+  <script>
+    function toggleSidebar(){
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

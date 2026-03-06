@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/head %>
+</head>
+<body>
+  <% include ../partials/nav %>
+
+  <section class="container">
+  <h1 class="h1">Promoter Performance</h1>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Monthly Grid (All Promoters)</h2>
+      <div class="control-row">
+        <input id="month" type="month" />
+        <input id="date" type="date" placeholder="YYYY-MM-DD" />
+        <button id="apply" class="btn">Apply</button>
+      </div>
+    </div>
+
+    <!-- ✅ Chart first (more professional) -->
+    <canvas id="promotersSummaryChart" height="96"></canvas>
+
+    <div class="table-wrap" style="margin-top:14px;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Promoter</th>
+            <th>Views</th>
+            <th>Watch Time (hrs)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="gridBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h2>Promoter Drill-down</h2></div>
+    <div class="control-row">
+      <input id="drillMonth" type="month" />
+      <input id="promoterId" type="number" placeholder="Promoter ID" />
+      <button id="drillApply" class="btn">Load</button>
+    </div>
+    <canvas id="promoterChart" height="96"></canvas>
+  </div>
+</section>
+
+
+  <script>
+  const gridBody   = document.getElementById('gridBody');
+  const month      = document.getElementById('month');
+  const dateInp    = document.getElementById('date');
+  const drillMonth = document.getElementById('drillMonth');
+  const promoterId = document.getElementById('promoterId');
+  const apply      = document.getElementById('apply');
+  const drillApply = document.getElementById('drillApply');
+
+  const summaryCtx = document.getElementById('promotersSummaryChart');
+  const drillCtx   = document.getElementById('promoterChart');
+
+  let summaryChart, drillChart;
+
+  function toHours(sec) { return +(Number(sec || 0) / 3600).toFixed(2); }
+
+  async function loadGrid() {
+    const m = month.value || new Date().toISOString().slice(0,7);
+    const params = new URLSearchParams({ month: m });
+    if (dateInp.value) params.set('date', dateInp.value);
+
+    const resp = await fetch(`/analytics/api/promoters/monthly-grid?` + params.toString()).then(r => r.json());
+    const rows = Array.isArray(resp?.rows) ? resp.rows : [];
+
+    // Table (grouped by promoter)
+    gridBody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${r.promoter_name} (#${r.promoter_id})</td>
+        <td>${Number(r.views||0).toLocaleString()}</td>
+        <td>${toHours(r.watch_time_seconds).toLocaleString()}</td>
+        <td><button class="btn btn--ghost" onclick="drill(${r.promoter_id}, '${m}')">Open</button></td>
+      </tr>
+    `).join('');
+
+    // Chart (top N for readability—take all if you want)
+    const labels = rows.map(r => r.promoter_name);
+    const views  = rows.map(r => Number(r.views||0));
+    const hours  = rows.map(r => toHours(r.watch_time_seconds));
+
+    if (summaryChart) summaryChart.destroy();
+    summaryChart = new Chart(summaryCtx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Views', data: views },
+          { type: 'line', label: 'Watch Time (hrs)', data: hours }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { position: 'top' } }
+      }
+    });
+  }
+
+  async function drill(id, m) {
+    promoterId.value = id;
+    drillMonth.value = m;
+    await loadDrill();
+  }
+
+  async function loadDrill() {
+    const id = promoterId.value;
+    const m  = drillMonth.value || new Date().toISOString().slice(0,7);
+    if (!id) return alert('Enter promoter id');
+
+    const resp = await fetch(`/analytics/api/promoters/${id}/daily?month=${m}`).then(r => r.json());
+    const rows = Array.isArray(resp?.rows) ? resp.rows : [];
+
+    const labels = rows.map(r => r.day);
+    const views  = rows.map(r => Number(r.views||0));
+    const hours  = rows.map(r => toHours(r.watch_time_seconds));
+
+    if (drillChart) drillChart.destroy();
+    drillChart = new Chart(drillCtx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: `Views — ${resp.promoter?.name || ('#'+id)}`, data: views },
+          { type: 'line', label: 'Watch Time (hrs)', data: hours }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // expose drill for table buttons
+  window.drill = drill;
+
+  apply.addEventListener('click', loadGrid);
+  drillApply.addEventListener('click', loadDrill);
+
+  // init defaults to current month
+  const now = new Date().toISOString().slice(0,7);
+  month.value = now;
+  drillMonth.value = now;
+  loadGrid();
+</script>
+    
+</body>
+</html>

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name=description content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta name=keywords content="project file,<% for(i=0;i<result.length;i++){ %> <%=result[i].name%>, <%}%> top 100 projects"/>
+  <meta name=google-site-verification content=ZzEbFDLsqn9amFyvwSr6dM0vw0hHNOVmQ-Y3fIjUM6Y />
+  <meta name=robots content="all,follow"/>
+  <meta name=googlebot content="index, follow"/>
+  <meta name=classification content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <link rel="shortcut icon" type="images/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width:80px;" />
+  <meta name=distribution content=Global />
+  <meta name=author content="http://www.filemakr.com"/>
+  <meta name=Language content=English />
+  <meta name=rating content=general />
+  <meta name=owner content=FileMakr. />
+  
+  <meta name=document-type content=public />
+  <meta name=revisit-after content=daily />
+  <meta name=country content=India />
+  <meta name=DC.title content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta property=og:title content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta property=og:type content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta property=og:url content="http://www.filemakr.com"/>
+  <meta property=og:image content="http://www.filemakr.com/images/ogimage.jpg"/>
+  <meta property=og:site_name content="http://www.filemakr.com"/>
+  <meta property=og:description content="FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files."/>
+  <meta property=og:locale content="en IN"/>
+  <link rel=canonical href="http://www.filemakr.com">
+  <title>FileMakr - The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files.</title>
+
+<!-- Favicons -->
+<link href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" rel="icon">
+<link href="/a/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
+
+  <!-- Bootstrap CSS File -->
+  <link href="/a/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- /a/libraries CSS Files -->
+  <link href="/a/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="/a/lib/animate/animate.min.css" rel="stylesheet">
+  <link href="/a/lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+  <link href="/a/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="/a/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+  <!-- Main Stylesheet File -->
+  <link href="/a/css/style.css" rel="stylesheet">
+
+
+
+  <style>
+    
+    a:hover {cursor: pointer;}
+    
+    
+    select {
+      width: 25800px;
+      position: relative;
+      left: 0px;
+      margin: 0;
+      border: 1px solid #DDE1E4;
+      border-top: none;
+      font-size:9pt;
+    }
+    
+    datalist {
+      display: none;
+    }
+    
+    option {
+      padding: 3px;
+    }
+    
+    option:hover {
+      background-color: #11E8EA;
+    }
+    
+    
+    
+    /* to hide datalist arrow in webkit */
+    
+    input::-webkit-calendar-picker-indicator {
+      display: none;
+    }
+    
+    </style>
+    
+    
+
+
+
+  <style>
+  
+/* Search Style */ 
+#search {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    -webkit-transition: all 0.5s ease-in-out;
+       -moz-transition: all 0.5s ease-in-out;
+        -ms-transition: all 0.5s ease-in-out;
+	       -o-transition: all 0.5s ease-in-out;
+            transition: all 0.5s ease-in-out;
+    -webkit-transform: translate(0px, -100%) scale(0, 0);
+	     -moz-transform: translate(0px, -100%) scale(0, 0);
+	      -ms-transform: translate(0px, -100%) scale(0, 0);
+         -o-transform: translate(0px, -100%) scale(0, 0);
+	          transform: translate(0px, -100%) scale(0, 0);    
+    opacity: 0;
+    display: none;
+}
+
+#search.open {
+    -webkit-transform: translate(0px, 0px) scale(1, 1);
+       -moz-transform: translate(0px, 0px) scale(1, 1);
+    	  -ms-transform: translate(0px, 0px) scale(1, 1);
+	       -o-transform: translate(0px, 0px) scale(1, 1);
+	           transform: translate(0px, 0px) scale(1, 1); 
+    opacity: 1;
+    z-index: 106;
+    display: block;
+}
+
+#search input[type="search"] {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -51px;
+    width: 60%;
+    margin-left: 20%;
+    color: rgb(255, 255, 255);
+  	background: transparent;
+  	border-top: 1px solid rgba(255, 255, 255, .8);
+  	border-bottom: 2px solid rgba(255, 255, 255, .5);
+  	border-left: 0px solid transparent;
+  	border-right: 0px solid transparent;
+    font-size: 40px;
+  	font-family: Roboto;
+    font-weight: 300;
+    text-align: center;
+    outline: none;
+  	padding: 10px;
+}
+  
+#search .close {
+    position: fixed;
+    top: 125px;
+    right: 15px;
+	  opacity: 1;
+	  font-size: 27px;
+  	color: #fff;
+}
+
+#search .close:hover{
+  color: #FC2121;
+  cursor: pointer;
+}
+  
+  </style>
+
+
+
+</head>
+
+<body>
+  <!--==========================
+  Header
+  ============================-->
+  <header id="header">
+
+    <div id="topbar">
+      <div class="container">
+        <div class="social-links">
+          <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
+          <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
+          <a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>
+          <a href="#" class="instagram"><i class="fa fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="logo float-left">
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <h1 class="text-light"><a href="/" class="scrollto"><span>FileMakr</span></a></h1>
+        <!-- <a href="#header" class="scrollto"></a/img src="/a/img/logo.png" alt="" class="/a/img-fluid"></a> -->
+      </div>
+
+      <nav class="main-nav float-right d-none d-lg-block">
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/all-projects">Project File</a></li>
+              <li><a href="/synopsis">Synopsis</a></li>
+              <li class="active"><a href="/make-your-own-project" class="btn-get-started scrollto">Make your own project</a></li>
+              
+            </ul>
+          </nav><!-- .main-nav -->
+           
+    </div>
+  </header><!-- #header -->
+
+  <main id="main">
+
+
+
+
+
+    <!--==========================
+      Services Section
+    ============================-->
+    <section id="services" class="section-bg">
+      <div class="container">
+
+        <header class="section-header">
+          
+<br><br><br><br>
+
+
+<!-- Font Awesome -->
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+<!-- Roboto Webfont -->
+<link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
+  
+<!-- Search Link -->
+
+
+<!-- Search Form -->
+        </header>
+
+
+
+
+    <!--==========================
+      Pricing Section
+    ============================-->
+    <section id="pricing" class="wow fadeInUp section-bg">
+
+            <div class="container">
+      
+              <header class="section-header">
+                <h3>Academic / College Website Project</h3>
+                <p></p>  
+            </header>
+      
+              <div class="row flex-items-xs-middle flex-items-xs-center">
+            
+                <!-- Basic Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>500<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Basic Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Regular Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>1000<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Regular Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Premium Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>1500<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Premium Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+              </div>
+            </div>
+      
+          </section><!-- #pricing -->
+
+          
+
+
+
+
+    <!--==========================
+      Pricing Section
+    ============================-->
+    <section id="pricing" class="wow fadeInUp section-bg">
+
+            <div class="container">
+      
+              <header class="section-header">
+                <h3>Academic / College App Project</h3>
+                <p></p>  
+            </header>
+      
+              <div class="row flex-items-xs-middle flex-items-xs-center">
+            
+                <!-- Basic Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>1500<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Basic Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Regular Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>3000<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Regular Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Premium Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                            <h3><span class="currency">Rs</span>4500<span class="period"></span></h3>
+                        </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Premium Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+              </div>
+            </div>
+      
+          </section><!-- #pricing -->
+
+          
+
+
+              <!--==========================
+      Pricing Section
+    ============================-->
+    <section id="pricing" class="wow fadeInUp section-bg">
+
+            <div class="container">
+      
+              <header class="section-header">
+                <h3>Professional Project</h3>
+                <p></p>
+              </header>
+      
+              <div class="row flex-items-xs-middle flex-items-xs-center">
+            
+                <!-- Basic Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>2500<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Basic Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Regular Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>5000<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Regular Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+                <!-- Premium Plan  -->
+                <div class="col-xs-12 col-lg-4">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3><span class="currency">Rs</span>10000<span class="period"></span></h3>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title"> 
+                        Premium Plan
+                      </h4>
+                      <ul class="list-group">
+                        <li class="list-group-item">Odio animi voluptates</li>
+                        <li class="list-group-item">Inventore quisquam et</li>
+                        <li class="list-group-item">Et perspiciatis suscipit</li>
+                        <li class="list-group-item">24/7 Support System</li>
+                      </ul>
+                      <a href="#contact" class="btn">Contact Us</a>
+                    </div>
+                  </div>
+                </div>
+            
+              </div>
+            </div>
+      
+          </section><!-- #pricing -->
+      
+
+  <!--==========================
+      Frequently Asked Questions Section
+    ============================-->
+    <section id="faq">
+        <div class="container">
+          <header class="section-header">
+            <h3>Frequently Asked Questions</h3>
+            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque</p>
+          </header>
+  
+          <ul id="faq-list" class="wow fadeInUp">
+            <li>
+              <a data-toggle="collapse" class="collapsed" href="#faq1">Non consectetur a erat nam at lectus urna duis? <i class="ion-android-remove"></i></a>
+              <div id="faq1" class="collapse" data-parent="#faq-list">
+                <p>
+                  Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
+                </p>
+              </div>
+            </li>
+  
+            <li>
+              <a data-toggle="collapse" href="#faq2" class="collapsed">Feugiat scelerisque varius morbi enim nunc faucibus a pellentesque? <i class="ion-android-remove"></i></a>
+              <div id="faq2" class="collapse" data-parent="#faq-list">
+                <p>
+                  Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.
+                </p>
+              </div>
+            </li>
+  
+            <li>
+              <a data-toggle="collapse" href="#faq3" class="collapsed">Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi? <i class="ion-android-remove"></i></a>
+              <div id="faq3" class="collapse" data-parent="#faq-list">
+                <p>
+                  Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus pulvinar elementum integer enim. Sem nulla pharetra diam sit amet nisl suscipit. Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis convallis tellus. Urna molestie at elementum eu facilisis sed odio morbi quis
+                </p>
+              </div>
+            </li>
+  
+            <li>
+              <a data-toggle="collapse" href="#faq4" class="collapsed">Ac odio tempor orci dapibus. Aliquam eleifend mi in nulla? <i class="ion-android-remove"></i></a>
+              <div id="faq4" class="collapse" data-parent="#faq-list">
+                <p>
+                  Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.
+                </p>
+              </div>
+            </li>
+  
+            <li>
+              <a data-toggle="collapse" href="#faq5" class="collapsed">Tempus quam pellentesque nec nam aliquam sem et tortor consequat? <i class="ion-android-remove"></i></a>
+              <div id="faq5" class="collapse" data-parent="#faq-list">
+                <p>
+                  Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in est ante in. Nunc vel risus commodo viverra maecenas accumsan. Sit amet nisl suscipit adipiscing bibendum est. Purus gravida quis blandit turpis cursus in
+                </p>
+              </div>
+            </li>
+  
+            <li>
+              <a data-toggle="collapse" href="#faq6" class="collapsed">Tortor vitae purus faucibus ornare. Varius vel pharetra vel turpis nunc eget lorem dolor? <i class="ion-android-remove"></i></a>
+              <div id="faq6" class="collapse" data-parent="#faq-list">
+                <p>
+                  Laoreet sit amet cursus sit amet dictum sit amet justo. Mauris vitae ultricies leo integer malesuada nunc vel. Tincidunt eget nullam non nisi est sit amet. Turpis nunc eget lorem dolor sed. Ut venenatis tellus in metus vulputate eu scelerisque. Pellentesque diam volutpat commodo sed egestas egestas fringilla phasellus faucibus. Nibh tellus molestie nunc non blandit massa enim nec.
+                </p>
+              </div>
+            </li>
+  
+          </ul>
+  
+        </div>
+      </section><!-- #faq -->
+  
+    </main>
+     <!--==========================
+      Footer
+    ============================-->
+    <footer id="footer" class="section-bg">
+        <div class="footer-top">
+          <div class="container">
+    
+            <div class="row">
+    
+              <div class="col-lg-6">
+    
+                <div class="row">
+    
+                    <div class="col-sm-6">
+    
+                      <div class="footer-info">
+                        <h3>FileMakr</h3>
+                        <p>The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files.</p>
+                      </div>
+    
+                     
+                    </div>
+    
+                    <div class="col-sm-6">
+                      <div class="footer-links">
+                        <h4>Useful Links</h4>
+                        <ul>
+                          <li><a href="/all-projects">Project File</a></li>
+                          <li><a href="/synopsis">Synopsis</a></li>
+                          <li><a href="/make-your-own-project">Make Your Own Project</a></li>
+                        </ul>
+                      </div>
+    
+                      <div class="footer-links">
+                        <h4>Contact Us</h4>
+                        <p>
+                          <strong>Phone:</strong>  <a href="tel:8319339945" style="color:black">+91 8319339945</a><br>
+                          <strong>Email:</strong>  <a href="mailto:filemakr@gmail.com" style="color:black">filemakr@gmail.com</a><br>
+                        </p>
+                      </div>
+    
+                      <div class="social-links">
+                        <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
+                        <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
+                        <a href="#" class="instagram"><i class="fa fa-instagram"></i></a>
+                        <a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>
+                      </div>
+    
+                    </div>
+    
+                </div>
+    
+              </div>
+    
+              <div class="col-lg-6" id="contact">
+    
+                <div class="form">
+                  
+                  <h4>Send us a message</h4>
+                  <p></p>
+                  <form action="" method="post" role="form" class="contactForm">
+                    <div class="form-group">
+                      <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
+                      <div class="validation"></div>
+                    </div>
+                    <div class="form-group">
+                      <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email" />
+                      <div class="validation"></div>
+                    </div>
+                    <div class="form-group">
+                      <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
+                      <div class="validation"></div>
+                    </div>
+                    <div class="form-group">
+                      <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message"></textarea>
+                      <div class="validation"></div>
+                    </div>
+    
+                    <div id="sendmessage">Your message has been sent. Thank you!</div>
+                    <div id="errormessage">Not Send</div>
+    
+                    <div class="text-center"><button type="submit" title="Send Message">Send Message</button></div>
+                  </form>
+                </div>
+    
+              </div>
+    
+              
+    
+            </div>
+    
+          </div>
+        </div>
+    
+        <div class="container">
+          <div class="copyright">
+            &copy; 2019 Copyright <strong>FileMakr</strong>. 
+          </div>
+         <!-- <div class="credits">
+          
+              All the links in the footer should remain intact.
+              You can delete the links only if you purchased the pro version.
+              Licensing information: https://bootstrapmade.com/license/
+              Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Rapid
+          
+            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+          </div>-->
+        </div>
+      </footer><!-- #footer -->
+   
+  
+    <a href="#search" class="back-to-top"><i class="fa fa-search"></i></a>
+    <!-- Uncomment below i you want to use a preloader -->
+    <!-- <div id="preloader"></div> -->
+  
+    <!-- JavaScript /a/libraries -->
+    <script src="/a/lib/jquery/jquery.min.js"></script>
+    <script src="/a/lib/jquery/jquery-migrate.min.js"></script>
+    <script src="/a/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/a/lib/easing/easing.min.js"></script>
+    <script src="/a/lib/mobile-nav/mobile-nav.js"></script>
+    <script src="/a/lib/wow/wow.min.js"></script>
+    <script src="/a/lib/waypoints/waypoints.min.js"></script>
+    <script src="/a/lib/counterup/counterup.min.js"></script>
+    <script src="/a/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="/a/lib/isotope/isotope.pkgd.min.js"></script>
+    <script src="/a/lib/lightbox/js/lightbox.min.js"></script>
+    <!-- Contact Form JavaScript File -->
+    <script src="/a/contactform/contactform.js"></script>
+  
+    <!-- Template Main Javascript File -->
+    <script src="/a/js/main.js"></script>
+  
+</body>
+
+<script>
+
+$(document).ready(function(){
+	$('a[href="#search"]').on('click', function(event) {                    
+		$('#search').addClass('open');
+		$('#search > form > input[type="search"]').focus();
+	});            
+	$('#search, #search button.close').on('click keyup', function(event) {
+		if (event.target == this || event.target.className == 'close' || event.keyCode == 27) {
+			$(this).removeClass('open');
+		}
+	});            
+});
+
+</script>
+
+</html>

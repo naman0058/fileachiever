@@ -1,0 +1,65 @@
+ <!-- JavaScript /a/libraries -->
+    <script src="/a/lib/jquery/jquery.min.js"></script>
+    <script src="/a/lib/jquery/jquery-migrate.min.js"></script>
+    <script src="/a/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/a/lib/easing/easing.min.js"></script>
+    <script src="/a/lib/mobile-nav/mobile-nav.js"></script>
+    <script src="/a/lib/wow/wow.min.js"></script>
+    <script src="/a/lib/waypoints/waypoints.min.js"></script>
+    <script src="/a/lib/counterup/counterup.min.js"></script>
+    <script src="/a/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="/a/lib/isotope/isotope.pkgd.min.js"></script>
+    <script src="/a/lib/lightbox/js/lightbox.min.js"></script>
+    <!-- Contact Form JavaScript File -->
+    <script src="/a/contactform/contactform.js"></script>
+  
+    <!-- Template Main Javascript File -->
+    <script src="/a/js/main.js"></script>
+  
+
+
+  <!--==========================
+  Header
+  ============================-->
+  <header id="header">
+
+    <div id="topbar">
+      <div class="container">
+        <div class="social-links">
+          <a href="https://twitter.com/FileMakr" class="twitter"><i class="fa fa-twitter"></i></a>
+          <a href="https://www.facebook.com/FileMakr" class="facebook"><i class="fa fa-facebook"></i></a>
+          <a href="https://www.instagram.com/filemakr" class="instagram"><i class="fa fa-instagram"></i></a>
+          <!--<a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>-->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="logo float-left">
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <h1 class="text-light"><a href="/" class="scrollto"><span>FileMakr</span></a></h1>
+       
+      </div>
+
+      <nav class="main-nav float-right d-none d-lg-block">
+        <ul>
+          <li class="active"><a href="/">Home</a></li>
+         <!-- <li><a href="/readymade-project-file">Readymade Project File</a></li>-->
+            <li class="drop-down"><a href="">Project Report</a>
+            <ul>
+              <li><a href="#">B.Tech / B.E.</a></li>
+              <li><a href="#">MCA</a></li>
+              <li><a href="#">BCA</a></li>
+             </ul>
+          </li>
+          <li><a href="/ieee-standard-project-report">Final Year Projects</a></li>
+          <!-- <li><a href="/ieee-standard-project-report">IEEE Standard Project Report</a></li> -->
+          <li><a href="/synopsis">Facebook Promotion</a></li>
+          <li><a href="/make-your-own-project" class="btn-get-started scrollto">Make your own project</a></li>
+          
+        </ul>
+      </nav><!-- .main-nav -->
+      
+    </div>
+  </header><!-- #header -->

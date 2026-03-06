@@ -1,0 +1,212 @@
+<%include ./header.ejs %>
+<link rel="stylesheet" href="https://elusiveicons.com/assets/elusive-icons/css/elusive-icons.css">
+
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+			<div class="page-titles">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item"><a href="javascript:void(0)">CMS</a></li>
+						<li class="breadcrumb-item active"><a href="javascript:void(0)">Update Source Code</a></li>
+					</ol>
+                </div>
+			<div class="container-fluid">
+				<!-- Row -->
+				<div class="row">
+					
+					<div class="col-xl-12">
+						<div class="filter cm-content-box box-primary">
+							<div class="content-title">
+								<div class="cpa">
+									<i class="fa-solid fa-envelope me-1"></i>Update Source Code	
+								</div>
+								<div class="tools">
+									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>
+								</div>
+							</div>
+							<div class="cm-content-body form excerpt">
+								<div class="card-body">
+									
+
+
+<div class="row">
+    <div class="col-xl-4">
+        <label  class="form-label">Title</label>
+        <input type="text" class="form-control"  value="<%=result[0].name%>" readonly>
+        <input type="hidden" id="id" value="<%=result[0].id%>">
+    </div>
+    <div class="col-xl-4">
+        <label  class="form-label">Language</label>
+        <input type="text" class="form-control" value="<%=result[0].category%>" readonly>
+    </div>
+
+    <div class="col-xl-4">
+      <label  class="form-label">Status</label>
+      <!-- <input type="text" class="form-control" value="<%=result[0].status%>" readonly> -->
+<select class="form-control" id="status">
+  <option value="pending" <%= result[0].status === 'pending' ? 'selected' : '' %>>Pending</option>
+  <option value="progress" <%= result[0].status === 'progress' ? 'selected' : '' %>>In Progress</option>
+  <option value="completed" <%= result[0].status === 'completed' ? 'selected' : '' %>>Completed</option>
+</select>
+
+      
+  </div>
+
+</div>
+
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xl-12">
+        <label  class="form-label">Description</label>
+        <textarea id="descriptionTextArea" class="form-control" rows="5"><%=result[0].description%></textarea>
+    </div>
+  
+
+</div>
+
+
+<div class="row">
+    <div class="col-xl-12" style="margin-top: 20px;">
+        <label  class="form-label">Admin Features</label>
+              <textarea id='admin_features'><%=result[0].admin_features%></textarea>
+   </div>
+   <div class="col-xl-12" style="margin-top: 20px;">
+    <label  class="form-label">User Features</label>
+          <textarea id='user_features'><%=result[0].user_features%></textarea>
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+    <label  class="form-label">Other Features</label>
+          <textarea id='other_features'><%=result[0].other_features%></textarea>
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+    <label  class="form-label">How to run this code?</label>
+          <textarea id='readme_text'><%=result[0].how_to_run%></textarea>
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+    <label  class="form-label">Login Credentials</label>
+          <textarea id='login_credentials'><%=result[0].credentials%></textarea>
+</div>
+
+
+</div>
+                                        
+
+                                       
+
+										
+									
+										<div class="text-end" style="margin-top: 20px;">
+											<button type="button" class="btn btn-primary save">Save</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%include ./footer.ejs %>
+
+
+        <script src="https://cdn.ckeditor.com/4.7.0/full/ckeditor.js"></script>
+        <script src="https://unpkg.com/vue@2.3.4"></script>
+
+
+        <script>
+            var exampleArray = [
+  {
+    id: 100,
+    user: "Carlos pira longo",
+    date: "22/10/2016",
+    content: "1 dato mas"
+  },
+  {
+    id: 200,
+    user: "Andres de lprimer",
+    date: "22/10/2017",
+    content: "2 datos mas"
+  },
+  {
+    id: 300,
+    user: "Daniel de segundo",
+    date: "22/10/2014",
+    content: "3 datos mas"
+  }
+];
+
+var contenttext = '12';
+
+// register modal component
+Vue.component("history", {
+  template: "#history-template",
+  props: {
+    history: {
+      type: Array,
+      required: true
+    },
+    value: {
+      type: String
+    },
+  },
+  
+
+});
+
+
+// start app
+var vm = new Vue({
+  el: "#loadHistorys",
+  data: {
+    hist: exampleArray,
+    value: contenttext
+  }
+});
+
+ CKEDITOR.replace('admin_features');
+ CKEDITOR.replace('user_features');
+ CKEDITOR.replace('other_features');
+ CKEDITOR.replace('readme_text');
+ CKEDITOR.replace('login_credentials');
+
+
+
+
+ $('.save').click(function() {
+    const data = {
+        admin_features: CKEDITOR.instances['admin_features'].getData(),
+        user_features: CKEDITOR.instances['user_features'].getData(),
+        other_features: CKEDITOR.instances['other_features'].getData(),
+        how_to_run: CKEDITOR.instances['readme_text'].getData(),
+        credentials: CKEDITOR.instances['login_credentials'].getData(),
+        description: $('#descriptionTextArea').val(),
+        id: $('#id').val(),
+        status:$('#status').val()
+    };
+
+    $.post('/affiliate/dashboard/upload/data', data)
+    .done(function(response) {
+        if (response.msg === 'success') {
+            alert('Successfully updated');
+            window.location.reload();
+        } else {
+            alert('Failed to update data');
+        }
+    })
+    .fail(function() {
+        alert('An error occurred while processing your request');
+    });
+});
+
+
+        </script>

@@ -1,0 +1,82 @@
+const homePage = {
+    title : 'FileMakr — The #1 Online Major & Minor Project file Generator!',
+    description:'Des FileMakr — The #1 Online Major & Minor Project file Generator!',
+    author:'http://www.filemakr.com',
+    abstract:'Download Readymade Major & Minor Project File of Smart Attendance , E-commerce ,  Payroll Management , Online Quiz System, ERP College Management , Library Management Systemand so on',
+    keywords:'dg,fg,g'
+   
+}
+
+const contactPage = {
+    title : 'Contact US | FileMakr',
+    description:'Des FileMakr — The #1 Online Major & Minor Project file Generator!',
+    author:'http://www.filemakr.com',
+    abstract:'Download Readymade Major & Minor Project File of Smart Attendance , E-commerce ,  Payroll Management , Online Quiz System, ERP College Management , Library Management Systemand so on',
+    keywords:'dg,fg,g'
+   
+}
+
+
+const aboutPage = {
+    title : 'About US | FileMakr',
+    description:'Des FileMakr — The #1 Online Major & Minor Project file Generator!',
+    author:'http://www.filemakr.com',
+    abstract:'Download Readymade Major & Minor Project File of Smart Attendance , E-commerce ,  Payroll Management , Online Quiz System, ERP College Management , Library Management Systemand so on',
+    keywords:'dg,fg,g'
+   
+}
+
+
+const refundPage = {
+    title : 'Refund Policy | FileMakr',
+    description:'Des FileMakr — The #1 Online Major & Minor Project file Generator!',
+    author:'http://www.filemakr.com',
+    abstract:'Download Readymade Major & Minor Project File of Smart Attendance , E-commerce ,  Payroll Management , Online Quiz System, ERP College Management , Library Management Systemand so on',
+    keywords:'dg,fg,g'
+   
+}
+
+
+const privacyPage = {
+    title : 'Privacy Policy | FileMakr',
+    description:'Des FileMakr — The #1 Online Major & Minor Project file Generator!',
+    author:'http://www.filemakr.com',
+    abstract:'Download Readymade Major & Minor Project File of Smart Attendance , E-commerce ,  Payroll Management , Online Quiz System, ERP College Management , Library Management Systemand so on',
+    keywords:'dg,fg,g'
+   
+}
+
+
+const termsPage = {
+    title : 'Terms and Conditions | FileMakr',
+    description:'Des FileMakr — The #1 Online Major & Minor Project file Generator!',
+    author:'http://www.filemakr.com',
+    abstract:'Download Readymade Major & Minor Project File of Smart Attendance , E-commerce ,  Payroll Management , Online Quiz System, ERP College Management , Library Management Systemand so on',
+    keywords:'dg,fg,g'
+   
+}
+
+
+const commonMetaTags = {
+    ogPhone: '+91-8319339945',
+    ogEmail:'filemakr@gmail.com',
+    ogCountry:'India',
+    ogImage:'http://www.filemakr.comhttps://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif',
+    HandheldFriendly:'true',
+    MobileOptimized:'width',
+    Icon:'https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif',
+    URL:'https://www.filemakr.com',
+    siteName:'FileMakr'
+}
+
+
+
+module.exports = {
+    homePage,
+    contactPage,
+    aboutPage,
+    refundPage,
+    privacyPage,
+    termsPage,
+    commonMetaTags
+}
