@@ -20,7 +20,6 @@ const { Server } = require('socket.io');
 const cookie = require('cookie');
 const Keygrip = require('keygrip');
 
-const { startSheetSyncCron } = require('./routes/Freelancing/sheetSyncCron');
 const { leadWatcher } = require('./routes/Freelancing/lead-watcher');
 require('./routes/leaderboardCron');
 
@@ -329,11 +328,7 @@ app.use(require('./routes'));
 // ======================================================
 // CRONS / WATCHERS
 // ======================================================
-try {
-  startSheetSyncCron();
-} catch (e) {
-  console.error('startSheetSyncCron failed:', e);
-}
+
 
 try {
   if (typeof leadWatcher === 'function') {
