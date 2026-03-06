@@ -391,7 +391,7 @@ const SERVICE_ACCOUNT_FILE = './service-account-key.json';
 
 // Verify service account file exists
 if (!fs.existsSync(SERVICE_ACCOUNT_FILE)) {
-    console.error('Service account key file is missing');
+    console.log('Service account key file is missing');
     return // Exit the app if the file is missing
 }
 
