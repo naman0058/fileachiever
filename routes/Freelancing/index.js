@@ -4,7 +4,7 @@ var router = express.Router();
 var upload = require('../multer');
 var pool = require('../pool');
 require('dotenv').config()
-var folder = 'Freelancing'
+var folder = 'freelancing'
 var table = 'freelancing'
 var table1 = 'source_code'
 var dataService = require('../dataService');
