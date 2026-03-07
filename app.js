@@ -1,6 +1,6 @@
 /**
  * FileAchiever - Main application entry
- * Clean canonical handling + proxy-safe redirects
+ * Simplified stable version (no canonical redirects for now)
  */
 
 require('dotenv').config();
@@ -33,7 +33,7 @@ const server = http.createServer(app);
 // ======================================================
 // APP SETTINGS
 // ======================================================
-app.set('trust proxy', true); // IMPORTANT behind proxy / LB / Cloudflare / Apache
+app.set('trust proxy', true);
 app.disable('x-powered-by');
 
 // ======================================================
@@ -41,10 +41,16 @@ app.disable('x-powered-by');
 // ======================================================
 app.use(compression());
 app.use(logger('dev'));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(bodyParser.json({ limit: '200mb' }));
-app.use(bodyParser.urlencoded({ limit: '200mb', extended: true, parameterLimit: 1000000 }));
+app.use(bodyParser.urlencoded({
+  limit: '200mb',
+  extended: true,
+  parameterLimit: 1000000
+}));
 app.use(express.urlencoded({ extended: false }));
+
 app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -71,7 +77,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000,
   httpOnly: true,
   sameSite: 'lax',
-  secure: false // keep false here unless app itself is directly serving HTTPS
+  secure: false
 }));
 
 // ======================================================
@@ -84,76 +90,8 @@ app.use((req, res, next) => {
 });
 
 // ======================================================
-// CANONICAL / SEO REDIRECTS
-// ======================================================
-
-// Choose ONE canonical host only.
-// Recommended: non-www unless you intentionally want www.
-const CANONICAL_HOST = process.env.CANONICAL_HOST || 'filemakr.com';
-const FORCE_HTTPS = (process.env.FORCE_HTTPS || 'true') === 'true';
-
-// Paths that should not be canonical-redirected
-const REDIRECT_EXCLUDE_PREFIXES = ['/salesalert', '/events'];
-
-function isLocalHost(host = '') {
-  const h = host.toLowerCase().split(':')[0];
-  return (
-    h === 'localhost' ||
-    h === '127.0.0.1' ||
-    h === '0.0.0.0' ||
-    h.endsWith('.localhost')
-  );
-}
-
-function getRequestHost(req) {
-  return (req.headers.host || '').toLowerCase();
-}
-
-function getHostWithoutPort(host = '') {
-  return host.split(':')[0].toLowerCase();
-}
-
-function getOriginalProtocol(req) {
-  const xfProto = (req.headers['x-forwarded-proto'] || '').split(',')[0].trim().toLowerCase();
-  if (xfProto) return xfProto;
-  return req.secure ? 'https' : 'http';
-}
-
-app.use((req, res, next) => {
-  try {
-    if (REDIRECT_EXCLUDE_PREFIXES.some(prefix => req.path.startsWith(prefix))) {
-      return next();
-    }
-
-    const originalHost = getRequestHost(req);
-    const hostNoPort = getHostWithoutPort(originalHost);
-
-    if (!hostNoPort || isLocalHost(hostNoPort)) {
-      return next();
-    }
-
-    const currentProtocol = getOriginalProtocol(req);
-    const desiredProtocol = FORCE_HTTPS ? 'https' : currentProtocol;
-    const desiredHost = CANONICAL_HOST.toLowerCase();
-    const requestUri = req.originalUrl || req.url || '/';
-
-    const needsHostRedirect = hostNoPort !== desiredHost;
-    const needsProtocolRedirect = FORCE_HTTPS && currentProtocol !== 'https';
-
-    if (!needsHostRedirect && !needsProtocolRedirect) {
-      return next();
-    }
-
-    const redirectUrl = `${desiredProtocol}://${desiredHost}${requestUri}`;
-    return res.redirect(301, redirectUrl);
-  } catch (err) {
-    return next(err);
-  }
-});
-
-// ======================================================
-// URL NORMALIZATION FOR DEGREE PAGES
-// Prevent duplicate title/description due to case / dots
+// ONLY KEEP SAFE URL NORMALIZATION
+// This does not force domain/https and is safe for now.
 // ======================================================
 const CANONICAL_DEGREES = ['btech', 'mtech', 'be', 'me', 'bca', 'mca', 'bsc', 'msc'];
 
@@ -202,10 +140,16 @@ subApp.disable('x-powered-by');
 
 subApp.use(compression());
 subApp.use(logger('dev'));
+
 subApp.use(express.json({ limit: '50mb' }));
 subApp.use(bodyParser.json({ limit: '200mb' }));
-subApp.use(bodyParser.urlencoded({ limit: '200mb', extended: true, parameterLimit: 1000000 }));
+subApp.use(bodyParser.urlencoded({
+  limit: '200mb',
+  extended: true,
+  parameterLimit: 1000000
+}));
 subApp.use(express.urlencoded({ extended: false }));
+
 subApp.use(cookieParser());
 
 subApp.use(express.static(path.join(__dirname, 'public'), {
@@ -225,12 +169,14 @@ app.use(vhost('manisha.localhost', subApp));
 // SOCKET.IO
 // ======================================================
 const io = new Server(server, {
-  cors: { origin: true, credentials: true }
+  cors: {
+    origin: true,
+    credentials: true
+  }
 });
 
 const COOKIE_SESSION_NAME = 'session';
-const COOKIE_SESSION_KEYS = sessionKeys;
-const keygrip = new Keygrip(COOKIE_SESSION_KEYS);
+const keygrip = new Keygrip(sessionKeys);
 
 function decodeCookieSessionValue(val) {
   if (!val) return null;
@@ -284,7 +230,10 @@ io.on('connection', (socket) => {
   console.log('✅ Socket connected:', socket.id, socket.user?.name, socket.user?.role);
 
   socket.join('sales');
-  if (socket.user?.role) socket.join(`role:${socket.user.role}`);
+
+  if (socket.user?.role) {
+    socket.join(`role:${socket.user.role}`);
+  }
 
   socket.emit('socket:ready', {
     ok: true,
@@ -317,7 +266,9 @@ app.get('/events', (req, res) => {
     if (typeof res.flush === 'function') res.flush();
   }, 2000);
 
-  req.on('close', () => clearInterval(timer));
+  req.on('close', () => {
+    clearInterval(timer);
+  });
 });
 
 // ======================================================
@@ -328,8 +279,6 @@ app.use(require('./routes'));
 // ======================================================
 // CRONS / WATCHERS
 // ======================================================
-
-
 try {
   if (typeof leadWatcher === 'function') {
     leadWatcher();
@@ -346,8 +295,11 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.error(err);
+
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
+
   res.status(err.status || 500);
   res.render('error');
 });
