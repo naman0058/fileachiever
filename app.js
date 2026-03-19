@@ -183,10 +183,15 @@ app.use((req, res, next) => {
 });
 
 // ======================================================
-// TRAILING SLASH REDIRECT
+// TRAILING SLASH REDIRECT (exempt CRM portals to avoid redirect loops)
 // ======================================================
+const TRAILING_SLASH_EXEMPT = ['/sales', '/project-report-manager', '/setup-support', '/source-code-manager', '/project-report-creator', '/auth'];
 app.use((req, res, next) => {
   if (req.path.length > 1 && req.path.endsWith('/')) {
+    const base = req.path.replace(/\/$/, '');
+    if (TRAILING_SLASH_EXEMPT.some(p => base === p || base.startsWith(p + '/'))) {
+      return next();
+    }
     return res.redirect(301, req.path.slice(0, -1) + (req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : ''));
   }
   next();

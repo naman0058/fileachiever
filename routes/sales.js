@@ -91,8 +91,11 @@ function requireAdmin(req, res, next) {
 // ---------------------------
 // Landing
 // ---------------------------
-router.get('/', requireLogin, async (req, res) => {
-  const u = req._user;
+router.get('/', async (req, res) => {
+  const u = getUser(req);
+  if (!u) {
+    return res.render('freelancing/sales/login', { error: '' });
+  }
   const role = String(u.role || '').trim().toLowerCase();
   if (['admin', 'administrator', 'superadmin'].includes(role)) return res.redirect('/sales/admin');
   if (role === 'setup_support') return res.redirect('/setup-support');
