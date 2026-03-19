@@ -8,8 +8,7 @@ var folder = 'freelancing'
 var table = 'freelancing'
 var table1 = 'source_code'
 var dataService = require('../dataService');
-const { syncLeads } = require("./sheetSyncLeads");
-
+// const { syncLeads } = require("./sheetSyncLeads"); // disabled - Google Sheets fetching removed
 
 router.use(dataService.freelanceAuthenticationToken);
 
@@ -34,19 +33,8 @@ router.get('/', (req, res) => {
 
 
 router.get("/sync-leads", async (req, res) => {
-  try {
-    const mode = String(req.query.mode || "daily").toLowerCase();
-    if (!["daily", "backfill"].includes(mode)) {
-      return res.status(400).json({ ok: false, message: "mode must be daily or backfill" });
-    }
-
-    const result = await syncLeads({ mode });
-    // return res.json({ ok: true, mode, ...result });
-    res.redirect('/freelancing/dashboard')
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ ok: false, error: err.message });
-  }
+  // Google Sheets sync disabled - redirect to dashboard
+  res.redirect('/freelancing/dashboard');
 });
 
 

@@ -1,0 +1,47 @@
+/**
+ * FileAchiever Brand Colors
+ * Use these variables consistently across the app
+ */
+:root {
+  --brand-primary: #F17F23;
+  --brand-primary-hover: #e07015;
+  --brand-primary-light: rgba(241, 127, 35, 0.12);
+  --brand-primary-dark: #c96814;
+  
+  --brand-secondary: #2E48FB;
+  --brand-secondary-hover: #1e38eb;
+  --brand-secondary-light: rgba(46, 72, 251, 0.12);
+  --brand-secondary-dark: #1a2fb8;
+  
+  --brand-gradient: linear-gradient(135deg, #F17F23 0%, #2E48FB 100%);
+  --brand-gradient-soft: linear-gradient(135deg, rgba(241, 127, 35, 0.9) 0%, rgba(46, 72, 251, 0.9) 100%);
+}
+
+/* Utility classes */
+.bg-brand-primary { background-color: var(--brand-primary) !important; }
+.bg-brand-secondary { background-color: var(--brand-secondary) !important; }
+.text-brand-primary { color: var(--brand-primary) !important; }
+.text-brand-secondary { color: var(--brand-secondary) !important; }
+.border-brand-primary { border-color: var(--brand-primary) !important; }
+.border-brand-secondary { border-color: var(--brand-secondary) !important; }
+
+.btn-brand-primary {
+  background-color: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: #fff;
+}
+.btn-brand-primary:hover {
+  background-color: var(--brand-primary-hover);
+  border-color: var(--brand-primary-hover);
+  color: #fff;
+}
+.btn-brand-secondary {
+  background-color: var(--brand-secondary);
+  border-color: var(--brand-secondary);
+  color: #fff;
+}
+.btn-brand-secondary:hover {
+  background-color: var(--brand-secondary-hover);
+  border-color: var(--brand-secondary-hover);
+  color: #fff;
+}

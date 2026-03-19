@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title><%= pageTitle %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/sales/sales.css?v=4">
+</head>
+<body>
+
+<div class="crm-layout">
+  <aside class="crm-sidebar-wrap">
+    <%- include('partials/sidebar', { user, active }) %>
+  </aside>
+
+  <main class="crm-main">
+
+    <div class="topbar">
+      <div>
+        <div class="topTitle"><%= pageTitle %></div>
+        <div class="topSub">View and assign setup support requests. Track by employee.</div>
+      </div>
+    </div>
+
+    <div class="crm-card mb-3">
+      <div class="p-3 d-flex flex-wrap gap-3 align-items-center">
+        <a class="btn btn-sm <%= filters.tab === 'all' ? 'btn-primary' : 'btn-outline-secondary' %>" href="/sales/admin/setup-support">All</a>
+        <a class="btn btn-sm <%= filters.tab === 'pending' ? 'btn-warning' : 'btn-outline-secondary' %>" href="/sales/admin/setup-support?tab=pending">
+          Pending (<%= pendingCount %>)
+        </a>
+        <a class="btn btn-sm <%= filters.tab === 'done' ? 'btn-success' : 'btn-outline-secondary' %>" href="/sales/admin/setup-support?tab=done">
+          Done (<%= doneCount %>)
+        </a>
+        <form method="GET" action="/sales/admin/setup-support" class="d-flex align-items-center gap-2">
+          <input type="hidden" name="tab" value="<%= filters.tab %>">
+          <select name="employee" onchange="this.form.submit()" class="form-select form-select-sm" style="width:180px;">
+            <option value="">All employees</option>
+            <% (employees || []).forEach(function(e){ %>
+              <option value="<%= e.id %>" <%= filters.employee === e.id ? 'selected' : '' %>><%= e.name %></option>
+            <% }) %>
+          </select>
+        </form>
+      </div>
+    </div>
+
+    <div class="crm-card">
+      <div class="p-3 border-bottom" style="border-color: var(--line) !important;">
+        <div class="fw-bold">Setup Support Requests</div>
+        <div class="mutedSmall">Total: <%= rows.length %></div>
+      </div>
+
+      <div class="p-3">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th style="width:60px;">ID</th>
+                <th>Customer</th>
+                <th>Number</th>
+                <th style="min-width:200px;">Enquiry</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th style="min-width:140px;">Notes</th>
+                <th>Created</th>
+                <th style="width:120px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (!rows.length) { %>
+                <tr><td colspan="9" class="py-4 mutedSmall">No setup support requests found.</td></tr>
+              <% } %>
+              <% rows.forEach(function(r){ %>
+                <tr>
+                  <td class="fw-semibold">#<%= r.id %></td>
+                  <td><%= r.customer_name || '-' %></td>
+                  <td>
+                    <% if (r.customer_number) { %>
+                      <a href="tel:<%= r.customer_number %>"><%= r.customer_number %></a>
+                    <% } else { %>-<% } %>
+                  </td>
+                  <td class="clamp2" style="max-width:280px;"><%= (r.enquiry || '-').slice(0, 120) %></td>
+                  <td>
+                    <select class="form-select form-select-sm assign-select" style="width:140px;" data-id="<%= r.id %>">
+                      <option value="">-- None --</option>
+                      <% (employees || []).forEach(function(e){ %>
+                        <option value="<%= e.id %>" <%= r.assigned_to == e.id ? 'selected' : '' %>><%= e.name %></option>
+                      <% }) %>
+                    </select>
+                    <% if (!r.assigned_name && r.assigned_to) { %><span class="mutedSmall">#<%= r.assigned_to %></span><% } %>
+                  </td>
+                  <td>
+                    <select class="form-select form-select-sm admin-status-select" style="width:120px;" data-id="<%= r.id %>">
+                      <option value="pending" <%= (r.status || 'pending') === 'pending' ? 'selected' : '' %>>Pending</option>
+                      <option value="in_progress" <%= r.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+                      <option value="done" <%= r.status === 'done' ? 'selected' : '' %>>Done</option>
+                      <option value="cancelled" <%= r.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                    </select>
+                  </td>
+                  <td>
+                    <% if (r.notes && r.notes.trim()) { %>
+                      <button type="button" class="btn btn-sm btn-outline-secondary view-notes-btn" data-id="<%= r.id %>" data-notes="<%= (r.notes || '').replace(/"/g,'&quot;').replace(/\n/g,'&#10;') %>" data-customer="<%= (r.customer_name || '').replace(/"/g,'&quot;') %>">View Notes</button>
+                    <% } else { %>
+                      <span class="mutedSmall">-</span>
+                    <% } %>
+                  </td>
+                  <td class="mutedSmall"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '-' %></td>
+                  <td>
+                    <a class="btn btn-sm btn-outline-primary" href="/sales/admin/setup-support?tab=<%= (r.status === 'done' ? 'done' : 'pending') %>">View</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Notes Modal -->
+<div class="modal fade" id="notesModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notesModalTitle">Notes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <pre id="notesModalBody" class="mb-0 p-3 bg-light rounded" style="white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto;"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelectorAll('.assign-select').forEach(function(sel){
+  sel.addEventListener('change', async function(){
+    const id = this.dataset.id;
+    const val = this.value;
+    const res = await fetch('/sales/api/admin/setup-support/' + id + '/assign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'assigned_to=' + encodeURIComponent(val || '')
+    });
+    const j = await res.json();
+    if (j.ok) { this.classList.add('bg-success-subtle'); } else { alert(j.message || 'Failed'); }
+  });
+});
+
+document.querySelectorAll('.admin-status-select').forEach(function(sel){
+  sel.addEventListener('change', async function(){
+    const id = this.dataset.id;
+    const status = this.value;
+    const res = await fetch('/sales/api/admin/setup-support/' + id + '/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'status=' + encodeURIComponent(status)
+    });
+    const j = await res.json();
+    if (j.ok) { window.location.reload(); } else { alert(j.message || 'Failed'); }
+  });
+});
+
+document.querySelectorAll('.view-notes-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    const notes = this.dataset.notes || '';
+    const customer = this.dataset.customer || 'Request';
+    document.getElementById('notesModalTitle').textContent = 'Notes - ' + customer;
+    document.getElementById('notesModalBody').textContent = notes || '(No notes)';
+    new bootstrap.Modal(document.getElementById('notesModal')).show();
+  });
+});
+</script>
+
+</body>
+</html>

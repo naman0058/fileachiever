@@ -21,7 +21,7 @@ function hashPassword(password) {
 
 function requireAdmin(req, res, next) {
   if (!req.session || !req.session.adminid) {
-    return res.redirect('/admin?redirect=/blog-admin');
+    return res.redirect('/backoffice?redirect=/blog-admin');
   }
   next();
 }

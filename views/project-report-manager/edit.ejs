@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= pageTitle %> • FileAchiever</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/setup-support/support.css">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <style>
+    .section-card { border-left: 4px solid #2E48FB; }
+    .section-card.filled { border-left-color: #10b981; }
+    .section-card.empty { border-left-color: #ef4444; }
+    .prm-tick { color: #10b981; }
+    .prm-cross { color: #ef4444; }
+    .body-editor-wrap { min-height: 180px; }
+    /* Body editor: default Times New Roman 12px */
+    .body-editor-wrap .ql-editor {
+      font-family: 'Times New Roman', Times, serif !important;
+      font-size: 12px !important;
+      min-height: 150px;
+    }
+    .source-detail-html ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0; }
+    .source-detail-html li { margin-bottom: 0.25rem; }
+    .source-detail-html ul ul { list-style: circle; }
+  </style>
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap">
+    <div class="support-sidebar">
+      <div class="support-sidebar__brand">
+        <div class="support-brand">Project Report Manager</div>
+        <div class="support-sub">Headings, subheadings & body</div>
+      </div>
+      <nav class="support-nav">
+        <a class="support-link" href="/project-report-manager"><i class="bi bi-grid-3x3-gap-fill"></i>Dashboard</a>
+        <div class="support-nav__sep"></div>
+        <a class="support-link danger" href="/project-report-manager/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
+      </nav>
+      <div class="support-user">
+        <div class="support-user__avatar"><i class="bi bi-person-circle"></i></div>
+        <div class="support-user__info">
+          <div class="support-user__name"><%= user.name || 'User' %></div>
+          <div class="support-user__meta">Project Report Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <main class="support-main">
+    <div class="container-fluid px-4 py-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="support-page-title mb-0">Edit Report Sections: <%= sc.name %></h1>
+        <a href="/project-report-manager" class="btn btn-outline-secondary">← Back</a>
+      </div>
+      <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+      <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+
+      <!-- Source Code Context (Admin features, User features, Functionality) -->
+      <div class="card support-card mb-4" style="border-left: 5px solid #2E48FB;">
+        <div class="card-header" style="background: #f0f4ff;">
+          <h5 class="mb-1 fw-bold"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Source Code Details</h5>
+          <p class="mb-0 small text-muted">Use this context when writing headings, subheadings and body content</p>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12"><label class="form-label small fw-semibold text-muted mb-1">Name</label><div class="fw-semibold"><%= sc.name || '—' %></div></div>
+            <% if (sc.category) { %><div class="col-md-6"><label class="form-label small fw-semibold text-muted mb-1">Category</label><div><span class="badge bg-secondary"><%= sc.category %></span></div></div><% } %>
+            <div class="col-12"><label class="form-label small fw-semibold text-muted mb-1">Description</label><div class="small text-break" style="white-space: pre-wrap;"><%= sc.description || sc.short_description || '—' %></div></div>
+            <% if (sc.admin_features && String(sc.admin_features).trim()) { %>
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Admin Features</label>
+              <div class="small source-detail-html"><%- sc.admin_features %></div>
+            </div>
+            <% } %>
+            <% if (sc.user_features && String(sc.user_features).trim()) { %>
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">User Features</label>
+              <div class="small source-detail-html"><%- sc.user_features %></div>
+            </div>
+            <% } %>
+            <% if (sc.functionality && String(sc.functionality).trim()) { %>
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Functionality</label>
+              <div class="small source-detail-html text-break"><%- sc.functionality %></div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Sections (fully dynamic: add/remove) -->
+      <div class="card support-card mb-4">
+        <div class="card-header support-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h5 class="support-card-title mb-1">Report Sections</h5>
+            <p class="mb-0 small text-muted">Each section has a Main Heading. Add multiple Subheadings with their Body (rich text). Example: Heading "Introduction" → Subheading "Background of Study" + Body, Subheading "Aim and Objective" + Body.</p>
+          </div>
+          <button type="button" class="btn btn-success" id="btnAddSection"><i class="bi bi-plus-lg me-1"></i>Add Section</button>
+        </div>
+        <div class="card-body">
+          <form id="sectionsForm">
+            <div id="sectionsContainer"></div>
+            <button type="submit" class="btn btn-primary btn-lg mt-3" id="btnSaveAll">Save All Sections</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script>
+const scId = <%= sc.id %>;
+const minHeadings = <%= minHeadings || 10 %>;
+let sections = <%- JSON.stringify((sections || []).map(s => ({
+  heading: s.heading || '',
+  subheadings: (Array.isArray(s.subheadings) ? s.subheadings : [{ subheading: s.subheading || '', body: s.body || '' }]).map(sh => ({ subheading: sh.subheading || '', body: sh.body || '' }))
+}))) %>;
+const quillInstances = {};
+
+const quillToolbar = [
+  [{ 'header': [1, 2, 3, false] }],
+  ['bold', 'italic', 'underline', 'strikethrough'],
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  [{ 'color': [] }, { 'background': [] }],
+  ['link', 'image'],
+  ['clean']
+];
+
+function getSectionHtml(sectionId, data) {
+  data = data || { heading: '', subheadings: [{ subheading: '', body: '' }] };
+  const subs = Array.isArray(data.subheadings) && data.subheadings.length ? data.subheadings : [{ subheading: '', body: '' }];
+  const isFilled = !!(data.heading && String(data.heading).trim());
+  const escaped = (v) => (v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  let subheadingsHtml = '';
+  subs.forEach((sh, j) => {
+    subheadingsHtml += `
+        <div class="subheading-block mb-3 p-3 border rounded" data-subhead-idx="${j}">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label mb-0 fw-semibold small">Subheading ${j + 1}</label>
+            <button type="button" class="btn btn-sm btn-outline-danger subheading-remove-btn" title="Remove subheading"><i class="bi bi-x-lg"></i></button>
+          </div>
+          <input type="text" class="form-control form-control-sm subheading-input mb-2" placeholder="e.g. Background of Study" value="${escaped(sh.subheading)}">
+          <div class="body-editor-wrap" id="body-editor-${sectionId}-${j}"></div>
+        </div>`;
+  });
+  return `
+    <div class="card section-card mb-4 ${isFilled ? 'filled' : 'empty'}" data-section-id="${sectionId}">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">Section <span class="section-num">${sectionId + 1}</span></span>
+        <div class="d-flex align-items-center gap-2">
+          ${isFilled ? '<i class="bi bi-check-circle-fill prm-tick" title="Filled"></i>' : '<i class="bi bi-x-circle-fill prm-cross" title="Missing"></i>'}
+          <button type="button" class="btn btn-sm btn-outline-danger section-remove-btn" title="Remove section"><i class="bi bi-trash me-1"></i>Remove</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Heading <span class="text-danger">*</span></label>
+          <input type="text" class="form-control section-heading" placeholder="e.g. Introduction" value="${escaped(data.heading)}">
+        </div>
+        <div class="subheadings-wrap">
+          ${subheadingsHtml}
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary add-subheading-btn" data-section-id="${sectionId}"><i class="bi bi-plus-lg me-1"></i>Add Subheading</button>
+      </div>
+    </div>`;
+}
+
+function initQuill(key, body) {
+  const el = document.getElementById('body-editor-' + key);
+  if (!el) return;
+  if (el.querySelector('.ql-editor')) return; // already initialized
+  if (quillInstances[key]) { quillInstances[key] = null; }
+  const q = new Quill(el, {
+    theme: 'snow',
+    placeholder: 'Enter body content (Times New Roman 12px default)...',
+    modules: { toolbar: quillToolbar }
+  });
+  if (body) q.root.innerHTML = body;
+  quillInstances[key] = q;
+}
+
+function renderSections() {
+  Object.keys(quillInstances).forEach(k => { quillInstances[k] = null; });
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = '';
+  sections.forEach((sec, i) => {
+    const div = document.createElement('div');
+    div.innerHTML = getSectionHtml(i, sec);
+    container.appendChild(div.firstElementChild);
+  });
+  setTimeout(function() {
+    sections.forEach(function(sec, i) {
+      (sec.subheadings || []).forEach(function(sh, j) {
+        initQuill(i + '-' + j, sh.body);
+      });
+    });
+  }, 100);
+  updateSectionNumbers();
+}
+
+// Event delegation: section remove, subheading remove, add subheading
+document.getElementById('sectionsContainer').addEventListener('click', function(e) {
+  const sectionRemoveBtn = e.target.closest('.section-remove-btn');
+  if (sectionRemoveBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const card = sectionRemoveBtn.closest('.section-card');
+    if (!card) return;
+    const id = parseInt(card.getAttribute('data-section-id'), 10);
+    if (!Number.isFinite(id) || id < 0) return;
+    syncSectionsFromDOM();
+    sections.splice(id, 1);
+    if (sections.length === 0) sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
+    renderSections();
+    return;
+  }
+  const subheadingRemoveBtn = e.target.closest('.subheading-remove-btn');
+  if (subheadingRemoveBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const block = subheadingRemoveBtn.closest('.subheading-block');
+    const card = subheadingRemoveBtn.closest('.section-card');
+    if (!block || !card) return;
+    const sectionId = parseInt(card.getAttribute('data-section-id'), 10);
+    const subheadIdx = parseInt(block.getAttribute('data-subhead-idx'), 10);
+    if (!Number.isFinite(sectionId) || !Number.isFinite(subheadIdx) || subheadIdx < 0) return;
+    syncSectionsFromDOM();
+    const sec = sections[sectionId];
+    if (sec && sec.subheadings) {
+      sec.subheadings.splice(subheadIdx, 1);
+      if (sec.subheadings.length === 0) sec.subheadings.push({ subheading: '', body: '' });
+      renderSections();
+    }
+    return;
+  }
+  const addSubheadingBtn = e.target.closest('.add-subheading-btn');
+  if (addSubheadingBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const sectionId = parseInt(addSubheadingBtn.getAttribute('data-section-id'), 10);
+    if (!Number.isFinite(sectionId)) return;
+    syncSectionsFromDOM();
+    const sec = sections[sectionId];
+    if (sec) {
+      if (!sec.subheadings) sec.subheadings = [];
+      sec.subheadings.push({ subheading: '', body: '' });
+      renderSections();
+    }
+    return;
+  }
+});
+
+document.getElementById('btnAddSection').onclick = function() {
+  sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
+  renderSections();
+};
+
+function updateSectionNumbers() {
+  document.querySelectorAll('.section-num').forEach((el, i) => { el.textContent = i + 1; });
+}
+
+function syncSectionsFromDOM() {
+  const newSections = [];
+  const container = document.getElementById('sectionsContainer');
+  if (!container) return;
+  container.querySelectorAll('.section-card').forEach((card, i) => {
+    const headingInput = card.querySelector('.section-heading');
+    const heading = (headingInput && headingInput.value || '').trim();
+    const subheadingBlocks = card.querySelectorAll('.subheading-block');
+    const subheadings = [];
+    subheadingBlocks.forEach((block, j) => {
+      const input = block.querySelector('.subheading-input');
+      const subheading = (input && input.value || '').trim();
+      let body = '';
+      const key = i + '-' + j;
+      if (quillInstances[key] && quillInstances[key].root) {
+        body = quillInstances[key].root.innerHTML || '';
+      }
+      subheadings.push({ subheading, body });
+    });
+    newSections.push({ heading: heading || '', subheadings: subheadings.length ? subheadings : [{ subheading: '', body: '' }] });
+  });
+  sections.length = 0;
+  sections.push(...newSections);
+}
+
+function collectSections() {
+  const items = [];
+  const container = document.getElementById('sectionsContainer');
+  (container ? container.querySelectorAll('.section-card') : []).forEach((card, i) => {
+    const headingInput = card.querySelector('.section-heading');
+    const heading = (headingInput && headingInput.value || '').trim();
+    const subheadingBlocks = card.querySelectorAll('.subheading-block');
+    const subheadings = [];
+    subheadingBlocks.forEach((block, j) => {
+      const input = block.querySelector('.subheading-input');
+      const subheading = (input && input.value || '').trim();
+      let body = '';
+      const key = i + '-' + j;
+      if (quillInstances[key] && quillInstances[key].root) {
+        body = quillInstances[key].root.innerHTML || '';
+      }
+      subheadings.push({ subheading: subheading || '(Untitled)', body: body });
+    });
+    items.push({ heading: heading || '(Untitled)', subheadings: subheadings });
+  });
+  return items;
+}
+
+// Initial load: ensure at least 1 section
+if (sections.length === 0) sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
+renderSections();
+
+document.getElementById('sectionsForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const items = collectSections();
+  if (items.length === 0) {
+    alert('Add at least one section.');
+    return;
+  }
+  const res = await fetch('/project-report-manager/api/' + scId + '/sections/batch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items })
+  });
+  const j = await res.json();
+  if (j.ok) {
+    alert('Saved.');
+    window.location.href = '/project-report-manager/edit/' + scId + '?success=Saved';
+  } else {
+    alert(j.message || 'Failed to save.');
+  }
+});
+</script>
+</body>
+</html>

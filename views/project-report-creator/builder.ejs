@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= pageTitle %> • FileAchiever</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/setup-support/support.css">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    .builder-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 992px) { .builder-layout { grid-template-columns: 1fr; } }
+    .builder-panel { border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem; min-height: 200px; background: #f8f9fa; }
+    .builder-panel h6 { margin-bottom: 0.75rem; color: #495057; }
+    .report-item { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; cursor: grab; display: flex; align-items: center; gap: 0.5rem; }
+    .report-item:active { cursor: grabbing; }
+    .report-item .badge { font-size: 0.7rem; }
+    .report-item .item-preview { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; }
+    .report-item .btn-remove { padding: 0.15rem 0.4rem; font-size: 0.75rem; }
+    .source-item { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; cursor: pointer; }
+    .source-item:hover { background: #e9ecef; }
+    .source-item input[type="checkbox"] { margin-right: 0.5rem; }
+    .section-block { margin-bottom: 0.75rem; }
+    .section-block .section-head { font-weight: 600; margin-bottom: 0.25rem; }
+    .section-block .sub-item { margin-left: 1rem; font-size: 0.875rem; color: #6c757d; }
+  </style>
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap">
+    <div class="support-sidebar">
+      <div class="support-sidebar__brand">
+        <div class="support-brand">Report Creator</div>
+        <div class="support-sub"><%= sc.name %></div>
+      </div>
+      <nav class="support-nav">
+        <a class="support-link" href="/project-report-creator"><i class="bi bi-grid-3x3-gap-fill"></i>Dashboard</a>
+        <div class="support-nav__sep"></div>
+        <a class="support-link danger" href="/project-report-creator/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
+      </nav>
+      <div class="support-user">
+        <div class="support-user__avatar"><i class="bi bi-person-circle"></i></div>
+        <div class="support-user__info">
+          <div class="support-user__name"><%= user.name %></div>
+          <div class="support-user__meta">Report Creator</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="support-main">
+    <div class="container-fluid px-4 py-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="support-page-title mb-0">Create Report: <%= sc.name %></h1>
+        <a href="/project-report-creator" class="btn btn-outline-secondary">← Back</a>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="alert alert-info mb-0">
+            <strong>Steps:</strong> 1) Select sections/subheadings. 2) Select diagrams. 3) Select DB items (Datatable above Screenshots). 4) Select screenshots. 5) Arrange with drag-drop. 6) Download Word (includes Index page).<br>
+            <strong>Default order:</strong> Main heading + subheadings together; Datatables before DB Screenshots; References section last.
+          </div>
+        </div>
+      </div>
+
+      <div class="builder-layout mb-4">
+        <div class="builder-panel">
+          <h6><i class="bi bi-collection me-1"></i>Available Content</h6>
+          <div id="availableSections" class="mb-3"></div>
+          <div id="availableDiagrams" class="mb-3"></div>
+          <div id="availableDbScreenshots" class="mb-3"></div>
+          <div id="availableScreenshots" class="mb-3"></div>
+          <button type="button" class="btn btn-primary btn-sm mt-2" id="btnAddSelected"><i class="bi bi-plus-lg me-1"></i>Add Selected to Report</button>
+        </div>
+        <div class="builder-panel">
+          <h6><i class="bi bi-file-earmark-text me-1"></i>Report Content <span class="text-muted">(drag to reorder)</span></h6>
+          <div id="reportItems" class="report-items-list"></div>
+          <p class="text-muted small mt-2 mb-0" id="reportEmptyMsg">No items yet. Select from the left and click "Add Selected".</p>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-success btn-lg" id="btnDownloadWord"><i class="bi bi-download me-2"></i>Download Word Document</button>
+        <button type="button" class="btn btn-outline-danger" id="btnClearReport">Clear Report</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const scId = <%= sc.id %>;
+const scName = <%- JSON.stringify(sc.name || 'Report') %>;
+let reportItems = [];
+let sectionsData = [];
+let diagramsData = [];
+let dbScreenshotsData = [];
+let screenshotsData = [];
+
+async function loadData() {
+  const res = await fetch('/project-report-creator/api/source-code/' + scId + '/data');
+  const j = await res.json();
+  if (!j.ok) { alert('Failed to load data.'); return; }
+  sectionsData = j.sections || [];
+  diagramsData = j.diagrams || [];
+  dbScreenshotsData = j.dbScreenshots || [];
+  screenshotsData = j.screenshots || [];
+  renderAvailable();
+}
+
+function renderAvailable() {
+  const checkedSec = new Set();
+  const checkedSub = new Set();
+  const checkedDiag = new Set();
+  const checkedDb = new Set();
+  const checkedDbDt = new Set();
+  const checkedScr = new Set();
+  document.querySelectorAll('.section-check:checked').forEach(cb => { checkedSec.add(cb.dataset.secIdx); });
+  document.querySelectorAll('.subheading-check:checked').forEach(cb => { checkedSub.add(cb.dataset.secIdx + '-' + cb.dataset.shIdx); });
+  document.querySelectorAll('.diagram-check:checked').forEach(cb => { checkedDiag.add(cb.dataset.diagIdx); });
+  document.querySelectorAll('.db-check:checked').forEach(cb => { checkedDb.add(cb.dataset.dbIdx); });
+  document.querySelectorAll('.db-datatable-check:checked').forEach(cb => { checkedDbDt.add(cb.dataset.dbIdx); });
+  document.querySelectorAll('.screenshot-check:checked').forEach(cb => { checkedScr.add(cb.dataset.scrIdx); });
+
+  const secEl = document.getElementById('availableSections');
+  secEl.innerHTML = '';
+  sectionsData.forEach((sec, secIdx) => {
+    const div = document.createElement('div');
+    div.className = 'section-block';
+    div.innerHTML = `
+      <div class="section-head">
+        <label class="d-flex align-items-start gap-2 mb-0 cursor-pointer">
+          <input type="checkbox" class="section-check mt-1" data-sec-idx="${secIdx}" data-heading="${(sec.heading || '').replace(/"/g, '&quot;')}" ${checkedSec.has(String(secIdx)) ? 'checked' : ''}>
+          <span>${escapeHtml(sec.heading || '(Untitled)')}</span>
+        </label>
+      </div>
+      ${(sec.subheadings || []).map((sh, shIdx) => `
+        <div class="sub-item">
+          <label class="d-flex align-items-start gap-2 mb-0 cursor-pointer">
+            <input type="checkbox" class="subheading-check mt-1" data-sec-idx="${secIdx}" data-sh-idx="${shIdx}" ${checkedSub.has(secIdx + '-' + shIdx) ? 'checked' : ''}>
+            <span>${escapeHtml(sh.subheading || '(Untitled)')}</span>
+          </label>
+        </div>
+      `).join('')}
+    `;
+    secEl.appendChild(div);
+  });
+
+  const diagEl = document.getElementById('availableDiagrams');
+  diagEl.innerHTML = '';
+  if (diagramsData.length) {
+    const h = document.createElement('div');
+    h.className = 'small fw-semibold text-muted mb-1';
+    h.innerHTML = 'Diagrams <label class="ms-2"><input type="checkbox" class="select-all-diagrams"> Select All</label>';
+    diagEl.appendChild(h);
+  }
+  diagramsData.forEach((d, idx) => {
+    const div = document.createElement('div');
+    div.className = 'source-item';
+    div.innerHTML = `
+      <label class="d-flex align-items-center gap-2 mb-0 cursor-pointer">
+        <input type="checkbox" class="diagram-check" data-diag-idx="${idx}" ${checkedDiag.has(String(idx)) ? 'checked' : ''}>
+        <span class="flex-grow-1">${escapeHtml(d.label || d.diagram_type || 'Diagram')}</span>
+      </label>
+    `;
+    diagEl.appendChild(div);
+  });
+
+  const dbEl = document.getElementById('availableDbScreenshots');
+  dbEl.innerHTML = '';
+  if (dbScreenshotsData.length) {
+    const h = document.createElement('div');
+    h.className = 'small fw-semibold text-muted mb-1';
+    h.innerHTML = 'Database Screenshots <label class="ms-2"><input type="checkbox" class="select-all-db"> Select All</label>';
+    dbEl.appendChild(h);
+  }
+  dbScreenshotsData.forEach((d, idx) => {
+    const baseName = escapeHtml(d.name || 'Screenshot ' + d.id);
+    if (d.data_table) {
+      const div2 = document.createElement('div');
+      div2.className = 'source-item';
+      div2.innerHTML = `
+        <label class="d-flex align-items-center gap-2 mb-0 cursor-pointer">
+          <input type="checkbox" class="db-datatable-check" data-db-idx="${idx}" ${checkedDbDt.has(String(idx)) ? 'checked' : ''}>
+          <span class="flex-grow-1">${baseName} <small class="text-muted">(Datatable)</small></span>
+        </label>
+      `;
+      dbEl.appendChild(div2);
+    }
+    const div1 = document.createElement('div');
+    div1.className = 'source-item';
+    div1.innerHTML = `
+      <label class="d-flex align-items-center gap-2 mb-0 cursor-pointer">
+        <input type="checkbox" class="db-check" data-db-idx="${idx}" ${checkedDb.has(String(idx)) ? 'checked' : ''}>
+        <span class="flex-grow-1">${baseName} <small class="text-muted">(Screenshot)</small></span>
+      </label>
+    `;
+    dbEl.appendChild(div1);
+  });
+
+  const scrEl = document.getElementById('availableScreenshots');
+  scrEl.innerHTML = '';
+  if (screenshotsData.length) {
+    const h = document.createElement('div');
+    h.className = 'small fw-semibold text-muted mb-1';
+    h.innerHTML = 'Screenshots <label class="ms-2"><input type="checkbox" class="select-all-screenshots"> Select All</label>';
+    scrEl.appendChild(h);
+    const currentMode = document.querySelector('input[name="screenshotMode"]:checked')?.value || 'typewise';
+    const modeDiv = document.createElement('div');
+    modeDiv.className = 'mb-2';
+    modeDiv.innerHTML = `
+      <label class="me-3"><input type="radio" name="screenshotMode" value="typewise" ${currentMode === 'typewise' ? 'checked' : ''}> Type-wise (Input Design first, then Output Design)</label>
+      <label><input type="radio" name="screenshotMode" value="direct" ${currentMode === 'direct' ? 'checked' : ''}> Direct (as listed)</label>
+    `;
+    scrEl.appendChild(modeDiv);
+  }
+  const typewise = document.querySelector('input[name="screenshotMode"]:checked')?.value === 'typewise';
+  const orderedScreenshots = typewise
+    ? [...screenshotsData.filter(s => (s.type || '').toLowerCase() === 'input_design'),
+       ...screenshotsData.filter(s => (s.type || '').toLowerCase() === 'output_design'),
+       ...screenshotsData.filter(s => { const t = (s.type || '').toLowerCase(); return t !== 'input_design' && t !== 'output_design'; })]
+    : screenshotsData;
+  orderedScreenshots.forEach((s) => {
+    const idx = screenshotsData.indexOf(s);
+    if (idx < 0) return;
+    const div = document.createElement('div');
+    div.className = 'source-item';
+    div.innerHTML = `
+      <label class="d-flex align-items-center gap-2 mb-0 cursor-pointer">
+        <input type="checkbox" class="screenshot-check" data-scr-idx="${idx}" ${checkedScr.has(String(idx)) ? 'checked' : ''}>
+        <span class="flex-grow-1">${escapeHtml(s.name || s.type || 'Screenshot ' + s.id)}</span>
+        <span class="badge bg-light text-dark small">${escapeHtml(s.type || '')}</span>
+      </label>
+    `;
+    scrEl.appendChild(div);
+  });
+  document.querySelectorAll('input[name="screenshotMode"]').forEach(r => {
+    r.onchange = () => renderAvailable();
+  });
+
+}
+
+document.body.addEventListener('change', function(e) {
+  if (e.target.classList.contains('select-all-diagrams')) {
+    document.querySelectorAll('#availableDiagrams .diagram-check').forEach(cb => { cb.checked = e.target.checked; });
+  }
+  if (e.target.classList.contains('select-all-db')) {
+    document.querySelectorAll('#availableDbScreenshots .db-check, #availableDbScreenshots .db-datatable-check').forEach(cb => { cb.checked = e.target.checked; });
+  }
+  if (e.target.classList.contains('select-all-screenshots')) {
+    document.querySelectorAll('#availableScreenshots .screenshot-check').forEach(cb => { cb.checked = e.target.checked; });
+  }
+});
+
+function escapeHtml(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML.replace(/"/g, '&quot;');
+}
+
+function isReferencesSection(heading) {
+  const h = (heading || '').toString().trim().toLowerCase();
+  return h === 'references' || h === 'reference';
+}
+
+function getSelectedItems() {
+  const items = [];
+  const checkedSec = new Set();
+  const checkedSub = new Set();
+  document.querySelectorAll('.section-check:checked').forEach(cb => { checkedSec.add(cb.dataset.secIdx); });
+  document.querySelectorAll('.subheading-check:checked').forEach(cb => { checkedSub.add(cb.dataset.secIdx + '-' + cb.dataset.shIdx); });
+
+  const refsSection = [];
+  const otherSections = [];
+  sectionsData.forEach((sec, secIdx) => {
+    const heading = sec.heading || '(Untitled)';
+    const sectionItems = [];
+    if (checkedSec.has(String(secIdx))) {
+      sectionItems.push({ type: 'heading', heading });
+    }
+    (sec.subheadings || []).forEach((sh, shIdx) => {
+      if (checkedSub.has(secIdx + '-' + shIdx)) {
+        sectionItems.push({ type: 'subheading', subheading: sh.subheading || '(Untitled)', body: sh.body || '' });
+      }
+    });
+    if (sectionItems.length) {
+      if (isReferencesSection(heading)) refsSection.push(...sectionItems);
+      else otherSections.push(...sectionItems);
+    }
+  });
+  items.push(...otherSections);
+
+  document.querySelectorAll('.diagram-check:checked').forEach(cb => {
+    const idx = parseInt(cb.dataset.diagIdx, 10);
+    if (Number.isFinite(idx) && diagramsData[idx]) {
+      const d = diagramsData[idx];
+      items.push({ type: 'diagram', url: d.url || '', label: d.label || '' });
+    }
+  });
+
+  document.querySelectorAll('.db-datatable-check:checked').forEach(cb => {
+    const idx = parseInt(cb.dataset.dbIdx, 10);
+    if (Number.isFinite(idx) && dbScreenshotsData[idx]) {
+      const db = dbScreenshotsData[idx];
+      if (db.data_table) {
+        items.push({ type: 'db_datatable', name: db.name || 'Database Screenshot', data_table: db.data_table || '' });
+      }
+    }
+  });
+  document.querySelectorAll('.db-check:checked').forEach(cb => {
+    const idx = parseInt(cb.dataset.dbIdx, 10);
+    if (Number.isFinite(idx) && dbScreenshotsData[idx]) {
+      const db = dbScreenshotsData[idx];
+      items.push({ type: 'db_screenshot', url: db.url || '', name: db.name || 'Database Screenshot' });
+    }
+  });
+
+  let selectedScreenshots = [];
+  document.querySelectorAll('.screenshot-check:checked').forEach(cb => {
+    const idx = parseInt(cb.dataset.scrIdx, 10);
+    if (Number.isFinite(idx) && screenshotsData[idx]) {
+      const s = screenshotsData[idx];
+      selectedScreenshots.push({ url: s.url || '', type: (s.type || '').toLowerCase(), name: s.name || 'Screenshot' });
+    }
+  });
+  const typewise = document.querySelector('input[name="screenshotMode"]:checked')?.value === 'typewise';
+  if (typewise && selectedScreenshots.length) {
+    selectedScreenshots.sort((a, b) => {
+      const order = { 'input_design': 0, 'output_design': 1 };
+      const oa = order[a.type] ?? 2;
+      const ob = order[b.type] ?? 2;
+      return oa - ob;
+    });
+  }
+  selectedScreenshots.forEach(s => items.push({ type: 'screenshot', url: s.url, name: s.name }));
+
+  items.push(...refsSection);
+  return items;
+}
+
+function addSelectedToReport() {
+  const items = getSelectedItems();
+  items.forEach(it => { it._uid = 'i' + Date.now() + '_' + Math.random().toString(36).slice(2); });
+  reportItems.push(...items);
+  renderReportItems();
+  document.querySelectorAll('#availableSections input:checked, #availableDiagrams input:checked, #availableDbScreenshots input:checked, #availableScreenshots input:checked').forEach(cb => { cb.checked = false; });
+  document.querySelectorAll('.select-all-diagrams, .select-all-db, .select-all-screenshots').forEach(cb => { cb.checked = false; });
+}
+
+function renderReportItems() {
+  const el = document.getElementById('reportItems');
+  const emptyMsg = document.getElementById('reportEmptyMsg');
+  el.innerHTML = '';
+  reportItems.forEach((it, i) => {
+    const div = document.createElement('div');
+    div.className = 'report-item';
+    div.dataset.uid = it._uid || ('i' + i);
+    let badge = 'secondary', preview = '';
+    if (it.type === 'heading') { badge = 'primary'; preview = it.heading; }
+    else if (it.type === 'subheading') { badge = 'info'; preview = it.subheading; }
+    else if (it.type === 'body') { badge = 'secondary'; preview = (it.body || '').substring(0, 50) + '...'; }
+    else if (it.type === 'diagram') { badge = 'primary'; preview = it.label || 'Diagram'; }
+    else if (it.type === 'db_screenshot') { badge = 'success'; preview = (it.name || 'DB Screenshot'); }
+    else if (it.type === 'db_datatable') { badge = 'success'; preview = (it.name || 'Datatable') + ' - Datatable'; }
+    else if (it.type === 'screenshot') { badge = 'warning'; preview = 'Screenshot'; }
+    div.innerHTML = `
+      <span class="badge bg-${badge}">${it.type}</span>
+      <span class="item-preview">${escapeHtml(preview)}</span>
+      <button type="button" class="btn btn-sm btn-outline-danger btn-remove" data-uid="${it._uid || ('i'+i)}"><i class="bi bi-x"></i></button>
+    `;
+    el.appendChild(div);
+  });
+  emptyMsg.style.display = reportItems.length ? 'none' : 'block';
+  initSortable();
+}
+
+function initSortable() {
+  const el = document.getElementById('reportItems');
+  if (el._sortable) el._sortable.destroy();
+  el._sortable = new Sortable(el, {
+    animation: 150,
+    onEnd: function() {
+      const uids = [];
+      el.querySelectorAll('.report-item').forEach(div => { uids.push(div.dataset.uid); });
+      const byUid = {};
+      reportItems.forEach(it => { byUid[it._uid || ''] = it; });
+      reportItems = uids.map(uid => byUid[uid]).filter(Boolean);
+    }
+  });
+}
+
+document.getElementById('reportItems').addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn-remove');
+  if (!btn) return;
+  const uid = btn.dataset.uid;
+  if (uid) {
+    reportItems = reportItems.filter(it => (it._uid || '') !== uid);
+    renderReportItems();
+  }
+});
+
+document.getElementById('btnAddSelected').onclick = addSelectedToReport;
+
+document.getElementById('btnClearReport').onclick = function() {
+  if (confirm('Clear all report content?')) {
+    reportItems = [];
+    renderReportItems();
+  }
+};
+
+document.getElementById('btnDownloadWord').onclick = async function() {
+  if (!reportItems.length) {
+    alert('Add at least one item to the report.');
+    return;
+  }
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+  try {
+    const itemsToSend = reportItems.map(({ _uid, ...rest }) => rest);
+    const res = await fetch('/project-report-creator/api/download-word', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sourceCodeId: scId,
+        sourceCodeName: scName,
+        items: itemsToSend
+      })
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.message || 'Download failed');
+    }
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (scName || 'report').replace(/[^\w\s-]/g, '') + '.docx';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch (err) {
+    alert(err.message || 'Failed to download.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-download me-2"></i>Download Word Document';
+  }
+};
+
+loadData();
+</script>
+</body>
+</html>

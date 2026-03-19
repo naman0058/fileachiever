@@ -1,0 +1,82 @@
+<%include Includes/sourceCodeNavbar.ejs %>
+<% include Includes/projectReport.ejs %>
+
+<style>
+  .demo-single-hero { background: linear-gradient(135deg, rgba(42,71,255,.06), rgba(241,127,35,.06)); border: 1px solid rgba(14,18,32,.06); border-radius: 20px; padding: 24px; margin-bottom: 24px; }
+  .demo-single-hero h1 { margin: 0 0 8px; color: var(--ink, #0e1220); font-weight: 800; }
+  .demo-single-hero p.lead { color: var(--muted, #6b7280); margin: 0 0 16px; }
+  .demo-single-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--brandBlue, #2A47FF); color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 800; text-decoration: none; box-shadow: 0 6px 18px rgba(42,71,255,.25); }
+  .demo-single-cta:hover { color: #fff; filter: brightness(1.05); }
+  .demo-section { background: #fff; border: 1px solid rgba(14,18,32,.08); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+  .demo-section h3 { margin: 0 0 12px; font-size: 1.1rem; font-weight: 700; }
+  .tech-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tech-chip { background: #f3f4f6; padding: 6px 12px; border-radius: 999px; font-size: 0.875rem; font-weight: 600; }
+  .feature-list { margin: 0; padding-left: 20px; }
+  .feature-list li { margin-bottom: 6px; }
+</style>
+
+<div class="container">
+  <div class="brand-accent"></div>
+  <nav aria-label="breadcrumb" class="page-breadcrumb mb-2">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="<%= typeof homeUrl !== 'undefined' ? homeUrl : '/' %>">Home</a></li>
+      <li class="breadcrumb-item"><a href="/demo">Live Demos</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><%= demo.title %></li>
+    </ol>
+  </nav>
+
+  <section class="demo-single-hero">
+    <h1><%= demo.title %></h1>
+    <% if (demo.description) { %><p class="lead"><%= demo.description %></p><% } %>
+    <% if (demo.tech_stack) {
+      const techs = demo.tech_stack.split(',').map(t => t.trim()).filter(Boolean);
+      if (techs.length) { %>
+      <div class="tech-chips mb-3">
+        <% techs.forEach(function(t){ %><span class="tech-chip"><%= t %></span><% }); %>
+      </div>
+    <% } } %>
+    <a href="<%= demo.demo_link %>" target="_blank" rel="noopener noreferrer" class="demo-single-cta">View Live Demo →</a>
+  </section>
+
+  <% if (demo.project_details) { %>
+  <section class="demo-section">
+    <h3>Project Details</h3>
+    <div><%= demo.project_details.replace(/\n/g, '<br>') %></div>
+  </section>
+  <% } %>
+
+  <div class="row">
+    <% if (demo.admin_features) {
+      const adminItems = demo.admin_features.split('\n').map(s => s.trim()).filter(Boolean);
+      if (adminItems.length) { %>
+    <div class="col-md-6">
+      <section class="demo-section h-100">
+        <h3>Admin Features</h3>
+        <ul class="feature-list">
+          <% adminItems.forEach(function(f){ %><li><%= f %></li><% }); %>
+        </ul>
+      </section>
+    </div>
+    <% } } %>
+    <% if (demo.user_features) {
+      const userItems = demo.user_features.split('\n').map(s => s.trim()).filter(Boolean);
+      if (userItems.length) { %>
+    <div class="col-md-6">
+      <section class="demo-section h-100">
+        <h3>User Features</h3>
+        <ul class="feature-list">
+          <% userItems.forEach(function(f){ %><li><%= f %></li><% }); %>
+        </ul>
+      </section>
+    </div>
+    <% } } %>
+  </div>
+
+  <p class="mt-3"><a href="/demo" class="text-decoration-none">← Back to all Live Demos</a></p>
+</div>
+
+<% if (demo.schema_json && demo.schema_json.trim()) { %>
+<script type="application/ld+json"><%- demo.schema_json %></script>
+<% } %>
+
+<% include Includes/footer.ejs %>

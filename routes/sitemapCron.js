@@ -2,27 +2,20 @@
 const cron = require('node-cron');
 const axios = require('axios');
 
-// Daily at 2:00 AM
-cron.schedule('0 2 * * *', async () => {
-  try {
-    console.log('[Sitemap Cron] Regenerating sitemap and pinging search engines...');
-
-    const sitemapUrl = 'https://www.filemakr.com/sitemap.xml';
-
-    // Ping Google
-    await axios.get(`https://www.google.com/ping?sitemap=${sitemapUrl}`);
-    console.log('[Google Ping] Success');
-
-    // Ping Bing
-    await axios.get(`https://www.bing.com/ping?sitemap=${sitemapUrl}`);
-    console.log('[Bing Ping] Success');
-
-    console.log('[Sitemap Cron] Completed');
-
-  } catch (err) {
-    console.error('[Sitemap Cron] Error:', err.message);
-  }
-});
+// Daily at 2:00 AM - disabled
+// cron.schedule('0 2 * * *', async () => {
+//   try {
+//     console.log('[Sitemap Cron] Regenerating sitemap and pinging search engines...');
+//     const sitemapUrl = 'https://www.filemakr.com/sitemap.xml';
+//     await axios.get(`https://www.google.com/ping?sitemap=${sitemapUrl}`);
+//     console.log('[Google Ping] Success');
+//     await axios.get(`https://www.bing.com/ping?sitemap=${sitemapUrl}`);
+//     console.log('[Bing Ping] Success');
+//     console.log('[Sitemap Cron] Completed');
+//   } catch (err) {
+//     console.error('[Sitemap Cron] Error:', err.message);
+//   }
+// });
 
 async function pingSearchEngines() {
   try {

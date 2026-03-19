@@ -13,8 +13,9 @@ router.use('/auth', require('./auth'));
 router.use('/index1', require('./index1'));
 router.use('/index2', require('./index2'));
 
-// ========== Admin ==========
-router.use('/admin', require('./admin'));
+// ========== Backoffice (admin) - /admin redirects for legacy bookmarks ==========
+router.get(/^\/admin\/?(.*)$/, (req, res) => res.redirect('/backoffice' + (req.params[0] ? '/' + req.params[0] : '')));
+router.use('/backoffice', require('./admin'));
 
 // ========== Project / Source Code ==========
 router.use('/programming_language', require('./programming_language'));
@@ -61,6 +62,18 @@ router.use('/final-year-projects-source-code', require('./source_code'));
 // ========== API / Trends ==========
 router.use('/api', require('./api'));
 router.use('/trending', require('./Trends/index'));
+
+// ========== Setup Support Portal (dedicated login + panel) ==========
+router.use('/setup-support', require('./setup-support'));
+
+// ========== Source Code Manager Portal (screenshot + demo management) ==========
+router.use('/source-code-manager', require('./source-code-manager'));
+
+// ========== Project Report Manager Portal (headings/subheadings/body per source code) ==========
+router.use('/project-report-manager', require('./project-report-manager'));
+
+// ========== Project Report Creator Portal (create & download customized reports) ==========
+router.use('/project-report-creator', require('./project-report-creator'));
 
 // ========== Sales ==========
 router.use('/oldsales', require('./Freelancing/sales'));

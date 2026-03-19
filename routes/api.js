@@ -382,48 +382,9 @@ router.get('/sending_message',(req,res)=>{
 })
 
 
-const { google } = require('googleapis');
-const fs = require('fs');
-
-
-const GOOGLE_SHEET_ID = '1DZdpdAB03Z25dZZFEZCKB2X5Hz9uvtgpw9sZqfeDS8o';
-const SERVICE_ACCOUNT_FILE = './service-account-key.json';
-
-
+// Google Sheets integration disabled
 router.post('/insert-googleSheet-data', async (req, res) => {
-    try {
-
-        const body = req.body; // Get data from the request body
-        console.log('body',req.body)
-
-        // Authenticate with Google Sheets API
-        const auth = new google.auth.GoogleAuth({
-            keyFile: SERVICE_ACCOUNT_FILE,
-            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-        });
-
-        const sheets = google.sheets({ version: 'v4', auth });
-
-        // Insert data into the sheet
-        const response = await sheets.spreadsheets.values.append({
-            spreadsheetId: GOOGLE_SHEET_ID,
-            range: 'Sheet1!A1', // Adjust the range based on your sheet
-            valueInputOption: 'RAW', // or 'USER_ENTERED'
-            resource: {
-                values: [
-                    Object.values(body), // Assumes body is a flat object
-                ],
-            },
-        });
-
-        return res.status(200).json({
-            message: 'Data inserted successfully',
-            response: response.data,
-        });
-    } catch (error) {
-        console.error('Error inserting data:', error);
-        return res.status(500).json({ error: 'Failed to insert data into Google Sheet' });
-    }
+    return res.status(503).json({ error: 'Google Sheets integration is disabled' });
 });
 
 module.exports = router;

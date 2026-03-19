@@ -315,17 +315,17 @@ var query23 = `select count(id) as counter from btech_project where status = 'su
 
 
 
-cron.schedule('0 2 * * *', async () => {
-  console.log("🌙 [CRON] Starting blog generation at 2:00 AM...");
-  try {
-    await generateSourceCodeBlog();
-    console.log("✅ Blog generated and saved successfully.");
-  } catch (err) {
-    console.error("❌ Blog generation failed:", err.message);
-  }
-}, {
-  timezone: 'Asia/Kolkata' // Optional: ensure it's aligned with IST
-});
+// cron.schedule('0 2 * * *', async () => {
+//   console.log("🌙 [CRON] Starting blog generation at 2:00 AM...");
+//   try {
+//     await generateSourceCodeBlog();
+//     console.log("✅ Blog generated and saved successfully.");
+//   } catch (err) {
+//     console.error("❌ Blog generation failed:", err.message);
+//   }
+// }, {
+//   timezone: 'Asia/Kolkata' // Optional: ensure it's aligned with IST
+// });
 
 
 

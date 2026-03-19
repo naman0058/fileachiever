@@ -1015,13 +1015,13 @@ const keywordresult = index !== -1 ? string.slice(0, index).trim() : string; %>
               <div class="course-box h-100 d-flex flex-column">
                 <h2>
                   <a href="/<%= result[1][i].seo_name%>/source-code"
-                     title="<%= result[1][i].name %> | PDF for <%= graduation_type_send %> Final Year">
-                    <%= result[1][i].name %>
+                     title="<%= result[1][i].name %> Source Code | <%= graduation_type_send %> Final Year">
+                    <%= result[1][i].name %> — Source Code
                   </a>
                 </h2>
                 <p><%= result[1][i].description %></p>
                 <div class="mt-auto d-flex justify-content-between align-items-center">
-                  <a class="link-arrow" href="/final-year-project-report-<%= result[1][i].seo_name %>">View details →</a>
+                  <a class="link-arrow" href="/final-year-project-report-<%= result[1][i].seo_name %>">View Project Report →</a>
                 </div>
               </div>
             </div>

@@ -4,7 +4,7 @@ var pool = require('./pool');
 var upload = require('./multer');
 var table = 'project';
 
-router.get('/', (req, res) => req.session.adminid ? res.render(`project`) : res.render(`admin`,{msg : 'Enter Login Details'}))
+router.get('/', (req, res) => req.session.adminid ? res.render(`project`) : res.redirect('/backoffice'))
 
 router.post('/insert',upload.fields([{ name: 'index_page', maxCount: 1 }, { name: 'database_page', maxCount: 1 },
                                      { name: 'front_page', maxCount: 1 }, { name: 'admin_page', maxCount: 1 },

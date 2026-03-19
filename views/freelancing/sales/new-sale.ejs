@@ -114,6 +114,36 @@
           </div>
 
           <div class="col-12">
+            <label class="form-label fw-semibold">Add-ons</label>
+            <div class="d-flex flex-wrap gap-4 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="setup_support" id="setup_support" value="1" <%= form?.setup_support ? 'checked' : '' %>>
+                <label class="form-check-label" for="setup_support">Setup Support</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="project_report" id="project_report" value="1" <%= form?.project_report ? 'checked' : '' %>>
+                <label class="form-check-label" for="project_report">Project Report</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="ppt" id="ppt" value="1" <%= form?.ppt ? 'checked' : '' %>>
+                <label class="form-check-label" for="ppt">PPT</label>
+              </div>
+            </div>
+            <% if (setupSupportEmployees && setupSupportEmployees.length) { %>
+            <div class="mt-2">
+              <label class="form-label small">Assign Setup Support To (optional)</label>
+              <select class="form-select form-select-sm" name="assign_setup_support" style="max-width:280px;">
+                <option value="">-- None --</option>
+                <% setupSupportEmployees.forEach(function(emp){ %>
+                  <option value="<%= emp.id %>" <%= (form?.assign_setup_support == emp.id ? 'selected' : '') %>><%= emp.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <% } %>
+            <div class="form-text">Setup Support creates a request for the setup support team. Project Report and PPT are tracking flags.</div>
+          </div>
+
+          <div class="col-12">
             <label class="form-label fw-semibold">Remarks (optional)</label>
             <textarea class="form-control" name="remarks" rows="4" placeholder="Scope summary, payment details, delivery promise, etc."><%= form?.remarks || '' %></textarea>
           </div>

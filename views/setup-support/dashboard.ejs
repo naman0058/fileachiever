@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= pageTitle %> • FileAchiever</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="/setup-support/support.css">
+</head>
+<body class="support-body">
+
+<div class="support-layout">
+  <aside class="support-sidebar-wrap">
+    <%- include('partials/sidebar', { user, active, filters, buildQuery }) %>
+  </aside>
+
+  <main class="support-main">
+    <div class="container-fluid px-4 px-lg-5 py-5">
+
+      <div class="support-page-header mb-5">
+        <div class="support-header-accent"></div>
+        <h1 class="support-page-title">Setup Support</h1>
+        <p class="support-page-sub">Your assigned setup support requests. Search, filter, and manage customer requests.</p>
+      </div>
+
+      <!-- Overview Stats -->
+      <section class="mb-5">
+        <h2 class="support-section-title">Overview</h2>
+        <div class="row g-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <a href="/setup-support<%= buildQuery && buildQuery('all') ? '?' + buildQuery('all') : '' %>" class="stat-card stat-total text-decoration-none">
+              <div class="stat-icon"><i class="bi bi-clipboard2-data"></i></div>
+              <div class="stat-content">
+                <span class="stat-value"><%= (typeof stats !== 'undefined' && stats) ? stats.total : 0 %></span>
+                <span class="stat-label">Total Assigned</span>
+              </div>
+            </a>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <a href="/setup-support<%= buildQuery && buildQuery('pending') ? '?' + buildQuery('pending') : '?tab=pending' %>" class="stat-card stat-pending text-decoration-none">
+              <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+              <div class="stat-content">
+                <span class="stat-value"><%= (typeof stats !== 'undefined' && stats) ? stats.pending : 0 %></span>
+                <span class="stat-label">Pending</span>
+              </div>
+            </a>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <a href="/setup-support<%= buildQuery && buildQuery('done') ? '?' + buildQuery('done') : '?tab=done' %>" class="stat-card stat-done text-decoration-none">
+              <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+              <div class="stat-content">
+                <span class="stat-value"><%= (typeof stats !== 'undefined' && stats) ? stats.done : 0 %></span>
+                <span class="stat-label">Completed</span>
+              </div>
+            </a>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-available">
+              <div class="stat-icon"><i class="bi bi-plus-circle"></i></div>
+              <div class="stat-content">
+                <span class="stat-value"><%= (typeof stats !== 'undefined' && stats) ? stats.available : 0 %></span>
+                <span class="stat-label">Available to Claim</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Search & Filters -->
+      <div class="card support-card support-filter-card mb-5">
+        <div class="card-body p-0">
+          <form method="get" action="/setup-support" class="support-filters row g-3 align-items-end p-4 px-lg-5">
+            <input type="hidden" name="tab" value="<%= filters.tab %>">
+            <div class="col-12 col-md-5 col-lg-6">
+              <label class="form-label support-form-label">Search</label>
+              <div class="input-group support-input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="search" name="q" class="form-control support-input" value="<%= filters.q || '' %>" placeholder="Name, phone, or enquiry…" autocomplete="off">
+              </div>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3">
+              <label class="form-label small fw-semibold text-muted">Status</label>
+              <select name="status" class="form-select support-filter-select">
+                <option value="">All statuses</option>
+                <option value="pending" <%= filters.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="in_progress" <%= filters.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+                <option value="done" <%= filters.status === 'done' ? 'selected' : '' %>>Done</option>
+                <option value="cancelled" <%= filters.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-3 col-lg-3">
+              <button type="submit" class="btn w-100 support-btn-apply">
+                <i class="bi bi-funnel me-2"></i>Apply Filters
+              </button>
+            </div>
+          </form>
+          <div class="support-tabs-bar px-4 px-lg-5 py-4">
+            <div class="nav nav-pills gap-2">
+              <a class="nav-link support-tab <%= filters.tab === 'all' ? 'active' : '' %>" href="/setup-support<%= buildQuery && buildQuery('all') ? '?' + buildQuery('all') : '' %>">All</a>
+              <a class="nav-link support-tab <%= filters.tab === 'pending' ? 'active active-pending' : '' %>" href="/setup-support<%= buildQuery && buildQuery('pending') ? '?' + buildQuery('pending') : '?tab=pending' %>">Pending (<%= pendingCount %>)</a>
+              <a class="nav-link support-tab <%= filters.tab === 'done' ? 'active active-done' : '' %>" href="/setup-support<%= buildQuery && buildQuery('done') ? '?' + buildQuery('done') : '?tab=done' %>">Completed (<%= doneCount %>)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% if (unassigned && unassigned.length) { %>
+      <div class="card support-card support-data-card mb-5">
+        <div class="card-header support-card-header">
+          <h5 class="support-card-title">Available to Claim</h5>
+          <p class="mb-0 small text-muted">Click Claim to assign yourself to a request</p>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 support-table">
+              <thead class="support-table-head">
+                <tr>
+                  <th class="text-uppercase small fw-bold text-muted">ID</th>
+                  <th class="text-uppercase small fw-bold text-muted">Customer</th>
+                  <th class="text-uppercase small fw-bold text-muted">Number</th>
+                  <th class="text-uppercase small fw-bold text-muted">Enquiry</th>
+                  <th class="text-uppercase small fw-bold text-muted">Created</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% unassigned.forEach(function(r){ %>
+                <tr>
+                  <td class="fw-semibold">#<%= r.id %></td>
+                  <td><%= r.customer_name %></td>
+                  <td><a href="tel:<%= r.customer_number %>" class="support-contact-link"><%= r.customer_number %></a></td>
+                  <td class="text-muted" style="max-width:200px;"><%= (r.enquiry || '').slice(0, 80) %></td>
+                  <td class="small text-muted"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '-' %></td>
+                  <td><button type="button" class="btn btn-sm support-btn-claim claim-btn" data-id="<%= r.id %>">Claim</button></td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="card support-card support-data-card">
+        <div class="card-header support-card-header">
+          <h5 class="support-card-title">My Setup Support Requests</h5>
+          <p class="mb-0 small text-muted">Showing <%= rows.length %> request<%= rows.length !== 1 ? 's' : '' %></p>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 support-table">
+              <thead class="support-table-head">
+                <tr>
+                  <th class="text-uppercase small fw-bold text-muted" style="width:60px;">ID</th>
+                  <th class="text-uppercase small fw-bold text-muted">Customer</th>
+                  <th class="text-uppercase small fw-bold text-muted">Number</th>
+                  <th class="text-uppercase small fw-bold text-muted" style="min-width:200px;">Enquiry</th>
+                  <th class="text-uppercase small fw-bold text-muted">Status</th>
+                  <th class="text-uppercase small fw-bold text-muted" style="min-width:180px;">Notes</th>
+                  <th class="text-uppercase small fw-bold text-muted">Created</th>
+                  <th class="text-uppercase small fw-bold text-muted" style="width:220px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!rows.length) { %>
+                <tr>
+                  <td colspan="8" class="py-5 text-center text-muted">No requests found. Adjust your filters or claim new requests above.</td>
+                </tr>
+                <% } %>
+                <% rows.forEach(function(r){ %>
+                <tr>
+                  <td class="fw-semibold">#<%= r.id %></td>
+                  <td><%= r.customer_name || '-' %></td>
+                  <td>
+                    <% if (r.customer_number) { %>
+                    <a href="tel:<%= r.customer_number %>" class="support-contact-link"><%= r.customer_number %></a>
+                    <a href="https://wa.me/<%= r.customer_number.replace(/\D/g,'') %>" target="_blank" rel="noopener" class="ms-1 text-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    <% } else { %>-<% } %>
+                  </td>
+                  <td class="text-muted" style="max-width:280px;"><%= (r.enquiry || '-').slice(0, 120) %></td>
+                  <td>
+                    <span class="badge support-badge <%= (r.status || 'pending') %>"><%= (r.status || 'pending').replace('_', ' ') %></span>
+                  </td>
+                  <td class="support-notes-cell" title="<%= (r.notes || '').replace(/"/g,'&quot;') %>"><%= (r.notes || '-').slice(0, 80) %><%= (r.notes && r.notes.length > 80) ? '…' : '' %></td>
+                  <td class="small text-muted"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '-' %></td>
+                  <td>
+                    <% if (r.status !== 'done' && r.status !== 'cancelled') { %>
+                    <div class="d-flex gap-1 flex-wrap align-items-center">
+                      <select class="form-select form-select-sm status-select" style="width:120px;" data-id="<%= r.id %>">
+                        <option value="pending" <%= r.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="in_progress" <%= r.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+                        <option value="done">Done</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                      <button type="button" class="btn btn-outline-secondary btn-sm notes-btn" data-id="<%= r.id %>" data-notes="<%= (r.notes || '').replace(/"/g,'&quot;') %>">Notes</button>
+                    </div>
+                    <% } else { %>
+                    -
+                    <% } %>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script>
+document.querySelectorAll('.status-select').forEach(function(sel){
+  sel.addEventListener('change', async function(){
+    const id = this.dataset.id, status = this.value;
+    const res = await fetch('/setup-support/api/' + id + '/status', {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'status=' + encodeURIComponent(status)
+    });
+    const j = await res.json();
+    if (j.ok) window.location.reload(); else alert(j.message || 'Failed');
+  });
+});
+document.querySelectorAll('.claim-btn').forEach(function(btn){
+  btn.addEventListener('click', async function(){
+    const id = this.dataset.id;
+    const res = await fetch('/setup-support/api/' + id + '/claim', { method: 'POST' });
+    const j = await res.json();
+    if (j.ok) window.location.reload(); else alert(j.message || 'Failed');
+  });
+});
+document.querySelectorAll('.notes-btn').forEach(function(btn){
+  btn.addEventListener('click', async function(){
+    const id = this.dataset.id, current = this.dataset.notes || '';
+    const notes = prompt('Notes (support details, contact summary):', current);
+    if (notes === null) return;
+    const status = document.querySelector('.status-select[data-id="'+id+'"]')?.value || 'in_progress';
+    const res = await fetch('/setup-support/api/' + id + '/status', {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'status=' + encodeURIComponent(status) + '&notes=' + encodeURIComponent(notes)
+    });
+    const j = await res.json();
+    if (j.ok) window.location.reload(); else alert(j.message || 'Failed');
+  });
+});
+</script>
+</body>
+</html>

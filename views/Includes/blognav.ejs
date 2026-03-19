@@ -55,7 +55,7 @@
     <meta name=description content="<%=result[0].meta_description%>"/>
         <meta name="abstract" content="<%=result[0].meta_abstract%>"/>
         <meta name=keywords content="<%=result[0].meta_keywords%>,<%=result[0].tags%>"/>
-        <link rel="alternate" hreflang="en" href="https://www.filemakr.com">
+        <link rel="alternate" hreflang="en" href="<%= (result[0].canonical_url && result[0].canonical_url.trim()) ? result[0].canonical_url : fullUrl %>">
         <meta name=robots content="all,follow"/>
         <meta name=googlebot content="index, follow"/>
         <meta name=classification content="<%=result[0].meta_keywaords%>"/>

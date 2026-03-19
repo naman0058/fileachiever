@@ -55,7 +55,17 @@
       <div class="sub">Login as Admin or Agent to access dashboard.</div>
 
       <% if (error) { %>
-        <div class="err"><%= error %></div>
+        <div class="err"><%= error %>
+        <% if (typeof setupSupportLink !== 'undefined' && setupSupportLink) { %>
+          <div class="mt-2"><a href="/setup-support/login" style="color:#2563eb;font-weight:700;">Go to Setup Support Portal →</a></div>
+        <% } %>
+        <% if (typeof sourceCodeManagerLink !== 'undefined' && sourceCodeManagerLink) { %>
+          <div class="mt-2"><a href="/source-code-manager/login" style="color:#2563eb;font-weight:700;">Go to Source Code Manager Portal →</a></div>
+        <% } %>
+        <% if (typeof projectReportManagerLink !== 'undefined' && projectReportManagerLink) { %>
+          <div class="mt-2"><a href="/project-report-manager/login" style="color:#2563eb;font-weight:700;">Go to Project Report Manager Portal →</a></div>
+        <% } %>
+        </div>
       <% } %>
 
       <label>Email</label>

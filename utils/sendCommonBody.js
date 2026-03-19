@@ -11,7 +11,7 @@ const nodemailer = require('nodemailer');
     secure: true,
     auth: {
       user: 'info@filemakr.com',
-      pass: '123a@8Anmanraspaa',
+      pass: '123a@*Anmanraspaa',
     },
   });
 

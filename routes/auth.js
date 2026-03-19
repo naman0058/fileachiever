@@ -4,9 +4,10 @@ const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
 
-// Login page
+// Login page (msg from query = e.g. redirect from requireAdmin)
 router.get('/login', (req, res) => {
-  res.render('freelancing/sales/login', { error: '' });
+  const msg = (req.query.msg || '').toString().trim();
+  res.render('freelancing/sales/login', { error: msg });
 });
 
 // Login submit (NO encryption)
@@ -34,11 +35,31 @@ router.post('/login', async (req, res) => {
       return res.render('freelancing/sales/login', { error: 'Account disabled.' });
     }
 
-    // store in session
+    const role = String(rows[0].role || '').trim().toLowerCase();
+    if (role === 'setup_support') {
+      return res.render('freelancing/sales/login', {
+        error: 'This account uses the Setup Support Portal. Please use the link below.',
+        setupSupportLink: true
+      });
+    }
+    if (role === 'source_code_manager') {
+      return res.render('freelancing/sales/login', {
+        error: 'This account uses the Source Code Manager Portal. Please use the link below.',
+        sourceCodeManagerLink: true
+      });
+    }
+    if (role === 'project_report_manager') {
+      return res.render('freelancing/sales/login', {
+        error: 'This account uses the Project Report Manager Portal. Please use the link below.',
+        projectReportManagerLink: true
+      });
+    }
+
+    // store in session (ensure role is string - MySQL may return Buffer in some configs)
     req.session.user = {
       id: rows[0].id,
       name: rows[0].name,
-      role: rows[0].role
+      role: String(rows[0].role || '').trim()
     };
 
     return res.redirect('/sales');

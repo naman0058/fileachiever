@@ -16,7 +16,7 @@ const SALT = process.env.BLOG_WRITER_SALT || 'filemakr-blog-writer-2024';
 const ITERATIONS = 100000;
 const KEYLEN = 64;
 const DIGEST = 'sha512';
-const SITE_BASE = process.env.SITE_BASE_URL || 'https://filemakr.com';
+const SITE_BASE = process.env.SITE_BASE_URL || 'https://www.filemakr.com';
 
 function hashPassword(password) {
   return crypto.pbkdf2Sync(password, SALT, ITERATIONS, KEYLEN, DIGEST).toString('hex');

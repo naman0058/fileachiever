@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= pageTitle %> • FileAchiever</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/setup-support/support.css">
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+  <style>
+    .screenshot-thumb { max-width: 120px; max-height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+    .datatable-editor-wrap { min-height: 150px; }
+    .source-code-details-card { border-left: 4px solid #2E48FB; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100px; }
+    .source-detail-html ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0; }
+    .source-detail-html li { margin-bottom: 0.25rem; }
+    .source-detail-html ul { margin-bottom: 0; padding-left: 1.25rem; }
+    .source-detail-html li { margin-bottom: 0.25rem; }
+    .source-detail-html ul { margin-bottom: 0; padding-left: 1.25rem; }
+    .source-detail-html li { margin-bottom: 0.25rem; }
+    /* Datatable: Times New Roman 12px fixed, not changeable */
+    .datatable-editor-wrap .note-editable,
+    .datatable-editor-wrap .note-editable * {
+      font-family: 'Times New Roman', Times, serif !important;
+      font-size: 12px !important;
+    }
+    /* Source Code Details - always visible, prominent */
+    .sc-details-card,
+    .source-code-details-card {
+      display: block !important;
+      visibility: visible !important;
+      min-height: 120px !important;
+      border-left: 4px solid #2E48FB !important;
+      background: linear-gradient(135deg, #fafbff 0%, #fff 100%) !important;
+    }
+    /* Admin/User Features & Functionality - render HTML as formatted content */
+    .source-detail-html ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0; }
+    .source-detail-html li { margin-bottom: 0.25rem; }
+    .source-detail-html ul ul { list-style: circle; }
+  </style>
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap">
+    <div class="support-sidebar">
+      <div class="support-sidebar__brand">
+        <div class="support-brand">Source Code Manager</div>
+        <div class="support-sub">Screenshots & demo links</div>
+      </div>
+      <nav class="support-nav">
+        <a class="support-link" href="/source-code-manager"><i class="bi bi-grid-3x3-gap-fill"></i>Dashboard</a>
+        <div class="support-nav__sep"></div>
+        <a class="support-link danger" href="/source-code-manager/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
+      </nav>
+      <div class="support-user">
+        <div class="support-user__avatar"><i class="bi bi-person-circle"></i></div>
+        <div class="support-user__info">
+          <div class="support-user__name"><%= user.name || 'User' %></div>
+          <div class="support-user__meta">Source Code Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <main class="support-main">
+    <div class="container-fluid px-4 py-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="support-page-title mb-0">Edit: <%= sc.name %></h1>
+        <a href="/source-code-manager" class="btn btn-outline-secondary">← Back</a>
+      </div>
+      <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+      <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+
+      <!-- Source Code Details – always visible for context when managing datatables -->
+      <div class="card support-card mb-4" id="source-code-details" style="border-left: 5px solid #2E48FB !important; background: #fff !important; box-shadow: 0 4px 20px rgba(46,72,251,.12) !important;">
+        <div class="card-header" style="background: #f0f4ff !important; border-bottom: 1px solid #e2e8f0;">
+          <h5 class="mb-1 fw-bold"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Source Code Details</h5>
+          <p class="mb-0 small text-muted">Project context — use this when creating datatables, diagrams, and screenshots</p>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Name</label>
+              <div class="fw-semibold"><%= sc.name || '—' %></div>
+            </div>
+            <% if (sc.category) { %>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-muted mb-1">Category</label>
+              <div><span class="badge bg-secondary"><%= sc.category %></span></div>
+            </div>
+            <% } %>
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Description</label>
+              <div class="small text-break" style="white-space: pre-wrap;"><%= sc.description || sc.short_description || '—' %></div>
+            </div>
+            <% if (sc.admin_features && String(sc.admin_features).trim()) { %>
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Admin Features</label>
+              <div class="small source-detail-html"><%- sc.admin_features %></div>
+            </div>
+            <% } %>
+            <% if (sc.user_features && String(sc.user_features).trim()) { %>
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">User Features</label>
+              <div class="small source-detail-html"><%- sc.user_features %></div>
+            </div>
+            <% } %>
+            <% if (sc.functionality && String(sc.functionality).trim()) { %>
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Functionality</label>
+              <div class="small source-detail-html text-break"><%- sc.functionality %></div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card support-card mb-4">
+            <div class="card-header support-card-header">
+              <h5 class="support-card-title">Add Missing Content</h5>
+              <p class="mb-0 small text-muted">Paste image URL or demo URL</p>
+            </div>
+            <div class="card-body">
+              <!-- Main Image -->
+              <div class="mb-4">
+                <label class="form-label fw-semibold">
+                  Main Image / Screenshot
+                  <% if (hasScreenshot) { %><span class="text-success ms-2"><i class="bi bi-check-circle-fill"></i> Present</span><% } else { %><span class="text-danger ms-2"><i class="bi bi-x-circle-fill"></i> Missing</span><% } %>
+                </label>
+                <input type="url" id="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" value="<%= sc.image || '' %>">
+                <button type="button" class="btn btn-primary mt-2" id="btnSaveImage">Save Image</button>
+              </div>
+
+              <!-- Demo URL -->
+              <div class="mb-4">
+                <label class="form-label fw-semibold">
+                  Demo Link
+                  <% if (hasDemo) { %><span class="text-success ms-2"><i class="bi bi-check-circle-fill"></i> Present</span><% } else { %><span class="text-danger ms-2"><i class="bi bi-x-circle-fill"></i> Missing</span><% } %>
+                </label>
+                <input type="url" id="demoUrl" class="form-control" placeholder="https://demo.example.com" value="<%= sc.demo_url || '' %>">
+                <button type="button" class="btn btn-primary mt-2" id="btnSaveDemo">Save Demo Link</button>
+              </div>
+
+              <!-- Additional Screenshots -->
+              <div>
+                <label class="form-label fw-semibold">Add New Screenshot</label>
+                <div class="row g-2">
+                  <div class="col-12">
+                    <input type="url" id="screenshotUrl" class="form-control" placeholder="https://example.com/image.jpg">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small mb-0">Type</label>
+                    <select id="screenshotType" class="form-select">
+                      <option value="input_design">Input Design</option>
+                      <option value="output_design">Output Design</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small mb-0">Name</label>
+                    <input type="text" id="screenshotName" class="form-control" placeholder="e.g. Login Screen">
+                  </div>
+                  <div class="col-12">
+                    <button type="button" class="btn btn-outline-primary" id="btnAddScreenshot">Add Screenshot</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card support-card">
+            <div class="card-header support-card-header">
+              <h5 class="support-card-title">Current Screenshots (<%= screenshots.length %>)</h5>
+              <p class="mb-0 small text-muted">Edit URL or delete as needed</p>
+            </div>
+            <div class="card-body">
+              <% if (screenshots.length) { %>
+              <div class="d-flex flex-column gap-3">
+                <% screenshots.forEach(function(s){ %>
+                <div class="screenshot-item border rounded p-2" data-sid="<%= s.id %>">
+                  <div class="d-flex gap-2 align-items-start">
+                    <img src="<%= s.url %>" alt="Screenshot" class="screenshot-thumb" onerror="this.style.display='none'">
+                    <div class="flex-grow-1 min-w-0">
+                      <input type="url" class="form-control form-control-sm screenshot-url-input mb-1" value="<%= s.url %>" placeholder="URL" data-sid="<%= s.id %>">
+                      <select class="form-select form-select-sm screenshot-type-input mb-1" data-sid="<%= s.id %>">
+                        <option value="input_design" <%= (s.type || 'input_design') === 'input_design' ? 'selected' : '' %>>Input Design</option>
+                        <option value="output_design" <%= (s.type || '') === 'output_design' ? 'selected' : '' %>>Output Design</option>
+                      </select>
+                      <input type="text" class="form-control form-control-sm screenshot-name-input mb-1" value="<%= s.name || '' %>" placeholder="Name" data-sid="<%= s.id %>">
+                      <div class="d-flex gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-primary screenshot-edit-btn" data-sid="<%= s.id %>">Save</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger screenshot-delete-btn" data-sid="<%= s.id %>">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+              </div>
+              <% } else { %>
+              <p class="text-muted mb-0">No screenshots yet. Add URLs in the form to the left.</p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagrams Section -->
+      <div class="card support-card mt-4">
+        <div class="card-header support-card-header">
+          <h5 class="support-card-title"><i class="bi bi-diagram-3 me-2"></i>Diagrams</h5>
+          <p class="mb-0 small text-muted">Upload diagram URLs (ER, DFD, Use Case, Class, Activity, Sequence, Flow Chart, System Architecture)</p>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <% (diagramTypes || []).forEach(function(dt){ %>
+            <% var existingUrl = (diagramsMap || {})[dt.key]; var hasDiagram = !!(existingUrl && String(existingUrl).trim()); %>
+            <div class="col-12 col-md-6 col-lg-4">
+              <div class="border rounded p-3 diagram-item h-100" data-type="<%= dt.key %>">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-semibold"><%= dt.label %></span>
+                  <% if (hasDiagram) { %><span class="badge bg-success">Present</span><% } else { %><span class="badge bg-secondary">Missing</span><% } %>
+                </div>
+                <input type="url" class="form-control form-control-sm diagram-url-input mb-2" placeholder="https://..." value="<%= existingUrl || '' %>" data-type="<%= dt.key %>">
+                <div class="d-flex gap-1">
+                  <% if (hasDiagram) { %>
+                  <button type="button" class="btn btn-sm btn-outline-primary diagram-update-btn flex-grow-1" data-type="<%= dt.key %>">Update</button>
+                  <button type="button" class="btn btn-sm btn-outline-danger diagram-delete-btn" data-type="<%= dt.key %>">Delete</button>
+                  <% } else { %>
+                  <button type="button" class="btn btn-sm btn-primary diagram-add-btn flex-grow-1" data-type="<%= dt.key %>">Add</button>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Database Screenshots Section (with Datatable) -->
+      <div class="card support-card mt-4">
+        <div class="card-header support-card-header">
+          <h5 class="support-card-title"><i class="bi bi-database me-2"></i>Database Screenshots</h5>
+          <p class="mb-0 small text-muted">Add database screenshots with names and data tables. Each item has a datatable (rich text) for tabular data. Track: Upload if missing, update or delete if exists.</p>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <label class="form-label fw-semibold">Add New Database Screenshot</label>
+              <div class="row g-2 mb-2">
+                <div class="col-12">
+                  <input type="text" id="dbScreenshotName" class="form-control" placeholder="Name (e.g. users table)">
+                </div>
+                <div class="col-12">
+                  <input type="url" id="dbScreenshotUrl" class="form-control" placeholder="https://...">
+                </div>
+                <div class="col-12">
+                  <label class="form-label small mb-1">Data Table (optional — use table tool to create)</label>
+                  <div id="dbScreenshotDataTableAdd" class="datatable-editor-wrap"></div>
+                </div>
+                <div class="col-12">
+                  <button type="button" class="btn btn-outline-primary" id="btnAddDbScreenshot">Add Database Screenshot</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <label class="form-label fw-semibold">Current Database Screenshots (<%= (dbScreenshots || []).length %>)</label>
+              <% if ((dbScreenshots || []).length) { %>
+              <div class="d-flex flex-column gap-3">
+                <% (dbScreenshots || []).forEach(function(ds){ %>
+                <% var hasDatatable = !!(ds.data_table && String(ds.data_table).trim()); %>
+                <div class="border rounded p-3 db-screenshot-item" data-dsid="<%= ds.id %>">
+                  <div class="d-flex gap-2 align-items-start mb-2">
+                    <img src="<%= ds.url %>" alt="<%= ds.name %>" class="screenshot-thumb" onerror="this.style.display='none'">
+                    <div class="flex-grow-1 min-w-0">
+                      <input type="text" class="form-control form-control-sm db-screenshot-name-input mb-1" value="<%= ds.name || '' %>" placeholder="Name" data-dsid="<%= ds.id %>">
+                      <input type="url" class="form-control form-control-sm db-screenshot-url-input mb-1" value="<%= ds.url %>" placeholder="URL" data-dsid="<%= ds.id %>">
+                      <div class="mb-1">
+                        <% if (hasDatatable) { %><span class="badge bg-success">Datatable: Present</span><% } else { %><span class="badge bg-warning text-dark">Datatable: Missing</span><% } %>
+                      </div>
+                      <div class="d-flex gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-primary db-screenshot-edit-btn" data-dsid="<%= ds.id %>">Save</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger db-screenshot-delete-btn" data-dsid="<%= ds.id %>">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <label class="form-label small mb-1">Data Table (create/edit table)</label>
+                    <div id="data-table-editor-<%= ds.id %>" class="datatable-editor-wrap" data-initial="<%- (ds.data_table || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') %>"></div>
+                  </div>
+                </div>
+                <% }) %>
+              </div>
+              <% } else { %>
+              <p class="text-muted mb-0">No database screenshots yet. Add one using the form on the left.</p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+</main>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+<script>
+const scId = <%= sc.id %>;
+// Datatable config: Times New Roman 12px, no font controls (unchangeable)
+var datatableNoteOpts = {
+  placeholder: 'Create table or paste data...',
+  height: 150,
+  minHeight: 120,
+  toolbar: [['style',['bold','italic']],['insert',['link','table']]],
+  fontNames: [], fontSize: [],
+  callbacks: {
+    onPaste: function(e) {
+      setTimeout(function() {
+        var $ed = $(e.target).closest('.note-editor').find('.note-editable');
+        if (!$ed.length && $(e.target).hasClass('note-editable')) $ed = $(e.target);
+        $ed.find('[style]').each(function() {
+          var s = ((this.getAttribute('style')||'').replace(/\bfont-family\s*:[^;]*;?/gi,'').replace(/\bfont-size\s*:[^;]*;?/gi,'').replace(/\s*;\s*/g,';').replace(/^;|;$/g,'').trim());
+          if (s) this.setAttribute('style',s); else this.removeAttribute('style');
+        });
+      }, 50);
+    }
+  }
+};
+$(function() {
+  // Add New section - always init
+  var $addEditor = $('#dbScreenshotDataTableAdd');
+  if ($addEditor.length) {
+    $addEditor.summernote(datatableNoteOpts);
+  }
+  // Current database screenshots - init each editor with content from data-initial
+  $('.datatable-editor-wrap[data-initial]').each(function() {
+    var $el = $(this);
+    if ($el.attr('id') && $el.attr('id') !== 'dbScreenshotDataTableAdd') {
+      var initial = $el.attr('data-initial') || '';
+      $el.summernote(datatableNoteOpts);
+      if (initial) $el.summernote('code', initial);
+    }
+  });
+});
+document.getElementById('btnSaveImage').onclick = async () => {
+  const url = document.getElementById('imageUrl').value.trim();
+  if (!url) { alert('Enter image URL'); return; }
+  const res = await fetch('/source-code-manager/api/' + scId + '/image', {
+    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'url=' + encodeURIComponent(url)
+  });
+  const j = await res.json();
+  if (j.ok) { alert('Saved.'); location.reload(); } else { alert(j.message || 'Failed'); }
+};
+document.getElementById('btnSaveDemo').onclick = async () => {
+  const url = document.getElementById('demoUrl').value.trim();
+  if (!url) { alert('Enter demo URL'); return; }
+  const res = await fetch('/source-code-manager/api/' + scId + '/demo', {
+    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'url=' + encodeURIComponent(url)
+  });
+  const j = await res.json();
+  if (j.ok) { alert('Saved.'); location.reload(); } else { alert(j.message || 'Failed'); }
+};
+
+document.getElementById('btnAddScreenshot').onclick = async () => {
+  const url = document.getElementById('screenshotUrl').value.trim();
+  const type = document.getElementById('screenshotType').value;
+  const name = document.getElementById('screenshotName').value.trim();
+  if (!url) { alert('Enter screenshot URL'); return; }
+  const params = new URLSearchParams({ url, type, name });
+  const res = await fetch('/source-code-manager/api/' + scId + '/screenshots', {
+    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  });
+  const j = await res.json();
+  if (j.ok) { alert('Screenshot added.'); location.reload(); } else { alert(j.message || 'Failed'); }
+};
+
+document.querySelectorAll('.screenshot-edit-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    const sid = this.dataset.sid;
+    const item = this.closest('.screenshot-item');
+    const urlInput = item && item.querySelector('.screenshot-url-input');
+    const typeInput = item && item.querySelector('.screenshot-type-input');
+    const nameInput = item && item.querySelector('.screenshot-name-input');
+    const url = (urlInput && urlInput.value || '').trim();
+    const type = (typeInput && typeInput.value) || 'input_design';
+    const name = (nameInput && nameInput.value || '').trim();
+    if (!url) { alert('Enter screenshot URL'); return; }
+    const params = new URLSearchParams({ url, type, name });
+    const res = await fetch('/source-code-manager/api/' + scId + '/screenshots/' + sid, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+    const j = await res.json();
+    if (j.ok) { alert('Screenshot updated.'); location.reload(); } else { alert(j.message || 'Failed'); }
+  });
+});
+
+document.querySelectorAll('.screenshot-delete-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    if (!confirm('Delete this screenshot?')) return;
+    const sid = this.dataset.sid;
+    const res = await fetch('/source-code-manager/api/' + scId + '/screenshots/' + sid, {
+      method: 'DELETE'
+    });
+    const j = await res.json();
+    if (j.ok) {
+      const item = this.closest('.screenshot-item');
+      if (item) item.remove();
+      else location.reload();
+    } else { alert(j.message || 'Failed'); }
+  });
+});
+
+// Diagram Add
+document.querySelectorAll('.diagram-add-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    const type = this.dataset.type;
+    const item = this.closest('.diagram-item');
+    const input = item && item.querySelector('.diagram-url-input');
+    const url = (input && input.value || '').trim();
+    if (!url) { alert('Enter diagram URL'); return; }
+    const params = new URLSearchParams({ diagram_type: type, url });
+    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams', {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+    const j = await res.json();
+    if (j.ok) { location.reload(); } else { alert(j.message || 'Failed'); }
+  });
+});
+// Diagram Update
+document.querySelectorAll('.diagram-update-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    const type = this.dataset.type;
+    const item = this.closest('.diagram-item');
+    const input = item && item.querySelector('.diagram-url-input');
+    const url = (input && input.value || '').trim();
+    if (!url) { alert('Enter diagram URL'); return; }
+    const params = new URLSearchParams({ url });
+    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams/' + type, {
+      method: 'PUT', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+    const j = await res.json();
+    if (j.ok) { location.reload(); } else { alert(j.message || 'Failed'); }
+  });
+});
+// Diagram Delete
+document.querySelectorAll('.diagram-delete-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    if (!confirm('Delete this diagram?')) return;
+    const type = this.dataset.type;
+    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams/' + type, { method: 'DELETE' });
+    const j = await res.json();
+    if (j.ok) { location.reload(); } else { alert(j.message || 'Failed'); }
+  });
+});
+
+// Database Screenshot Add
+document.getElementById('btnAddDbScreenshot') && document.getElementById('btnAddDbScreenshot').addEventListener('click', async function() {
+  const url = document.getElementById('dbScreenshotUrl')?.value?.trim() || '';
+  const name = document.getElementById('dbScreenshotName')?.value?.trim() || '';
+  if (!url) { alert('Enter URL'); return; }
+  if (!name) { alert('Enter name'); return; }
+  const dataTable = ($('#dbScreenshotDataTableAdd').summernote('code') || '').toString().trim();
+  const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url, name, data_table: dataTable })
+  });
+  const j = await res.json();
+  if (j.ok) { location.reload(); } else { alert(j.message || 'Failed'); }
+});
+
+// Database Screenshot Update & Delete
+document.querySelectorAll('.db-screenshot-edit-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    const dsid = this.dataset.dsid;
+    const item = this.closest('.db-screenshot-item');
+    const nameInput = item && item.querySelector('.db-screenshot-name-input');
+    const urlInput = item && item.querySelector('.db-screenshot-url-input');
+    const url = (urlInput && urlInput.value || '').trim();
+    const name = (nameInput && nameInput.value || '').trim();
+    let dataTable = '';
+    try {
+      var $ed = $('#data-table-editor-' + dsid);
+      if ($ed.length && $ed.summernote) dataTable = ($ed.summernote('code') || '').toString().trim();
+    } catch (e) {}
+    if (!url) { alert('Enter URL'); return; }
+    if (!name) { alert('Enter name'); return; }
+    const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots/' + dsid, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, name, data_table: dataTable })
+    });
+    const j = await res.json();
+    if (j.ok) { alert('Saved.'); location.reload(); } else { alert(j.message || 'Failed'); }
+  });
+});
+document.querySelectorAll('.db-screenshot-delete-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    if (!confirm('Delete this database screenshot?')) return;
+    const dsid = this.dataset.dsid;
+    const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots/' + dsid, { method: 'DELETE' });
+    const j = await res.json();
+    if (j.ok) { const item = this.closest('.db-screenshot-item'); if (item) item.remove(); else location.reload(); } else { alert(j.message || 'Failed'); }
+  });
+});
+</script>
+</body>
+</html>

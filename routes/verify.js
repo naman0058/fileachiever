@@ -282,14 +282,15 @@ const nodemailer = require('nodemailer');
 
 
 
-// Create a transporter for sending emails
+// Create a transporter for sending emails (GoDaddy smtpout.secureserver.net)
+// Port 465 = implicit SSL | Port 587 = STARTTLS (use secure: false)
 const transporter = nodemailer.createTransport({
-    host: 'smtpout.secureserver.net', // GoDaddy's SMTP server
-    port: 587, // Secure port for SSL
-    secure: true, // Use SSL
+    host: process.env.SMTP_HOST || 'smtpout.secureserver.net',
+    port: Number(process.env.SMTP_PORT) || 465,
+    secure: (process.env.SMTP_PORT || '465') === '465',
     auth: {
-      user: 'info@filemakr.com', // Your GoDaddy email address
-      pass: '123a@8Anmanraspaa', // Your GoDaddy email password
+      user: process.env.SMTP_USER || 'info@filemakr.com',
+      pass: process.env.SMTP_PASS || '123a@*Anmanraspaa',
     },
   });
   
@@ -301,14 +302,6 @@ const transporter = nodemailer.createTransport({
   
     async function sendInviduallyMail(result,subject,message) {
       try {
-        console.log('Data Recieve',result); 
-        // Fetch recipients from an API (replace 'api_url' with your API endpoint)
-        const recipients = result; // Assuming the API returns an array of recipients
-    
-        // Loop through recipients and send emails
-     
-    
-            // console.log('recipients',recipients)
             try {
               const mailOptions = {
                 from: 'info@filemakr.com',
@@ -335,17 +328,14 @@ const transporter = nodemailer.createTransport({
             
               };
     
-              // Send the email
-              const info = await transporter.sendMail(mailOptions);
-              console.log('information',info)
-              console.log(`Email sent to ${result.email}: ${info.response}`);
+              await transporter.sendMail(mailOptions);
             } catch (emailError) {
-              console.error(`Error sending email to ${result.email}:`, emailError);
+              console.error('Email send failed:', emailError.code || emailError.message);
             }
           
         
       } catch (fetchError) {
-        console.error('Error fetching recipients or sending emails:', fetchError);
+        console.error('Email error:', fetchError.message);
       }
     }
   
@@ -354,8 +344,6 @@ const transporter = nodemailer.createTransport({
   
     async function sendPromotionalMail(result, subject, message) {
       try {
-        console.log('Data Received', result);
-        
         const mailOptions = {
           from: 'info@filemakr.com',
           to: result.email,
@@ -380,11 +368,9 @@ const transporter = nodemailer.createTransport({
           `,
         };
     
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Information', info);
-        console.log(`Email sent to ${result.email}: ${info.response}`);
+        await transporter.sendMail(mailOptions);
       } catch (emailError) {
-        console.error(`Error sending email to ${result.email}:`, emailError);
+        console.error('Email send failed:', emailError.code || emailError.message);
       }
     }
   
@@ -392,17 +378,6 @@ const transporter = nodemailer.createTransport({
   
     async function sendUserMail(result,subject,message) {
       try {
-        console.log('Data Recieve',result); 
-        console.log('Data Recieve',subject); 
-        console.log('Data Recieve',message); 
-  
-        // Fetch recipients from an API (replace 'api_url' with your API endpoint)
-        const recipients = result; // Assuming the API returns an array of recipients
-    
-        // Loop through recipients and send emails
-     
-    
-            // console.log('recipients',recipients)
             try {
               const mailOptions = {
                 from: 'info@filemakr.com',
@@ -429,17 +404,14 @@ const transporter = nodemailer.createTransport({
             
               };
     
-              // Send the email
-              const info = await transporter.sendMail(mailOptions);
-              console.log('information',info)
-              console.log(`Email sent to ${result}: ${info.response}`);
+              await transporter.sendMail(mailOptions);
             } catch (emailError) {
-              console.error(`Error sending email to ${result}:`, emailError);
+              console.error('Email send failed:', emailError.code || emailError.message);
             }
           
         
       } catch (fetchError) {
-        console.error('Error fetching recipients or sending emails:', fetchError);
+        console.error('Email error:', fetchError.message);
       }
     }
   
@@ -692,12 +664,7 @@ async function sendEmails() {
       "SELECT id, email, name, number, unique_code, password FROM shopkeeper WHERE is_password_mail_send IS NULL OR is_password_mail_send = 0"
     );
 
-    console.log(rows)
-
-    if (rows.length === 0) {
-      console.log("No pending emails to send.");
-      return;
-    }
+    if (rows.length === 0) return;
 
     // Loop through each shopkeeper and send an email
     for (const shopkeeper of rows) {
@@ -733,7 +700,7 @@ async function sendEmails() {
           [shopkeeper.id]
         );
       } catch (mailError) {
-        console.error(`Error sending email to ${shopkeeper.email}:`, mailError);
+        console.error('Email send failed:', mailError.message);
       }
     }
 
@@ -755,12 +722,7 @@ async function sendWelcomeEmails() {
       "SELECT id, email, name, address FROM shopkeeper WHERE is_login_mail_send IS NULL OR is_login_mail_send = 0"
     );
 
-    console.log(rows)
-
-    if (rows.length === 0) {
-      console.log("No pending emails to send.");
-      return;
-    }
+    if (rows.length === 0) return;
 
     // Loop through each shopkeeper and send an email
     for (const shopkeeper of rows) {
@@ -782,9 +744,6 @@ async function sendWelcomeEmails() {
 
       try {
         await transporter.sendMail(mailOptions);
-        console.log(`Email sent to ${shopkeeper.email}`);
-
-        // Update the is_login_mail_send flag
 
         await queryAsync(
           "UPDATE shopkeeper SET is_login_mail_send = 1 WHERE id = ?",
@@ -792,7 +751,7 @@ async function sendWelcomeEmails() {
         );
        
       } catch (mailError) {
-        console.error(`Error sending email to ${shopkeeper.email}:`, mailError);
+        console.error('Email send failed:', mailError.message);
       }
     }
 

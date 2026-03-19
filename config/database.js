@@ -19,6 +19,8 @@ const ssl =
       : { rejectUnauthorized: false }
     : undefined;
 
+const connectTimeout = Number(process.env.DB_CONNECT_TIMEOUT) || 60_000; // 60s default for remote/slow DB
+
 const poolOptions = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -27,7 +29,7 @@ const poolOptions = {
   waitForConnections: true,
   connectionLimit: Number(process.env.DB_POOL || 10),
   queueLimit: 0,
-  connectTimeout: 15_000,
+  connectTimeout,
   enableKeepAlive: true,
   keepAliveInitialDelay: 5_000,
   multipleStatements: true,
@@ -43,6 +45,13 @@ const pool2 = mysql.createPool({ ...poolOptions, database: 'automate_blog' });
 attachPoolHandlers(pool2, 'automate_blog');
 
 // Legacy DB (fileachiever) - uses DB1_* or DB_* fallbacks
+const pool1Ssl =
+  process.env.DB1_SSL_MODE === 'required'
+    ? process.env.DB1_SSL_CA_PATH
+      ? { ca: fs.readFileSync(process.env.DB1_SSL_CA_PATH) }
+      : { rejectUnauthorized: false }
+    : undefined;
+
 const pool1 = mysql.createPool({
   host: process.env.DB1_HOST || process.env.DB_HOST || 'localhost',
   user: process.env.DB1_USER || process.env.DB_USER || 'root',
@@ -50,6 +59,10 @@ const pool1 = mysql.createPool({
   database: process.env.DB1_NAME || 'fileachiever',
   port: Number(process.env.DB1_PORT || process.env.DB_PORT || 3306),
   multipleStatements: true,
+  connectTimeout,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 5_000,
+  ssl: pool1Ssl,
 });
 attachPoolHandlers(pool1, 'legacy');
 
@@ -61,9 +74,13 @@ function attachPoolHandlers(p, name) {
   p.on('error', (err) => {
     console.error(`[DB ${name}]`, err.code, err.message);
   });
+  if (process.env.SKIP_DB_STARTUP_CHECK === '1') {
+    return; // Skip proactive connect - connections happen on first query
+  }
   p.getConnection((err, c) => {
-    if (err) console.error(`[DB ${name} connect]`, err);
-    else {
+    if (err) {
+      console.warn(`[DB ${name}] Initial connect failed (will retry on first query):`, err.message);
+    } else {
       console.log(`DB ${name} connected.`);
       c.release();
     }

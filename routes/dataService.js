@@ -216,7 +216,7 @@ const date_and_time = (req, res, next) => {
     try {
         const result = await queryAsync('SELECT * FROM category');
         req.categories = result;
-        let host = (req.get('host') || '').toLowerCase();
+        let host = (req.get('host') || '').toLowerCase().split(':')[0];
         if (host === 'filemakr.com') host = CANONICAL_HOST;
         const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').toLowerCase();
         req.fullUrl = (proto === 'https' ? 'https' : 'http') + '://' + host + (req.originalUrl || req.url);

@@ -1490,7 +1490,7 @@ router.post('/dashboard/post/:id/remind', async (req, res) => {
       secure: true,
       auth: {
         user: 'info@filemakr.com',
-        pass: '123a@8Anmanraspaa',
+        pass: '123a@*Anmanraspaa',
       },
     });
 
@@ -1936,7 +1936,7 @@ router.post('/performance/email/:id', async (req, res) => {
       secure: true,
       auth: {
         user: 'info@filemakr.com',
-        pass: '123a@8Anmanraspaa',
+        pass: '123a@*Anmanraspaa',
       },
     });
     await transporter.sendMail({
@@ -2019,7 +2019,7 @@ router.post('/performance/certificate/:id', async (req, res) => {
       secure: true,
       auth: {
         user: 'info@filemakr.com',
-        pass: '123a@8Anmanraspaa',
+        pass: '123a@*Anmanraspaa',
       },
     });
 
@@ -2591,7 +2591,7 @@ router.get('/credentials/sent', async (req, res) => {
       secure: true,
       auth: {
         user: 'info@filemakr.com',
-        pass: '123a@8Anmanraspaa',
+        pass: '123a@*Anmanraspaa',
       },
     });
 

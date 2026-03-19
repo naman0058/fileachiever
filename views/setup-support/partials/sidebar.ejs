@@ -1,0 +1,20 @@
+<aside class="support-sidebar">
+  <div class="support-sidebar__brand">
+    <div class="support-brand">Setup Support</div>
+    <div class="support-sub">Customer support portal</div>
+  </div>
+  <nav class="support-nav">
+    <% var qs = typeof buildQuery === 'function' ? buildQuery('all') : ''; %>
+    <a class="support-link <%= active === 'all' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">All</a>
+    <% qs = typeof buildQuery === 'function' ? buildQuery('pending') : 'tab=pending'; %>
+    <a class="support-link <%= active === 'pending' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">Pending</a>
+    <% qs = typeof buildQuery === 'function' ? buildQuery('done') : 'tab=done'; %>
+    <a class="support-link <%= active === 'done' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">Completed</a>
+    <div class="support-nav__sep"></div>
+    <a class="support-link danger" href="/setup-support/logout">Logout</a>
+  </nav>
+  <div class="support-user">
+    <div class="support-user__name"><%= user.name %></div>
+    <div class="support-user__meta">Setup Support</div>
+  </div>
+</aside>

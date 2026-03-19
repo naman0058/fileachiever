@@ -3,7 +3,7 @@ var router = express.Router();
 var pool = require('./pool')
 var table = 'programming_language'
 
-router.get('/', (req, res) => req.session.adminid ? res.render(`programming_language`) : res.render(`admin`,{msg : 'Enter Login Details'}))
+router.get('/', (req, res) => req.session.adminid ? res.render(`programming_language`) : res.redirect('/backoffice'))
 
 router.post('/insert',(req,res)=> pool.query(`insert into ${table} set ? `,req.body,(err,result)=> err ? console.log(err) : res.json(result)))
 

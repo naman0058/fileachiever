@@ -23,7 +23,50 @@
       <a class="crm-link <%= active === 'newSale' ? 'active' : '' %>" href="/sales/admin/new-sale">
         Direct Sale Entry
       </a>
-    <% } else { %>
+
+      <div class="crm-nav__sep"></div>
+      <span class="crm-nav__label">Setup Support</span>
+      <a class="crm-link <%= active === 'setupSupportOverview' ? 'active' : '' %>" href="/sales/admin/setup-support">
+        Setup Support Overview
+      </a>
+      <a class="crm-link <%= active === 'setupSupportEmployees' ? 'active' : '' %>" href="/sales/admin/setup-support/employees">
+        Setup Support Employees
+      </a>
+
+      <div class="crm-nav__sep"></div>
+      <span class="crm-nav__label">Source Code Manager</span>
+      <a class="crm-link <%= active === 'sourceCodeManagerOverview' ? 'active' : '' %>" href="/sales/admin/source-code-manager">
+        Source Code Manager Overview
+      </a>
+      <a class="crm-link <%= active === 'sourceCodeManagerEmployees' ? 'active' : '' %>" href="/sales/admin/source-code-manager/employees">
+        Source Code Manager Employees
+      </a>
+
+      <div class="crm-nav__sep"></div>
+      <span class="crm-nav__label">Project Report Manager</span>
+      <a class="crm-link <%= active === 'projectReportManagerOverview' ? 'active' : '' %>" href="/sales/admin/project-report-manager">
+        Project Report Manager Overview
+      </a>
+      <a class="crm-link <%= active === 'projectReportManagerEmployees' ? 'active' : '' %>" href="/sales/admin/project-report-manager/employees">
+        Project Report Manager Employees
+      </a>
+
+      <div class="crm-nav__sep"></div>
+      <span class="crm-nav__label">Project Report Creator</span>
+      <a class="crm-link <%= active === 'projectReportCreatorOverview' ? 'active' : '' %>" href="/sales/admin/project-report-creator">
+        Project Report Creator Overview
+      </a>
+      <a class="crm-link <%= active === 'projectReportCreatorEmployees' ? 'active' : '' %>" href="/sales/admin/project-report-creator/employees">
+        Project Report Creator Employees
+      </a>
+
+      <div class="crm-nav__sep"></div>
+      <span class="crm-nav__label">Live Demo</span>
+      <a class="crm-link <%= active === 'liveDemo' ? 'active' : '' %>" href="/sales/admin/live-demo">
+        Live Demo Manager
+      </a>
+    <% } %>
+    <% if (user.role === 'agent') { %>
       <a class="crm-link <%= active === 'overview' ? 'active' : '' %>" href="/sales/my/overview">
         Overview
       </a>

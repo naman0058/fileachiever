@@ -966,25 +966,83 @@ router.get('/source-code',dataService.allCategory, (req, res) => {
     // using this route
 router.get('/demo',dataService.allCategory, (req, res) => { 
     res.setHeader('X-Robots-Tag', 'index, follow');
-    pool.query(`select * from source_code where demo_url is not null`, 
-    (err,result)=>err ? console.log(err) : res.render('live_demo',{result:result,Metatags: onPageSeo.homePage,
-        CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,graduation_type_send:'',active:'demo'}))
-    })
+    // Merge live_demo table entries (admin-managed) with source_code entries (legacy)
+    pool.query(`SELECT id, title AS name, description, demo_link AS demo_url, seo_slug FROM live_demo WHERE is_active = 1`, (err, liveRows) => {
+      if (err) return console.log(err);
+      pool.query(`SELECT id, name, description, demo_url, NULL AS seo_slug FROM source_code WHERE demo_url IS NOT NULL AND demo_url != ''`, (err2, codeRows) => {
+        if (err2) return console.log(err2);
+        const result = [...(liveRows || []), ...(codeRows || [])];
+        res.render('live_demo',{result,Metatags: onPageSeo.homePage,
+          CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,graduation_type_send:'',active:'demo'});
+      });
+    });
+});
+
+// Single live demo page (SEO-friendly slug from live_demo table)
+router.get('/demo/:slug', dataService.allCategory, async (req, res) => {
+  const slug = (req.params.slug || '').toString().trim();
+  if (!slug) return res.redirect('/demo');
+  try {
+    const [rows] = await pool.promise().query(
+      `SELECT * FROM live_demo WHERE seo_slug = ? AND is_active = 1 LIMIT 1`,
+      [slug]
+    );
+    if (!rows || rows.length === 0) return res.status(404).render('error', { message: 'Live demo not found' });
+    const demo = rows[0];
+    const baseUrl = (req.fullUrl || (req.protocol + '://' + req.get('host') || 'https://www.filemakr.com')).replace(/\/$/, '');
+    const pageUrl = `${baseUrl}/demo/${demo.seo_slug}`;
+    const Metatags = {
+      title: demo.meta_title || (demo.title + ' | Live Demo | FileMakr'),
+      description: demo.meta_description || demo.description || ('View live demo of ' + demo.title),
+      abstract: demo.meta_description || demo.description || '',
+      keywords: demo.meta_keywords || (demo.tech_stack || '') + ', live demo, final year project, FileMakr',
+      url: pageUrl,
+      ogImage: demo.og_image || onPageSeo.commonMetaTags.ogImage
+    };
+    res.setHeader('X-Robots-Tag', 'index, follow');
+    res.render('live-demo-single', {
+      demo,
+      Metatags,
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      graduation_type_send: '',
+      active: 'demo'
+    });
+  } catch (e) {
+    console.error('Live demo single error:', e);
+    res.status(500).send('Failed to load live demo.');
+  }
+});
 
 
     // using this route
-router.get('/final-year-project-report-:name',dataService.allCategory,(req,res)=>{
-
-    let graduation_type_send = '';
-   
-    
-       var query = `select * from project where seo_name = '${req.params.name}';`
-       var query2 = `select name,seo_name,short_description from project where seo_name!= '${req.params.name}';`
-       pool.query(query+query2,(err,result)=>{
-           err ? console.log(err) : res.render('single-project-report',{result:result,Metatags: onPageSeo.homePage,
-            CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,active:'report',graduation_type_send})
-       })
-   })
+router.get('/final-year-project-report-:name', dataService.allCategory, async (req, res) => {
+    const name = (req.params.name || '').trim();
+    if (!name || name.length > 150) {
+        return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
+    }
+    try {
+        const [rows] = await pool.promise().query('SELECT * FROM project WHERE seo_name = ?', [name]);
+        if (!rows || rows.length === 0) {
+            return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
+        }
+        const [others] = await pool.promise().query('SELECT name, seo_name, short_description FROM project WHERE seo_name != ?', [rows[0].seo_name]);
+        const result = [rows, others || []];
+        res.render('single-project-report', {
+            result,
+            Metatags: onPageSeo.homePage,
+            CommonMetaTags: onPageSeo.commonMetaTags,
+            category: req.categories,
+            fullUrl: req.fullUrl,
+            active: 'report',
+            graduation_type_send: ''
+        });
+    } catch (err) {
+        console.error('final-year-project-report error:', err);
+        res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
+    }
+})
 
 
 // using this routes
@@ -1058,53 +1116,53 @@ router.get('/:graduation_type-final-year-project-report', dataService.allCategor
 
 
 // Project slug canonical redirects (duplicate-title fix: -system -> base slug)
-const SLUG_REDIRECTS = { 'email-spam-detection-system': 'email-spam-detection' };
+const SLUG_REDIRECTS = {
+  'email-spam-detection-system': 'email-spam-detection',
+  'blood-bank-&-donor-management-system-using-php-and-mysql': 'blood-bank-and-donor-management-system',
+  'client-management-system-using-php-&-mysql': 'client-management-system-using-php-and-mysql',
+  'cyber-cafe-management-system-using-php-&-mysql': 'cyber-cafe-management-system-using-php-and-mysql',
+  'student-result-management-system-using-php-&-mysql': 'student-result-management-system-using-php-and-mysql',
+  'user-registration-&-login-and-user-management-system-with-admin-panel': 'user-registration-and-login-and-user-management-system-with-admin-panel',
+  'employee-leaves-management-system-(elms)': 'employee-leave-management-system',
+};
 // using this route
-router.get('/:graduation_type-final-year-project-report-:name',dataService.allCategory,(req,res)=>{
-    const name = (req.params.name || '').toLowerCase();
+router.get('/:graduation_type-final-year-project-report-:name', dataService.allCategory, async (req, res) => {
+    const name = (req.params.name || '').trim().toLowerCase();
+    if (!name || name.length > 200) {
+        return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
+    }
+
     if (SLUG_REDIRECTS[name]) {
-      const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
-      return res.redirect(301, `/${req.params.graduation_type}-final-year-project-report-${SLUG_REDIRECTS[name]}${q}`);
+        const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+        return res.redirect(301, `/${req.params.graduation_type}-final-year-project-report-${SLUG_REDIRECTS[name]}${q}`);
     }
-    let graduation_type_send = '';
-   
-    if(req.params.graduation_type == 'btech'){
-       graduation_type_send = 'B.Tech'
-    }
-    else if(req.params.graduation_type == 'mtech'){
-       graduation_type_send = 'M.Tech'
-    }
-    else if(req.params.graduation_type == 'be'){
-      graduation_type_send = 'B.E.'
-    }
-    else if(req.params.graduation_type == 'me'){
-       graduation_type_send = 'M.E.'
-     }
-    else if(req.params.graduation_type == 'bca'){
-       graduation_type_send = 'BCA'
-     }
-     else if(req.params.graduation_type == 'mca'){
-       graduation_type_send = 'MCA'
-     }
 
-      else if(req.params.graduation_type == 'msc'){
-       graduation_type_send = 'MSc'
-     }
+    const DEGREE_MAP = { btech: 'B.Tech', mtech: 'M.Tech', be: 'B.E.', me: 'M.E.', bca: 'BCA', mca: 'MCA', msc: 'MSc', bsc: 'BSc' };
+    const graduation_type_send = DEGREE_MAP[req.params.graduation_type] || req.params.graduation_type;
 
-      else if(req.params.graduation_type == 'bsc'){
-       graduation_type_send = 'BSc'
-     }
-  
-       var query = `select * from project where seo_name = '${req.params.name}';`
-       var query1 = `select * from programming_language where name = 'HTML' || name = 'CSS' || name = 'JavaScript' || name = 'PHP';`
-       var query2 = `select name,seo_name,short_description from project where seo_name!= '${req.params.name}';`
-       pool.query(query+query1+query2,(err,result)=>{
-           err ? console.log(err) : res.render('graduation-single-project-report',{result:result,graduation_type_send,original:req.params.graduation_type,Metatags: onPageSeo.homePage,
-            CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,active:'report'})
-            const endTime = Date.now();
-        console.log(`Response time: ${endTime - req.startTime}ms`);
-       })
-   })
+    try {
+        const [rows] = await pool.promise().query('SELECT * FROM project WHERE seo_name = ?', [name]);
+        if (!rows || rows.length === 0) {
+            return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
+        }
+        const [langs] = await pool.promise().query("SELECT * FROM programming_language WHERE name IN ('HTML','CSS','JavaScript','PHP')");
+        const [others] = await pool.promise().query('SELECT name, seo_name, short_description FROM project WHERE seo_name != ?', [rows[0].seo_name]);
+        const result = [rows, langs || [], others || []];
+        res.render('graduation-single-project-report', {
+            result,
+            graduation_type_send,
+            original: req.params.graduation_type,
+            Metatags: onPageSeo.homePage,
+            CommonMetaTags: onPageSeo.commonMetaTags,
+            category: req.categories,
+            fullUrl: req.fullUrl,
+            active: 'report'
+        });
+    } catch (err) {
+        console.error('graduation-single-project-report error:', err);
+        res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
+    }
+})
 
 
 // using this route
@@ -1304,11 +1362,12 @@ var graduation_type_send = words.map(word => word.charAt(0).toUpperCase() + word
 router.get('/:name/source-code', dataService.allCategory, async (req, res) => {
     try {
         const projectidQuery = await queryAsync('SELECT id,category,license FROM source_code WHERE seo_name = ?', [req.params.name]);
+        if (!projectidQuery || projectidQuery.length === 0) {
+            return res.status(404).render('error', { message: 'Source code not found', error: { status: 404, stack: '' } });
+        }
         const projectid = projectidQuery[0].id;
         const projectcategory = projectidQuery[0].category;
         const projectlicense = projectidQuery[0].license;
-
-        console.log('ca',projectcategory)
 
      
 
@@ -1367,12 +1426,6 @@ router.get('/:name/source-code', dataService.allCategory, async (req, res) => {
 //     res.render('video-editing',{type:'Video Editing'})
 // })
 
-
-
-
-
-
-//  TaskTango Payment Recieved
 
 
 
@@ -2292,7 +2345,7 @@ const transporter = nodemailer.createTransport({
     secure: true,
     auth: {
       user: 'info@filemakr.com',
-      pass: '123a@8Anmanraspaa',
+      pass: '123a@*Anmanraspaa',
     },
   // Optional hardening for some providers:
   // tls: { rejectUnauthorized: true, minVersion: 'TLSv1.2' },
@@ -2556,8 +2609,8 @@ router.get('/blog', dataService.allCategory, (req, res) => {
   // --- Inputs ---
   const pageSize = Math.min(Math.max(parseInt(req.query.pageSize || 12, 10), 6), 48); // clamp 6–48
   const page     = Math.max(parseInt(req.query.page || 1, 10), 1);
-  const q        = (req.query.q || '').trim();
-  const cat      = (req.query.category || '').trim(); // optional future filter
+  const q        = (req.query.q || req.query.tag || '').trim().slice(0, 100);
+  const cat      = (req.query.category || '').trim().slice(0, 50);
   const order    = (req.query.sort || 'new'); // 'new' | 'old' | 'alpha'
 
   // --- Build SQL safely ---
@@ -2650,39 +2703,43 @@ router.get('/blog', dataService.allCategory, (req, res) => {
 
 
 router.get('/blog/:name', dataService.allCategory, (req, res) => {
-    const blogSlug = req.params.name;
+    const blogSlug = (req.params.name || '').trim();
+    if (!blogSlug || blogSlug.length > 200) {
+        return res.status(404).render('error', { message: 'Blog post not found', error: { status: 404, stack: '' } });
+    }
 
-    // Query to fetch the requested blog
-    const blogQuery = `
-        SELECT * FROM blogs WHERE slug = ?;
-    `;
-
-    // Query to fetch the latest 10 blogs
+    const blogQuery = `SELECT * FROM blogs WHERE slug = ? LIMIT 1`;
     const recentBlogsQuery = `
         SELECT id, meta_title, slug, thumbnail_url, created_at 
-        FROM blogs 
-        ORDER BY created_at DESC 
-        LIMIT 10;
+        FROM blogs ORDER BY created_at DESC LIMIT 10
     `;
 
-    // Execute both queries
     pool2.query(blogQuery, [blogSlug], (err, blogResult) => {
-        if (err) throw err;
+        if (err) {
+            console.error('Blog fetch error:', err);
+            return res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
+        }
+        if (!blogResult || blogResult.length === 0) {
+            return res.status(404).render('error', { message: 'Blog post not found', error: { status: 404, stack: '' } });
+        }
 
         pool2.query(recentBlogsQuery, (err2, recentBlogs) => {
-            if (err2) throw err2;
+            if (err2) {
+                console.error('Recent blogs fetch error:', err2);
+                return res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
+            }
 
             res.render('blog_details', {
                 result: blogResult,
-                recentBlogs, // Pass recent blogs to the view
+                recentBlogs: recentBlogs || [],
                 Metatags: onPageSeo.contactPage,
                 CommonMetaTags: onPageSeo.commonMetaTags,
                 msg: '',
                 category: req.categories,
                 fullUrl: req.fullUrl,
-                active:'',graduation_type_send:'B.Tech'
+                active: '',
+                graduation_type_send: 'B.Tech'
             });
-            // res.json(recentBlogs)
         });
     });
 });

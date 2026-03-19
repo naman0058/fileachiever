@@ -61,8 +61,14 @@ function asMoney(n) {
 // Auth placeholders (map to your auth system)
 // ---------------------------
 // Expect: req.user = { id, name, role }  OR req.session.user = { ... }
+// Backoffice admins (session.adminid) get full admin access to sales
 function getUser(req) {
-  return req.user || req.session?.user || null;
+  if (req.session?.adminid) {
+    return { id: req.session.adminid, name: 'Admin', role: 'admin' };
+  }
+  if (req.user) return req.user;
+  if (req.session?.user) return req.session.user;
+  return null;
 }
 
 function requireLogin(req, res, next) {
@@ -73,10 +79,12 @@ function requireLogin(req, res, next) {
 }
 
 
+const ADMIN_ROLES = new Set(['admin', 'administrator', 'superadmin']);
 function requireAdmin(req, res, next) {
   const u = req._user || getUser(req);
-  if (!u) return res.status(401).send("Unauthorized");
-  if (u.role !== 'admin') return res.status(403).send("Forbidden");
+  if (!u) return res.redirect('/auth/login');
+  const role = String(u.role || '').trim().toLowerCase();
+  if (!ADMIN_ROLES.has(role)) return res.redirect('/auth/login?msg=Admin%20access%20required.%20Please%20log%20in%20with%20an%20admin%20account.');
   next();
 }
 
@@ -85,7 +93,12 @@ function requireAdmin(req, res, next) {
 // ---------------------------
 router.get('/', requireLogin, async (req, res) => {
   const u = req._user;
-  if (u.role === 'admin') return res.redirect('/sales/admin');
+  const role = String(u.role || '').trim().toLowerCase();
+  if (['admin', 'administrator', 'superadmin'].includes(role)) return res.redirect('/sales/admin');
+  if (role === 'setup_support') return res.redirect('/setup-support');
+  if (role === 'source_code_manager') return res.redirect('/source-code-manager');
+  if (role === 'project_report_manager') return res.redirect('/project-report-manager');
+  if (role === 'project_report_creator') return res.redirect('/project-report-creator');
   return res.redirect('/sales/my');
 });
 
@@ -885,16 +898,18 @@ router.get('/my/overview', requireLogin, async (req, res) => {
 
 router.get('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
   try {
-    const agents = await queryAsync(
-      `SELECT id, name FROM crm_users WHERE is_active=1 AND role='agent' ORDER BY name ASC`
-    );
+    const [agents, setupSupportEmployees] = await Promise.all([
+      queryAsync(`SELECT id, name FROM crm_users WHERE is_active=1 AND role='agent' ORDER BY name ASC`),
+      queryAsync(`SELECT id, name FROM crm_users WHERE is_active=1 AND role='setup_support' ORDER BY name ASC`)
+    ]);
     res.render('freelancing/sales/new-sale', {
       pageTitle: 'Admin • Direct Sale Entry',
       active: 'newSale',
       user: req._user,
       agents,
+      setupSupportEmployees: setupSupportEmployees || [],
       error: '',
-      form: { name:'', number:'', enquiry:'', lead_price:'', assign:'', remarks:'', deadline:'', advance_amount:'', pakistani_price:'', sheet_uid:'' }
+      form: { name:'', number:'', enquiry:'', lead_price:'', assign:'', remarks:'', deadline:'', advance_amount:'', pakistani_price:'', sheet_uid:'', setup_support:'', project_report:'', ppt:'', assign_setup_support:'' }
     });
   } catch (e) {
     console.error('new-sale page error:', e);
@@ -924,15 +939,24 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
 
     const sheet_uid = (req.body.sheet_uid || '').toString().trim() || null;
 
+    const setup_support = !!(req.body.setup_support === '1' || req.body.setup_support === 'on');
+    const project_report = !!(req.body.project_report === '1' || req.body.project_report === 'on');
+    const ppt = !!(req.body.ppt === '1' || req.body.ppt === 'on');
+    const assign_setup_support = (req.body.assign_setup_support && parseInt(req.body.assign_setup_support, 10)) || null;
+
     if (!name || !number || !enquiry || lead_price === null) {
-      const agents = await queryAsync(`SELECT id, name FROM crm_users WHERE is_active=1 AND role='agent' ORDER BY name ASC`);
+      const [agents, setupSupportEmployees] = await Promise.all([
+        queryAsync(`SELECT id, name FROM crm_users WHERE is_active=1 AND role='agent' ORDER BY name ASC`),
+        queryAsync(`SELECT id, name FROM crm_users WHERE is_active=1 AND role='setup_support' ORDER BY name ASC`)
+      ]);
       return res.render('freelancing/sales/new-sale', {
         pageTitle: 'Admin • Direct Sale Entry',
         active: 'newSale',
         user: req._user,
         agents,
+        setupSupportEmployees: setupSupportEmployees || [],
         error: 'Name, Number, Enquiry, Lead Price are mandatory.',
-        form: { name, number: (req.body.number||''), enquiry, lead_price: (req.body.lead_price||''), assign: assign||'', remarks: remarks||'', deadline: deadline||'', advance_amount: req.body.advance_amount||'', pakistani_price: req.body.pakistani_price||'', sheet_uid: sheet_uid||'' }
+        form: { name, number: (req.body.number||''), enquiry, lead_price: (req.body.lead_price||''), assign: assign||'', remarks: remarks||'', deadline: deadline||'', advance_amount: req.body.advance_amount||'', pakistani_price: req.body.pakistani_price||'', sheet_uid: sheet_uid||'', setup_support, project_report, ppt, assign_setup_support: assign_setup_support||'' }
       });
     }
 
@@ -941,15 +965,17 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
       ? asMoneyReq(req.body.agent_price)
       : null;
 
-    await queryAsync(`
+    const result = await queryAsync(`
       INSERT INTO leads
         (name, number, deadline, enquiry, status, assign, lead_price, agent_price,
          is_project_done, is_payment_received, is_agent_payment_done,
-         advance_amount, remarks, pakistani_price, sheet_uid, created_at)
+         advance_amount, remarks, pakistani_price, sheet_uid,
+         need_setup_support, need_project_report, need_ppt, created_at)
       VALUES
         (?, ?, ?, ?, 'pending', ?, ?, ?,
          0, 0, 0,
-         ?, ?, ?, ?, NOW())
+         ?, ?, ?, ?,
+         ?, ?, ?, NOW())
     `, [
       name,
       number,
@@ -961,8 +987,21 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
       advance_amount,
       remarks,
       pakistani_price,
-      sheet_uid
+      sheet_uid,
+      setup_support ? 1 : 0,
+      project_report ? 1 : 0,
+      ppt ? 1 : 0
     ]);
+
+    const leadId = result && result.insertId;
+
+    if (setup_support && leadId) {
+      await queryAsync(`
+        INSERT INTO setup_support
+          (lead_id, customer_name, customer_number, enquiry, assigned_to, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, 'pending', NOW(), NOW())
+      `, [leadId, name, number, enquiry, assign_setup_support]);
+    }
 
     return res.redirect('/sales/admin/sales');
   } catch (e) {
@@ -1443,6 +1482,702 @@ router.post('/api/lead/update', requireLogin, requireAdmin, async (req, res) => 
   } catch (e) {
     console.error("Update lead error:", e);
     return res.status(500).json({ ok: false, message: "Server error" });
+  }
+});
+
+// ---------------------------
+// Setup Support Module
+// ---------------------------
+
+// Admin: Setup Support Overview - all requests, filters, assign
+router.get('/admin/setup-support', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const tab = (req.query.tab === 'done' || req.query.tab === 'pending') ? req.query.tab : 'all';
+    const empFilter = req.query.employee ? parseInt(req.query.employee, 10) : 0;
+
+    let where = ['1=1'];
+    const params = [];
+    if (tab === 'pending') {
+      where.push(`ss.status IN ('pending','in_progress')`);
+    } else if (tab === 'done') {
+      where.push(`ss.status = 'done'`);
+    }
+    if (empFilter && Number.isFinite(empFilter)) {
+      where.push(`ss.assigned_to = ?`);
+      params.push(empFilter);
+    }
+
+    const rows = await queryAsync(`
+      SELECT ss.*, u.name AS assigned_name
+      FROM setup_support ss
+      LEFT JOIN crm_users u ON u.id = ss.assigned_to
+      WHERE ${where.join(' AND ')}
+      ORDER BY ss.created_at DESC
+      LIMIT 500
+    `, params);
+
+    const employees = await queryAsync(
+      `SELECT id, name FROM crm_users WHERE is_active=1 AND role='setup_support' ORDER BY name`
+    );
+
+    const [pendingCount] = await queryAsync(`SELECT COUNT(*) AS c FROM setup_support WHERE status IN ('pending','in_progress')`);
+    const [doneCount] = await queryAsync(`SELECT COUNT(*) AS c FROM setup_support WHERE status = 'done'`);
+
+    return res.render('freelancing/sales/setup-support-admin', {
+      pageTitle: 'Admin • Setup Support',
+      active: 'setupSupportOverview',
+      user: req._user,
+      rows,
+      employees,
+      filters: { tab, employee: empFilter },
+      pendingCount: pendingCount?.c || 0,
+      doneCount: doneCount?.c || 0
+    });
+  } catch (e) {
+    console.error('Setup support admin error:', e);
+    res.status(500).send('Failed to load setup support.');
+  }
+});
+
+// Admin: Setup Support Employees - list + add
+router.get('/admin/setup-support/employees', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const employees = await queryAsync(`
+      SELECT id, name, email, is_active, created_at
+      FROM crm_users
+      WHERE role = 'setup_support'
+      ORDER BY name
+    `);
+    return res.render('freelancing/sales/setup-support-employees', {
+      pageTitle: 'Admin • Setup Support Employees',
+      active: 'setupSupportEmployees',
+      user: req._user,
+      employees,
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('Setup support employees error:', e);
+    res.status(500).send('Failed to load employees.');
+  }
+});
+
+router.post('/admin/setup-support/employees', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const name = (req.body.name || '').toString().trim();
+    const email = (req.body.email || '').toString().trim();
+    const password = (req.body.password || '').toString().trim();
+
+    if (!name || !email || !password) {
+      return res.redirect('/sales/admin/setup-support/employees?error=Name, email and password are required.');
+    }
+
+    const existing = await queryAsync(`SELECT id FROM crm_users WHERE email=? LIMIT 1`, [email]);
+    if (existing.length) {
+      return res.redirect('/sales/admin/setup-support/employees?error=Email already in use.');
+    }
+
+    await queryAsync(`
+      INSERT INTO crm_users (name, email, password, role, is_active, created_at)
+      VALUES (?, ?, ?, 'setup_support', 1, NOW())
+    `, [name, email, password]);
+
+    return res.redirect('/sales/admin/setup-support/employees?success=Employee added.');
+  } catch (e) {
+    console.error('Add setup support employee error:', e);
+    return res.redirect('/sales/admin/setup-support/employees?error=Failed to add employee.');
+  }
+});
+
+// API: Admin assign setup support to employee
+router.post('/api/admin/setup-support/:id/assign', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const assignedTo = (req.body.assigned_to && parseInt(req.body.assigned_to, 10)) || null;
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+
+    await queryAsync(`UPDATE setup_support SET assigned_to = ?, updated_at = NOW() WHERE id = ?`, [assignedTo, id]);
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('Assign setup support error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// API: Admin update setup support status (and optionally notes)
+router.post('/api/admin/setup-support/:id/status', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const status = (req.body.status || '').toString();
+    const notes = (req.body.notes || '').toString().trim() || null;
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+    if (!['pending', 'in_progress', 'done', 'cancelled'].includes(status)) {
+      return res.status(400).json({ ok: false, message: 'Invalid status' });
+    }
+    const rows = await queryAsync(`SELECT id FROM setup_support WHERE id = ? LIMIT 1`, [id]);
+    if (!rows.length) return res.status(404).json({ ok: false, message: 'Not found' });
+    if (status === 'done') {
+      await queryAsync(`UPDATE setup_support SET status = ?, notes = COALESCE(?, notes), completed_at = NOW(), updated_at = NOW() WHERE id = ?`, [status, notes, id]);
+    } else {
+      await queryAsync(`UPDATE setup_support SET status = ?, notes = COALESCE(?, notes), updated_at = NOW() WHERE id = ?`, [status, notes, id]);
+    }
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('Admin update setup support status error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// ---------------------------
+// Source Code Manager Admin (employees + overview)
+// ---------------------------
+router.get('/admin/source-code-manager', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const tab = (req.query.tab || 'all').toString();
+    const q = (req.query.q || '').toString().trim();
+    let where = ['1=1'];
+    const params = [];
+
+    if (tab === 'pending') {
+      where.push(`(sc.image IS NULL OR sc.image = '' OR sc.demo_url IS NULL OR sc.demo_url = '')`);
+    } else if (tab === 'complete') {
+      where.push(`sc.image IS NOT NULL AND sc.image != '' AND sc.demo_url IS NOT NULL AND sc.demo_url != ''`);
+    }
+    if (q) {
+      where.push(`(sc.name LIKE ? OR sc.seo_name LIKE ?)`);
+      const like = `%${q.replace(/%/g, '\\%')}%`;
+      params.push(like, like);
+    }
+
+    const rows = await queryAsync(`
+      SELECT sc.id, sc.name, sc.seo_name, sc.category, sc.image, sc.demo_url,
+        sc.scm_screenshot_verified, sc.scm_demo_verified,
+        (SELECT COUNT(*) FROM screenshots WHERE source_code_id = sc.id) AS screenshot_count,
+        (SELECT COUNT(*) FROM source_code_diagrams WHERE source_code_id = sc.id) AS diagram_count,
+        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id) AS db_screenshot_count,
+        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id AND data_table IS NOT NULL AND TRIM(data_table) != '') AS db_with_datatable_count,
+        (SELECT GROUP_CONCAT(url ORDER BY id SEPARATOR '|||') FROM screenshots WHERE source_code_id = sc.id) AS all_screenshot_urls,
+        (SELECT GROUP_CONCAT(COALESCE(type,'input_design') ORDER BY id SEPARATOR '|||') FROM screenshots WHERE source_code_id = sc.id) AS all_screenshot_types,
+        (SELECT GROUP_CONCAT(COALESCE(name,'') ORDER BY id SEPARATOR '|||') FROM screenshots WHERE source_code_id = sc.id) AS all_screenshot_names
+      FROM source_code sc
+      WHERE ${where.join(' AND ')}
+      ORDER BY sc.id DESC
+      LIMIT 500
+    `, params);
+
+    const SEP = '|||';
+    const enriched = rows.map(r => {
+      const hasImage = !!(r.image && String(r.image).trim());
+      const hasScreenshots = (r.screenshot_count || 0) > 0;
+      const hasScreenshot = hasImage || hasScreenshots;
+      const hasDemo = !!(r.demo_url && String(r.demo_url).trim());
+      const mainImg = (r.image && String(r.image).trim()) || null;
+      const urls = (r.all_screenshot_urls && String(r.all_screenshot_urls).split(SEP).map(u => (u || '').trim()).filter(Boolean)) || [];
+      const types = (r.all_screenshot_types && String(r.all_screenshot_types).split(SEP)) || [];
+      const names = (r.all_screenshot_names && String(r.all_screenshot_names).split(SEP)) || [];
+      const extraScreenshots = urls.map((url, i) => ({
+        url,
+        type: types[i] || 'input_design',
+        name: names[i] || ''
+      }));
+      const viewableScreenshots = [];
+      if (mainImg) viewableScreenshots.push({ url: mainImg, type: 'input_design', name: 'Main' });
+      viewableScreenshots.push(...extraScreenshots);
+      const viewableScreenshotUrl = viewableScreenshots[0]?.url || null;
+      const diagramCount = parseInt(r.diagram_count || 0, 10);
+      const hasAllDiagrams = diagramCount >= 10;
+      const dbScreenshotCount = parseInt(r.db_screenshot_count || 0, 10);
+      const dbWithDatatableCount = parseInt(r.db_with_datatable_count || 0, 10);
+      const hasDbScreenshots = dbScreenshotCount > 0;
+      const hasAllDatatables = dbScreenshotCount > 0 && dbWithDatatableCount >= dbScreenshotCount;
+      return {
+        ...r,
+        hasScreenshot,
+        hasDemo,
+        diagramCount,
+        hasAllDiagrams,
+        dbScreenshotCount,
+        dbWithDatatableCount,
+        hasDbScreenshots,
+        hasAllDatatables,
+        viewableScreenshotUrl,
+        viewableScreenshots,
+        needsScreenshot: !hasScreenshot,
+        needsDemo: !hasDemo
+      };
+    });
+
+    const [[pendingCount], [completeCount], [totalCount]] = await Promise.all([
+      queryAsync(`SELECT COUNT(*) AS c FROM source_code WHERE (image IS NULL OR image = '' OR demo_url IS NULL OR demo_url = '')`),
+      queryAsync(`SELECT COUNT(*) AS c FROM source_code WHERE image IS NOT NULL AND image != '' AND demo_url IS NOT NULL AND demo_url != ''`),
+      queryAsync(`SELECT COUNT(*) AS c FROM source_code`)
+    ]);
+
+    const filters = { tab, q };
+    const buildQuery = (t) => {
+      const p = new URLSearchParams();
+      if (t !== 'all') p.set('tab', t);
+      if (q) p.set('q', q);
+      return p.toString();
+    };
+
+    return res.render('freelancing/sales/scm-overview', {
+      pageTitle: 'Admin • Source Code Manager Overview',
+      active: 'sourceCodeManagerOverview',
+      user: req._user,
+      rows: enriched,
+      stats: { total: totalCount?.c || 0, pending: pendingCount?.c || 0, complete: completeCount?.c || 0 },
+      filters,
+      buildQuery,
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('SCM overview error:', e);
+    res.status(500).send('Failed to load.');
+  }
+});
+
+router.get('/admin/source-code-manager/employees', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const employees = await queryAsync(`
+      SELECT id, name, email, is_active, created_at
+      FROM crm_users
+      WHERE role = 'source_code_manager'
+      ORDER BY name
+    `);
+    return res.render('freelancing/sales/scm-employees', {
+      pageTitle: 'Admin • Source Code Manager Employees',
+      active: 'sourceCodeManagerEmployees',
+      user: req._user,
+      employees,
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('SCM employees error:', e);
+    res.status(500).send('Failed to load.');
+  }
+});
+
+router.post('/admin/source-code-manager/employees', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const name = (req.body.name || '').toString().trim();
+    const email = (req.body.email || '').toString().trim();
+    const password = (req.body.password || '').toString().trim();
+    if (!name || !email || !password) {
+      return res.redirect('/sales/admin/source-code-manager/employees?error=Name, email and password are required.');
+    }
+    const existing = await queryAsync(`SELECT id FROM crm_users WHERE email=? LIMIT 1`, [email]);
+    if (existing.length) {
+      return res.redirect('/sales/admin/source-code-manager/employees?error=Email already in use.');
+    }
+    await queryAsync(`
+      INSERT INTO crm_users (name, email, password, role, is_active, created_at)
+      VALUES (?, ?, ?, 'source_code_manager', 1, NOW())
+    `, [name, email, password]);
+    return res.redirect('/sales/admin/source-code-manager/employees?success=Employee added.');
+  } catch (e) {
+    console.error('Add SCM employee error:', e);
+    return res.redirect('/sales/admin/source-code-manager/employees?error=Failed to add.');
+  }
+});
+
+// API: Admin verify source code (screenshot, demo, or all)
+router.post('/api/admin/source-code-manager/:id/verify', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const field = (req.body.field || '').toString();
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+    if (!['screenshot', 'demo', 'all'].includes(field)) return res.status(400).json({ ok: false, message: 'Invalid field' });
+    const adminId = req._user?.id || req.session?.adminid;
+    if (field === 'all') {
+      await queryAsync(`UPDATE source_code SET scm_screenshot_verified = 1, scm_demo_verified = 1, scm_verified_by = ?, scm_verified_at = NOW() WHERE id = ?`, [adminId, id]);
+    } else if (field === 'screenshot') {
+      await queryAsync(`UPDATE source_code SET scm_screenshot_verified = 1, scm_verified_by = ?, scm_verified_at = NOW() WHERE id = ?`, [adminId, id]);
+    } else {
+      await queryAsync(`UPDATE source_code SET scm_demo_verified = 1, scm_verified_by = ?, scm_verified_at = NOW() WHERE id = ?`, [adminId, id]);
+    }
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('Verify SCM error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// ---------------------------
+// Project Report Manager Admin (employees + overview)
+// ---------------------------
+const MIN_PRM_HEADINGS = 10;
+
+router.get('/admin/project-report-manager', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const tab = (req.query.tab || 'all').toString();
+    const q = (req.query.q || '').toString().trim();
+    let where = ['1=1'];
+    const params = [];
+
+    if (tab === 'pending') {
+      where.push(`(SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) < ?`);
+      params.push(MIN_PRM_HEADINGS);
+    } else if (tab === 'complete') {
+      where.push(`(SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) >= ?`);
+      params.push(MIN_PRM_HEADINGS);
+    }
+    if (q) {
+      where.push(`(sc.name LIKE ? OR sc.seo_name LIKE ?)`);
+      const like = `%${q.replace(/%/g, '\\%')}%`;
+      params.push(like, like);
+    }
+
+    const rows = await queryAsync(`
+      SELECT sc.id, sc.name, sc.seo_name, sc.category, sc.prm_report_verified,
+        (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) AS report_section_count
+      FROM source_code sc
+      WHERE ${where.join(' AND ')}
+      ORDER BY sc.id DESC
+      LIMIT 500
+    `, params);
+
+    const enriched = rows.map(r => ({
+      ...r,
+      reportSectionCount: parseInt(r.report_section_count || 0, 10),
+      hasEnoughHeadings: parseInt(r.report_section_count || 0, 10) >= MIN_PRM_HEADINGS,
+      missingCount: Math.max(0, MIN_PRM_HEADINGS - parseInt(r.report_section_count || 0, 10))
+    }));
+
+    const [[pendingCount], [completeCount], [totalCount]] = await Promise.all([
+      queryAsync(`SELECT COUNT(*) AS c FROM source_code sc WHERE (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) < ?`, [MIN_PRM_HEADINGS]),
+      queryAsync(`SELECT COUNT(*) AS c FROM source_code sc WHERE (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) >= ?`, [MIN_PRM_HEADINGS]),
+      queryAsync(`SELECT COUNT(*) AS c FROM source_code`)
+    ]);
+
+    const filters = { tab, q };
+    const buildQuery = (t) => {
+      const p = new URLSearchParams();
+      if (t !== 'all') p.set('tab', t);
+      if (q) p.set('q', q);
+      return p.toString();
+    };
+
+    return res.render('freelancing/sales/prm-overview', {
+      pageTitle: 'Admin • Project Report Manager Overview',
+      active: 'projectReportManagerOverview',
+      user: req._user,
+      rows: enriched,
+      stats: { total: totalCount?.c || 0, pending: pendingCount?.c || 0, complete: completeCount?.c || 0 },
+      filters,
+      buildQuery,
+      minHeadings: MIN_PRM_HEADINGS,
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('PRM overview error:', e);
+    res.status(500).send('Failed to load.');
+  }
+});
+
+router.get('/admin/project-report-manager/employees', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const employees = await queryAsync(`
+      SELECT id, name, email, is_active, created_at
+      FROM crm_users
+      WHERE role = 'project_report_manager'
+      ORDER BY name
+    `);
+    return res.render('freelancing/sales/prm-employees', {
+      pageTitle: 'Admin • Project Report Manager Employees',
+      active: 'projectReportManagerEmployees',
+      user: req._user,
+      employees,
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('PRM employees error:', e);
+    res.status(500).send('Failed to load.');
+  }
+});
+
+router.post('/admin/project-report-manager/employees', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const name = (req.body.name || '').toString().trim();
+    const email = (req.body.email || '').toString().trim();
+    const password = (req.body.password || '').toString().trim();
+    if (!name || !email || !password) {
+      return res.redirect('/sales/admin/project-report-manager/employees?error=Name, email and password are required.');
+    }
+    const existing = await queryAsync(`SELECT id FROM crm_users WHERE email=? LIMIT 1`, [email]);
+    if (existing.length) {
+      return res.redirect('/sales/admin/project-report-manager/employees?error=Email already in use.');
+    }
+    await queryAsync(`
+      INSERT INTO crm_users (name, email, password, role, is_active, created_at)
+      VALUES (?, ?, ?, 'project_report_manager', 1, NOW())
+    `, [name, email, password]);
+    return res.redirect('/sales/admin/project-report-manager/employees?success=Employee added.');
+  } catch (e) {
+    console.error('Add PRM employee error:', e);
+    return res.redirect('/sales/admin/project-report-manager/employees?error=Failed to add.');
+  }
+});
+
+router.post('/api/admin/project-report-manager/:id/verify', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+    const adminId = req._user?.id || req.session?.adminid;
+    await queryAsync(`UPDATE source_code SET prm_report_verified = 1, prm_verified_by = ?, prm_verified_at = NOW() WHERE id = ?`, [adminId, id]);
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('Verify PRM error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// ---------------------------
+// Project Report Creator Admin (employees + overview)
+// ---------------------------
+router.get('/admin/project-report-creator', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const q = (req.query.q || '').toString().trim();
+    let where = ['1=1'];
+    const params = [];
+    if (q) {
+      where.push(`(sc.name LIKE ? OR sc.seo_name LIKE ? OR sc.description LIKE ?)`);
+      const like = `%${q.replace(/%/g, '\\%')}%`;
+      params.push(like, like, like);
+    }
+    const rows = await queryAsync(`
+      SELECT sc.id, sc.name, sc.seo_name, sc.category,
+        (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) AS section_count,
+        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id) AS db_screenshot_count,
+        (SELECT COUNT(*) FROM screenshots WHERE source_code_id = sc.id) AS screenshot_count
+      FROM source_code sc
+      WHERE ${where.join(' AND ')}
+      ORDER BY sc.id DESC
+      LIMIT 500
+    `, params);
+    return res.render('project-report-creator/dashboard', {
+      pageTitle: 'Project Report Creator Overview',
+      user: req._user,
+      rows: rows || [],
+      filters: { q }
+    });
+  } catch (e) {
+    console.error('PRC overview error:', e);
+    return res.status(500).send('Failed to load.');
+  }
+});
+
+router.get('/admin/project-report-creator/employees', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const employees = await queryAsync(`
+      SELECT id, name, email, is_active, created_at
+      FROM crm_users
+      WHERE role = 'project_report_creator'
+      ORDER BY name
+    `);
+    return res.render('freelancing/sales/prc-employees', {
+      pageTitle: 'Admin • Project Report Creator Employees',
+      active: 'projectReportCreatorEmployees',
+      user: req._user,
+      employees,
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('PRC employees error:', e);
+    res.status(500).send('Failed to load.');
+  }
+});
+
+router.post('/admin/project-report-creator/employees', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const name = (req.body.name || '').toString().trim();
+    const email = (req.body.email || '').toString().trim();
+    const password = (req.body.password || '').toString().trim();
+    if (!name || !email || !password) {
+      return res.redirect('/sales/admin/project-report-creator/employees?error=Name, email and password are required.');
+    }
+    const existing = await queryAsync(`SELECT id FROM crm_users WHERE email=? LIMIT 1`, [email]);
+    if (existing.length) {
+      return res.redirect('/sales/admin/project-report-creator/employees?error=Email already in use.');
+    }
+    await queryAsync(`
+      INSERT INTO crm_users (name, email, password, role, is_active, created_at)
+      VALUES (?, ?, ?, 'project_report_creator', 1, NOW())
+    `, [name, email, password]);
+    return res.redirect('/sales/admin/project-report-creator/employees?success=Employee added.');
+  } catch (e) {
+    console.error('Add PRC employee error:', e);
+    return res.redirect('/sales/admin/project-report-creator/employees?error=Failed to add.');
+  }
+});
+
+// ---------------------------
+// Live Demo Admin (CRUD)
+// ---------------------------
+function slugify(text) {
+  return String(text || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+router.get('/admin/live-demo', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const rows = await queryAsync(`
+      SELECT id, title, seo_slug, demo_link, tech_stack, is_active, created_at
+      FROM live_demo
+      ORDER BY created_at DESC
+    `);
+    return res.render('freelancing/sales/live-demo-list', {
+      pageTitle: 'Admin • Live Demo',
+      active: 'liveDemo',
+      user: req._user,
+      rows,
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('Live demo list error:', e);
+    return res.status(500).send('Failed to load live demos.');
+  }
+});
+
+router.get('/admin/live-demo/add', requireLogin, requireAdmin, async (req, res) => {
+  return res.render('freelancing/sales/live-demo-form', {
+    pageTitle: 'Admin • Add Live Demo',
+    active: 'liveDemo',
+    user: req._user,
+    demo: null,
+    isEdit: false,
+    error: req.query.error || '',
+    success: req.query.success || ''
+  });
+});
+
+router.post('/admin/live-demo/add', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const body = req.body;
+    const title = (body.title || '').toString().trim();
+    const description = (body.description || '').toString().trim();
+    const techStack = (body.tech_stack || '').toString().trim();
+    const demoLink = (body.demo_link || '').toString().trim();
+    const projectDetails = (body.project_details || '').toString().trim();
+    const adminFeatures = (body.admin_features || '').toString().trim();
+    const userFeatures = (body.user_features || '').toString().trim();
+    const seoSlug = (body.seo_slug || '').toString().trim() || slugify(title);
+    const metaTitle = (body.meta_title || '').toString().trim() || title;
+    const metaDescription = (body.meta_description || '').toString().trim();
+    const metaKeywords = (body.meta_keywords || '').toString().trim();
+    const metaTags = (body.meta_tags || '').toString().trim();
+    const schemaJson = (body.schema || '').toString().trim() || null;
+    const ogImage = (body.og_image || '').toString().trim() || null;
+
+    if (!title || !demoLink) {
+      return res.redirect('/sales/admin/live-demo/add?error=Title and Demo Link are required.');
+    }
+
+    const existing = await queryAsync(`SELECT id FROM live_demo WHERE seo_slug = ? LIMIT 1`, [seoSlug]);
+    if (existing.length) {
+      return res.redirect('/sales/admin/live-demo/add?error=SEO slug already exists. Use a unique slug.');
+    }
+
+    await queryAsync(`
+      INSERT INTO live_demo (title, description, tech_stack, demo_link, project_details, admin_features, user_features,
+        seo_slug, meta_title, meta_description, meta_keywords, meta_tags, schema_json, og_image)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [title, description, techStack, demoLink, projectDetails, adminFeatures, userFeatures,
+      seoSlug, metaTitle, metaDescription, metaKeywords, metaTags, schemaJson, ogImage]);
+
+    return res.redirect('/sales/admin/live-demo?success=Live demo added.');
+  } catch (e) {
+    console.error('Add live demo error:', e);
+    return res.redirect('/sales/admin/live-demo/add?error=Failed to add live demo.');
+  }
+});
+
+router.get('/admin/live-demo/edit/:id', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.redirect('/sales/admin/live-demo?error=Invalid id');
+    const rows = await queryAsync(`SELECT * FROM live_demo WHERE id = ? LIMIT 1`, [id]);
+    if (!rows.length) return res.redirect('/sales/admin/live-demo?error=Live demo not found.');
+    return res.render('freelancing/sales/live-demo-form', {
+      pageTitle: 'Admin • Edit Live Demo',
+      active: 'liveDemo',
+      user: req._user,
+      demo: rows[0],
+      isEdit: true,
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('Edit live demo error:', e);
+    return res.redirect('/sales/admin/live-demo?error=Failed to load.');
+  }
+});
+
+router.post('/admin/live-demo/edit/:id', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.redirect('/sales/admin/live-demo?error=Invalid id');
+    const body = req.body;
+    const title = (body.title || '').toString().trim();
+    const description = (body.description || '').toString().trim();
+    const techStack = (body.tech_stack || '').toString().trim();
+    const demoLink = (body.demo_link || '').toString().trim();
+    const projectDetails = (body.project_details || '').toString().trim();
+    const adminFeatures = (body.admin_features || '').toString().trim();
+    const userFeatures = (body.user_features || '').toString().trim();
+    const seoSlug = (body.seo_slug || '').toString().trim() || slugify(title);
+    const metaTitle = (body.meta_title || '').toString().trim() || title;
+    const metaDescription = (body.meta_description || '').toString().trim();
+    const metaKeywords = (body.meta_keywords || '').toString().trim();
+    const metaTags = (body.meta_tags || '').toString().trim();
+    const schemaJson = (body.schema || '').toString().trim() || null;
+    const ogImage = (body.og_image || '').toString().trim() || null;
+    const isActive = (body.is_active || '').toString() === '1' ? 1 : 0;
+
+    if (!title || !demoLink) {
+      return res.redirect(`/sales/admin/live-demo/edit/${id}?error=Title and Demo Link are required.`);
+    }
+
+    const existing = await queryAsync(`SELECT id FROM live_demo WHERE seo_slug = ? AND id != ? LIMIT 1`, [seoSlug, id]);
+    if (existing.length) {
+      return res.redirect(`/sales/admin/live-demo/edit/${id}?error=SEO slug already exists. Use a unique slug.`);
+    }
+
+    await queryAsync(`
+      UPDATE live_demo SET
+        title=?, description=?, tech_stack=?, demo_link=?, project_details=?,
+        admin_features=?, user_features=?, seo_slug=?, meta_title=?, meta_description=?,
+        meta_keywords=?, meta_tags=?, schema_json=?, og_image=?, is_active=?, updated_at=NOW()
+      WHERE id=?
+    `, [title, description, techStack, demoLink, projectDetails, adminFeatures, userFeatures,
+      seoSlug, metaTitle, metaDescription, metaKeywords, metaTags, schemaJson, ogImage, isActive, id]);
+
+    return res.redirect('/sales/admin/live-demo?success=Live demo updated.');
+  } catch (e) {
+    console.error('Update live demo error:', e);
+    return res.redirect(`/sales/admin/live-demo/edit/${id}?error=Failed to update.`);
+  }
+});
+
+router.post('/admin/live-demo/delete/:id', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.redirect('/sales/admin/live-demo?error=Invalid id');
+    await queryAsync(`DELETE FROM live_demo WHERE id = ?`, [id]);
+    return res.redirect('/sales/admin/live-demo?success=Live demo deleted.');
+  } catch (e) {
+    console.error('Delete live demo error:', e);
+    return res.redirect('/sales/admin/live-demo?error=Failed to delete.');
   }
 });
 

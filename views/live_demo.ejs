@@ -147,40 +147,6 @@
 </section>
 
 
-  <!-- Project Report Includes -->
-<section class="inc-wrap">
-  <div class="section-title">
-    <i class="feather-code" style="color:var(--brandBlue)"></i>
-    <h3>What’s Included in Every Source Code</h3>
-  </div>
-
-  <div class="inc-grid--code">
-    <div class="inc-item">
-      <i class="feather-layers"></i>
-      <span>Complete Modules</span>
-      <small>Frontend + backend with working features (auth, CRUD, admin panel, and more).</small>
-    </div>
-    <div class="inc-item">
-      <i class="feather-database"></i>
-      <span>Database Dump</span>
-      <small>Ready SQL/seed data for MySQL/PostgreSQL or JSON dumps for NoSQL where applicable.</small>
-    </div>
-    <div class="inc-item">
-      <i class="feather-file-text"></i>
-      <span>README & Setup Guide</span>
-      <small>Step-by-step install instructions, .env sample, creds, and run commands.</small>
-    </div>
-
-    <div class="inc-item">
-      <i class="feather-tool"></i>
-      <span>Optional Setup Support</span>
-      <small>One-time guided setup (environment, dependencies, ports, DB import).</small>
-    </div>
-  
-  </div>
-</section>
-
-
 
 
   <!-- Most Demanding Reports -->
@@ -224,14 +190,16 @@
 
 
         <div class="row g-3" id="Grid">
-          <% for (let i = 0; i < result.length; i++) { %>
+          <% for (let i = 0; i < result.length; i++) {
+            const detailUrl = result[i].seo_slug ? '/demo/' + result[i].seo_slug : result[i].demo_url;
+          %>
             <div class="col-md-6 col-xl-4 target"
                  data-name="<%= result[i].name %>"
                  data-desc="<%= result[i].description %>"
                  data-url="<%= result[i].demo_url %>">
               <div class="course-box h-100 d-flex flex-column">
                 <h2>
-                  <a href="<%= result[i].demo_url %>"
+                  <a href="<%= detailUrl %>"
                      title="<%= result[i].name %> | Live Demo">
                     <%= result[i].name %>
                   </a>

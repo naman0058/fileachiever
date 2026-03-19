@@ -21,7 +21,7 @@ const cookie = require('cookie');
 const Keygrip = require('keygrip');
 
 const { leadWatcher } = require('./routes/Freelancing/lead-watcher');
-require('./routes/leaderboardCron');
+// require('./routes/leaderboardCron'); // disabled
 
 const manishaRouter = require('./subdomains/manisha');
 const leadWebhook = require('./routes/Freelancing/lead-webhook');
@@ -90,6 +90,34 @@ app.use((req, res, next) => {
 });
 
 // ======================================================
+// FORCE HTTPS (canonical protocol)
+// ======================================================
+app.use((req, res, next) => {
+  const host = (req.get('host') || '').toLowerCase().split(':')[0];
+  const isFilemakr = host === 'filemakr.com' || host === 'www.filemakr.com';
+  if (isFilemakr && process.env.NODE_ENV === 'production') {
+    const proto = (req.get('x-forwarded-proto') || req.protocol || 'http').toLowerCase();
+    if (proto !== 'https') {
+      return res.redirect(301, 'https://www.filemakr.com' + (req.originalUrl || req.url));
+    }
+  }
+  next();
+});
+
+// ======================================================
+// REDIRECT NON-WWW TO WWW (canonical domain)
+// Ensures canonical URLs always resolve to www.filemakr.com
+// ======================================================
+app.use((req, res, next) => {
+  const host = (req.get('host') || '').toLowerCase().split(':')[0];
+  if (host === 'filemakr.com') {
+    const target = 'https://www.filemakr.com' + (req.originalUrl || req.url);
+    return res.redirect(301, target);
+  }
+  next();
+});
+
+// ======================================================
 // ONLY KEEP SAFE URL NORMALIZATION
 // This does not force domain/https and is safe for now.
 // ======================================================
@@ -123,11 +151,92 @@ app.use((req, res, next) => {
 });
 
 // ======================================================
+// MALFORMED PROJECT REPORT URL REDIRECTS
+// Catches *-final-year-project-report-* where prefix is not a valid degree
+// e.g. online-shopping-system-final-year-project-report-email-spam-detection-system
+//      hotel-booking-system-btech-final-year-project-report-email-spam-detection-system
+// ======================================================
+app.use((req, res, next) => {
+  try {
+    const m = req.path.match(/^\/(.+)-final-year-project-report-(.+)$/i);
+    if (!m) return next();
+
+    const prefix = (m[1] || '').toLowerCase().replace(/\./g, '');
+    const projectSlug = (m[2] || '').trim();
+    if (!projectSlug) return next();
+
+    if (CANONICAL_DEGREES.includes(prefix)) return next();
+
+    let degree = 'btech';
+    for (const d of CANONICAL_DEGREES) {
+      if (prefix.includes(d)) {
+        degree = d;
+        break;
+      }
+    }
+
+    const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    return res.redirect(301, `/${degree}-final-year-project-report-${projectSlug}${query}`);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// ======================================================
+// TRAILING SLASH REDIRECT
+// ======================================================
+app.use((req, res, next) => {
+  if (req.path.length > 1 && req.path.endsWith('/')) {
+    return res.redirect(301, req.path.slice(0, -1) + (req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : ''));
+  }
+  next();
+});
+
+// ======================================================
+// LEGACY / STATIC REDIRECTS
+// ======================================================
+const LEGACY_REDIRECTS = {
+  '/terms': '/terms-and-conditions',
+  '/final-year-project-tools': '/final-year-project-ideas',
+  '/final-year-projects-list': '/final-year-project-ideas',
+  '/privacy': '/privacy-policy',
+  '/refund': '/refund-policy',
+};
+app.use((req, res, next) => {
+  const target = LEGACY_REDIRECTS[req.path];
+  if (target && target !== req.path) {
+    const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    return res.redirect(301, target + q);
+  }
+  next();
+});
+
+// ======================================================
+// MALFORMED / BROKEN URL REDIRECTS
+// ======================================================
+app.use((req, res, next) => {
+  const p = req.path;
+  if (p.includes('<') || p.includes('>') || p.includes('"') || /\/[a-z]-$/.test(p)) {
+    return res.redirect(301, '/');
+  }
+  if (p.startsWith('/us/trends/') && p.length < 30) {
+    return res.redirect(301, '/trending');
+  }
+  next();
+});
+
+// ======================================================
 // SPECIAL REDIRECTS
 // ======================================================
 app.use((req, res, next) => {
   if (req.path === '/blog writer' || req.path === '/blog%20writer') {
     return res.redirect(301, '/blog-writer');
+  }
+  if (req.path === '/btech-final-year-project-report-e-' || req.path === '/btech-final-year-project-report-e') {
+    return res.redirect(301, '/btech-final-year-project-report');
+  }
+  if (req.path === '/ieee-standard-project-report-examples') {
+    return res.redirect(301, '/btech-final-year-project-report');
   }
   return next();
 });
