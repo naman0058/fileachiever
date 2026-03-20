@@ -21,25 +21,27 @@ const ADMIN_ROLES = new Set(['admin', 'administrator', 'superadmin']);
 const BLACK = '000000';
 const FONT_OPTS = { font: 'Times New Roman', size: 24, color: BLACK };
 
-/** Parse HTML and return TextRun[] preserving bold, italic, underline. Ensures space between adjacent formatted runs. */
+/** Parse HTML and return TextRun[] preserving bold, italic, underline. Strips links (a tags). Ensures space between runs. */
 function htmlToTextRuns(html) {
   if (!html || !String(html).trim()) return [];
-  const runs = [];
+  // Strip anchor tags but keep inner text (avoids blue underlined links in Word)
+  let h = String(html).replace(/<a\s[^>]*>/gi, '').replace(/<\/a>/gi, '');
+  const rawRuns = [];  // { text, bold, italics, underline }
   const formatStack = [];
   const regex = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>|([^<]+)/g;
   let match;
   let text = '';
-  const flush = (addTrailingSpace = false) => {
-    let t = text.replace(/\s+/g, ' ').trim();
-    if (addTrailingSpace && t) t += ' ';
+  let lastChar = '';
+  const flush = () => {
+    const t = text.replace(/\s+/g, ' ').trim();
     if (t) {
-      const opts = { ...FONT_OPTS, text: t };
-      if (formatStack.some(f => f === 'b' || f === 'strong')) opts.bold = true;
-      if (formatStack.some(f => f === 'i' || f === 'em')) opts.italics = true;
-      if (formatStack.some(f => f === 'u')) opts.underline = { type: UnderlineType.SINGLE };
-      runs.push(new TextRun(opts));
-    } else if (addTrailingSpace && runs.length > 0 && /\s/.test(text)) {
-      runs.push(new TextRun({ ...FONT_OPTS, text: ' ' }));
+      lastChar = t.slice(-1);
+      rawRuns.push({
+        text: t,
+        bold: formatStack.some(f => f === 'b' || f === 'strong'),
+        italics: formatStack.some(f => f === 'i' || f === 'em'),
+        underline: formatStack.some(f => f === 'u')
+      });
     }
     text = '';
   };
@@ -48,21 +50,56 @@ function htmlToTextRuns(html) {
     const idx = formatStack.lastIndexOf(t);
     if (idx >= 0) formatStack.splice(idx, 1);
   };
-  while ((match = regex.exec(html)) !== null) {
+  const needsSpaceBefore = (raw) => {
+    const trimmed = raw.replace(/^\s*/, '');
+    if (!trimmed) return false;
+    const first = trimmed.charAt(0);
+    if (/[.,;:!?)\]'"%]/.test(first)) return false;  // no space before punctuation
+    if (/^\s/.test(raw)) return false;  // already has leading space
+    const prev = (text.trim() && text.trim().slice(-1)) || lastChar;
+    return /[a-zA-Z0-9]/.test(prev) && /[a-zA-Z0-9]/.test(first);
+  };
+  while ((match = regex.exec(h)) !== null) {
     if (match[1]) {
       const tag = match[1].toLowerCase();
       const isClose = match[0].startsWith('</');
       if (['b', 'strong', 'i', 'em', 'u'].includes(tag)) {
-        flush(true);
+        flush();
         if (isClose) popTag(tag); else pushTag(tag);
       } else if (tag === 'br') {
         text += ' ';
       }
     } else {
-      text += (match[2] || '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+      let raw = (match[2] || '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+      if (needsSpaceBefore(raw)) {
+        rawRuns.push({ text: ' ', bold: false, italics: false, underline: false });
+        lastChar = ' ';
+      }
+      text += raw;
     }
   }
-  flush(false);
+  flush();
+
+  // Post-process: insert space between runs (e.g. "System"+"is" -> "System is", "users:"+"customers" -> "users: customers")
+  const runs = [];
+  for (let i = 0; i < rawRuns.length; i++) {
+    const r = rawRuns[i];
+    if (i > 0) {
+      const prev = rawRuns[i - 1];
+      const prevEnd = prev.text.trim().slice(-1);
+      const nextStart = r.text.replace(/^\s*/, '').charAt(0);
+      const needsSpace = /[a-zA-Z0-9]/.test(nextStart) && !/^\s/.test(r.text) &&
+        (/[a-zA-Z0-9]/.test(prevEnd) || prevEnd === ':');
+      if (needsSpace) {
+        runs.push(new TextRun({ ...FONT_OPTS, text: ' ' }));
+      }
+    }
+    const opts = { ...FONT_OPTS, text: r.text };
+    if (r.bold) opts.bold = true;
+    if (r.italics) opts.italics = true;
+    if (r.underline) opts.underline = { type: UnderlineType.SINGLE };
+    runs.push(new TextRun(opts));
+  }
   return runs;
 }
 
@@ -254,12 +291,19 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
     const BLACK = '000000';
     // 1.5 line height: value in 240ths of a line when lineRule is AUTO (360 = 1.5 * 240)
     const LINE_HEIGHT = 360;
-    const paraSpacing = { spacing: { line: LINE_HEIGHT, lineRule: LineRuleType.AUTO } };
+    // Spacing after 8 pt = 160 twips (20 twips per point)
+    const SPACING_AFTER = 160;
+    const paraSpacing = { spacing: { line: LINE_HEIGHT, lineRule: LineRuleType.AUTO, after: SPACING_AFTER } };
 
     const addHeading = (text, sizePt = 16, centered = true, opts = {}) => {
       const isMainHeading = sizePt >= 16 && centered;
-      const displayText = (text || ' ').trim();
-      const finalText = isMainHeading ? displayText.toUpperCase() : displayText;
+      const prefix = opts.prefix || '';
+      const raw = (text || ' ').trim();
+      // Main headings: "Chapter 1: Introduction" (title case). Subheadings: "1.1 Overview" (as-is)
+      const displayText = isMainHeading
+        ? raw.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+        : raw;
+      const finalText = (prefix + displayText) || ' ';
       const pageBreak = opts.pageBreakBefore !== undefined
         ? opts.pageBreakBefore
         : (isMainHeading && children.length > 0);
@@ -279,17 +323,35 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
           .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
           .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
         const $ = cheerio.load(safeHtml, { decodeEntities: false });
-        const paras = $('p');
-        if (paras.length > 0) {
-          paras.each((_, pEl) => {
-            const inner = $(pEl).html() || '';
-            const runs = htmlToTextRuns(inner);
-            if (runs.length > 0) {
-              children.push(new Paragraph({
-                children: runs,
-                alignment: AlignmentType.JUSTIFIED,
-                ...paraSpacing
-              }));
+        // Walk p, ul, ol in document order to preserve paragraphs and bullet lists
+        const blocks = $('p, ul, ol');
+        if (blocks.length > 0) {
+          blocks.each((_, el) => {
+            const tag = (el.tagName || '').toLowerCase();
+            const $el = $(el);
+            if (tag === 'p') {
+              const inner = $el.html() || '';
+              const runs = htmlToTextRuns(inner);
+              if (runs.length > 0) {
+                children.push(new Paragraph({
+                  children: runs,
+                  alignment: AlignmentType.JUSTIFIED,
+                  ...paraSpacing
+                }));
+              }
+            } else if (tag === 'ul' || tag === 'ol') {
+              $el.find('> li').each((_, liEl) => {
+                const liHtml = $(liEl).html() || '';
+                const runs = htmlToTextRuns(liHtml);
+                if (runs.length > 0) {
+                  children.push(new Paragraph({
+                    children: runs,
+                    bullet: { level: 0 },
+                    alignment: AlignmentType.LEFT,
+                    ...paraSpacing
+                  }));
+                }
+              });
             }
           });
         } else {
@@ -314,6 +376,9 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       }
     };
 
+    // Page content area: ~6.5" width, ~8" height (1" margins). docx ~96 DPI: full width, fit within page
+    const PAGE_CONTENT_WIDTH = 600;
+    const PAGE_CONTENT_HEIGHT = 550;
     const addImage = async (url, opts = {}) => {
       try {
         const fullUrl = url.startsWith('http') ? url : (req.protocol + '://' + req.get('host') + (url.startsWith('/') ? '' : '/') + url);
@@ -323,20 +388,18 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
         if (buf.length > 0 && buf.length < 5 * 1024 * 1024) { // max 5MB
           const ext = (url.split('.').pop() || 'jpg').toLowerCase().replace(/\?.*$/, '');
           const type = ['png','jpg','jpeg','gif','bmp'].includes(ext) ? (ext === 'jpg' ? 'jpeg' : ext) : 'jpeg';
-          const maxWidth = opts.maxWidth ?? 450;
-          const maxHeight = opts.maxHeight ?? 350;
-          let width = maxWidth, height = maxHeight;
+          const maxW = opts.maxWidth ?? PAGE_CONTENT_WIDTH;
+          const maxH = opts.maxHeight ?? PAGE_CONTENT_HEIGHT;
+          let width = maxW, height = maxH;
           try {
             const dims = getImageSize(buf);
             if (dims && dims.width && dims.height) {
-              let scale = maxWidth / dims.width;
-              width = maxWidth;
+              // Scale to fit within page: 100% of available width, no crop, maintain aspect ratio
+              const scaleW = maxW / dims.width;
+              const scaleH = maxH / dims.height;
+              const scale = Math.min(scaleW, scaleH, 1);  // never upscale
+              width = Math.round(dims.width * scale);
               height = Math.round(dims.height * scale);
-              if (height > maxHeight) {
-                scale = maxHeight / dims.height;
-                height = maxHeight;
-                width = Math.round(dims.width * scale);
-              }
               if (width < 50) width = 50;
               if (height < 50) height = 50;
             }
@@ -437,18 +500,22 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
     };
 
     // Build index entries: S.No., Chapter (Including Subchapter), Page No.
+    // Format: Main "Chapter 1 INTRODUCTION", Sub "1.1 Purpose of the Project"
     const indexRows = [];
     let secNum = 0;
+    let subCount = 0;
     let pageNum = 1;
     for (const it of items) {
       if (it.type === 'heading' && it.heading) {
         secNum++;
-        indexRows.push({ sNo: String(secNum), chapter: it.heading, page: String(pageNum) });
+        subCount = 0;
+        const chTitle = (it.heading || '').trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        indexRows.push({ sNo: String(secNum), chapter: `Chapter ${secNum}: ${chTitle}`, page: String(pageNum) });
         pageNum++;
       } else if (it.type === 'subheading' && it.subheading) {
-        const subCount = indexRows.filter(r => r.sNo.startsWith(secNum + '.')).length;
-        const sNo = secNum + '.' + (subCount + 1);
-        indexRows.push({ sNo, chapter: it.subheading, page: String(pageNum) });
+        subCount++;
+        const sNo = secNum + '.' + subCount;
+        indexRows.push({ sNo, chapter: `${sNo} ${(it.subheading || '').trim()}`, page: String(pageNum) });
         pageNum++;
       }
     }
@@ -486,13 +553,21 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
     }
 
     let nextSubheadingIsFirst = true;
+    let chapterNum = 0;
+    let subNum = 0;
     for (const it of items) {
       const type = (it.type || '').toString();
       if (type === 'heading') {
+        chapterNum++;
+        subNum = 0;
         nextSubheadingIsFirst = true;
-        addHeading(it.heading || '', 16, true);  // Main heading: centered, uppercase, bold
+        addHeading(it.heading || '', 16, true, { prefix: `Chapter ${chapterNum}: ` });  // Main: "Chapter 1: Introduction"
       } else if (type === 'subheading') {
-        addHeading(it.subheading || '', 14, false, { pageBreakBefore: !nextSubheadingIsFirst });
+        subNum++;
+        addHeading(it.subheading || '', 14, false, {
+          pageBreakBefore: !nextSubheadingIsFirst,
+          prefix: `${chapterNum}.${subNum} `
+        });  // Sub: "1.1 Purpose of the Project"
         nextSubheadingIsFirst = false;
         if (it.body) addBody(it.body);
       } else if (type === 'body') {
@@ -500,7 +575,7 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       } else if (type === 'db_screenshot') {
         addSectionHeading('Data Table');
         addCaption(it.name || 'Database Screenshot', false);  // Name along with their table
-        if (it.url) await addImage(it.url, { maxWidth: 600, maxHeight: 500 });  // full page width
+        if (it.url) await addImage(it.url);  // full width, fit within page
       } else if (type === 'db_datatable') {
         addSectionHeading('Data Dictionary');
         addCaption(it.name || 'Datatable', false);  // Name along with their directory
@@ -508,11 +583,11 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       } else if (type === 'screenshot') {
         addSectionHeading('ScreenShots');
         addCaption(it.name || 'Screenshot', false);  // Name along with their screenshot
-        if (it.url) await addImage(it.url, { maxWidth: 400, maxHeight: 250 });  // Half page
+        if (it.url) await addImage(it.url);  // full width, fit within page
       } else if (type === 'diagram') {
         children.push(new Paragraph({ children: [new TextRun({ text: ' ' })], pageBreakBefore: true }));
         addCaption(it.label || it.diagram_type || 'Diagram');
-        if (it.url) await addImage(it.url, { maxWidth: 600, maxHeight: 500 });  // full page width
+        if (it.url) await addImage(it.url);  // full width, fit within page
       }
     }
 
