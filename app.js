@@ -90,23 +90,15 @@ app.use((req, res, next) => {
 });
 
 // ======================================================
-// FORCE HTTPS + NON-WWW (canonical domain)
-// Only redirect when x-forwarded-proto is explicitly 'http' to avoid loops behind proxy.
-// If proxy does not set x-forwarded-proto, let nginx/cloudflare handle HTTPS.
+// NON-WWW TO WWW (canonical domain)
+// Only redirect filemakr.com -> www.filemakr.com.
+// HTTPS redirect is handled by nginx/cloudflare - do NOT do it here to avoid loops.
 // ======================================================
 app.use((req, res, next) => {
   const host = (req.get('host') || '').toLowerCase().split(':')[0];
-  const isFilemakr = host === 'filemakr.com' || host === 'www.filemakr.com';
-  if (!isFilemakr || process.env.NODE_ENV !== 'production') return next();
-
-  const forwardedProto = (req.get('x-forwarded-proto') || '').toLowerCase();
-  const isHttp = forwardedProto === 'http';
-
-  if (host === 'filemakr.com') {
-    return res.redirect(301, 'https://www.filemakr.com' + (req.originalUrl || req.url));
-  }
-  if (isHttp) {
-    return res.redirect(301, 'https://www.filemakr.com' + (req.originalUrl || req.url));
+  if (host === 'filemakr.com' && process.env.NODE_ENV === 'production') {
+    const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').toLowerCase();
+    return res.redirect(301, (proto === 'https' ? 'https' : 'http') + '://www.filemakr.com' + (req.originalUrl || req.url));
   }
   next();
 });
