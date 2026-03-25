@@ -1011,7 +1011,7 @@ const keywordresult = index !== -1 ? string.slice(0, index).trim() : string; %>
             <div class="col-md-6 col-xl-4 target"
                  data-name="<%= result[1][i].name %>"
                  data-desc="<%= result[1][i].short_description %>"
-                 data-url="/final-year-project-report-<%= result[1][i].seo_name %>">
+                 data-url="/<%= result[1][i].seo_name %>/source-code">
               <div class="course-box h-100 d-flex flex-column">
                 <h2>
                   <a href="/<%= result[1][i].seo_name%>/source-code"
@@ -1021,7 +1021,7 @@ const keywordresult = index !== -1 ? string.slice(0, index).trim() : string; %>
                 </h2>
                 <p><%= result[1][i].description %></p>
                 <div class="mt-auto d-flex justify-content-between align-items-center">
-                  <a class="link-arrow" href="/final-year-project-report-<%= result[1][i].seo_name %>">View Project Report →</a>
+                  <a class="link-arrow" href="/<%= result[1][i].seo_name %>/source-code">Get Source Code →</a>
                 </div>
               </div>
             </div>

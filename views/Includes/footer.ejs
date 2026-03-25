@@ -47,6 +47,7 @@
   const emptyEl=document.getElementById('EmptyState');
   const grid=document.getElementById('Grid');
   const sortSel=document.getElementById('Sort');
+  const mdBtnLabel = <%- JSON.stringify(typeof listCtaLabel !== 'undefined' ? listCtaLabel : 'View') %>;
 
   let q='';
   const normalize=s=> (s||'').toLowerCase();
@@ -120,7 +121,7 @@
       <h4 class="md-title">${name}</h4>
       <p class="md-desc">${desc}</p>
       <div class="md-actions">
-        <a class="md-btn md-btn-light" href="${url}" aria-label="View ${name} details">View</a>
+        <a class="md-btn md-btn-light" href="${url}" aria-label="${mdBtnLabel}: ${name}">${mdBtnLabel}</a>
         
       </div>
     `;

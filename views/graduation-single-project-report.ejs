@@ -879,17 +879,17 @@ body{ background:var(--bg); }
             <div class="col-md-6 col-xl-4 target"
                  data-name="<%= result[2][i].name %>"
                  data-desc="<%= result[2][i].short_description %>"
-                 data-url="<%= original %>-final-year-project-report-<%= result[2][i].seo_name %>">
+                 data-url="/<%= original %>-final-year-project-report-<%= result[2][i].seo_name %>">
               <div class="course-box h-100 d-flex flex-column">
                 <h2>
-                  <a href="<%= original %>-final-year-project-report-<%= result[2][i].seo_name %>"
+                  <a href="/<%= original %>-final-year-project-report-<%= result[2][i].seo_name %>"
                      title="<%= result[2][i].name %> Project Report | PDF for <%= graduation_type_send %> Final Year">
                     <%= result[2][i].name %> — Project Report
                   </a>
                 </h2>
                 <p><%= result[2][i].short_description %></p>
                 <div class="mt-auto d-flex justify-content-between align-items-center">
-                  <a class="link-arrow" href="/<%= result[2][i].seo_name %>/source-code">Get Source Code →</a>
+                  <a class="link-arrow" href="/<%= original %>-final-year-project-report-<%= result[2][i].seo_name %>">Get Project Report →</a>
                 </div>
               </div>
             </div>

@@ -958,7 +958,7 @@ router.get('/source-code',dataService.allCategory, (req, res) => {
     res.setHeader('X-Robots-Tag', 'index, follow');
     pool.query(`select * from source_code`,
 (err,result)=>err ? console.log(err) : res.render('category',{result:result,Metatags: onPageSeo.sourcePage,
-        CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,graduation_type_send:'',active:'source-code'}))
+        CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,graduation_type_send:'',active:'source-code',listCtaLabel:'Get Source Code'}))
     })
 
 
@@ -1036,7 +1036,8 @@ router.get('/final-year-project-report-:name', dataService.allCategory, async (r
             category: req.categories,
             fullUrl: req.fullUrl,
             active: 'report',
-            graduation_type_send: ''
+            graduation_type_send: '',
+            listCtaLabel: 'Get Project Report'
         });
     } catch (err) {
         console.error('final-year-project-report error:', err);
@@ -1103,7 +1104,8 @@ router.get('/:graduation_type-final-year-project-report', dataService.allCategor
       category: req.categories,
       msg: '',
       fullUrl: req.fullUrl,
-      active:'report'
+      active:'report',
+      listCtaLabel: 'Get Project Report'
     });
   } catch (err) {
     console.error('project-report route error:', err);
@@ -1156,7 +1158,8 @@ router.get('/:graduation_type-final-year-project-report-:name', dataService.allC
             CommonMetaTags: onPageSeo.commonMetaTags,
             category: req.categories,
             fullUrl: req.fullUrl,
-            active: 'report'
+            active: 'report',
+            listCtaLabel: 'Get Project Report'
         });
     } catch (err) {
         console.error('graduation-single-project-report error:', err);
@@ -1385,7 +1388,7 @@ router.get('/:name/source-code', dataService.allCategory, async (req, res) => {
         console.log(`Response time: ${endTime - req.startTime}ms`);
 
         // if(projectlicense){
-            res.render('download-source-code', { result, category: req.categories, fullUrl:req.fullUrl,active:'source-code',graduation_type_send:'' ,projectlicense });
+            res.render('download-source-code', { result, category: req.categories, fullUrl:req.fullUrl,active:'source-code',graduation_type_send:'' ,projectlicense, listCtaLabel: 'Get Source Code' });
         // }
         // else{
         //  res.render('under_maintenace',{result, category: req.categories, fullUrl:req.fullUrl,active:'source-code',graduation_type_send:'',projectlicense })
