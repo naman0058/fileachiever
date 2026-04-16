@@ -454,7 +454,7 @@
           </div>
 
           <button type="button" onclick="mergeData('btech_project')" class="btn-pro btn-primary-pro">Merge Duplicate Data</button>
-          <button type="button" onclick="exportTableToCSV('data.csv')" class="btn-pro">Download CSV</button>
+          <button type="button" onclick="exportConvertedLeadsCSV('converted-leads.csv')" class="btn-pro">Download CSV</button>
         </div>
       </div>
     </div>
@@ -504,6 +504,7 @@
                 data-number="<%= (result[i].number || '').toLowerCase() %>"
                 data-enquiry="<%= (result[i].enquiry || '').toLowerCase() %>"
                 data-assign="<%= (result[i].assign || '').toLowerCase() %>"
+                data-created-at="<%= result[i].created_at ? (function(d){ try { return new Date(d).toISOString().slice(0,19).replace('T',' '); } catch(e){ return String(d).slice(0,19); } })(result[i].created_at) : '' %>"
               >
                 <td><span class="pill primary"><%= i+1 %></span></td>
 
@@ -571,6 +572,51 @@
 <% include ./footer.ejs %>
 
 <script>
+  /** CSV export: only leads table, five columns; Excel-friendly (UTF-8 BOM, quoted fields). */
+  function csvEscapeCell(val) {
+    const s = (val == null ? '' : String(val)).replace(/\r\n/g, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ').trim();
+    if (/[",]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function exportConvertedLeadsCSV(filename) {
+    const body = document.getElementById('tableBody');
+    if (!body) {
+      alert('Table not found.');
+      return;
+    }
+    const headers = ['name', 'enquiry', 'created_at', 'assign', 'agent_price'];
+    const lines = [headers.join(',')];
+    const rows = Array.from(body.querySelectorAll('tr'));
+
+    rows.forEach((tr) => {
+      if (tr.style.display === 'none') return;
+      const tds = tr.querySelectorAll('td');
+      if (tds.length < 8) return;
+      const name = (tds[2] && tds[2].innerText) ? tds[2].innerText.trim() : '';
+      const enquiry = (tds[4] && tds[4].innerText) ? tds[4].innerText.trim() : '';
+      const createdAt = (tr.getAttribute('data-created-at') || '').trim();
+      const assign = (tds[6] && tds[6].innerText) ? tds[6].innerText.trim() : '';
+      const agentPrice = (tds[7] && tds[7].innerText) ? tds[7].innerText.trim() : '';
+      lines.push([
+        csvEscapeCell(name),
+        csvEscapeCell(enquiry),
+        csvEscapeCell(createdAt),
+        csvEscapeCell(assign),
+        csvEscapeCell(agentPrice)
+      ].join(','));
+    });
+
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename || 'converted-leads.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  }
+
   // Loader helpers
   function showLoader() {
     const el = document.getElementById("loader-overlay");

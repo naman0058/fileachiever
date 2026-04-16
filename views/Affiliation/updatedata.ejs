@@ -61,12 +61,24 @@
 <div class="row" style="margin-top: 20px;">
     <div class="col-xl-12">
         <label  class="form-label">Description</label>
-        <textarea id="descriptionTextArea" class="form-control" rows="5"><%=result[0].description%></textarea>
+        <textarea id="description"><%=result[0].description%></textarea>
     </div>
-  
-
 </div>
 
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xl-12">
+        <label class="form-label">Meta description</label>
+        <textarea class="form-control" id="meta_desc" rows="3" placeholder="Short summary for search engines (meta_desc)"><%= (result[0].meta_desc != null ? result[0].meta_desc : '') %></textarea>
+    </div>
+    <div class="col-xl-12" style="margin-top: 12px;">
+        <label class="form-label">Meta abstract</label>
+        <textarea class="form-control" id="meta_abstract" rows="2"><%= (result[0].meta_abstract != null ? result[0].meta_abstract : '') %></textarea>
+    </div>
+    <div class="col-xl-12" style="margin-top: 12px;">
+        <label class="form-label">Meta keywords</label>
+        <input type="text" class="form-control" id="meta_keywords" value="<%= (result[0].meta_keywords != null ? result[0].meta_keywords : '') %>">
+    </div>
+</div>
 
 <div class="row">
     <div class="col-xl-12" style="margin-top: 20px;">
@@ -88,6 +100,26 @@
 <div class="col-xl-12" style="margin-top: 20px;">
     <label  class="form-label">Login Credentials</label>
           <textarea id='login_credentials'><%=result[0].credentials%></textarea>
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+    <label class="form-label">Source code file</label>
+    <p class="text-muted small mb-1">Current: <code><%= (result[0].source_code != null && result[0].source_code !== '') ? result[0].source_code : '—' %></code> — choose a new file only if you want to replace it.</p>
+    <input type="file" class="form-control" id="source_code_file" name="source_code">
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+    <label class="form-label">README file</label>
+    <p class="text-muted small mb-1">Current: <code><%= (result[0].readme_file != null && result[0].readme_file !== '') ? result[0].readme_file : '—' %></code></p>
+    <input type="file" class="form-control" id="readme_file" name="readme_file" accept=".md,.txt,.pdf,.doc,.docx,.rtf">
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+    <label class="form-label">Schema file</label>
+    <p class="text-muted small mb-1">Current: <code><%= (result[0].schema_file != null && result[0].schema_file !== '') ? result[0].schema_file : '—' %></code></p>
+    <input type="file" class="form-control" id="schema_file" name="schema_file" accept=".json,.xml,.txt">
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+    <label class="form-label">SQL file</label>
+    <p class="text-muted small mb-1">Current: <code><%= (result[0].sql_file != null && result[0].sql_file !== '') ? result[0].sql_file : '—' %></code></p>
+    <input type="file" class="form-control" id="sql_file" name="sql_file" accept=".sql,.txt">
 </div>
 
 
@@ -173,6 +205,7 @@ var vm = new Vue({
   }
 });
 
+ CKEDITOR.replace('description');
  CKEDITOR.replace('admin_features');
  CKEDITOR.replace('user_features');
  CKEDITOR.replace('other_features');
@@ -183,18 +216,36 @@ var vm = new Vue({
 
 
  $('.save').click(function() {
-    const data = {
-        admin_features: CKEDITOR.instances['admin_features'].getData(),
-        user_features: CKEDITOR.instances['user_features'].getData(),
-        other_features: CKEDITOR.instances['other_features'].getData(),
-        how_to_run: CKEDITOR.instances['readme_text'].getData(),
-        credentials: CKEDITOR.instances['login_credentials'].getData(),
-        description: $('#descriptionTextArea').val(),
-        id: $('#id').val(),
-        status:$('#status').val()
-    };
+    const fd = new FormData();
+    fd.append('admin_features', CKEDITOR.instances['admin_features'].getData());
+    fd.append('user_features', CKEDITOR.instances['user_features'].getData());
+    fd.append('other_features', CKEDITOR.instances['other_features'].getData());
+    fd.append('how_to_run', CKEDITOR.instances['readme_text'].getData());
+    fd.append('credentials', CKEDITOR.instances['login_credentials'].getData());
+    fd.append('description', CKEDITOR.instances['description'].getData());
+    fd.append('meta_desc', $('#meta_desc').val());
+    fd.append('meta_abstract', $('#meta_abstract').val());
+    fd.append('meta_keywords', $('#meta_keywords').val());
+    fd.append('id', $('#id').val());
+    fd.append('status', $('#status').val());
+    const sourceCodeInput = document.getElementById('source_code_file');
+    if (sourceCodeInput && sourceCodeInput.files && sourceCodeInput.files.length) {
+      fd.append('source_code', sourceCodeInput.files[0]);
+    }
+    ['readme_file', 'schema_file', 'sql_file'].forEach(function (field) {
+      var el = document.getElementById(field);
+      if (el && el.files && el.files.length) {
+        fd.append(field, el.files[0]);
+      }
+    });
 
-    $.post('/affiliate/dashboard/upload/data', data)
+    $.ajax({
+      url: '/affiliate/dashboard/upload/data',
+      type: 'POST',
+      data: fd,
+      processData: false,
+      contentType: false
+    })
     .done(function(response) {
         if (response.msg === 'success') {
             alert('Successfully updated');

@@ -110,6 +110,30 @@
               <div class="small source-detail-html text-break"><%- sc.functionality %></div>
             </div>
             <% } %>
+            <div class="col-12 mt-2 pt-3 border-top">
+              <label class="form-label small fw-semibold text-muted mb-2">Project files (from CMS uploads)</label>
+              <p class="small text-muted mb-2">Download optional attachments stored with this project. Files are served from <code>/images/</code>.</p>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <% var readmeName = sc.readme_file && String(sc.readme_file).trim(); %>
+                <% var schemaName = sc.schema_file && String(sc.schema_file).trim(); %>
+                <% var sqlName = sc.sql_file && String(sc.sql_file).trim(); %>
+                <% if (readmeName) { %>
+                <a href="/images/<%= encodeURIComponent(readmeName) %>" class="btn btn-outline-primary btn-sm" download="<%= readmeName.replace(/"/g, '') %>" target="_blank" rel="noopener"><i class="bi bi-file-earmark-text me-1"></i>README file</a>
+                <% } else { %>
+                <span class="badge rounded-pill text-bg-light border text-muted fw-normal py-2 px-3"><i class="bi bi-file-earmark-text me-1"></i>README — not uploaded</span>
+                <% } %>
+                <% if (schemaName) { %>
+                <a href="/images/<%= encodeURIComponent(schemaName) %>" class="btn btn-outline-primary btn-sm" download="<%= schemaName.replace(/"/g, '') %>" target="_blank" rel="noopener"><i class="bi bi-file-earmark-code me-1"></i>Schema file</a>
+                <% } else { %>
+                <span class="badge rounded-pill text-bg-light border text-muted fw-normal py-2 px-3"><i class="bi bi-file-earmark-code me-1"></i>Schema — not uploaded</span>
+                <% } %>
+                <% if (sqlName) { %>
+                <a href="/images/<%= encodeURIComponent(sqlName) %>" class="btn btn-outline-primary btn-sm" download="<%= sqlName.replace(/"/g, '') %>" target="_blank" rel="noopener"><i class="bi bi-filetype-sql me-1"></i>SQL file</a>
+                <% } else { %>
+                <span class="badge rounded-pill text-bg-light border text-muted fw-normal py-2 px-3"><i class="bi bi-filetype-sql me-1"></i>SQL — not uploaded</span>
+                <% } %>
+              </div>
+            </div>
           </div>
         </div>
       </div>

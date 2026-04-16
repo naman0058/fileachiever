@@ -733,51 +733,22 @@ body{ background:var(--bg); }
 
   <!-- Intro -->
   <div class="desc-intro card-surface">
+   <p><%-result[0][0].description%></p>
+   <br/>
     <p>
-      The <strong><%=graduation_type_send%></strong> final-year <strong><%=result[0][0].name%></strong> <em>source code</em> is structured for fast setup and easy customization. You get readable code, clear folder architecture, and a guided README so you can run locally and present confidently.
+      
+      The <strong><%=result[0][0].name%></strong> final-year <strong><%=result[0][0].name%></strong> <em>source code</em> is structured for fast setup and easy customization. You get readable code, clear folder architecture, and a guided README so you can run locally and present confidently.
     </p>
   </div>
 
   <!-- Quick facts -->
-  <div class="facts">
-    <div class="fact"><i class="feather-zap"></i><b>Quick setup</b><span>Run in minutes with README</span></div>
-    <div class="fact"><i class="feather-layers"></i><b>Clean architecture</b><span>Modular & scalable</span></div>
-    <div class="fact"><i class="feather-smartphone"></i><b>Responsive UI</b><span>Mobile & desktop ready</span></div>
-  </div>
+ 
 
   <!-- What you’ll learn/build -->
-  <div class="desc-block">
-    <h6 class="desc-heading">What you’ll build & learn</h6>
-    <ul class="desc-check">
-      <li><i class="feather-check"></i> Implement core modules and end-to-end workflow</li>
-      <li><i class="feather-check"></i> Connect to database and handle CRUD operations</li>
-      <li><i class="feather-check"></i> Follow best practices for project structure & comments</li>
-    </ul>
-  </div>
+ 
 
   <!-- Deliverables (source code only) -->
-  <div class="desc-block">
-    <h6 class="desc-heading">Included in the download</h6>
-    <div class="desc-grid">
-      <div class="desc-item">
-        <i class="feather-monitor"></i>
-        <div><strong>Frontend</strong><span>Pages, components, assets</span></div>
-      </div>
-      <div class="desc-item">
-        <i class="feather-cpu"></i>
-        <div><strong>Backend</strong><span>APIs, controllers, services</span></div>
-      </div>
-      <div class="desc-item">
-        <i class="feather-database"></i>
-        <div><strong>Database</strong><span>Schema & sample/seed data</span></div>
-      </div>
-      <div class="desc-item">
-        <i class="feather-book-open"></i>
-        <div><strong>README</strong><span>Setup steps, scripts, notes</span></div>
-      </div>
-     
-    </div>
-  </div>
+  
 
   <!-- Source Code Overview (SEO + UX) -->
   <div class="sc-overview card-surface" style="margin-top: 10px;" itemscope itemtype="https://schema.org/SoftwareSourceCode">
@@ -802,14 +773,16 @@ body{ background:var(--bg); }
         <dt>Database</dt>
         <dd>MySQL or MongoDB</dd>
       </div>
-      <div class="sc-row">
-        <dt>UI Technologies</dt>
-        <dd>HTML, AJAX, jQuery, JavaScript, Bootstrap</dd>
-      </div>
-      <div class="sc-row">
+           <div class="sc-row">
         <dt>Browsers</dt>
         <dd>Chrome, Firefox, Edge, Opera</dd>
       </div>
+      <div class="sc-row">
+        <dt>Included in the download</dt>
+        <dd>Frontend,Backend,Database</dd>
+      </div>
+      
+
       <div class="sc-row">
         <dt>Run Scripts</dt>
         <dd>Documented in README (install, seed, start)</dd>

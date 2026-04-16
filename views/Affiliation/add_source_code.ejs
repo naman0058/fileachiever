@@ -49,12 +49,24 @@
 <div class="row" style="margin-top: 20px;">
     <div class="col-xl-12">
         <label  class="form-label">Description</label>
-        <textarea id="descriptionTextArea" class="form-control" rows="5"></textarea>
+        <textarea id="description"></textarea>
     </div>
-  
-
 </div>
 
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xl-12">
+        <label class="form-label">Meta description</label>
+        <textarea class="form-control" id="meta_desc" rows="3" placeholder="Short summary for search engines (stored as meta_desc)"></textarea>
+    </div>
+    <div class="col-xl-12" style="margin-top: 12px;">
+        <label class="form-label">Meta abstract</label>
+        <textarea class="form-control" id="meta_abstract" rows="2" placeholder="Abstract"></textarea>
+    </div>
+    <div class="col-xl-12" style="margin-top: 12px;">
+        <label class="form-label">Meta keywords</label>
+        <input type="text" class="form-control" id="meta_keywords" placeholder="keyword1, keyword2">
+    </div>
+</div>
 
 <div class="row">
     <div class="col-xl-12" style="margin-top: 20px;">
@@ -82,6 +94,18 @@
 <div class="col-xl-12" style="margin-top: 20px;">
   <label  class="form-label">Source Code</label>
         <input type="file" name="source_code" id="source_code" required>
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+  <label class="form-label">README file <span class="text-muted small">(optional)</span></label>
+  <input type="file" name="readme_file" id="readme_file" class="form-control" accept=".md,.txt,.pdf,.doc,.docx,.rtf">
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+  <label class="form-label">Schema file <span class="text-muted small">(optional, e.g. JSON-LD)</span></label>
+  <input type="file" name="schema_file" id="schema_file" class="form-control" accept=".json,.xml,.txt">
+</div>
+<div class="col-xl-12" style="margin-top: 20px;">
+  <label class="form-label">SQL file <span class="text-muted small">(optional)</span></label>
+  <input type="file" name="sql_file" id="sql_file" class="form-control" accept=".sql,.txt">
 </div>
 
 
@@ -171,6 +195,7 @@ var vm = new Vue({
   }
 });
 
+ CKEDITOR.replace('description');
  CKEDITOR.replace('admin_features');
  CKEDITOR.replace('user_features');
  CKEDITOR.replace('other_features');
@@ -195,7 +220,10 @@ $('.uploadImage').submit(function (e) {
         other_features: CKEDITOR.instances['other_features'].getData(),
         how_to_run: CKEDITOR.instances['readme_text'].getData(),
         credentials: CKEDITOR.instances['login_credentials'].getData(),
-        description: $('#descriptionTextArea').val(),
+        description: CKEDITOR.instances['description'].getData(),
+        meta_desc: $('#meta_desc').val(),
+        meta_abstract: $('#meta_abstract').val(),
+        meta_keywords: $('#meta_keywords').val(),
         name: $('#name').val(),
         seo_name : $('#name').val().toLowerCase().replace(/\s+/g, '-'),
         category: $('#language').val(),
@@ -239,7 +267,7 @@ $('.uploadImage').submit(function (e) {
 //         other_features: CKEDITOR.instances['other_features'].getData(),
 //         how_to_run: CKEDITOR.instances['readme_text'].getData(),
 //         credentials: CKEDITOR.instances['login_credentials'].getData(),
-//         description: $('#descriptionTextArea').val(),
+//         description: CKEDITOR.instances['description'].getData(),
 //         name: $('#name').val(),
 //         seo_name : $('#name').val().toLowerCase().replace(/\s+/g, '-'),
 //         category: $('#language').val(),

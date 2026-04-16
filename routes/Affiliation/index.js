@@ -21,6 +21,23 @@ const cloudinary = require('cloudinary').v2
 
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+
+/** Multer field names for source_code zip + optional readme / schema / sql uploads */
+const sourceCodeMultipartFields = [
+  { name: 'source_code', maxCount: 1 },
+  { name: 'readme_file', maxCount: 1 },
+  { name: 'schema_file', maxCount: 1 },
+  { name: 'sql_file', maxCount: 1 },
+];
+
+function applySourceCodeUploadedFilenames(req) {
+  const files = req.files;
+  if (!files) return;
+  if (files.source_code && files.source_code[0]) req.body.source_code = files.source_code[0].filename;
+  if (files.readme_file && files.readme_file[0]) req.body.readme_file = files.readme_file[0].filename;
+  if (files.schema_file && files.schema_file[0]) req.body.schema_file = files.schema_file[0].filename;
+  if (files.sql_file && files.sql_file[0]) req.body.sql_file = files.sql_file[0].filename;
+}
           
 cloudinary.config({ 
   cloud_name: 'dggf8vl9p', 
@@ -334,12 +351,15 @@ router.get('/dashboard/update/blogs/data',(req,res)=>{
 // })
 
 
-router.post('/dashboard/source_code/add',upload.single('source_code'), async (req, res) => {
+router.post('/dashboard/source_code/add', upload.fields(sourceCodeMultipartFields), async (req, res) => {
 
 
   try {
+      applySourceCodeUploadedFilenames(req);
+      if (!req.body.source_code) {
+        return res.status(400).json({ msg: 'error' });
+      }
       const { seo_name } = req.body;
-      req.body['source_code'] = req.file.filename;
 
       // Check if seo_name already exists
       const existingRecord = await queryAsync('SELECT id FROM source_code WHERE seo_name = ?', [seo_name]);
@@ -394,8 +414,9 @@ router.post('/dashboard/blogs/add',upload.single('image'), async (req, res) => {
 
 
 
-router.post('/dashboard/upload/data', (req, res) => {
+router.post('/dashboard/upload/data', upload.fields(sourceCodeMultipartFields), (req, res) => {
   console.log('req.body', req.body);
+  applySourceCodeUploadedFilenames(req);
   pool.query('UPDATE source_code SET ? WHERE id = ?', [req.body, req.body.id], (err, result) => {
       if (err) {
           console.error('Error updating data:', err);
@@ -4204,6 +4225,14 @@ router.get('/api/promoter/monthly', async (req, res, next) => {
     res.json(data);
   } catch (e) { next(e); }
 });
+
+
+    // verify.sendWhatsAppMessage(
+    //             +918319339945,
+    //             'reviewtempelate', // Template name
+    //             'en_US', // Language code
+    //             ['project','college student'+' Project Report '] // Body parameters
+    //         );
 
 
 module.exports = router;
