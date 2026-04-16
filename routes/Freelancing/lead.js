@@ -595,7 +595,7 @@ async function processCurrentTempid(page) {
   }
 
   try {
-    await sendLeadEmail(lead);
+    // await sendLeadEmail(lead);
     await markEmailStatus(leadId, { sent: true });
     console.log(`✅ Email sent to ${ALERT_TO_EMAIL}.`);
   } catch (e) {
