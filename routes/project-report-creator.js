@@ -9,7 +9,44 @@ const router = express.Router();
 const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
-const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, convertInchesToTwip, ImageRun, Table, TableRow, TableCell, LineRuleType, UnderlineType, WidthType } = require('docx');
+const { Document, Packer, Paragraph, TextRun, Run, HeadingLevel, AlignmentType, convertInchesToTwip, ImageRun, Table, TableRow, TableCell, LineRuleType, UnderlineType, WidthType, TableLayoutType, Bookmark, Footer, PageNumber, BuilderElement, XmlComponent, NextAttributeComponent, SpaceType } = require('docx');
+
+/** OOXML w:instrText for PAGEREF (complex field so rPr size/bold apply to the result in Word). */
+class InstrTextPageref extends XmlComponent {
+  constructor(bookmarkId) {
+    super('w:instrText');
+    this.root.push(new NextAttributeComponent({
+      space: { key: 'xml:space', value: SpaceType.PRESERVE }
+    }));
+    this.root.push(`PAGEREF ${bookmarkId} \\h`);
+  }
+}
+
+function tocFldChar(fldCharType, dirty = true) {
+  return new BuilderElement({
+    name: 'w:fldChar',
+    attributes: {
+      type: { key: 'w:fldCharType', value: fldCharType },
+      dirty: { key: 'w:dirty', value: dirty }
+    }
+  });
+}
+
+/** One PAGEREF complex field inside a single w:r with explicit formatting (12 pt, bold for main TOC rows). */
+function tocPagerefRun(bookmarkId, runOpts) {
+  return new Run({
+    font: runOpts.font,
+    size: runOpts.size,
+    bold: runOpts.bold,
+    color: runOpts.color,
+    children: [
+      tocFldChar('begin'),
+      new InstrTextPageref(bookmarkId),
+      tocFldChar('separate'),
+      tocFldChar('end')
+    ]
+  });
+}
 const fetch = (typeof globalThis.fetch === 'function') ? globalThis.fetch : require('node-fetch');
 const { imageSize: getImageSize } = require('image-size');
 const cheerio = require('cheerio');
@@ -285,15 +322,46 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
     if (!Number.isFinite(sourceCodeId)) return res.status(400).json({ ok: false, message: 'Invalid sourceCodeId' });
 
     const marginTwip = convertInchesToTwip(1); // 1 inch ≈ 2.54cm
-    const children = [];
-    const sectionHeadingsAdded = new Set();
+    const parts = [];
 
     const BLACK = '000000';
+    /** Table of contents body: 12 pt (docx size = half-points) */
+    const TOC_FS = 24;
     // 1.5 line height: value in 240ths of a line when lineRule is AUTO (360 = 1.5 * 240)
     const LINE_HEIGHT = 360;
     // Spacing after 8 pt = 160 twips (20 twips per point)
     const SPACING_AFTER = 160;
     const paraSpacing = { spacing: { line: LINE_HEIGHT, lineRule: LineRuleType.AUTO, after: SPACING_AFTER } };
+
+    /** Title case for main headings; used for TOC rows and Abstract detection. */
+    const normalizeMainHeadingTitle = (raw) =>
+      (raw || '')
+        .trim()
+        .split(/\s+/)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ');
+    const isAbstractHeadingTitle = (raw) => normalizeMainHeadingTitle(raw) === 'Abstract';
+
+    /** Items from the start through content before the first numbered chapter (non-Abstract main heading). */
+    const splitAbstractPrefix = (list) => {
+      const first = list[0];
+      if (
+        !first ||
+        first.type !== 'heading' ||
+        !(first.heading || '').trim() ||
+        !isAbstractHeadingTitle(first.heading)
+      ) {
+        return { abstractItems: [], bodyItems: list };
+      }
+      let k = 1;
+      while (k < list.length) {
+        const it = list[k];
+        if (it.type === 'heading' && (it.heading || '').trim() && !isAbstractHeadingTitle(it.heading)) break;
+        k++;
+      }
+      return { abstractItems: list.slice(0, k), bodyItems: list.slice(k) };
+    };
+    const { abstractItems, bodyItems } = splitAbstractPrefix(items);
 
     const addHeading = (text, sizePt = 16, centered = true, opts = {}) => {
       const isMainHeading = sizePt >= 16 && centered;
@@ -304,11 +372,13 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
         ? raw.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
         : raw;
       const finalText = (prefix + displayText) || ' ';
-      const pageBreak = opts.pageBreakBefore !== undefined
-        ? opts.pageBreakBefore
-        : (isMainHeading && children.length > 0);
-      children.push(new Paragraph({
-        children: [new TextRun({ text: finalText || ' ', font: 'Times New Roman', size: sizePt * 2, color: BLACK, bold: true })],
+      const pageBreak = opts.pageBreakBefore !== undefined ? opts.pageBreakBefore : false;
+      const textRun = new TextRun({ text: finalText || ' ', font: 'Times New Roman', size: sizePt * 2, color: BLACK, bold: true });
+      const paraChildren = opts.bookmarkId
+        ? [new Bookmark({ id: opts.bookmarkId, children: [textRun] })]
+        : [textRun];
+      parts.push(new Paragraph({
+        children: paraChildren,
         heading: sizePt >= 16 ? HeadingLevel.HEADING_1 : HeadingLevel.HEADING_2,
         alignment: centered ? AlignmentType.CENTER : AlignmentType.LEFT,
         pageBreakBefore: pageBreak,
@@ -333,7 +403,7 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
               const inner = $el.html() || '';
               const runs = htmlToTextRuns(inner);
               if (runs.length > 0) {
-                children.push(new Paragraph({
+                parts.push(new Paragraph({
                   children: runs,
                   alignment: AlignmentType.JUSTIFIED,
                   ...paraSpacing
@@ -344,7 +414,7 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
                 const liHtml = $(liEl).html() || '';
                 const runs = htmlToTextRuns(liHtml);
                 if (runs.length > 0) {
-                  children.push(new Paragraph({
+                  parts.push(new Paragraph({
                     children: runs,
                     bullet: { level: 0 },
                     alignment: AlignmentType.LEFT,
@@ -357,7 +427,7 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
         } else {
           const runs = htmlToTextRuns(html);
           if (runs.length > 0) {
-            children.push(new Paragraph({
+            parts.push(new Paragraph({
               children: runs,
               alignment: AlignmentType.JUSTIFIED,
               ...paraSpacing
@@ -367,7 +437,7 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       } catch (err) {
         const text = (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
         if (text) {
-          children.push(new Paragraph({
+          parts.push(new Paragraph({
             children: [new TextRun({ text, ...FONT_OPTS })],
             alignment: AlignmentType.JUSTIFIED,
             ...paraSpacing
@@ -404,7 +474,7 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
               if (height < 50) height = 50;
             }
           } catch (_) { /* use defaults */ }
-          children.push(new Paragraph({
+          parts.push(new Paragraph({
             children: [
               new ImageRun({
                 type: type,
@@ -421,21 +491,9 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       }
     };
 
-    /** Main section headings: Data Dictionary, Data Table, ScreenShots - 16pt, center, new page, uppercase. Only once per section. */
-    const addSectionHeading = (text) => {
-      if (!text || sectionHeadingsAdded.has(text)) return;
-      sectionHeadingsAdded.add(text);
-      children.push(new Paragraph({
-        children: [new TextRun({ text: text.toUpperCase(), font: 'Times New Roman', size: 32, color: BLACK, bold: true })],
-        alignment: AlignmentType.CENTER,
-        pageBreakBefore: true,
-        ...paraSpacing
-      }));
-    };
-
     const addCaption = (text, bold = true) => {
       if (!text) return;
-      children.push(new Paragraph({
+      parts.push(new Paragraph({
         children: [new TextRun({ text, font: 'Times New Roman', size: 24, color: BLACK, bold })],
         alignment: AlignmentType.LEFT,
         ...paraSpacing
@@ -471,16 +529,17 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
               }
             });
             if (rows.length > 0) {
-              children.push(new Table({
+              parts.push(new Table({
                 rows,
-                width: { size: 100, type: WidthType.PERCENTAGE }
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                layout: TableLayoutType.AUTOFIT
               }));
             }
           });
         } else {
           const runs = htmlToTextRuns(html);
           if (runs.length > 0) {
-            children.push(new Paragraph({
+            parts.push(new Paragraph({
               children: runs,
               alignment: AlignmentType.JUSTIFIED,
               ...paraSpacing
@@ -490,7 +549,7 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       } catch (err) {
         const text = (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
         if (text) {
-          children.push(new Paragraph({
+          parts.push(new Paragraph({
             children: [new TextRun({ text, ...FONT_OPTS })],
             alignment: AlignmentType.JUSTIFIED,
             ...paraSpacing
@@ -499,31 +558,107 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       }
     };
 
-    // Build index entries: S.No., Chapter (Including Subchapter), Page No.
-    // Format: Main "Chapter 1 INTRODUCTION", Sub "1.1 Purpose of the Project"
-    const indexRows = [];
-    let secNum = 0;
-    let subCount = 0;
-    let pageNum = 1;
-    for (const it of items) {
-      if (it.type === 'heading' && it.heading) {
-        secNum++;
-        subCount = 0;
-        const chTitle = (it.heading || '').trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-        indexRows.push({ sNo: String(secNum), chapter: `Chapter ${secNum}: ${chTitle}`, page: String(pageNum) });
-        pageNum++;
-      } else if (it.type === 'subheading' && it.subheading) {
-        subCount++;
-        const sNo = secNum + '.' + subCount;
-        indexRows.push({ sNo, chapter: `${sNo} ${(it.subheading || '').trim()}`, page: String(pageNum) });
-        pageNum++;
+    const pushChapterEndBookmark = (closedChapter) => {
+      if (closedChapter <= 0) return;
+      parts.push(new Paragraph({
+        spacing: { after: 40, before: 0, line: LINE_HEIGHT, lineRule: LineRuleType.AUTO },
+        children: [new Bookmark({
+          id: `PRC_CH_END_${closedChapter}`,
+          children: [new TextRun({ text: '\u200B', font: 'Times New Roman', size: 4, color: BLACK })]
+        })]
+      }));
+    };
+
+    const pushSubheadingEndBookmark = (ch, sub) => {
+      if (sub <= 0 || ch < 0) return;
+      parts.push(new Paragraph({
+        spacing: { after: 40, before: 0, line: LINE_HEIGHT, lineRule: LineRuleType.AUTO },
+        children: [new Bookmark({
+          id: `PRC_SU_END_${ch}_${sub}`,
+          children: [new TextRun({ text: '\u200B', font: 'Times New Roman', size: 4, color: BLACK })]
+        })]
+      }));
+    };
+
+    let idxAfterAbstract = 0;
+    if (abstractItems.length > 0) {
+      let absSubNum = 0;
+      let absNextSubFirst = true;
+      for (const it of abstractItems) {
+        const type = (it.type || '').toString();
+        if (type === 'heading') {
+          const h = (it.heading || '').trim();
+          if (!h) continue;
+          if (absSubNum > 0) pushSubheadingEndBookmark(0, absSubNum);
+          absSubNum = 0;
+          absNextSubFirst = true;
+          addHeading(h, 16, true, { prefix: '', pageBreakBefore: false });
+        } else if (type === 'subheading') {
+          const s = (it.subheading || '').trim();
+          if (!s) continue;
+          if (absSubNum > 0) pushSubheadingEndBookmark(0, absSubNum);
+          absSubNum++;
+          addHeading(s, 14, false, {
+            pageBreakBefore: !absNextSubFirst,
+            prefix: `${absSubNum}. `,
+            bookmarkId: `PRC_SU_0_${absSubNum}`
+          });
+          absNextSubFirst = false;
+          if (it.body) addBody(it.body);
+        } else if (type === 'body') {
+          addBody(it.body);
+        } else if (type === 'db_screenshot') {
+          addCaption(it.name || 'Database Screenshot', false);
+          if (it.url) await addImage(it.url);
+        } else if (type === 'db_datatable') {
+          addCaption(it.name || 'Datatable', false);
+          if (it.data_table) addDatatable(it.data_table);
+        } else if (type === 'screenshot') {
+          addCaption(it.name || 'Screenshot', false);
+          if (it.url) await addImage(it.url);
+        } else if (type === 'diagram') {
+          addCaption(it.label || it.diagram_type || 'Diagram');
+          if (it.url) await addImage(it.url);
+        }
+      }
+      if (absSubNum > 0) pushSubheadingEndBookmark(0, absSubNum);
+      idxAfterAbstract = parts.length;
+    }
+
+    // TOC: bookmarks + PAGEREF for real page numbers; must match bookmarkIds on headings in the body loop below.
+    // Built from bodyItems only (Abstract is omitted and precedes the TOC in the document).
+    const tocEntries = [];
+    let tocSec = 0;
+    let tocSub = 0;
+    for (const it of bodyItems) {
+      if (it.type === 'heading' && (it.heading || '').trim()) {
+        const chTitle = normalizeMainHeadingTitle(it.heading);
+        tocSec++;
+        tocSub = 0;
+        tocEntries.push({
+          sNo: String(tocSec),
+          chapter: chTitle,
+          bookmarkId: `PRC_CH_${tocSec}`,
+          chapterIdx: tocSec,
+          isMain: true
+        });
+      } else if (it.type === 'subheading' && (it.subheading || '').trim()) {
+        tocSub++;
+        const sNo = `${tocSec}.${tocSub}`;
+        tocEntries.push({
+          sNo,
+          chapter: (it.subheading || '').trim(),
+          bookmarkId: `PRC_SU_${tocSec}_${tocSub}`,
+          endBookmarkId: `PRC_SU_END_${tocSec}_${tocSub}`,
+          isMain: false
+        });
       }
     }
 
-    if (indexRows.length > 0) {
-      children.push(new Paragraph({
-        children: [new TextRun({ text: 'Table of Contents', font: 'Times New Roman', size: 32, color: BLACK })],
-        heading: HeadingLevel.HEADING_1,
+    let tocBodyStartIndex = 0;
+    if (tocEntries.length > 0) {
+      parts.push(new Paragraph({
+        children: [new TextRun({ text: 'Table of Contents', font: 'Times New Roman', size: 32, color: BLACK, bold: true })],
         alignment: AlignmentType.CENTER,
         pageBreakBefore: false,
         ...paraSpacing
@@ -531,67 +666,190 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       const tocRows = [
         new TableRow({
           children: [
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'S.No.', font: 'Times New Roman', size: 24, color: BLACK, bold: true })], ...paraSpacing })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Chapter (Including Subchapter)', font: 'Times New Roman', size: 24, color: BLACK, bold: true })], ...paraSpacing })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Page No.', font: 'Times New Roman', size: 24, color: BLACK, bold: true })], ...paraSpacing })] })
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'S.No.', font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: true })], ...paraSpacing })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Chapter', font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: true })], ...paraSpacing })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Page No.', font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: true })], ...paraSpacing })] })
           ]
         }),
-        ...indexRows.map(r => new TableRow({
-          children: [
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: r.sNo, font: 'Times New Roman', size: 24, color: BLACK })], ...paraSpacing })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: r.chapter, font: 'Times New Roman', size: 24, color: BLACK })], ...paraSpacing })] }),
-            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: r.page, font: 'Times New Roman', size: 24, color: BLACK })], ...paraSpacing })] })
-          ]
-        }))
+        ...tocEntries.map((r) => {
+          const b = r.isMain;
+          const pageRunOpts = { font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: b };
+          const pageParaOpts = {
+            alignment: AlignmentType.LEFT,
+            ...paraSpacing
+          };
+          const pageChildren = b
+            ? [
+                tocPagerefRun(r.bookmarkId, pageRunOpts),
+                new TextRun({ text: ' – ', font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: true }),
+                tocPagerefRun(`PRC_CH_END_${r.chapterIdx}`, pageRunOpts)
+              ]
+            : [
+                tocPagerefRun(r.bookmarkId, pageRunOpts),
+                new TextRun({ text: ' – ', font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: false }),
+                tocPagerefRun(r.endBookmarkId, pageRunOpts)
+              ];
+          return new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: r.sNo, font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: b })], ...paraSpacing })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: r.chapter, font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: b })], ...paraSpacing })] }),
+              new TableCell({
+                children: [new Paragraph({
+                  ...pageParaOpts,
+                  children: pageChildren
+                })]
+              })
+            ]
+          });
+        })
       ];
-      children.push(new Table({ rows: tocRows }));
-      children.push(new Paragraph({
-        children: [new TextRun({ text: ' ', font: 'Times New Roman', size: 24 })],
-        pageBreakBefore: true,
-        ...paraSpacing
+      parts.push(new Table({
+        rows: tocRows,
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        layout: TableLayoutType.AUTOFIT
       }));
+      // Do not insert pageBreakBefore here: the next document section already uses an implicit
+      // next-page section break; an extra break was leaving a nearly blank page before Chapter 1.
+      tocBodyStartIndex = parts.length;
     }
 
     let nextSubheadingIsFirst = true;
     let chapterNum = 0;
     let subNum = 0;
-    for (const it of items) {
+    for (const it of bodyItems) {
       const type = (it.type || '').toString();
       if (type === 'heading') {
+        const h = (it.heading || '').trim();
+        if (!h) continue;
+        if (chapterNum > 0) {
+          if (subNum > 0) pushSubheadingEndBookmark(chapterNum, subNum);
+          pushChapterEndBookmark(chapterNum);
+        } else if (subNum > 0) {
+          pushSubheadingEndBookmark(0, subNum);
+        }
         chapterNum++;
         subNum = 0;
         nextSubheadingIsFirst = true;
-        addHeading(it.heading || '', 16, true, { prefix: `Chapter ${chapterNum}: ` });  // Main: "Chapter 1: Introduction"
+        addHeading(h, 16, true, {
+          prefix: `Chapter ${chapterNum}: `,
+          bookmarkId: `PRC_CH_${chapterNum}`,
+          pageBreakBefore: chapterNum > 1
+        });
       } else if (type === 'subheading') {
+        const s = (it.subheading || '').trim();
+        if (!s) continue;
+        const subCh = chapterNum;
+        if (subNum > 0) pushSubheadingEndBookmark(subCh, subNum);
         subNum++;
-        addHeading(it.subheading || '', 14, false, {
+        addHeading(s, 14, false, {
           pageBreakBefore: !nextSubheadingIsFirst,
-          prefix: `${chapterNum}.${subNum} `
-        });  // Sub: "1.1 Purpose of the Project"
+          prefix: chapterNum === 0 ? `${subNum}. ` : `${chapterNum}.${subNum} `,
+          bookmarkId: `PRC_SU_${subCh}_${subNum}`
+        });
         nextSubheadingIsFirst = false;
         if (it.body) addBody(it.body);
       } else if (type === 'body') {
         addBody(it.body);
       } else if (type === 'db_screenshot') {
-        addSectionHeading('Data Table');
-        addCaption(it.name || 'Database Screenshot', false);  // Name along with their table
-        if (it.url) await addImage(it.url);  // full width, fit within page
+        addCaption(it.name || 'Database Screenshot', false);
+        if (it.url) await addImage(it.url);
       } else if (type === 'db_datatable') {
-        addSectionHeading('Data Dictionary');
-        addCaption(it.name || 'Datatable', false);  // Name along with their directory
+        addCaption(it.name || 'Datatable', false);
         if (it.data_table) addDatatable(it.data_table);
       } else if (type === 'screenshot') {
-        addSectionHeading('ScreenShots');
-        addCaption(it.name || 'Screenshot', false);  // Name along with their screenshot
-        if (it.url) await addImage(it.url);  // full width, fit within page
+        addCaption(it.name || 'Screenshot', false);
+        if (it.url) await addImage(it.url);
       } else if (type === 'diagram') {
-        children.push(new Paragraph({ children: [new TextRun({ text: ' ' })], pageBreakBefore: true }));
         addCaption(it.label || it.diagram_type || 'Diagram');
-        if (it.url) await addImage(it.url);  // full width, fit within page
+        if (it.url) await addImage(it.url);
       }
     }
+    if (chapterNum > 0) {
+      if (subNum > 0) pushSubheadingEndBookmark(chapterNum, subNum);
+      pushChapterEndBookmark(chapterNum);
+    } else if (subNum > 0) {
+      pushSubheadingEndBookmark(0, subNum);
+    }
+
+    const pageMargins = {
+      top: marginTwip,
+      right: marginTwip,
+      bottom: marginTwip,
+      left: marginTwip
+    };
+
+    const emptyFooter = new Footer({
+      children: [new Paragraph({ spacing: { after: 0, before: 0 }, children: [] })]
+    });
+
+    const bodyFooter = new Footer({
+      children: [
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 0, before: 0 },
+          children: [
+            new TextRun({
+              font: 'Times New Roman',
+              size: TOC_FS,
+              color: BLACK,
+              children: ['Page ', PageNumber.CURRENT, ' of ', PageNumber.TOTAL_PAGES_IN_SECTION]
+            })
+          ]
+        })
+      ]
+    });
+
+    const emptyDocFallback = [
+      new Paragraph({ children: [new TextRun({ text: 'No content selected.', font: 'Times New Roman', size: 24, color: '000000' })], ...paraSpacing })
+    ];
+
+    const docSections = (() => {
+      const sectMarginsOnly = { properties: { page: { margin: pageMargins } }, footers: { default: emptyFooter } };
+      const sectBodyNumbered = {
+        properties: {
+          page: {
+            margin: pageMargins,
+            pageNumbers: { start: 1 }
+          }
+        },
+        footers: { default: bodyFooter }
+      };
+
+      if (tocEntries.length > 0 && tocBodyStartIndex > 0) {
+        const bodySlice = parts.slice(tocBodyStartIndex);
+        if (idxAfterAbstract > 0) {
+          return [
+            { ...sectMarginsOnly, children: parts.slice(0, idxAfterAbstract) },
+            { ...sectMarginsOnly, children: parts.slice(idxAfterAbstract, tocBodyStartIndex) },
+            { ...sectBodyNumbered, children: bodySlice.length ? bodySlice : emptyDocFallback }
+          ];
+        }
+        return [
+          { ...sectMarginsOnly, children: parts.slice(0, tocBodyStartIndex) },
+          { ...sectBodyNumbered, children: bodySlice.length ? bodySlice : emptyDocFallback }
+        ];
+      }
+
+      if (idxAfterAbstract > 0) {
+        const afterAbs = parts.slice(idxAfterAbstract);
+        return [
+          { ...sectMarginsOnly, children: parts.slice(0, idxAfterAbstract) },
+          { ...sectBodyNumbered, children: afterAbs.length ? afterAbs : emptyDocFallback }
+        ];
+      }
+
+      return [
+        {
+          ...sectBodyNumbered,
+          children: parts.length ? parts : emptyDocFallback
+        }
+      ];
+    })();
 
     const doc = new Document({
+      features: {
+        updateFields: true
+      },
       styles: {
         default: {
           document: {
@@ -601,21 +859,7 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
           }
         }
       },
-      sections: [{
-        properties: {
-          page: {
-            margin: {
-              top: marginTwip,
-              right: marginTwip,
-              bottom: marginTwip,
-              left: marginTwip
-            }
-          }
-        },
-        children: children.length ? children : [
-          new Paragraph({ children: [new TextRun({ text: 'No content selected.', font: 'Times New Roman', size: 24, color: '000000' })], ...paraSpacing })
-        ]
-      }]
+      sections: docSections
     });
 
     const buf = await Packer.toBuffer(doc);
