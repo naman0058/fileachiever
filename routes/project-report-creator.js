@@ -314,7 +314,7 @@ router.get('/api/source-code/:id/data', requirePRCOrAdmin, async (req, res) => {
 });
 
 // API: Download Word document
-router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
+async function handleProjectReportWordDownload(req, res) {
   try {
     const sourceCodeId = parseInt(req.body.sourceCodeId, 10);
     const items = Array.isArray(req.body.items) ? req.body.items : [];
@@ -491,11 +491,16 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
       }
     };
 
+    /** Extra space below a datatable before the next block (twips). */
+    const DATATABLE_GAP_TWIP = 280;
+
     const addCaption = (text, bold = true) => {
       if (!text) return;
       parts.push(new Paragraph({
         children: [new TextRun({ text, font: 'Times New Roman', size: 24, color: BLACK, bold })],
         alignment: AlignmentType.LEFT,
+        // Keep label with the screenshot/table that follows (avoids orphan headings at page bottom).
+        keepNext: true,
         ...paraSpacing
       }));
     };
@@ -533,6 +538,15 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
                 rows,
                 width: { size: 100, type: WidthType.PERCENTAGE },
                 layout: TableLayoutType.AUTOFIT
+              }));
+              parts.push(new Paragraph({
+                spacing: {
+                  before: DATATABLE_GAP_TWIP,
+                  after: DATATABLE_GAP_TWIP,
+                  line: LINE_HEIGHT,
+                  lineRule: LineRuleType.AUTO
+                },
+                children: []
               }));
             }
           });
@@ -871,6 +885,9 @@ router.post('/api/download-word', requirePRCOrAdmin, async (req, res) => {
     console.error('PRC Word download error:', e);
     res.status(500).json({ ok: false, message: 'Server error' });
   }
-});
+}
+
+router.post('/api/download-word', requirePRCOrAdmin, handleProjectReportWordDownload);
 
 module.exports = router;
+module.exports.handleProjectReportWordDownload = handleProjectReportWordDownload;

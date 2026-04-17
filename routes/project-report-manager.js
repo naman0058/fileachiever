@@ -9,6 +9,8 @@ const router = express.Router();
 const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const { buildFullReportItems } = require('./prc-build-full-report-items');
+const { handleProjectReportWordDownload } = require('./project-report-creator');
 
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 
@@ -315,6 +317,81 @@ router.post('/api/:id/sections/batch', requirePRMOrAdmin, async (req, res) => {
   } catch (e) {
     console.error('PRM batch error:', e);
     return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// Download Word: full content library (same composition as “select all” in Project Report Creator)
+router.post('/api/:id/download-word', requirePRMOrAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+    const scRows = await queryAsync(`SELECT id, name FROM source_code WHERE id=? LIMIT 1`, [id]);
+    if (!scRows.length) return res.status(404).json({ ok: false, message: 'Source code not found' });
+
+    const [sections, subheadings, dbScreenshots, screenshots, diagrams] = await Promise.all([
+      queryAsync(
+        `SELECT id, sort_order, heading FROM source_code_report_sections WHERE source_code_id=? ORDER BY sort_order ASC, id ASC`,
+        [id]
+      ),
+      queryAsync(
+        `SELECT id, section_id, sort_order, subheading, body FROM source_code_report_subheadings WHERE section_id IN (SELECT id FROM source_code_report_sections WHERE source_code_id=?) ORDER BY section_id, sort_order ASC, id ASC`,
+        [id]
+      ),
+      queryAsync(`SELECT id, url, name, data_table FROM source_code_database_screenshots WHERE source_code_id=? ORDER BY id ASC`, [id]),
+      queryAsync(`SELECT id, url, type, name FROM screenshots WHERE source_code_id=? ORDER BY id ASC`, [id]),
+      queryAsync(`SELECT diagram_type, url FROM source_code_diagrams WHERE source_code_id=?`, [id])
+    ]);
+
+    const subBySection = {};
+    (subheadings || []).forEach((sh) => {
+      if (!subBySection[sh.section_id]) subBySection[sh.section_id] = [];
+      subBySection[sh.section_id].push({ id: sh.id, subheading: sh.subheading || '', body: sh.body || '' });
+    });
+    const sectionsWithSub = (sections || []).map((s) => ({
+      id: s.id,
+      heading: s.heading || '',
+      subheadings: subBySection[s.id] || []
+    }));
+
+    const diagramLabels = {
+      er_diagram: 'ER Diagram',
+      dfd_zero_level: 'DFD - Zero Level',
+      dfd_first_level: 'DFD - First Level',
+      dfd_second_level: 'DFD - Second Level',
+      use_case_diagram: 'Use Case Diagram',
+      class_diagram: 'Class Diagram',
+      activity_diagram: 'Activity Diagram',
+      sequence_diagram: 'Sequence Diagram',
+      flow_chart_diagram: 'Flow Chart Diagram',
+      system_architecture_diagram: 'System Architecture Diagram'
+    };
+    const diagramsList = (diagrams || []).map((d) => ({
+      diagram_type: d.diagram_type || '',
+      url: d.url || '',
+      label: diagramLabels[d.diagram_type] || d.diagram_type || 'Diagram'
+    }));
+
+    const items = buildFullReportItems({
+      sections: sectionsWithSub,
+      dbScreenshots: dbScreenshots || [],
+      screenshots: screenshots || [],
+      diagrams: diagramsList
+    });
+    if (!items.length) {
+      return res.status(400).json({ ok: false, message: 'No report content for this project yet. Add sections or library assets first.' });
+    }
+
+    const sourceCodeName = (scRows[0].name || 'Report').toString().trim();
+    const prevBody = req.body;
+    try {
+      req.body = { sourceCodeId: id, sourceCodeName, items };
+      await handleProjectReportWordDownload(req, res);
+    } finally {
+      req.body = prevBody;
+    }
+  } catch (e) {
+    console.error('PRM download-word error:', e);
+    if (!res.headersSent) res.status(500).json({ ok: false, message: 'Server error' });
   }
 });
 
