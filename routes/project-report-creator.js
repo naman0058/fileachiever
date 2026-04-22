@@ -50,6 +50,24 @@ function tocPagerefRun(bookmarkId, runOpts) {
 const fetch = (typeof globalThis.fetch === 'function') ? globalThis.fetch : require('node-fetch');
 const { imageSize: getImageSize } = require('image-size');
 const cheerio = require('cheerio');
+const multer = require('multer');
+const { buildFullReportItems } = require('./prc-build-full-report-items');
+const {
+  mergeTocWithFullLibraryItems,
+  isConclusionTitle,
+  normalizeTitle,
+  insertBeforeReferences
+} = require('./prc-toc-ai-merge');
+const { extractTocFromImageBuffer, buildConclusionPlaceholderHtml } = require('./prc-toc-ocr');
+
+const tocImageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/^image\/(jpeg|png|webp|gif)$/i.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Only JPEG, PNG, WebP, or GIF images are allowed.'));
+  }
+});
 
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 
@@ -160,6 +178,55 @@ function requirePRCOrAdmin(req, res, next) {
   return res.redirect('/project-report-creator/login');
 }
 
+const PRC_DIAGRAM_LABELS = {
+  er_diagram: 'ER Diagram',
+  dfd_zero_level: 'DFD - Zero Level',
+  dfd_first_level: 'DFD - First Level',
+  dfd_second_level: 'DFD - Second Level',
+  use_case_diagram: 'Use Case Diagram',
+  class_diagram: 'Class Diagram',
+  activity_diagram: 'Activity Diagram',
+  sequence_diagram: 'Sequence Diagram',
+  flow_chart_diagram: 'Flow Chart Diagram',
+  system_architecture_diagram: 'System Architecture Diagram'
+};
+
+/** Sections + library assets for one source code (report creator / Word export). */
+async function loadPrcLibraryForExport(sourceCodeId) {
+  const id = sourceCodeId;
+  const [sections, subheadings, dbScreenshots, screenshots, diagrams] = await Promise.all([
+    queryAsync(`SELECT id, sort_order, heading FROM source_code_report_sections WHERE source_code_id=? ORDER BY sort_order ASC, id ASC`, [id]),
+    queryAsync(
+      `SELECT id, section_id, sort_order, subheading, body FROM source_code_report_subheadings WHERE section_id IN (SELECT id FROM source_code_report_sections WHERE source_code_id=?) ORDER BY section_id, sort_order ASC, id ASC`,
+      [id]
+    ),
+    queryAsync(`SELECT id, url, name, data_table FROM source_code_database_screenshots WHERE source_code_id=? ORDER BY id ASC`, [id]),
+    queryAsync(`SELECT id, url, type, name FROM screenshots WHERE source_code_id=? ORDER BY id ASC`, [id]),
+    queryAsync(`SELECT diagram_type, url FROM source_code_diagrams WHERE source_code_id=?`, [id])
+  ]);
+  const subBySection = {};
+  (subheadings || []).forEach((sh) => {
+    if (!subBySection[sh.section_id]) subBySection[sh.section_id] = [];
+    subBySection[sh.section_id].push({ id: sh.id, subheading: sh.subheading || '', body: sh.body || '' });
+  });
+  const sectionsWithSub = (sections || []).map((s) => ({
+    id: s.id,
+    heading: s.heading || '',
+    subheadings: subBySection[s.id] || []
+  }));
+  const diagramsList = (diagrams || []).map((d) => ({
+    diagram_type: d.diagram_type || '',
+    url: d.url || '',
+    label: PRC_DIAGRAM_LABELS[d.diagram_type] || d.diagram_type || 'Diagram'
+  }));
+  return {
+    sectionsWithSub,
+    dbScreenshots: dbScreenshots || [],
+    screenshots: screenshots || [],
+    diagramsList
+  };
+}
+
 // Login
 router.get('/login', (req, res) => {
   if (getUser(req)) {
@@ -266,45 +333,12 @@ router.get('/api/source-code/:id/data', requirePRCOrAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
-    const [sections, subheadings, dbScreenshots, screenshots, diagrams] = await Promise.all([
-      queryAsync(`SELECT id, sort_order, heading FROM source_code_report_sections WHERE source_code_id=? ORDER BY sort_order ASC, id ASC`, [id]),
-      queryAsync(`SELECT id, section_id, sort_order, subheading, body FROM source_code_report_subheadings WHERE section_id IN (SELECT id FROM source_code_report_sections WHERE source_code_id=?) ORDER BY section_id, sort_order ASC, id ASC`, [id]),
-      queryAsync(`SELECT id, url, name, data_table FROM source_code_database_screenshots WHERE source_code_id=? ORDER BY id ASC`, [id]),
-      queryAsync(`SELECT id, url, type, name FROM screenshots WHERE source_code_id=? ORDER BY id ASC`, [id]),
-      queryAsync(`SELECT diagram_type, url FROM source_code_diagrams WHERE source_code_id=?`, [id])
-    ]);
-    const subBySection = {};
-    (subheadings || []).forEach(sh => {
-      if (!subBySection[sh.section_id]) subBySection[sh.section_id] = [];
-      subBySection[sh.section_id].push({ id: sh.id, subheading: sh.subheading || '', body: sh.body || '' });
-    });
-    const sectionsWithSub = (sections || []).map(s => ({
-      id: s.id,
-      heading: s.heading || '',
-      subheadings: subBySection[s.id] || []
-    }));
-    const diagramLabels = {
-      er_diagram: 'ER Diagram',
-      dfd_zero_level: 'DFD - Zero Level',
-      dfd_first_level: 'DFD - First Level',
-      dfd_second_level: 'DFD - Second Level',
-      use_case_diagram: 'Use Case Diagram',
-      class_diagram: 'Class Diagram',
-      activity_diagram: 'Activity Diagram',
-      sequence_diagram: 'Sequence Diagram',
-      flow_chart_diagram: 'Flow Chart Diagram',
-      system_architecture_diagram: 'System Architecture Diagram'
-    };
-    const diagramsList = (diagrams || []).map(d => ({
-      diagram_type: d.diagram_type || '',
-      url: d.url || '',
-      label: diagramLabels[d.diagram_type] || d.diagram_type || 'Diagram'
-    }));
+    const { sectionsWithSub, dbScreenshots, screenshots, diagramsList } = await loadPrcLibraryForExport(id);
     return res.json({
       ok: true,
       sections: sectionsWithSub,
-      dbScreenshots: dbScreenshots || [],
-      screenshots: screenshots || [],
+      dbScreenshots,
+      screenshots,
       diagrams: diagramsList
     });
   } catch (e) {
@@ -312,6 +346,137 @@ router.get('/api/source-code/:id/data', requirePRCOrAdmin, async (req, res) => {
     res.status(500).json({ ok: false, message: 'Server error' });
   }
 });
+
+// API: Upload TOC image → OpenAI vision → full library + missing TOC headings/subheadings + optional Conclusion draft
+router.post(
+  '/api/source-code/:id/toc-from-image',
+  requirePRCOrAdmin,
+  (req, res, next) => {
+    tocImageUpload.single('tocImage')(req, res, (err) => {
+      if (err) return res.status(400).json({ ok: false, message: err.message || 'Upload failed' });
+      next();
+    });
+  },
+  async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+      if (!req.file || !req.file.buffer) {
+        return res.status(400).json({ ok: false, message: 'No image file (field name: tocImage).' });
+      }
+
+      const scRows = await queryAsync(`SELECT id, name FROM source_code WHERE id=? LIMIT 1`, [id]);
+      if (!scRows.length) return res.status(404).json({ ok: false, message: 'Source code not found' });
+      const projectName = (scRows[0].name || 'Report').toString().trim();
+
+      let ocrText = '';
+      let tocEntries = [];
+      try {
+        const extracted = await extractTocFromImageBuffer(req.file.buffer);
+        ocrText = extracted.text || '';
+        tocEntries = Array.isArray(extracted.entries) ? extracted.entries : [];
+      } catch (ocrErr) {
+        console.warn('PRC TOC OCR error:', ocrErr.message);
+        return res.status(422).json({
+          ok: false,
+          message: 'Could not read text from the image. Try a sharper, well-lit photo or a PNG screenshot.'
+        });
+      }
+
+      if (!tocEntries.length && (!ocrText || ocrText.replace(/\s/g, '').length < 15)) {
+        return res.status(422).json({
+          ok: false,
+          message:
+            'No table-of-contents lines could be detected. Use a clearer image with visible chapter numbers (e.g. 1 Introduction, 1.1 Background).'
+        });
+      }
+
+      const lib = await loadPrcLibraryForExport(id);
+      const fullItems = buildFullReportItems({
+        sections: lib.sectionsWithSub,
+        dbScreenshots: lib.dbScreenshots,
+        screenshots: lib.screenshots,
+        diagrams: lib.diagramsList
+      });
+
+      const { mergedItems, addedCount, addedLabels } = mergeTocWithFullLibraryItems(
+        fullItems,
+        tocEntries,
+        lib.sectionsWithSub
+      );
+
+      let reportItems = mergedItems.slice();
+      const notes = [];
+      if (addedCount) notes.push(`Added ${addedCount} heading(s)/subtitle(s) from your TOC that were not in the content library.`);
+
+      const tocHasConclusion = tocEntries.some((e) => e.level === 1 && isConclusionTitle(e.title));
+      let conclusionHeadingIdx = reportItems.findIndex(
+        (it) => it.type === 'heading' && isConclusionTitle(it.heading)
+      );
+      if (tocHasConclusion && conclusionHeadingIdx < 0) {
+        const raw = tocEntries.find((e) => e.level === 1 && isConclusionTitle(e.title));
+        if (raw && (raw.title || '').trim()) {
+          reportItems = insertBeforeReferences(reportItems, [{ type: 'heading', heading: (raw.title || '').trim() }]);
+          conclusionHeadingIdx = reportItems.findIndex(
+            (it) => it.type === 'heading' && isConclusionTitle(it.heading)
+          );
+          notes.push('Added a Conclusion chapter from your TOC for the placeholder text.');
+        }
+      }
+
+      function conclusionBlockHasBody(items, hIdx) {
+        if (hIdx < 0) return false;
+        for (let i = hIdx + 1; i < items.length; i++) {
+          const it = items[i];
+          if (it.type === 'heading') break;
+          if (it.type === 'subheading') {
+            const t = (it.body || '').replace(/<[^>]+>/g, ' ').trim();
+            if (t.length > 80) return true;
+          }
+        }
+        return false;
+      }
+
+      const needConclusionDraft =
+        (tocHasConclusion || conclusionHeadingIdx >= 0) &&
+        !conclusionBlockHasBody(reportItems, conclusionHeadingIdx);
+
+      if (needConclusionDraft) {
+        const draftHtml = buildConclusionPlaceholderHtml(projectName);
+
+        if (conclusionHeadingIdx >= 0) {
+          const next = reportItems[conclusionHeadingIdx + 1];
+          if (next && next.type === 'subheading' && !(next.body || '').trim()) {
+            next.body = draftHtml;
+            notes.push('Filled an empty subtitle under Conclusion with a starter paragraph. Edit as needed.');
+          } else if (
+            !next ||
+            next.type !== 'subheading' ||
+            normalizeTitle(next.subheading) !== 'summary'
+          ) {
+            reportItems.splice(conclusionHeadingIdx + 1, 0, {
+              type: 'subheading',
+              subheading: 'Summary',
+              body: draftHtml
+            });
+            notes.push('Inserted a Conclusion Summary placeholder. Edit as needed.');
+          }
+        }
+      }
+
+      return res.json({
+        ok: true,
+        tocEntries,
+        reportItems,
+        notes: notes.join(' '),
+        addedLabels
+      });
+    } catch (e) {
+      console.error('PRC toc-from-image error:', e);
+      return res.status(500).json({ ok: false, message: (e && e.message) || 'Server error' });
+    }
+  }
+);
 
 // API: Download Word document
 async function handleProjectReportWordDownload(req, res) {

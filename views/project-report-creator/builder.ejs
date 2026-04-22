@@ -198,6 +198,21 @@
         </p>
       </div>
 
+      <div class="card mb-3 border-primary" style="border-width: 2px;">
+        <div class="card-body py-3">
+          <h3 class="h6 fw-bold mb-2 text-primary"><i class="bi bi-image me-2"></i>Table of contents image (OCR)</h3>
+          <p class="small text-muted mb-2 mb-md-3">
+            Upload a clear photo or screenshot of a table of contents. The server runs <strong>on-device OCR</strong> (Tesseract) to read chapter lines—no OpenAI or other cloud AI. We then <strong>load the entire content library into your report</strong>, add <strong>missing chapters or subtitles</strong> that match numbered lines in the image but not in the library, and insert a simple <strong>Conclusion Summary placeholder</strong> you can replace with your own text. Best results: high contrast, straight text, visible numbers like <code>1 Introduction</code> and <code>1.1 Background</code>.
+          </p>
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <input type="file" id="prcTocImageInput" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control form-control-sm" style="max-width: min(100%, 320px);">
+            <button type="button" class="btn btn-sm btn-primary" id="btnTocFromImage">
+              <i class="bi bi-stars me-1"></i>Analyze TOC &amp; fill report
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="prc-layout mb-4">
         <div class="prc-panel">
           <div class="prc-panel-header">
@@ -901,7 +916,60 @@ document.getElementById('btnClearReport').onclick = function() {
   }
 };
 
+document.getElementById('btnTocFromImage').onclick = async function () {
+  const inp = document.getElementById('prcTocImageInput');
+  const f = inp.files && inp.files[0];
+  if (!f) {
+    alert('Choose an image of your table of contents first (JPEG, PNG, WebP, or GIF).');
+    return;
+  }
+  const btn = this;
+  const prev = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Working…';
+  try {
+    const fd = new FormData();
+    fd.append('tocImage', f);
+    const res = await fetch('/project-report-creator/api/source-code/' + scId + '/toc-from-image', {
+      method: 'POST',
+      body: fd,
+      credentials: 'same-origin'
+    });
+    const ct = (res.headers.get('Content-Type') || '').toLowerCase();
+    if (!res.ok) {
+      let msg = 'Request failed.';
+      try {
+        if (ct.includes('application/json')) {
+          const j = await res.json();
+          if (j.message) msg = j.message;
+        }
+      } catch (_) { /* ignore */ }
+      throw new Error(msg);
+    }
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.message || 'Failed');
+    reportItems = (data.reportItems || []).map(function (it) {
+      return Object.assign({}, it, { _uid: genUid() });
+    });
+    renderReportItems();
+    var lines = [];
+    if (data.notes) lines.push(data.notes);
+    if (data.addedLabels && data.addedLabels.length) lines.push('Added from TOC: ' + data.addedLabels.join('; '));
+    alert(lines.length ? lines.join('\n\n') : 'Report list updated from your TOC and full content library.');
+  } catch (err) {
+    alert(err.message || 'Could not analyze the image.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = prev;
+  }
+};
+
 document.getElementById('btnDownloadWord').onclick = async function() {
+  syncReportFieldsFromDom();
+  if (document.activeElement && typeof document.activeElement.blur === 'function') {
+    document.activeElement.blur();
+  }
+  await new Promise(function (r) { setTimeout(r, 0); });
   syncReportFieldsFromDom();
   if (!reportItems.length) {
     alert('Add at least one item to your report list first.');
@@ -915,6 +983,7 @@ document.getElementById('btnDownloadWord').onclick = async function() {
     const res = await fetch('/project-report-creator/api/download-word', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
       body: JSON.stringify({
         sourceCodeId: scId,
         sourceCodeName: scName,

@@ -347,11 +347,30 @@ router.post('/api/:id/download-word', requirePRMOrAdmin, async (req, res) => {
       if (!subBySection[sh.section_id]) subBySection[sh.section_id] = [];
       subBySection[sh.section_id].push({ id: sh.id, subheading: sh.subheading || '', body: sh.body || '' });
     });
-    const sectionsWithSub = (sections || []).map((s) => ({
+    const dbSectionsWithSub = (sections || []).map((s) => ({
       id: s.id,
       heading: s.heading || '',
       subheadings: subBySection[s.id] || []
     }));
+
+    /** Live editor payload (same shape as batch save) so TOC/bookmarks match unsaved edits. */
+    const body = req.body || {};
+    const clientItems = Array.isArray(body.items)
+      ? body.items
+      : Array.isArray(body.sections)
+        ? body.sections
+        : null;
+    const sectionsWithSub =
+      clientItems && clientItems.length > 0
+        ? clientItems.map((s, idx) => ({
+            id: idx,
+            heading: (s.heading || '').toString().trim() || '(Untitled)',
+            subheadings: (Array.isArray(s.subheadings) ? s.subheadings : []).map((sh) => ({
+              subheading: (sh.subheading || '').toString().trim() || '(Untitled)',
+              body: (sh.body ?? '').toString()
+            }))
+          }))
+        : dbSectionsWithSub;
 
     const diagramLabels = {
       er_diagram: 'ER Diagram',

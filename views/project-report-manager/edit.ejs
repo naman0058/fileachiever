@@ -269,11 +269,18 @@ function updateSectionNumbers() {
   document.querySelectorAll('.section-num').forEach((el, i) => { el.textContent = i + 1; });
 }
 
+/** Must match initQuill keys: body-editor-{data-section-id}-{j} */
+function quillKeyForSectionCard(card, subIndex, cardIndexFallback) {
+  const sid = parseInt(card.getAttribute('data-section-id'), 10);
+  const si = Number.isFinite(sid) ? sid : cardIndexFallback;
+  return si + '-' + subIndex;
+}
+
 function syncSectionsFromDOM() {
   const newSections = [];
   const container = document.getElementById('sectionsContainer');
   if (!container) return;
-  container.querySelectorAll('.section-card').forEach((card, i) => {
+  container.querySelectorAll('.section-card').forEach((card, idx) => {
     const headingInput = card.querySelector('.section-heading');
     const heading = (headingInput && headingInput.value || '').trim();
     const subheadingBlocks = card.querySelectorAll('.subheading-block');
@@ -282,7 +289,7 @@ function syncSectionsFromDOM() {
       const input = block.querySelector('.subheading-input');
       const subheading = (input && input.value || '').trim();
       let body = '';
-      const key = i + '-' + j;
+      const key = quillKeyForSectionCard(card, j, idx);
       if (quillInstances[key] && quillInstances[key].root) {
         body = quillInstances[key].root.innerHTML || '';
       }
@@ -297,7 +304,7 @@ function syncSectionsFromDOM() {
 function collectSections() {
   const items = [];
   const container = document.getElementById('sectionsContainer');
-  (container ? container.querySelectorAll('.section-card') : []).forEach((card, i) => {
+  (container ? container.querySelectorAll('.section-card') : []).forEach((card, idx) => {
     const headingInput = card.querySelector('.section-heading');
     const heading = (headingInput && headingInput.value || '').trim();
     const subheadingBlocks = card.querySelectorAll('.subheading-block');
@@ -306,7 +313,7 @@ function collectSections() {
       const input = block.querySelector('.subheading-input');
       const subheading = (input && input.value || '').trim();
       let body = '';
-      const key = i + '-' + j;
+      const key = quillKeyForSectionCard(card, j, idx);
       if (quillInstances[key] && quillInstances[key].root) {
         body = quillInstances[key].root.innerHTML || '';
       }
@@ -315,6 +322,14 @@ function collectSections() {
     items.push({ heading: heading || '(Untitled)', subheadings: subheadings });
   });
   return items;
+}
+
+function collectSectionsForWordDownload() {
+  if (document.activeElement && typeof document.activeElement.blur === 'function') {
+    document.activeElement.blur();
+  }
+  syncSectionsFromDOM();
+  return collectSections();
 }
 
 // Initial load: ensure at least 1 section
@@ -351,7 +366,8 @@ document.getElementById('btnDownloadWord').addEventListener('click', async funct
     const res = await fetch('/project-report-manager/api/' + scId + '/download-word', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
+      credentials: 'same-origin',
+      body: JSON.stringify({ items: collectSectionsForWordDownload() })
     });
     const ct = (res.headers.get('Content-Type') || '').toLowerCase();
     if (!res.ok) {

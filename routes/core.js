@@ -12,7 +12,7 @@ var onPageSeo = require('./onPageSeo');
 
 const verify = require('./verify');
 const emailTemplates = require('./utility/emailTemplates');
-
+const upload = require('./multer');
 
 const Tesseract = require('tesseract.js');
 
@@ -475,6 +475,126 @@ res.render('send1',{enccode:encryptedOrderData,accesscode:'AVZN72JL86AQ28NZQA'})
 
 
 
+/**
+ * Project report checkout (all degrees) — was POST /:degree-final-year-project-report/insert
+ * on routers that are not mounted on the main app. Inserts into the correct *\_project table
+ * and auto-submits to CCAvenue like routes/B.Tech/index.js
+ */
+const REPORT_DEGREE_TO_TABLE = {
+  'B.Tech': 'btech_project',
+  'M.Tech': 'mtech_project',
+  'B.E.': 'be_project',
+  'M.E.': 'me_project',
+  'BCA': 'bca_project',
+  'MCA': 'mca_project',
+  'BSc': 'btech_project',
+  'MSc': 'btech_project'
+};
+
+function projectReportTodayStr() {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+}
+
+function escPayAttr(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+router.post(
+  '/project-report-checkout/submit',
+  upload.fields([{ name: 'college_logo', maxCount: 1 }, { name: 'affilated_college_logo', maxCount: 1 }]),
+  async (req, res) => {
+    try {
+      const degree = (req.body.report_type || '').toString().trim();
+      const table = REPORT_DEGREE_TO_TABLE[degree];
+      if (!table) {
+        return res.status(400).send('Invalid or missing degree (report_type).');
+      }
+
+      const body = { ...req.body };
+      const frontendArr = Array.isArray(req.body.frontend)
+        ? req.body.frontend
+        : (req.body.frontend ? [req.body.frontend] : []);
+      const backendArr = Array.isArray(req.body.backend)
+        ? req.body.backend
+        : (req.body.backend ? [req.body.backend] : []);
+      body.frontend = frontendArr.join(', ');
+      body.backend = backendArr.join(', ');
+      body.college_logo = req.files?.college_logo?.[0]?.filename || null;
+      body.affilated_college_logo = req.files?.affilated_college_logo?.[0]?.filename || null;
+      body.date = projectReportTodayStr();
+      body.view = req.session.deviceInfo;
+      body.status = 'pending';
+      delete body.report_type;
+
+      req.session.roll_number = body.roll_number;
+
+      pool.query(`INSERT INTO ${table} SET ?`, body, (err) => {
+        if (err) {
+          console.error('project-report-checkout insert error:', err);
+          return res.status(500).send('Could not save your order. Please try again.');
+        }
+
+        setImmediate(async () => {
+          try {
+            const title_case_name = (body.seo_name || '')
+              .split('-')
+              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+              .join(' ');
+            const userSubject = emailTemplates.welcomeMessage.userSubject.replace('{{Customer_Name}}', body.name);
+            const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
+            const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', title_case_name);
+            const userMessage1 = emailTemplates.beforprojectreport.userMessage(body.name, title_case_name, req.session.roll_number);
+            await verify.sendUserMail(body.email, userSubject, userMessage);
+            await verify.sendUserMail(body.email, userSubject1, userMessage1);
+          } catch (e) {
+            console.error('project-report-checkout email error:', e);
+          }
+        });
+
+        const source_code_id = body.projectid || '';
+        const coupon_code = body.coupon_code || '';
+        const seo_name = body.seo_name || '';
+        const name = body.name || '';
+        const number = body.number || '';
+        const email = body.email || '';
+        const final_amount = body.final_amount || '';
+
+        res.set('Content-Type', 'text/html; charset=utf-8');
+        return res.send(`<!doctype html>
+<html><head>
+  <meta charset="utf-8">
+  <title>Redirecting to Payment…</title>
+  <noscript>
+    <style>form{display:block !important}</style>
+  </noscript>
+</head>
+<body>
+  <form id="autoPay" action="/ccavRequestHandler1" method="post" style="display:none">
+    <input type="hidden" name="source_code_id" value="${escPayAttr(source_code_id)}">
+    <input type="hidden" name="seo_name" value="${escPayAttr(seo_name)}">
+    <input type="hidden" name="coupon_code" value="${escPayAttr(coupon_code)}">
+    <input type="hidden" name="billing_name" value="${escPayAttr(name)}">
+    <input type="hidden" name="billing_tel" value="${escPayAttr(number)}">
+    <input type="hidden" name="billing_email" value="${escPayAttr(email)}">
+    <input type="hidden" name="final_amount" value="${escPayAttr(final_amount)}">
+  </form>
+  <script>
+    try { document.getElementById('autoPay').submit(); }
+    catch(e) {}
+  </script>
+  <noscript>
+    <p>Click continue to proceed to payment.</p>
+    <button type="submit" form="autoPay">Continue</button>
+  </noscript>
+</body></html>`);
+      });
+    } catch (e) {
+      console.error('project-report-checkout error:', e);
+      return res.status(500).send('Something went wrong while starting your payment. Please try again.');
+    }
+  }
+);
 
 router.post('/ccavResponseHandler1',(req,response)=>{
     const { encResp } = req.body;
