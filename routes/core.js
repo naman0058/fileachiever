@@ -609,6 +609,9 @@ async function buildProjectReportInsertRow(req, table) {
   delete body.project_type;
   delete body.frontend;
   delete body.backend;
+  // Legacy *\_project tables (BCA, MCA, …) predate the unified form; they have no `email` column.
+  // Keep email only on btech_project; still read from req.body for payment + welcome emails in the route.
+  delete body.email;
 
   if (allIds.length > 0) {
     const rows = await queryAsync('SELECT id, name FROM programming_language WHERE id IN (?)', [allIds]);
@@ -635,6 +638,7 @@ router.post(
 
       const body = await buildProjectReportInsertRow(req, table);
       req.session.roll_number = body.roll_number;
+      const customerEmail = (req.body && String(req.body.email || '').trim()) || (body.email || '');
 
       await queryAsync(`INSERT INTO ${table} SET ?`, body);
 
@@ -648,8 +652,10 @@ router.post(
           const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
           const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', title_case_name);
           const userMessage1 = emailTemplates.beforprojectreport.userMessage(body.name, title_case_name, req.session.roll_number);
-          await verify.sendUserMail(body.email, userSubject, userMessage);
-          await verify.sendUserMail(body.email, userSubject1, userMessage1);
+          if (customerEmail) {
+            await verify.sendUserMail(customerEmail, userSubject, userMessage);
+            await verify.sendUserMail(customerEmail, userSubject1, userMessage1);
+          }
         } catch (e) {
           console.error('project-report-checkout email error:', e);
         }
@@ -660,7 +666,7 @@ router.post(
       const seo_name = body.seo_name || '';
       const name = body.name || '';
       const number = body.number || '';
-      const email = body.email || '';
+      const email = customerEmail;
       const final_amount = (req.body.final_amount || body.final_amount || '');
 
       res.set('Content-Type', 'text/html; charset=utf-8');
