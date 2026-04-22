@@ -524,6 +524,105 @@ function escPayAttr(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
+/**
+ * btech_project was extended with `frontend` / `backend` text columns.
+ * bca_project, mca_project, etc. still use one column per language (html, php, nodejs, …) like routes/BCA/index.js
+ */
+const LEGACY_PL_NAME_TO_COL = {
+  html: 'html',
+  css: 'css',
+  javascript: 'javascript',
+  bootstrap: 'bootstrap',
+  jquery: 'jquery',
+  json: 'json',
+  react: 'react',
+  'react js': 'react',
+  angular: 'angular',
+  angularjs: 'angular',
+  'angular js': 'angular',
+  php: 'php',
+  java: 'java',
+  python: 'python',
+  'node.js': 'nodejs',
+  nodejs: 'nodejs',
+  'node js': 'nodejs',
+  laravel: 'laravel',
+  codeigniter: 'codeigniter',
+  django: 'django',
+  mysql: 'mysql',
+  mongodb: 'mongodb',
+  postgresql: 'postgresql',
+  xml: 'xml',
+  android: 'android',
+  'vue.js': 'vue',
+  vue: 'vue',
+  'express.js': 'express',
+  express: 'express',
+  kotlin: 'kotlin',
+  flutter: 'flutter',
+  'react native': 'react',
+  'machine learning': 'ml'
+};
+
+function plDisplayNameToColumn(name) {
+  if (!name || typeof name !== 'string') return null;
+  const k = name.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (LEGACY_PL_NAME_TO_COL[k]) return LEGACY_PL_NAME_TO_COL[k];
+  const compact = k.replace(/[^a-z0-9]/g, '');
+  if (compact.length > 0 && compact.length < 40) {
+    if (['nodejs', 'javascript', 'bootstrap', 'codeigniter', 'postgresql', 'mongodb'].includes(compact)) return compact;
+  }
+  return null;
+}
+
+async function buildProjectReportInsertRow(req, table) {
+  const body = { ...req.body };
+  const frontendArr = Array.isArray(req.body.frontend)
+    ? req.body.frontend
+    : (req.body.frontend ? [req.body.frontend] : []);
+  const backendArr = Array.isArray(req.body.backend)
+    ? req.body.backend
+    : (req.body.backend ? [req.body.backend] : []);
+  const allIds = [...new Set(
+    [...frontendArr, ...backendArr]
+      .map((x) => String(x == null ? '' : x).trim())
+      .filter((x) => x.length > 0)
+  )];
+
+  body.college_logo = req.files?.college_logo?.[0]?.filename || null;
+  body.affilated_college_logo = req.files?.affilated_college_logo?.[0]?.filename || null;
+  body.date = projectReportTodayStr();
+  body.view = req.session.deviceInfo;
+  delete body.report_type;
+  delete body.degree_key;
+
+  if (table === 'btech_project') {
+    body.frontend = frontendArr.join(', ');
+    body.backend = backendArr.join(', ');
+    body.status = 'pending';
+    return body;
+  }
+
+  delete body.status;
+  delete body.coupon_code;
+  delete body.final_amount;
+  delete body.project_type;
+  delete body.frontend;
+  delete body.backend;
+
+  if (allIds.length > 0) {
+    const rows = await queryAsync('SELECT id, name FROM programming_language WHERE id IN (?)', [allIds]);
+    for (const row of rows || []) {
+      const col = plDisplayNameToColumn(row.name);
+      if (col) {
+        body[col] = row.id;
+      }
+    }
+  }
+
+  return body;
+}
+
 router.post(
   '/project-report-checkout/submit',
   upload.fields([{ name: 'college_logo', maxCount: 1 }, { name: 'affilated_college_logo', maxCount: 1 }]),
@@ -534,63 +633,38 @@ router.post(
         return res.status(400).send('Invalid or missing degree. Use a valid program link or refresh the page.');
       }
 
-      const body = { ...req.body };
-      const frontendArr = Array.isArray(req.body.frontend)
-        ? req.body.frontend
-        : (req.body.frontend ? [req.body.frontend] : []);
-      const backendArr = Array.isArray(req.body.backend)
-        ? req.body.backend
-        : (req.body.backend ? [req.body.backend] : []);
-      body.frontend = frontendArr.join(', ');
-      body.backend = backendArr.join(', ');
-      body.college_logo = req.files?.college_logo?.[0]?.filename || null;
-      body.affilated_college_logo = req.files?.affilated_college_logo?.[0]?.filename || null;
-      body.date = projectReportTodayStr();
-      body.view = req.session.deviceInfo;
-      // btech_project includes status (see routes/B.Tech/index.js); other *\_project tables often do not
-      if (table === 'btech_project') {
-        body.status = 'pending';
-      } else {
-        delete body.status;
-      }
-      delete body.report_type;
-      delete body.degree_key;
-
+      const body = await buildProjectReportInsertRow(req, table);
       req.session.roll_number = body.roll_number;
 
-      pool.query(`INSERT INTO ${table} SET ?`, body, (err) => {
-        if (err) {
-          console.error('project-report-checkout insert error:', err);
-          return res.status(500).send('Could not save your order. Please try again.');
+      await queryAsync(`INSERT INTO ${table} SET ?`, body);
+
+      setImmediate(async () => {
+        try {
+          const title_case_name = (body.seo_name || '')
+            .split('-')
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+          const userSubject = emailTemplates.welcomeMessage.userSubject.replace('{{Customer_Name}}', body.name);
+          const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
+          const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', title_case_name);
+          const userMessage1 = emailTemplates.beforprojectreport.userMessage(body.name, title_case_name, req.session.roll_number);
+          await verify.sendUserMail(body.email, userSubject, userMessage);
+          await verify.sendUserMail(body.email, userSubject1, userMessage1);
+        } catch (e) {
+          console.error('project-report-checkout email error:', e);
         }
+      });
 
-        setImmediate(async () => {
-          try {
-            const title_case_name = (body.seo_name || '')
-              .split('-')
-              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-              .join(' ');
-            const userSubject = emailTemplates.welcomeMessage.userSubject.replace('{{Customer_Name}}', body.name);
-            const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
-            const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', title_case_name);
-            const userMessage1 = emailTemplates.beforprojectreport.userMessage(body.name, title_case_name, req.session.roll_number);
-            await verify.sendUserMail(body.email, userSubject, userMessage);
-            await verify.sendUserMail(body.email, userSubject1, userMessage1);
-          } catch (e) {
-            console.error('project-report-checkout email error:', e);
-          }
-        });
+      const source_code_id = body.projectid || req.body.projectid || '';
+      const coupon_code = (req.body.coupon_code || body.coupon_code || '');
+      const seo_name = body.seo_name || '';
+      const name = body.name || '';
+      const number = body.number || '';
+      const email = body.email || '';
+      const final_amount = (req.body.final_amount || body.final_amount || '');
 
-        const source_code_id = body.projectid || '';
-        const coupon_code = body.coupon_code || '';
-        const seo_name = body.seo_name || '';
-        const name = body.name || '';
-        const number = body.number || '';
-        const email = body.email || '';
-        const final_amount = body.final_amount || '';
-
-        res.set('Content-Type', 'text/html; charset=utf-8');
-        return res.send(`<!doctype html>
+      res.set('Content-Type', 'text/html; charset=utf-8');
+      return res.send(`<!doctype html>
 <html><head>
   <meta charset="utf-8">
   <title>Redirecting to Payment…</title>
@@ -617,10 +691,9 @@ router.post(
     <button type="submit" form="autoPay">Continue</button>
   </noscript>
 </body></html>`);
-      });
     } catch (e) {
-      console.error('project-report-checkout error:', e);
-      return res.status(500).send('Something went wrong while starting your payment. Please try again.');
+      console.error('project-report-checkout error:', (e && e.message) || e, (e && e.sqlMessage) || '');
+      return res.status(500).send('Could not save your order. Please try again.');
     }
   }
 );
