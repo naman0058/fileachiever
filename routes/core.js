@@ -612,6 +612,10 @@ async function buildProjectReportInsertRow(req, table) {
   // Legacy *\_project tables (BCA, MCA, …) predate the unified form; they have no `email` column.
   // Keep email only on btech_project; still read from req.body for payment + welcome emails in the route.
   delete body.email;
+  // Unified form adds extra group members; legacy tables only have friend / roll_number1 / friend1 / roll_number2.
+  ['friend3', 'friend4', 'roll_number3', 'roll_number4'].forEach((k) => {
+    delete body[k];
+  });
 
   if (allIds.length > 0) {
     const rows = await queryAsync('SELECT id, name FROM programming_language WHERE id IN (?)', [allIds]);
