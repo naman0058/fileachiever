@@ -122,6 +122,7 @@ html,body{background:var(--bg);}
         <div class="col-lg-8">
           <form action="/project-report-checkout/submit" method="post" enctype="multipart/form-data" id="checkoutForm" novalidate>
             <input type="hidden" name="report_type" value="<%=graduation_type_send%>">
+            <input type="hidden" name="degree_key" value="<%= typeof original !== 'undefined' ? original : '' %>">
             <input type="hidden" name="projectid" value="<%=result[0][0].id%>">
             <input type="hidden" name="seo_name" value="<%=result[0][0].seo_name%>">
 

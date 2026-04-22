@@ -863,7 +863,7 @@ body{ background:var(--bg); }
   </div>
 
   <div class="pro-sechead__right">
-    <a href="/<%=graduation_type_send%>-final-year-project-report" class="pro-cta">
+    <a href="/<%= original %>-final-year-project-report" class="pro-cta">
       View all
       <i class="feather-arrow-right"></i>
     </a>
@@ -948,7 +948,7 @@ body{ background:var(--bg); }
   $('.edit').on('click', function(){
     const seo_name = $(this).attr('seo_name');
     const original_name = $('.original_name').val();
-    window.location.href = `${original_name}-final-year-project-report-${seo_name}/edit`;
+    window.location.href = `/${original_name}-final-year-project-report-${seo_name}/edit`;
   });
 
   // Activate degree pill based on path
@@ -980,7 +980,7 @@ function populatePriceStrip(){
   const productId   = "<%=result[0][0].id%>";
   const productSlug = "<%=result[0][0].seo_name%>";
   const productName = "<%=result[0][0].name%>";
-  const original_name = "graduation_type_send";
+  const original_name = "<%= typeof original !== 'undefined' ? original : 'btech' %>";
 
 
   const wa = (msg) => `https://wa.me/918319339945?text=${encodeURIComponent(msg)}`;
@@ -1031,7 +1031,7 @@ function populatePriceStrip(){
       <div class="md-actions">
         ${
           p.cta.type === 'download'
-          ? `<a class="md-btn md-btn-light" href="${original_name}-final-year-project-report-${productSlug}/edit" target="_blank" rel="noopener">
+          ? `<a class="md-btn md-btn-light" href="/${original_name}-final-year-project-report-${productSlug}/edit" target="_blank" rel="noopener">
               <i class="feather-download"></i> Download
             </a>`
           : `<a class="md-btn md-btn-light" href="${p.cta.href}" target="_blank" rel="noopener">

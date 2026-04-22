@@ -491,6 +491,30 @@ const REPORT_DEGREE_TO_TABLE = {
   'MSc': 'btech_project'
 };
 
+/** URL slug (from /:graduation_type-...) → DB table; most reliable for checkout. */
+const DEGREE_SLUG_TO_TABLE = {
+  btech: 'btech_project',
+  mtech: 'mtech_project',
+  be: 'be_project',
+  me: 'me_project',
+  bca: 'bca_project',
+  mca: 'mca_project',
+  bsc: 'btech_project',
+  msc: 'btech_project'
+};
+
+function resolveProjectReportTable(req) {
+  const slug = (req.body.degree_key || '').toString().toLowerCase().trim();
+  if (slug && DEGREE_SLUG_TO_TABLE[slug]) {
+    return DEGREE_SLUG_TO_TABLE[slug];
+  }
+  const label = (req.body.report_type || '').toString().trim();
+  if (label && REPORT_DEGREE_TO_TABLE[label]) {
+    return REPORT_DEGREE_TO_TABLE[label];
+  }
+  return null;
+}
+
 function projectReportTodayStr() {
   const t = new Date();
   return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
@@ -505,10 +529,9 @@ router.post(
   upload.fields([{ name: 'college_logo', maxCount: 1 }, { name: 'affilated_college_logo', maxCount: 1 }]),
   async (req, res) => {
     try {
-      const degree = (req.body.report_type || '').toString().trim();
-      const table = REPORT_DEGREE_TO_TABLE[degree];
+      const table = resolveProjectReportTable(req);
       if (!table) {
-        return res.status(400).send('Invalid or missing degree (report_type).');
+        return res.status(400).send('Invalid or missing degree. Use a valid program link or refresh the page.');
       }
 
       const body = { ...req.body };
@@ -524,8 +547,14 @@ router.post(
       body.affilated_college_logo = req.files?.affilated_college_logo?.[0]?.filename || null;
       body.date = projectReportTodayStr();
       body.view = req.session.deviceInfo;
-      body.status = 'pending';
+      // btech_project includes status (see routes/B.Tech/index.js); other *\_project tables often do not
+      if (table === 'btech_project') {
+        body.status = 'pending';
+      } else {
+        delete body.status;
+      }
       delete body.report_type;
+      delete body.degree_key;
 
       req.session.roll_number = body.roll_number;
 
@@ -1306,11 +1335,17 @@ router.get('/:graduation_type-final-year-project-report-:name/edit',dataService.
     else if(req.params.graduation_type == 'me'){
        graduation_type_send = 'M.E.'
      }
-    else if(req.params.graduation_type == 'bca'){
+     else if(req.params.graduation_type == 'bca'){
        graduation_type_send = 'BCA'
      }
      else if(req.params.graduation_type == 'mca'){
        graduation_type_send = 'MCA'
+     }
+     else if(req.params.graduation_type == 'bsc'){
+       graduation_type_send = 'BSc'
+     }
+     else if(req.params.graduation_type == 'msc'){
+       graduation_type_send = 'MSc'
      }
      
 
