@@ -564,6 +564,12 @@ const LEGACY_PL_NAME_TO_COL = {
   'machine learning': 'ml'
 };
 
+/** Per-language FK columns that exist on legacy *\_project tables (see routes/BCA/index.js / old forms). */
+const LEGACY_PROJECT_LANG_COLUMNS = new Set([
+  'html', 'css', 'bootstrap', 'javascript', 'jquery', 'json', 'react', 'angular',
+  'php', 'nodejs', 'python', 'java'
+]);
+
 function plDisplayNameToColumn(name) {
   if (!name || typeof name !== 'string') return null;
   const k = name.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -621,7 +627,7 @@ async function buildProjectReportInsertRow(req, table) {
     const rows = await queryAsync('SELECT id, name FROM programming_language WHERE id IN (?)', [allIds]);
     for (const row of rows || []) {
       const col = plDisplayNameToColumn(row.name);
-      if (col) {
+      if (col && LEGACY_PROJECT_LANG_COLUMNS.has(col)) {
         body[col] = row.id;
       }
     }
