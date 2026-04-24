@@ -173,6 +173,15 @@ function normalizeIgUsername(u) {
     .toLowerCase();
 }
 
+/** Profile may store @handle, URL, or instagram.com/username — normalize to compare with API username. */
+function normalizeAmbassadorInstagramHandle(raw) {
+  let s = String(raw || '').trim();
+  if (!s) return '';
+  const urlMatch = s.match(/instagram\.com\/([^/?#]+)/i);
+  if (urlMatch) s = urlMatch[1];
+  return normalizeIgUsername(s);
+}
+
 /** Daily task HTML produced by buildInstagramDailyTaskDescription / affiliate “Instagram” template */
 function isInstagramTemplateDailyTask(description) {
   if (!description) return false;
@@ -241,7 +250,7 @@ async function collectInstagramCommentUsernames(mediaId, token, tryRefreshOnErro
 }
 
 async function verifyAmbassadorCommentOnMedia(mediaId, token, ambassadorUsername) {
-  const want = normalizeIgUsername(ambassadorUsername);
+  const want = normalizeAmbassadorInstagramHandle(ambassadorUsername);
   if (!want) return { found: false, scanned: 0 };
   const names = await collectInstagramCommentUsernames(mediaId, token);
   return { found: names.has(want), scanned: names.size };
@@ -289,14 +298,35 @@ async function findMediaIdByPermalink(igUserId, token, permalink, tryRefreshOnEr
 
 const FEED_REPOST_MEDIA_TYPES = new Set(['REELS', 'VIDEO', 'IMAGE', 'CAROUSEL_ALBUM']);
 
+function permalinkLooksLikeStory(p) {
+  return String(p || '')
+    .toLowerCase()
+    .includes('/stories/');
+}
+
+function permalinkLooksLikeFeedOrReel(p) {
+  const u = String(p || '').toLowerCase();
+  if (u.includes('/stories/')) return false;
+  return /instagram\.com\/(p|reel|reels|tv)\//.test(u);
+}
+
+/** Meta returns STORY or STORIES; some story tags arrive as IMAGE/VIDEO with a /stories/ permalink. */
+function isStoryTaggedMedia(m) {
+  const mt = String(m.media_type || '').toUpperCase();
+  if (mt === 'STORY' || mt === 'STORIES') return true;
+  return permalinkLooksLikeStory(m.permalink);
+}
+
+function isFeedOrReelTaggedMedia(m) {
+  if (permalinkLooksLikeStory(m.permalink)) return false;
+  const mt = String(m.media_type || '').toUpperCase();
+  if (mt && FEED_REPOST_MEDIA_TYPES.has(mt)) return true;
+  return permalinkLooksLikeFeedOrReel(m.permalink);
+}
+
 function evaluateStoryAndRepostTags(tagMatches) {
-  const hasStoryTag = tagMatches.some(
-    (m) => String(m.media_type || '').toUpperCase() === 'STORY'
-  );
-  const hasFeedRepostTag = tagMatches.some((m) => {
-    const mt = String(m.media_type || '').toUpperCase();
-    return mt && FEED_REPOST_MEDIA_TYPES.has(mt);
-  });
+  const hasStoryTag = tagMatches.some((m) => isStoryTaggedMedia(m));
+  const hasFeedRepostTag = tagMatches.some((m) => isFeedOrReelTaggedMedia(m));
   return { hasStoryTag, hasFeedRepostTag };
 }
 
@@ -307,21 +337,25 @@ async function collectTaggedMediaFromAmbassadorOnBusiness(
   sinceMs,
   tryRefreshOnError = true
 ) {
-  const want = normalizeIgUsername(ambassadorUsername);
+  const want = normalizeAmbassadorInstagramHandle(ambassadorUsername);
   if (!want) return [];
   let active = await rotateInstagramTokenIfDue(token);
   const matches = [];
-  const endpoint = `https://graph.facebook.com/${IG_API_VERSION}/${igBusinessUserId}/tags`;
+  const baseUrl = `https://graph.facebook.com/${IG_API_VERSION}/${igBusinessUserId}/tags`;
+  const tagFields = 'id,username,media_type,timestamp,permalink';
+  let url = baseUrl;
   let requestConfig = {
     params: {
-      fields: 'id,username,media_type,timestamp,permalink',
+      fields: tagFields,
       limit: 100,
       access_token: active
     }
   };
   try {
     for (let page = 0; page < 60; page++) {
-      const response = await axios.get(endpoint, requestConfig);
+      const response = requestConfig
+        ? await axios.get(url, requestConfig)
+        : await axios.get(url);
       const items = response.data?.data || [];
       for (const item of items) {
         if (normalizeIgUsername(item.username) !== want) continue;
@@ -330,16 +364,24 @@ async function collectTaggedMediaFromAmbassadorOnBusiness(
         }
         matches.push(item);
       }
+      const next = response.data?.paging?.next;
       const after = response.data?.paging?.cursors?.after;
-      if (!after) break;
-      requestConfig = {
-        params: {
-          fields: 'id,username,media_type,timestamp,permalink',
-          limit: 100,
-          after,
-          access_token: active
-        }
-      };
+      if (next) {
+        url = next;
+        requestConfig = null;
+      } else if (after) {
+        url = baseUrl;
+        requestConfig = {
+          params: {
+            fields: tagFields,
+            limit: 100,
+            after,
+            access_token: active
+          }
+        };
+      } else {
+        break;
+      }
     }
     return matches;
   } catch (error) {
@@ -431,5 +473,8 @@ module.exports = {
   findMediaIdByPermalink,
   FEED_REPOST_MEDIA_TYPES,
   evaluateStoryAndRepostTags,
-  collectTaggedMediaFromAmbassadorOnBusiness
+  collectTaggedMediaFromAmbassadorOnBusiness,
+  normalizeAmbassadorInstagramHandle,
+  isStoryTaggedMedia,
+  isFeedOrReelTaggedMedia
 };
