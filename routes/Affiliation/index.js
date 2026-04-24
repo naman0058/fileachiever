@@ -3381,12 +3381,14 @@ router.get('/review-tasks', (req, res) => {
   const sql = `
     SELECT idt.id AS internshipTaskId, idt.proofLink, idt.status, idt.created_at,
            t.title, t.task_type, t.description,
-           s.name AS ambassador_name
+           s.name AS ambassador_name, s.email AS ambassador_email, s.instagram_id AS ambassador_instagram
     FROM internship_day idt
     JOIN task t ON idt.task_id = t.id
     JOIN shopkeeper s ON idt.brand_ambassador_id = s.id
     WHERE idt.status = 'pending'
-    ORDER BY idt.created_at DESC
+      AND t.task_type = 'daily'
+      AND DATE(t.created_at) = CURDATE()
+    ORDER BY idt.created_at ASC
   `;
 
   pool.query(sql, (err, results) => {
@@ -3441,13 +3443,11 @@ router.get('/review-hustle-tasks', (req, res) => {
 // });
 
 
-router.post('/update-task-status', (req, res) => {
+router.post('/update-task-status', async (req, res) => {
   let { taskIds, status, reason } = req.body;
 
-  // Normalize
   status = (status ?? '').toString().trim().toLowerCase();
 
-  // Normalize taskIds to an array of strings/numbers
   if (!Array.isArray(taskIds)) {
     if (typeof taskIds === 'string' && taskIds.length > 0) {
       taskIds = [taskIds];
@@ -3455,41 +3455,123 @@ router.post('/update-task-status', (req, res) => {
       taskIds = [req.body.taskId];
     }
   }
-  taskIds = (taskIds || []).map(id => String(id).trim()).filter(Boolean);
+  taskIds = (taskIds || []).map((id) => String(id).trim()).filter(Boolean);
 
-  // Validate selection
   if (taskIds.length === 0) {
     return res.status(400).send('No tasks selected.');
   }
 
-  // Validate status
   if (!['verified', 'rejected'].includes(status)) {
     return res.status(400).send('Invalid status.');
   }
 
-  // Validate rejection reason
   if (status === 'rejected') {
     reason = (reason ?? '').toString().trim();
     if (!reason) return res.status(400).send('Rejection reason is required.');
   }
 
-  // Build SQL
-  let sql, values;
-  if (status === 'rejected') {
-    sql = `UPDATE internship_day SET status = ?, reason = ? WHERE id IN (?)`;
-    values = [status, reason, taskIds];
-  } else {
-    sql = `UPDATE internship_day SET status = ?, reason = NULL WHERE id IN (?)`;
-    values = [status, taskIds];
+  const placeholders = taskIds.map(() => '?').join(',');
+  const mernClassMeetService = require('../mernClassMeetService');
+
+  function safeMailHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
-  pool.query(sql, values, (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('Database error.');
+  try {
+    const [rows] = await pool
+      .promise()
+      .query(
+        `SELECT idt.id AS internshipTaskId, idt.brand_ambassador_id, idt.proofLink,
+                s.email AS ambassador_email, s.name AS ambassador_name
+         FROM internship_day idt
+         JOIN shopkeeper s ON s.id = idt.brand_ambassador_id
+         WHERE idt.id IN (${placeholders}) AND idt.status = 'pending'`,
+        taskIds
+      );
+
+    if (!rows.length) {
+      return res.status(400).send('No matching pending tasks (they may have been updated already).');
     }
+
+    if (status === 'rejected') {
+      await pool.promise().query(
+        `UPDATE internship_day SET status = ?, reason = ? WHERE id IN (${placeholders}) AND status = 'pending'`,
+        [status, reason, ...taskIds]
+      );
+      for (const row of rows) {
+        const email = row.ambassador_email ? String(row.ambassador_email).trim() : '';
+        if (!email) continue;
+        const subj = 'Daily attendance — not approved';
+        const body = `<p>Hi ${safeMailHtml(row.ambassador_name || 'there')},</p>
+<p>Your daily attendance for today was <strong>not approved</strong>.</p>
+<p><strong>Reason:</strong> ${safeMailHtml(reason)}</p>
+<p>Please complete the Instagram task as instructed and use <strong>Verify my attendance</strong> again on your dashboard after commenting on the post.</p>
+<p>— FileMakr MERN Training</p>`;
+        try {
+          await verify.sendUserMail(email, subj, body);
+        } catch (mailErr) {
+          console.error('update-task-status reject email:', mailErr);
+        }
+      }
+    } else {
+      await pool.promise().query(
+        `UPDATE internship_day SET status = ?, reason = NULL WHERE id IN (${placeholders}) AND status = 'pending'`,
+        [status, ...taskIds]
+      );
+      for (const row of rows) {
+        const email = row.ambassador_email ? String(row.ambassador_email).trim() : '';
+        const name = row.ambassador_name || '';
+        let meetLink = '';
+        let timeLabel = '';
+        let meetDate = '';
+        if (email) {
+          try {
+            await mernClassMeetService.ensureTables();
+            const meet = await mernClassMeetService.enrollStudentInTodayClass({
+              shopkeeperId: row.brand_ambassador_id,
+              email,
+              studentName: name
+            });
+            meetLink = meet.meetLink || '';
+            timeLabel = meet.timeLabel || '';
+            meetDate = meet.meetDate || '';
+          } catch (meetErr) {
+            console.error('update-task-status Meet/calendar:', meetErr.response?.data || meetErr.message || meetErr);
+          }
+        }
+        if (!email) {
+          console.warn('update-task-status: missing email for shopkeeper', row.brand_ambassador_id);
+          continue;
+        }
+        const subj = `MERN class — attendance approved (${meetDate || 'today'})`;
+        const hrefMeet = meetLink ? String(meetLink).replace(/"/g, '&quot;') : '';
+        const body = `<p>Hi ${safeMailHtml(name || 'there')},</p>
+<p>Your <strong>daily attendance</strong> has been <strong>approved</strong>.</p>
+${
+  meetLink
+    ? `<p><strong>Today’s Google Meet:</strong> <a href="${hrefMeet}">${safeMailHtml(meetLink)}</a></p>
+       <p><strong>Time:</strong> ${safeMailHtml(timeLabel)}</p>
+       <p>If Google Calendar OAuth is configured, you may also receive a calendar invite.</p>`
+    : '<p>The live class link will be available on your MERN dashboard under <strong>Today’s live class</strong>, or contact support if you do not see it.</p>'
+}
+<p>— FileMakr MERN Training</p>`;
+        try {
+          await verify.sendUserMail(email, subj, body);
+        } catch (mailErr) {
+          console.error('update-task-status verify email:', mailErr);
+        }
+      }
+    }
+
     res.redirect('/affiliate/review-tasks');
-  });
+  } catch (err) {
+    console.error('update-task-status:', err);
+    return res.status(500).send('Server error.');
+  }
 });
 
 

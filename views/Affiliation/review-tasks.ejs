@@ -4,13 +4,13 @@
   <div class="page-titles">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="#">CMS</a></li>
-      <li class="breadcrumb-item active"><a href="#">Review Pending Tasks</a></li>
+      <li class="breadcrumb-item active"><a href="#">Today’s daily attendance (pending)</a></li>
     </ol>
   </div>
 
   <div class="container-fluid">
     <% if (tasks.length === 0) { %>
-      <div class="alert alert-info">No pending tasks to review.</div>
+      <div class="alert alert-info">No pending daily attendance for today. Submissions appear after students tap <strong>Verify my attendance</strong> and their Instagram comment is found.</div>
     <% } else { %>
       <!-- Bulk action form wraps the whole table -->
 <form method="POST" action="/affiliate/update-task-status" id="bulkActionForm">
@@ -26,7 +26,7 @@
     <thead class="table-dark">
       <tr>
         <th><input type="checkbox" id="selectAll" /></th>
-        <th>#</th><th>Title</th><th>Type</th><th>Submitted By</th><th>Description</th><th>Proof</th>
+        <th>#</th><th>Title</th><th>Type</th><th>Student</th><th>Email</th><th>Instagram</th><th>Description</th><th>Proof</th>
         <th>Quick Action</th>
       </tr>
     </thead>
@@ -38,11 +38,19 @@
           <td><%= task.title %></td>
           <td><%= task.task_type.charAt(0).toUpperCase() + task.task_type.slice(1) %></td>
           <td><strong><%= task.ambassador_name %></strong></td>
+          <td><small><%= task.ambassador_email || '—' %></small></td>
+          <td><small><%= task.ambassador_instagram || '—' %></small></td>
           <td style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
               title="<%= task.description.replace(/(<([^>]+)>)/gi, '') %>">
             <%= task.description.replace(/(<([^>]+)>)/gi, '') %>
           </td>
-          <td><a href="<%= task.proofLink %>" target="_blank" class="btn btn-sm btn-link text-primary">View</a></td>
+          <td>
+            <% if (task.proofLink && String(task.proofLink).indexOf('instagram:') === 0) { %>
+              <span class="text-muted small">Instagram · comment OK</span>
+            <% } else if (task.proofLink) { %>
+              <a href="<%= task.proofLink %>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-link text-primary">View</a>
+            <% } else { %>—<% } %>
+          </td>
           <td class="text-center">
             <!-- No nested form here -->
             <button type="button" class="btn btn-success btn-sm quick-verify" data-id="<%= task.internshipTaskId %>">Verified</button>

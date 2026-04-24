@@ -849,31 +849,6 @@ router.post('/verify-daily-instagram', isAuthenticated, async (req, res) => {
       });
     }
 
-    // Grace before task row time for clock skew; tags API can lag a few minutes.
-    const lookbackMs = parseInt(process.env.INSTAGRAM_TAG_SINCE_LOOKBACK_MS || '900000', 10);
-    const sinceMs = new Date(taskRow.created_at).getTime() - lookbackMs;
-    let tagMatches;
-    try {
-      tagMatches = await instagramGraph.collectTaggedMediaFromAmbassadorOnBusiness(
-        config.instagramUserId,
-        config.instagramAccessToken,
-        igUser,
-        sinceMs
-      );
-    } catch (apiErr) {
-      console.error(
-        'collectTaggedMediaFromAmbassadorOnBusiness:',
-        apiErr.response?.data || apiErr.message
-      );
-      return res.status(502).json({
-        ok: false,
-        message: instagramGraph.instagramApiUserFacingMessage(apiErr)
-      });
-    }
-
-    const { hasStoryTag, hasFeedRepostTag } =
-      instagramGraph.evaluateStoryAndRepostTags(tagMatches);
-
     const checks = [
       {
         id: 'comment',
@@ -883,54 +858,33 @@ router.post('/verify-daily-instagram', isAuthenticated, async (req, res) => {
         note:
           commentResult.found === true
             ? undefined
-            : 'We did not find a top-level comment from your profile username on this post.'
-      },
-      {
-        id: 'story',
-        label: 'Story — tag our account (tag sticker)',
-        ok: hasStoryTag === true,
-        api: true,
-        note:
-          hasStoryTag === true
-            ? undefined
-            : 'Use the mention/tag sticker on your story (not caption-only @text). Your account should be public or the tag may not appear to our API. Wait a few minutes after posting, then try again.'
-      },
-      {
-        id: 'repost',
-        label: 'Repost / feed or reel — tag our account',
-        ok: hasFeedRepostTag === true,
-        api: true,
-        note:
-          hasFeedRepostTag === true
-            ? undefined
-            : 'Sharing only to story is not enough: publish a feed post, reel, or carousel where you tag our account with the tag sticker (separate from your story).'
+            : 'Missing — we did not find a comment from your Instagram username on this post.'
       },
       {
         id: 'like',
         label: 'Like the post',
         ok: null,
         api: false,
-        note: 'Apps cannot see who liked the post. Please like it in Instagram.'
+        note: 'Not checked automatically — please like the post in Instagram.'
       }
     ];
 
-    const verified =
-      commentResult.found === true && hasStoryTag === true && hasFeedRepostTag === true;
-    const proofStub = 'instagram:api-verified';
-
-    if (verified) {
+    const proofStub = 'instagram:pending-review';
+    let pendingReview = false;
+    if (commentResult.found === true) {
+      pendingReview = true;
       const existing = await queryAsync(
         'SELECT id FROM internship_day WHERE task_id = ? AND brand_ambassador_id = ?',
         [taskId, userId]
       );
       if (existing.length > 0) {
         await queryAsync(
-          `UPDATE internship_day SET proofLink = ?, status = 'verified', reason = NULL, created_at = NOW() WHERE task_id = ? AND brand_ambassador_id = ?`,
+          `UPDATE internship_day SET proofLink = ?, status = 'pending', reason = NULL, created_at = NOW() WHERE task_id = ? AND brand_ambassador_id = ?`,
           [proofStub, taskId, userId]
         );
       } else {
         await queryAsync(
-          `INSERT INTO internship_day (task_id, brand_ambassador_id, proofLink, status, created_at) VALUES (?, ?, ?, 'verified', NOW())`,
+          `INSERT INTO internship_day (task_id, brand_ambassador_id, proofLink, status, created_at) VALUES (?, ?, ?, 'pending', NOW())`,
           [taskId, userId, proofStub]
         );
       }
@@ -938,7 +892,8 @@ router.post('/verify-daily-instagram', isAuthenticated, async (req, res) => {
 
     return res.json({
       ok: true,
-      verified,
+      verified: false,
+      pendingReview,
       checks,
       scannedComments: commentResult.scanned
     });

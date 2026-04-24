@@ -153,16 +153,19 @@ function buildInstagramDailyTaskDescription(latest, brandUsername = '') {
     ? `<p><strong>Post caption:</strong> ${escapeHtmlForTask(latest.caption)}</p>`
     : '';
   const handleRaw = brandUsername ? String(brandUsername).replace(/^@/, '').trim() : '';
-  const tagBlock = handleRaw
-    ? `<p><strong>Required for auto-verification:</strong> On your <em>story</em> and again on your <em>feed repost or reel</em>, use Instagram’s <strong>@ mention / tag sticker</strong> to tag <strong>${escapeHtmlForTask('@' + handleRaw)}</strong>. Text-only “@” in captions may not count—use the official tag. Public accounts work best.</p>`
-    : `<p><strong>Required for auto-verification:</strong> On your story and on your feed repost/reel, tag our Instagram account with the <strong>tag sticker</strong> (not caption-only).</p>`;
+  const tagLine = handleRaw
+    ? ` Tag <strong>${escapeHtmlForTask('@' + handleRaw)}</strong> when you share or repost.`
+    : ' Tag our Instagram account when you share or repost.';
+  const verifyLine =
+    '<p><strong>Attendance verification:</strong> Comment on this post from the Instagram username in your profile. We check the comment automatically; the team then approves attendance in the affiliate dashboard. Please also <strong>like</strong> and share the post — apps cannot verify likes.</p>';
   return (
     `<p><strong>Task link:</strong> <a href="${escapeHtmlForTask(link)}" target="_blank" rel="noopener noreferrer">${escapeHtmlForTask(link)}</a></p>` +
     cap +
-    tagBlock +
-    `<p><strong>Complete all of the following on this post:</strong></p>` +
+    verifyLine +
+    `<p><strong>Please complete on Instagram:</strong></p>` +
     `<ul><li>Like the post</li><li>Comment on the post</li>` +
-    `<li>Share on your Instagram story and tag us (see above)</li><li>Repost on Instagram (feed or reel) and tag us (see above)</li></ul>`
+    `<li>Share (e.g. to your story)</li><li>Repost to feed or reel if you can</li></ul>` +
+    `<p>${tagLine}</p>`
   );
 }
 
@@ -189,7 +192,7 @@ function isInstagramTemplateDailyTask(description) {
   return (
     /instagram\.com\//i.test(s) &&
     /Task link/i.test(s) &&
-    /Complete all of the following on this post/i.test(s)
+    (/Attendance verification:/i.test(s) || /Complete all of the following on this post/i.test(s))
   );
 }
 
