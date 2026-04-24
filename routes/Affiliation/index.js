@@ -13,6 +13,7 @@ var table1 = 'source_code'
 var dataService = require('../dataService');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 
 router.use(dataService.adminAuthenticationToken);
 
@@ -21,6 +22,8 @@ const cloudinary = require('cloudinary').v2
 
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const projectReportShared = require('../projectReportShared');
+const ig = require('../instagramGraphHelpers');
 
 /** Multer field names for source_code zip + optional readme / schema / sql uploads */
 const sourceCodeMultipartFields = [
@@ -852,11 +855,8 @@ router.post('/add-project/insert',upload.single('zip'),(req,res)=> {
 
 router.get('/dashboard/project/report/:status', async (req, res) => {
   try {
-    // Query to get the btech_project with the specified status
-    const projectDetails = await queryAsync(`SELECT * FROM btech_project WHERE status = '${req.params.status}' ORDER BY id DESC`);
-
-   
-    res.render(`${folder}/projectReport`,{projectDetails,status:req.params.status});
+    const projectDetails = await projectReportShared.fetchProjectReportsByStatus(req.params.status);
+    res.render(`${folder}/projectReport`, { projectDetails, status: req.params.status });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
@@ -879,12 +879,17 @@ router.get('/dashboard/customize/order/:status', async (req, res) => {
 
 
 
-router.post('/dashboard/project/report/updateStatus',(req,res)=>{
-  pool.query(`update btech_project set status = '${req.body.status}' where id = '${req.body.id}'`,(err,result)=>{
-    if(err) throw err;
-    else res.json({msg:'success'})
-  })
-})
+router.post('/dashboard/project/report/updateStatus', (req, res) => {
+  const tbl = projectReportShared.safeTableName(req.body && req.body.source_table);
+  pool.query(
+    `UPDATE \`${tbl}\` SET \`status\` = ? WHERE \`id\` = ?`,
+    [req.body.status, req.body.id],
+    (err, result) => {
+      if (err) throw err;
+      else res.json({ msg: 'success' });
+    }
+  );
+});
 
 
 router.post('/dashboard/customizeOrder/updateStatus',(req,res)=>{
@@ -914,30 +919,30 @@ router.post('/dashboard/payment/response/updateStatus',(req,res)=>{
 const emailTemplates = require('../utility/emailTemplates');
 const verify = require('../verify');
 
-router.get('/dashboard/project/report/send/reminder', async(req,res)=>{
-  console.log(req.query)
-  const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', req.query.project_name);
-  const userMessage1 = emailTemplates.beforprojectreport.userMessage(req.query.name,req.query.project_name,req.query.roll_number);
-  await verify.sendUserMail(req.query.email,userSubject1,userMessage1);
-
-//    await verify.sendWhatsAppMessage(
-//     +91 + req.query.number,
-//     'project_report_reminder', // Template name
-//     'en_US', // Language code
-//     [req.query.name.toUpperCase(), req.query.project_name], // Body parameters
-//     [req.query.roll_number] // Button parameters
-// );
-
-
-pool.query(`update btech_project set status = 'reminder_sent' where id = '${req.query.id}'`,(err,result)=>{
-  if(err) throw err;
-  else {
-    res.json({msg:'success'})
+router.get('/dashboard/project/report/send/reminder', async (req, res) => {
+  console.log(req.query);
+  if (req.query.email) {
+    const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', req.query.project_name);
+    const userMessage1 = emailTemplates.beforprojectreport.userMessage(
+      req.query.name,
+      req.query.project_name,
+      req.query.roll_number
+    );
+    await verify.sendUserMail(req.query.email, userSubject1, userMessage1);
   }
-})
-
-
-})
+  const tbl = projectReportShared.safeTableName(req.query.source_table);
+  pool.query(
+    `UPDATE \`${tbl}\` SET \`status\` = 'reminder_sent' WHERE \`id\` = ?`,
+    [req.query.id],
+    (err) => {
+      if (err) {
+        console.error('reminder status update', tbl, err);
+        return res.status(500).json({ msg: 'error' });
+      }
+      res.json({ msg: 'success' });
+    }
+  );
+});
 
 
 
@@ -970,24 +975,23 @@ pool.query(`update payment_request set status = 'reminder_sent' where id = '${re
 
 
 
-router.get('/dashboard/project/report/send/rating', async(req,res)=>{
-  console.log(req.query)
-             await verify.sendWhatsAppMessage(
-                +91 + req.query.number,
-                'reviewtempelate', // Template name
-                'en_US', // Language code
-                [req.query.name.toUpperCase(),req.query.project_name+' Project Report '] // Body parameters
-            );
-
-            pool.query(`update btech_project set israting = 'send' where id = '${req.query.id}'`,(err,result)=>{
-              if(err) throw err;
-              else {
-                res.json({msg:'success'})
-              }
-            })
-
-  
-})
+router.get('/dashboard/project/report/send/rating', async (req, res) => {
+  console.log(req.query);
+  await verify.sendWhatsAppMessage(
+    +91 + +req.query.number,
+    'reviewtempelate',
+    'en_US',
+    [String(req.query.name || '').toUpperCase(), String(req.query.project_name || '') + ' Project Report ']
+  );
+  const tbl = projectReportShared.safeTableName(req.query.source_table);
+  pool.query(`UPDATE \`${tbl}\` SET \`israting\` = 'send' WHERE \`id\` = ?`, [req.query.id], (err) => {
+    if (err) {
+      console.error('rating israting update', tbl, err);
+      return res.status(500).json({ msg: 'error' });
+    }
+    res.json({ msg: 'success' });
+  });
+});
 
 
 
@@ -1329,7 +1333,7 @@ router.post('/dashboard/post/:id/fetch', async (req, res) => {
     const token = config.instagramAccessToken;
 
     // Fetch comments using mediaId (postid)
-    const commentData = await fetchInstagramComments(post.postid, token);
+    const commentData = await ig.fetchInstagramComments(post.postid, token);
 
     const commenters = commentData?.comments?.data || [];
 
@@ -1593,7 +1597,7 @@ router.post('/dashboard/instagram/post/add', async (req, res) => {
       const { instagramAccessToken, instagramUserId } = configResult[0];
 
       // Fetch Instagram media
-      const mediaData = await fetchInstagramMedia(instagramUserId, instagramAccessToken);
+      const mediaData = await ig.fetchInstagramMedia(instagramUserId, instagramAccessToken);
       postid = mediaData?.data?.[0]?.id || null;
       mediaUrl = mediaData?.data?.[0]?.permalink || null;
 
@@ -2961,54 +2965,6 @@ router.get('/send-common-letter', async (req, res) => {
 
 
 
-const axios = require('axios');
-
-const accessToken = 'EAAU06ZC3UpdABOZCAVELBBsr36NZCXRZA9u6uTYI3FZCRtoouQip5aZBErMWCsxKaAVPLYwGpwyYWq1ZCDZB5yVVtNHiQu7d1VNOhMZC6qinTZAZBWs0unSxdXwBLVgnSNZCURAX7ZBmIXMoolTvjDrapQUPbtmgEvy445r69Js5rZB3xjr1Xq44W6oQidGygSKEjtguSKkZBZA0dtP2LlZChoM3E065pVzeGg7hZA4PqT54HSWrnTRc5hlXLS8qVaFQZDZD';
-const instagramUserId = '17841423690161816';
-const mediaId = '17968829153913605';
-
-async function fetchInstagramMedia(userId, token) {
-  const url = `https://graph.facebook.com/v21.0/${userId}/media`;
-  const params = {
-    fields: 'id,caption,timestamp,media_type,media_url,permalink',
-    access_token: token
-  };
-
-  try {
-    const response = await axios.get(url, { params });
-    console.log('Instagram Media:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching Instagram media:', error.response?.data || error.message);
-    throw error;
-  }
-}
-
-
-async function fetchInstagramComments(mediaId, token) {
-  const url = `https://graph.facebook.com/v21.0/${mediaId}`;
-  const params = {
-    fields: 'comments.limit(100){username}',
-    access_token: token
-  };
-
-  try {
-    const response = await axios.get(url, { params });
-    console.log('Instagram Post Details with Comments:', response.data.comments.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching comments:', error.response?.data || error.message);
-    throw error;
-  }
-}
-
-// Usage
-// fetchInstagramComments(mediaId, accessToken);
-
-// Usage
-// fetchInstagramMedia(instagramUserId, accessToken);
-
-
 router.get('/credentials/sent', async (req, res) => {
   const { email, number, password ,unique_code } = req.query;
 
@@ -3048,7 +3004,7 @@ router.get('/credentials/sent', async (req, res) => {
           <p>You can now log in to your brand ambassador dashboard to begin your journey:</p>
 
           <p style="text-align: center; margin: 20px 0;">
-            <a href="https://www.filemakr.com/shopkeeper" target="_blank" 
+            <a href="https://www.filemakr.com/mern-training-program" target="_blank" 
               style="background-color: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">
               🔗 Go to Dashboard
             </a>
@@ -3341,21 +3297,82 @@ router.post('/dashboard/blogs/update',upload.any(), (req, res) => {
 
 
 
-router.get('/create-task',(req,res)=>{
-  res.render(`${folder}/createTask`,{msg:''})
-})
+router.get('/api/instagram/latest-post', async (req, res) => {
+  try {
+    const payload = await ig.getLatestInstagramDailyTaskPayload();
+    return res.json(payload);
+  } catch (err) {
+    console.error('Instagram latest-post:', err.response?.data || err.message);
+    if (err.code === 'INSTAGRAM_NOT_CONFIGURED') {
+      return res.status(400).json({
+        error: 'Instagram is not configured. Set Instagram User ID and access token under Affiliate → Config.'
+      });
+    }
+    if (err.code === 'NO_MEDIA') {
+      return res.status(404).json({ error: 'No Instagram media found for this account.' });
+    }
+    return res.status(500).json({ error: ig.instagramApiUserFacingMessage(err) });
+  }
+});
 
+router.get('/create-task', async (req, res) => {
+  try {
+    const wantHustle = req.query.new === 'hustle';
+    const rows = await queryAsync(
+      `SELECT id, title, description, task_type FROM task 
+       WHERE task_type = 'daily' AND DATE(created_at) = CURDATE() 
+       ORDER BY id DESC LIMIT 1`
+    );
+    const existingDaily = rows[0] || null;
+    let mode = 'new';
+    if (existingDaily && !wantHustle) mode = 'edit_daily';
+    else if (wantHustle) mode = 'new_hustle';
+    res.render(`${folder}/createTask`, {
+      msg: req.query.msg || '',
+      existingDaily,
+      wantHustle: !!wantHustle,
+      mode
+    });
+  } catch (e) {
+    throw e;
+  }
+});
 
-router.post('/create-task', (req, res) => {
-  const { title, description, task_type } = req.body;
-  const query = `
-    INSERT INTO task (title, description, task_type, created_at)
-    VALUES (?, ?, ?, NOW())
-  `;
-  pool.query(query, [title, description, task_type], (err, result) => {
-    if (err) throw err;
-    res.redirect('/affiliate/create-task?msg=Task created');
-  });
+router.post('/create-task', async (req, res) => {
+  let { title, description, task_type, task_template } = req.body;
+  if (task_template === 'instagram') {
+    task_type = 'daily';
+  }
+
+  try {
+    if (task_type === 'hustle') {
+      await queryAsync(
+        `INSERT INTO task (title, description, task_type, created_at) VALUES (?, ?, 'hustle', NOW())`,
+        [title, description]
+      );
+      return res.redirect('/affiliate/create-task?msg=Hustle task created');
+    }
+
+    const rows = await queryAsync(
+      `SELECT id FROM task WHERE task_type = 'daily' AND DATE(created_at) = CURDATE() ORDER BY id DESC LIMIT 1`
+    );
+    if (rows[0]) {
+      await queryAsync(`UPDATE task SET title = ?, description = ?, task_type = 'daily' WHERE id = ?`, [
+        title,
+        description,
+        rows[0].id
+      ]);
+      return res.redirect('/affiliate/create-task?msg=Daily task updated');
+    }
+
+    await queryAsync(
+      `INSERT INTO task (title, description, task_type, created_at) VALUES (?, ?, 'daily', NOW())`,
+      [title, description]
+    );
+    return res.redirect('/affiliate/create-task?msg=Daily task created');
+  } catch (err) {
+    throw err;
+  }
 });
 
 

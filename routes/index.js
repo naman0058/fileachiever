@@ -6,6 +6,19 @@
 const express = require('express');
 const router = express.Router();
 
+// Legacy URLs: app moved from /shopkeeper to /mern-training-program. Keep /shopkeeper/wp-content/* + files for public assets.
+router.use((req, res, next) => {
+  if (req.path === '/shopkeeper' || req.path === '/shopkeeper/') {
+    const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    return res.redirect(301, '/mern-training-program' + q);
+  }
+  if (!req.path.startsWith('/shopkeeper/')) return next();
+  if (req.path.startsWith('/shopkeeper/wp-content')) return next();
+  if (req.path === '/shopkeeper/animation1.json') return next();
+  const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  return res.redirect(301, '/mern-training-program' + req.path.slice('/shopkeeper'.length) + q);
+});
+
 // ========== Auth ==========
 router.use('/auth', require('./auth'));
 
@@ -37,6 +50,9 @@ router.use('/ads.txt', require('./ads'));
 router.use('/ieee-standard-project-report', require('./ieee/ieeeproject'));
 router.use('/class-12-physics-notes-download', require('./notes'));
 
+// ========== Daily attendance (team email link, no affiliate login) ==========
+router.use('/', require('./dailyAttendanceTask'));
+
 // ========== Affiliate / Blog ==========
 router.use('/affiliate/config', require('./Affiliation/config'));
 router.use('/affiliateblog', require('./Affiliation/blog'));
@@ -47,7 +63,7 @@ router.use('/analytics', require('./analytics'));
 
 // ========== CRM ==========
 router.use('/freelancing', require('./Freelancing/index'));
-router.use('/shopkeeper', require('./Shopkeeper/index'));
+router.use('/mern-training-program', require('./Shopkeeper/index'));
 
 // ========== Blog Module ==========
 router.use('/blog-admin', require('./blog/admin'));

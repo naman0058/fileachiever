@@ -470,14 +470,14 @@
 			  </li>
 			  
 			 <li class="nav-item">
-  <a class="nav-link" href="/shopkeeper/generateLink">
+  <a class="nav-link" href="/mern-training-program/generateLink">
     <i class="fas fa-link me-1"></i> Promoter Link
   </a>
 </li>
 			
 
           <li class="nav-item">
-				<a class="nav-link" href="/shopkeeper/dashboard/profile">
+				<a class="nav-link" href="/mern-training-program/dashboard/profile">
 				  <i class="fas fa-user me-1"></i> My Account
 				</a>
 			  </li>
@@ -559,7 +559,7 @@
 <% if (!result[17][0].instagram_id || !result[17][0].linkedin_id || !result[17][0].youtube_id) { %>
   <div class="alert alert-warning text-center my-3">
     <strong>⚠️ Complete Your Profile:</strong> Add your Instagram, LinkedIn, and YouTube details to receive ambassador benefits. <br>
-    <a href="/shopkeeper/dashboard/profile" class="btn btn-primary mt-2">
+    <a href="/mern-training-program/dashboard/profile" class="btn btn-primary mt-2">
       Complete Profile Now
     </a>
   </div>
@@ -570,7 +570,7 @@
   <div class="card shadow-sm">
 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
   <h5 class="mb-0">📊 Performance Overview</h5>
-  <a href="/shopkeeper/dashboard/performance" class="text-white text-decoration-underline small">
+  <a href="/mern-training-program/dashboard/performance" class="text-white text-decoration-underline small">
     View Complete Performance →
   </a>
 </div>
@@ -1175,7 +1175,7 @@
 
 <script>
 	document.getElementById("pointSystem").addEventListener("click", function () {
-    fetch("/shopkeeper/getPointSystem") // Replace with your actual API endpoint
+    fetch("/mern-training-program/getPointSystem") // Replace with your actual API endpoint
         .then(response => response.json())
         .then(data => {
             let tableBody = document.getElementById("pointSystemTable");
@@ -1218,7 +1218,7 @@
     });
 
     function fetchActivityTypes() {
-      fetch('/shopkeeper/getActivityTypes')
+      fetch('/mern-training-program/getActivityTypes')
         .then(response => response.json())
         .then(data => {
           activityTypeSelect.innerHTML = '<option value="">Select Activity</option>';
@@ -1338,7 +1338,7 @@
           proofUrl: cloudData.secure_url
         };
 
-        const res = await fetch("/shopkeeper/submitClaim", {
+        const res = await fetch("/mern-training-program/submitClaim", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)

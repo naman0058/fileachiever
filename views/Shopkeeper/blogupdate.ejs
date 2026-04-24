@@ -34,7 +34,7 @@
 							</div>
 							<div class="cm-content-body form excerpt">
 								<div class="card-body">
-		<form action="/shopkeeper/dashboard/blogs/update" method="post" class="uploadImage">
+		<form action="/mern-training-program/dashboard/blogs/update" method="post" class="uploadImage">
 
   <div class="row">
     <div class="col-xl-6">
@@ -187,7 +187,7 @@ function fillDropDown(id, data, label, selectedid = 0) {
   });
 
   // Load categories with selected
-  $.getJSON(`/shopkeeper/dashboard/category/show`, data => {
+  $.getJSON(`/mern-training-program/dashboard/category/show`, data => {
     fillDropDown('category', data, 'Choose Category', $('#category').data('selected'));
   });
 

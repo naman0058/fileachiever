@@ -11,6 +11,22 @@
                         </div>
                         <div class="card-body">
                          <form action="/affiliate/config/update-token" method="POST">
+  <div class="alert alert-info small mb-3">
+    <strong>Automatic token extension:</strong> With <code>FACEBOOK_APP_ID</code> and <code>FACEBOOK_APP_SECRET</code> in <code>.env</code>, the server can exchange a <em>still-valid</em> long-lived token for a fresh one (about once per day and on some API errors).
+    <strong>If Meta says the session has expired</strong> (often months ago), that token is dead — app id/secret cannot fix it. You must generate a <strong>new</strong> long-lived token in Meta (Graph API Explorer or your OAuth flow) and paste it below.
+  </div>
+  <div class="form-group mb-3">
+    <label for="instagramUserId">Instagram Business Account ID (Graph API)</label>
+    <input
+      type="text"
+      id="instagramUserId"
+      name="instagramUserId"
+      class="form-control"
+      value="<%= config.instagramUserId || '' %>"
+      placeholder="e.g. 1784140xxxxxxxx"
+    >
+    <small class="text-muted">From Meta Business Suite / Graph API Explorer — the IG user id used in <code>/{ig-user-id}/media</code>.</small>
+  </div>
   <!-- Instagram Token -->
   <div class="form-group mb-3">
     <label for="token">Instagram Access Token</label>

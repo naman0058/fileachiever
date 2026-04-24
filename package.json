@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "purgecss": "purgecss --config purgecss.config.js"
+    "purgecss": "purgecss --config purgecss.config.js",
+    "mern-calendar-oauth": "node scripts/mern-calendar-oauth.js"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",

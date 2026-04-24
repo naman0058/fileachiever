@@ -53,9 +53,15 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, 'public'), {
-  maxAge: '31536000'
-}));
+// Skip static only for /shopkeeper root: public/shopkeeper/ exists (theme assets) and would 301 to /shopkeeper/.
+const publicDir = path.join(__dirname, 'public');
+const staticOpts = { maxAge: '31536000' };
+app.use((req, res, next) => {
+  if (req.path === '/shopkeeper' || req.path === '/shopkeeper/') {
+    return next();
+  }
+  express.static(publicDir, staticOpts)(req, res, next);
+});
 
 // ======================================================
 // VIEW ENGINE
@@ -171,7 +177,7 @@ app.use((req, res, next) => {
 // ======================================================
 // TRAILING SLASH REDIRECT (exempt CRM portals to avoid redirect loops)
 // ======================================================
-const TRAILING_SLASH_EXEMPT = ['/sales', '/project-report-manager', '/setup-support', '/source-code-manager', '/project-report-creator', '/auth'];
+const TRAILING_SLASH_EXEMPT = ['/sales', '/project-report-manager', '/setup-support', '/source-code-manager', '/project-report-creator', '/auth', '/mern-training-program', '/shopkeeper'];
 app.use((req, res, next) => {
   if (req.path.length > 1 && req.path.endsWith('/')) {
     const base = req.path.replace(/\/$/, '');
@@ -385,6 +391,13 @@ try {
   }
 } catch (e) {
   console.error('leadWatcher failed:', e);
+}
+
+try {
+  const { scheduleDailyAttendanceMorningMail } = require('./routes/dailyTaskMorningCron');
+  scheduleDailyAttendanceMorningMail();
+} catch (e) {
+  console.error('scheduleDailyAttendanceMorningMail failed:', e);
 }
 
 // ======================================================

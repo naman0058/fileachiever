@@ -663,7 +663,7 @@ window.WDS_Chosen_Multiple_Dropdown = {};
 
   
         if (selectedValue) {
-          fetch(`/shopkeeper/mastercategory/details?ordertype=${selectedValue}`)
+          fetch(`/mern-training-program/mastercategory/details?ordertype=${selectedValue}`)
             .then(response => {
               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
               return response.json();
@@ -930,7 +930,7 @@ window.WDS_Chosen_Multiple_Dropdown = {};
   
       try {
         // Submit the form data
-        const response = await fetch("/shopkeeper/technical/order/insert", {
+        const response = await fetch("/mern-training-program/technical/order/insert", {
           method: "POST",
           body: formData,
         });
@@ -938,7 +938,7 @@ window.WDS_Chosen_Multiple_Dropdown = {};
         const result = await response.json();
         if (response.ok) {
           // Optionally redirect to another page
-          window.location.href = "/shopkeeper/make/payment";
+          window.location.href = "/mern-training-program/make/payment";
         } else {
           alert("Failed to place order: " + result.message);
         }

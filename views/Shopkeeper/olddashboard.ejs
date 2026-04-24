@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Fetch activity types dynamically from the database (Simulated API call)
     function fetchActivityTypes() {
-        fetch('/shopkeeper/getActivityTypes')
+        fetch('/mern-training-program/getActivityTypes')
             .then(response => response.json())
             .then(data => {
                 activityTypeSelect.innerHTML = '<option value="">Select Activity</option>';
@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function() {
 //         const formData = new FormData(claimForm);
 
 //         // API Call
-//         fetch('/shopkeeper/submitClaim', {
+//         fetch('/mern-training-program/submitClaim', {
 //             method: "POST",
 //             body: formData
 //         })
@@ -326,7 +326,7 @@ claimForm.addEventListener("submit", async function(event) {
 
     const formData = new FormData(claimForm);
 
-    fetch('/shopkeeper/submitClaim', {
+    fetch('/mern-training-program/submitClaim', {
         method: "POST",
         body: formData
     })
@@ -893,7 +893,7 @@ claimForm.addEventListener("submit", async function(event) {
 
 <script>
 	document.getElementById("pointSystem").addEventListener("click", function () {
-    fetch("/shopkeeper/getPointSystem") // Replace with your actual API endpoint
+    fetch("/mern-training-program/getPointSystem") // Replace with your actual API endpoint
         .then(response => response.json())
         .then(data => {
             let tableBody = document.getElementById("pointSystemTable");

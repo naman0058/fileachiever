@@ -1,916 +1,927 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FileMakr | Brand Ambassador Leaderboard Dashboard</title>
-<link rel="shortcut icon" type="images/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width:80px;" />
-
-  <!-- Bootstrap CSS -->
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <title>MERN Training Program | Dashboard</title>
+  <link rel="shortcut icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
   <style>
-	body {
-		background: #f4f6f9;
-		font-family: 'Poppins', sans-serif;
-	}
-	.leaderboard-container {
-		max-width: 700px;
-		margin: 50px auto;
-	}
-	.leaderboard-card {
-		background: white;
-		padding: 30px;
-		border-radius: 12px;
-		box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-	}
-	.leaderboard-title {
-		text-align: center;
-		font-weight: 700;
-		font-size: 24px;
-		margin-bottom: 20px;
-	}
-	table {
-		width: 100%;
-		border-collapse: separate;
-		border-spacing: 0 8px;
-		
-	}
-	
-	th {
-		padding: 12px;
-	}
-	tbody tr {
-		background: white;
-		transition: 0.3s;
-		border-radius: 8px;
-	}
-	tbody tr:hover {
-		transform: scale(1.02);
-		box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-	}
-	td {
-		padding: 12px;
-		font-weight: 600;
-	}
-	.gold { color: gold; font-weight: bold; }
-	.silver { color: silver; font-weight: bold; }
-	.bronze { color: #cd7f32; font-weight: bold; }
-
-
-	#claimPointsBtn {
-    position: relative;
-    z-index: 10; /* Bring button to front */
-    pointer-events: auto; /* Ensure it's clickable */
-	margin-bottom: 20px;
-}
-
-
-</style>
- <style>
     :root {
-      --primary-color: #2c3e50;
-      --secondary-color: #3498db;
-      --accent-color: #1abc9c;
-      --light-color: #f8f9fa;
-      --dark-color: #343a40;
-      --border-color: #e9ecef;
-      --success-color: #27ae60;
-      --warning-color: #f39c12;
-      --danger-color: #e74c3c;
-      --text-color: #495057;
-      --text-muted: #6c757d;
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --teal: #0d9488;
+      --teal-dark: #0f766e;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
     }
-
+    * { box-sizing: border-box; }
+    html { overflow-x: hidden; }
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f5f7fa;
-      color: var(--text-color);
-      line-height: 1.6;
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
-
-    /* Header Styles */
-    .main-header {
-      background-color: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 50;
     }
-
-    .navbar-brand {
-      font-weight: 700;
-      color: var(--primary-color);
-      font-size: 1.4rem;
-    }
-
-    .nav-link {
-      font-weight: 500;
-      color: var(--text-color);
-      padding: 0.75rem 1rem;
-      transition: all 0.2s ease;
-    }
-
-    .nav-link:hover, .nav-link.active {
-      color: var(--secondary-color);
-    }
-
-    /* Card Styles */
-    .card {
-      border: none;
-      border-radius: 0.5rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      margin-bottom: 1.5rem;
-    }
-
-    .card:hover {
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-header {
-      background-color: white;
-      border-bottom: 1px solid var(--border-color);
-      padding: 1rem 1.25rem;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
-    /* Leaderboard Styles */
-    .leaderboard-item {
+    .topbar-inner {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0.875rem 1.25rem;
       display: flex;
       align-items: center;
-      padding: 1rem;
-      border-bottom: 1px solid var(--border-color);
-      transition: background-color 0.2s ease;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      min-width: 0;
     }
-
-    .leaderboard-item:hover {
-      background-color: rgba(52, 152, 219, 0.05);
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--text);
+      min-width: 0;
+      flex: 1 1 auto;
     }
-
-    .leaderboard-item:last-child {
-      border-bottom: none;
+    .brand img { width: 36px; height: 36px; border-radius: 8px; }
+    .brand-text { line-height: 1.2; }
+    .brand-text strong { display: block; font-size: 0.95rem; font-weight: 700; }
+    .brand-text span { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+    .topbar a.profile-link {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--teal);
+      text-decoration: none;
     }
-
-    .rank {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
+    .topbar a.profile-link:hover { text-decoration: underline; }
+    .wrap {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+      min-width: 0;
+    }
+    .greeting {
+      margin-bottom: 1.25rem;
+    }
+    .greeting h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
+    }
+    .greeting p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+    .alert-profile {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+    }
+    .alert-profile a {
+      background: var(--teal);
+      color: #fff;
+      font-weight: 600;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+    .alert-profile a:hover { background: var(--teal-dark); }
+    .progress-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.25rem 1.35rem;
+      margin-bottom: 1.5rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.25rem;
+      align-items: center;
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: hidden;
+    }
+    .progress-copy { min-width: 0; }
+    @media (max-width: 600px) {
+      .progress-card { grid-template-columns: 1fr; text-align: center; }
+    }
+    .ring {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto;
+    }
+    .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .progress-copy h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 0.35rem;
+    }
+    .progress-copy p { margin: 0; font-size: 0.875rem; color: var(--muted); line-height: 1.5; }
+    .bar-wrap {
+      margin-top: 0.75rem;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--teal), #14b8a6);
+      transition: width 0.3s ease;
+    }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 0.65rem;
+    }
+    .task-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.35rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: hidden;
+    }
+    .task-card h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .pill {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: var(--muted);
+    }
+    .pill.teal { background: rgba(13, 148, 136, 0.12); color: var(--teal-dark); }
+    .task-body {
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: #334155;
+      max-width: 100%;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .task-body :first-child { margin-top: 0; }
+    .task-body :last-child { margin-bottom: 0; }
+    .task-body a {
+      color: var(--teal-dark);
+      font-weight: 500;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      max-width: 100%;
+    }
+    .task-body ul, .task-body ol {
+      padding-left: 1.25rem;
+      margin: 0.5rem 0;
+      max-width: 100%;
+    }
+    .task-body li { margin: 0.25rem 0; overflow-wrap: anywhere; }
+    .notice-class-link {
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      background: #ecfeff;
+      border: 1px solid #a5f3fc;
+      color: #0e7490;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      max-width: 100%;
+    }
+    .notice-class-link strong { color: #0f766e; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 0.75rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+    }
+    .status.ok { background: #d1fae5; color: #065f46; }
+    .status.wait { background: #f1f5f9; color: #475569; }
+    .status.bad { background: #fee2e2; color: #991b1b; }
+    .form-block { margin-top: 1.15rem; padding-top: 1.15rem; border-top: 1px solid var(--border); max-width: 100%; min-width: 0; }
+    .form-block label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.35rem; color: #334155; }
+    .form-block input[type="file"] {
+      font-size: 0.8rem;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+    .btn { max-width: 100%; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.65rem 1.15rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--teal);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--teal-dark); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary { background: #6366f1; }
+    .btn-secondary:hover { background: #4f46e5; }
+    .empty-state {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.25rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .empty-state strong { color: var(--text); display: block; margin-bottom: 0.35rem; }
+    .hustle-card h3 { color: #7c3aed; }
+    .note-closed {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 0.75rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      margin-top: 0.75rem;
+    }
+    .loader-txt { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; display: none; }
+    .loader-txt.show { display: block; }
+    .hidden { display: none !important; }
+    .opacity-50 { opacity: 0.5; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-icon { animation: spin 0.75s linear infinite; }
+    .task-card--locked {
+      position: relative;
+    }
+    .task-card--locked .task-lock-dim {
+      filter: blur(1px);
+      opacity: 0.45;
+      pointer-events: none;
+      user-select: none;
+    }
+    .task-lock-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 600;
-      font-size: 14px;
-      margin-right: 15px;
-      color: white;
-    }
-
-    .rank-1 {
-      background-color: #f1c40f;
-    }
-
-    .rank-2 {
-      background-color: #bdc3c7;
-    }
-
-    .rank-3 {
-      background-color: #d35400;
-    }
-
-    .rank-other {
-      background-color: var(--primary-color);
-    }
-
-    .user-info {
-      flex-grow: 1;
-    }
-
-    .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-right: 15px;
-      border: 2px solid white;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .username {
-      font-weight: 600;
-      margin-bottom: 0;
-      color: var(--primary-color);
-    }
-
-    .user-type {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .score {
-      font-weight: 700;
-      color: var(--primary-color);
-      margin-right: 1.5rem;
-    }
-
-    .prize-money {
-      font-weight: 600;
-      color: var(--success-color);
-      min-width: 80px;
-      text-align: right;
-    }
-
-    .current-user {
-      background-color: rgba(52, 152, 219, 0.1);
-    }
-
-    /* Tab Navigation */
-    .nav-tabs {
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .nav-tabs .nav-link {
-      border: none;
-      border-bottom: 3px solid transparent;
-      border-radius: 0;
-      font-weight: 500;
-      color: var(--text-muted);
-      padding: 0.75rem 1.25rem;
-      transition: all 0.2s ease;
-    }
-
-    .nav-tabs .nav-link:hover {
-      border-color: transparent;
-      color: var(--secondary-color);
-    }
-
-    .nav-tabs .nav-link.active {
-      color: var(--secondary-color);
-      background-color: transparent;
-      border-bottom: 3px solid var(--secondary-color);
-    }
-
-    /* Stats Card */
-    .stat-card {
+      padding: 1.25rem;
+      background: rgba(248, 250, 252, 0.97);
+      border-radius: inherit;
       text-align: center;
-      padding: 1rem;
     }
-
-    .stat-icon {
-      font-size: 1.75rem;
-      margin-bottom: 0.75rem;
-      color: var(--secondary-color);
+    .task-lock-inner {
+      max-width: 22rem;
     }
-
-    .stat-value {
-      font-size: 1.5rem;
+    .task-lock-inner h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
       font-weight: 700;
-      margin-bottom: 0.25rem;
-      color: var(--primary-color);
+      color: #0f172a;
     }
-
-    .stat-label {
+    .task-lock-inner p {
+      margin: 0 0 1rem;
       font-size: 0.875rem;
-      color: var(--text-muted);
-      margin-bottom: 0;
+      line-height: 1.55;
+      color: #475569;
     }
-
-    /* Activity Feed */
-    .activity-ticker {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 0.75rem 0;
-      overflow: hidden;
-    }
-
-    .ticker-wrap {
-      width: 100%;
-      overflow: hidden;
-    }
-
-    .ticker {
-      display: inline-block;
-      white-space: nowrap;
-      padding-right: 100%;
-      animation: ticker 30s linear infinite;
-    }
-
-    @keyframes ticker {
-      0% {
-        transform: translate3d(0, 0, 0);
-      }
-      100% {
-        transform: translate3d(-100%, 0, 0);
-      }
-    }
-
-    .ticker-item {
-      display: inline-block;
-      padding: 0 2rem;
-    }
-
-    /* Activity List */
-    .activity-list {
-      max-height: 700px;
-      overflow-y: auto;
-    }
-
-    .activity-item {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .activity-item:last-child {
-      border-bottom: none;
-    }
-
-    .activity-content {
-      margin-bottom: 0.25rem;
-    }
-
-    .activity-time {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    /* Button Styles */
-    .btn-primary {
-      background-color: var(--secondary-color);
-      border-color: var(--secondary-color);
-      font-weight: 500;
-      padding: 0.5rem 1.25rem;
-    }
-
-    .btn-primary:hover {
-      background-color: #2980b9;
-      border-color: #2980b9;
-    }
-
-    .btn-outline-primary {
-      color: var(--secondary-color);
-      border-color: var(--secondary-color);
-      font-weight: 500;
-    }
-
-    .btn-outline-primary:hover {
-      background-color: var(--secondary-color);
-      border-color: var(--secondary-color);
-    }
-
-    /* Badge Styles */
-    .badge-primary {
-      background-color: rgba(52, 152, 219, 0.1);
-      color: var(--secondary-color);
-      font-weight: 500;
-      padding: 0.35rem 0.65rem;
-      border-radius: 0.25rem;
-    }
-
-    .prize-pool-badge {
-      background-color: rgba(39, 174, 96, 0.1);
-      color: var(--success-color);
-      font-weight: 500;
-      padding: 0.35rem 0.65rem;
-      border-radius: 0.25rem;
-    }
-
-    /* Section Headings */
-    .section-title {
+    .task-lock-inner .btn-lock {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.65rem 1.2rem;
+      font-size: 0.875rem;
       font-weight: 600;
-      color: var(--primary-color);
-      margin-bottom: 1.25rem;
-      position: relative;
+      font-family: inherit;
+      color: #fff;
+      background: var(--teal);
+      border-radius: 10px;
+      text-decoration: none;
+    }
+    .task-lock-inner .btn-lock:hover {
+      background: var(--teal-dark);
+    }
+    .alert-notice-ig {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #9a3412;
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    .alert-notice-ig strong { color: #7c2d12; }
+    .notice-class-link--ig {
+      background: #ecfeff;
+      border: 1px solid #a5f3fc;
+      color: #0e7490;
+    }
+    .notice-class-link--ig strong { color: #0f766e; }
+    .ig-verify-panel { margin-top: 1.25rem; }
+    .ig-verify-hint {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin: 0 0 1rem;
+      line-height: 1.55;
+    }
+    .ig-check-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+    }
+    .ig-check-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.45;
+    }
+    .ig-check-list li:last-child { border-bottom: 0; }
+    .ig-check-ok { color: var(--success); font-weight: 700; flex-shrink: 0; }
+    .ig-check-bad { color: var(--danger); font-weight: 700; flex-shrink: 0; }
+    .ig-check-note { color: var(--warning); flex-shrink: 0; font-weight: 700; }
+    .ig-verify-err {
+      color: var(--danger);
+      font-size: 0.875rem;
+      margin: 0 0 0.75rem;
+      line-height: 1.45;
+    }
+    .class-meet-card {
+      margin-top: 1.25rem;
+      padding: 1.1rem 1.2rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 100%);
+    }
+    .class-meet-card h4 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .class-meet-card p { margin: 0 0 0.75rem; font-size: 0.875rem; color: var(--muted); line-height: 1.5; }
+    .class-meet-link {
       display: inline-block;
+      word-break: break-all;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--teal);
+      margin-bottom: 0.75rem;
     }
-
-    /* Responsive Styles */
-    @media (max-width: 992px) {
-      .leaderboard-item {
-        flex-wrap: wrap;
-      }
-
-      .prize-money {
-        margin-top: 0.5rem;
-        width: 100%;
-        text-align: left;
-      }
+    .class-meet-err {
+      color: var(--danger);
+      font-size: 0.8125rem;
+      margin: 0.5rem 0 0;
+      display: none;
     }
-
-    @media (max-width: 768px) {
-      .avatar {
-        width: 35px;
-        height: 35px;
-      }
-
-      .rank {
-        width: 30px;
-        height: 30px;
-        font-size: 12px;
-      }
-
-      .nav-tabs .nav-link {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-      }
-    }
+    .class-meet-err.show { display: block; }
   </style>
 </head>
-
 <body>
-  <!-- Activity Ticker -->
- 
-
-  <!-- Header -->
- <header class="main-header shadow-md sticky top-0 z-50 bg-white">
-  <div class="container mx-auto flex items-center justify-between px-4 py-3">
-    
-    <!-- Brand -->
-    <a href="#" class="flex items-center space-x-2 text-xl font-bold text-gray-800">
-      <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="logo" class="w-10 h-10">
-      <span>Campus Ambassador</span>
-    </a>
-
-    <!-- Toggle Button (Mobile) -->
-    <button id="menuToggle" class="md:hidden text-gray-700 focus:outline-none">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
-
-    <!-- Navigation Links -->
-    <div id="menu" class="hidden md:flex space-x-6 items-center">
-      
-      <a href="/shopkeeper/dashboard/profile" class="text-gray-700 hover:text-blue-600 font-medium">
-        <i class="fas fa-user mr-1"></i> My Account
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/mern-training-program/new-dashboard" class="brand">
+        <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="" />
+        <div class="brand-text">
+          <strong>MERN Training Program</strong>
+          <span>Daily attendance & progress</span>
+        </div>
       </a>
+      <a class="profile-link" href="/mern-training-program/dashboard/profile">Account & profile</a>
     </div>
-  </div>
+  </header>
 
-  <!-- Mobile Menu -->
-  <div id="mobileMenu" class="md:hidden hidden px-4 pb-4">
-   
-    <a href="/shopkeeper/dashboard/profile" class="block py-2 text-gray-700 hover:text-blue-600">
-      <i class="fas fa-user mr-1"></i> My Account
-    </a>
-  </div>
-</header>
+  <main class="wrap">
+    <% const profile = result && result[0] ? result[0] : null; %>
+    <% const igProfileRaw = profile && profile.instagram_id != null ? String(profile.instagram_id) : ''; %>
+    <% const hasInstagram = igProfileRaw.trim().length > 0; %>
+    <% const noticeParam = typeof notice !== 'undefined' ? notice : ''; %>
 
-
-  <!-- Main Content -->
-  <main class="py-4">
-    <div class="container-fluid">
-
-<% if (userId == 32) { %>
-  <form action="/shopkeeper/blog" method="get">
-       <button type="submit" class="btn btn-primary">Assign Blog Task</button>
-  </form>
-<% } %>
-
-
-
-<% if (dailyTask || hustleTask) { %>
-	<% if (!result[0].instagram_id || !result[0].linkedin_id || !result[0].youtube_id) { %>
-  <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-xl max-w-3xl mx-auto my-4 text-center shadow-md">
-    <div class="flex flex-col items-center space-y-2 sm:space-y-0 sm:flex-row sm:justify-between">
-      <div class="text-sm sm:text-base font-medium">
-        ⚠️ <strong>Complete Your Profile</strong>:<br class="sm:hidden">
-        to receive ambassador benefits.
+    <% if (noticeParam === 'instagram_required') { %>
+      <div class="alert-notice-ig" role="alert">
+        <strong>Instagram ID required.</strong> Add your Instagram username in your profile before you can verify Instagram attendance. Your submission was not saved.
       </div>
-      <a href="/shopkeeper/dashboard/profile" class="mt-3 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200">
-        Complete Profile Now
-      </a>
-    </div>
-  </div>
-<% } } %>
+    <% } %>
+    <% if (noticeParam === 'use_instagram_verify') { %>
+      <div class="alert-notice-ig" role="alert">
+        <strong>Use “Verify my attendance”.</strong> This daily task is checked with the Instagram API—do not upload a screenshot. Complete the post steps, then tap the verify button on the task card.
+      </div>
+    <% } %>
 
-	
-
-<input type="hidden" id="videoScreenshotData" name="videoScreenshotData" />
-<canvas id="videoCanvas" style="display: none;"></canvas>
-
-
-
-
-
-
-
-
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-
-
-      <!-- User Stats Cards -->
-   <section class="mb-4">
-  <!-- Main Container -->
-<div class="p-4 space-y-6">
-
-  <!-- Progress Tracker -->
-<div class="bg-white rounded-2xl shadow-xl p-6 md:flex items-center justify-between gap-8 mt-6 w-full">
-  
-  <!-- Circular Day Tracker -->
-  <div class="flex items-center justify-center w-full md:w-auto">
-    <div class="relative w-24 h-24">
-      <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="45" stroke="#e5e7eb" stroke-width="10" fill="none" />
-        <circle cx="50" cy="50" r="45" stroke="#3b82f6" stroke-width="10" stroke-dasharray="282.6"
-                stroke-dashoffset="<%= 282.6 - ((currentDay / 45) * 282.6) %>" fill="none" stroke-linecap="round" />
-        <text x="50" y="55" text-anchor="middle" font-size="18" fill="#111827" font-weight="bold"><%= currentDay %>/45</text>
-      </svg>
-    </div>
-  </div>
-
-  <!-- Right Text Section -->
-  <div class="flex-1 text-center md:text-left mt-6 md:mt-0">
-    <h2 class="text-lg font-bold text-gray-800 flex items-center justify-center md:justify-start">
-      🎯 Your Progress
-    </h2>
-    <p class="text-gray-600 mt-1">
-      You are currently on <span class="text-blue-600 font-semibold">Day <%= currentDay %></span>
-    </p>
-
-    <!-- Progress Bar -->
-    <div class="w-full bg-gray-200 rounded-full h-3 mt-3">
-      <div class="bg-blue-500 h-full rounded-full transition-all duration-300 ease-in-out" style="width: <%= (currentDay / 45) * 100 %>%"></div>
+    <div class="greeting">
+      <h1>Hello<% if (profile && profile.name) { %>, <%= profile.name %><% } %></h1>
+      <p>Complete today’s attendance task and keep your verified-day streak on track.</p>
     </div>
 
-    <!-- Current Phase -->
-   
-  </div>
-</div>
+    <% if (dailyTask || hustleTask) { %>
+      <% if (profile && (!profile.linkedin_id || !profile.youtube_id)) { %>
+        <div class="alert-profile">
+          <span>Add your LinkedIn and YouTube links on your profile to stay eligible for full program benefits.</span>
+          <a href="/mern-training-program/dashboard/profile">Update profile</a>
+        </div>
+      <% } %>
+    <% } %>
 
+    <% const totalProgramDays = 45; const pct = Math.min(100, Math.round((currentDay / totalProgramDays) * 100)); const ringOffset = 283 - (currentDay / totalProgramDays) * 283; %>
 
-<% if (dailyTask || hustleTask) { %>
-  <div class="my-10 px-0">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">🗓️ Today's Missions</h2>
+    <div class="progress-card">
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" stroke="#e2e8f0" stroke-width="8" fill="none" />
+          <circle cx="50" cy="50" r="45" stroke="url(#gradDash)" stroke-width="8" fill="none"
+            stroke-dasharray="283" stroke-dashoffset="<%= Math.max(0, ringOffset) %>"
+            stroke-linecap="round" />
+          <defs>
+            <linearGradient id="gradDash" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#0d9488" />
+              <stop offset="100%" stop-color="#14b8a6" />
+            </linearGradient>
+          </defs>
+          <text x="50" y="54" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a"><%= currentDay %>/<%= totalProgramDays %></text>
+        </svg>
+      </div>
+      <div class="progress-copy">
+        <h2>Your progress</h2>
+        <p><strong><%= currentDay %></strong> verified attendance day(s) toward the <strong><%= totalProgramDays %>-day</strong> program target. Submit proof for each daily task on time to grow this count.</p>
+        <div class="bar-wrap" role="progressbar" aria-valuenow="<%= pct %>" aria-valuemin="0" aria-valuemax="100">
+          <div class="bar-fill" style="width: <%= pct %>%"></div>
+        </div>
+      </div>
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
-      
-      <% if (dailyTask) { %>
-        <!-- CARD 1: Daily Task -->
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-lg p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h3 class="text-lg font-semibold text-blue-800">📌 Daily Task</h3>
-              <p class="text-sm text-gray-600 mt-1"><%- dailyTask.description %></p>
+    <% if (!dailyTask && !hustleTask) { %>
+      <p class="section-title">Today</p>
+      <div class="empty-state">
+        <strong>No task published for today yet</strong>
+        Check back later. Your progress above still reflects verified days completed so far.
+      </div>
+    <% } %>
 
+    <% if (dailyTask) { %>
+      <% const isIgDaily = dailyTask.isInstagramTemplate === true; %>
+      <% const igProofPending = dailyTask.proofUploaded && dailyTask.proofStatus === 'pending' && !(dailyTask.proofLink && String(dailyTask.proofLink).startsWith('instagram:')); %>
+      <p class="section-title">Today’s attendance task</p>
+      <article class="task-card <%= (!hasInstagram && isIgDaily) ? 'task-card--locked' : '' %>">
+        <div class="<%= (!hasInstagram && isIgDaily) ? 'task-lock-dim' : '' %>">
+        <h3><%= dailyTask.title %></h3>
+        <div class="task-meta">
+          <span class="pill teal">Daily attendance</span>
+          <span class="pill"><%= dailyTask.date %></span>
+        </div>
+        <div class="task-body"><%- dailyTask.description %></div>
+
+        <% if (isIgDaily) { %>
+          <div class="notice-class-link notice-class-link--ig" role="note">
+            <strong>Instagram attendance:</strong> Use the <strong>same Instagram username</strong> as on your profile. You need a <strong>comment</strong> on the task post, a <strong>story</strong> where you tag our account with the tag sticker, and a separate <strong>feed/reel repost</strong> where you tag us again—then tap <strong>Verify my attendance</strong>. Likes cannot be checked by apps; still like the post in Instagram.
+          </div>
+
+          <% if (dailyTask.proofUploaded && dailyTask.proofStatus === 'verified') { %>
+            <span class="status ok">Verified — attendance confirmed (Instagram check passed)</span>
+          <% } else if (igProofPending) { %>
+            <span class="status wait">Under review — uploaded proof is pending (older submission). New check: use verify below if this is an Instagram task.</span>
+            <div class="ig-verify-panel">
+              <p class="ig-verify-hint">If this task is Instagram-based, you can run the automatic check; otherwise wait for manual review.</p>
+              <ul class="ig-check-list" id="ig-check-list" style="display:none"></ul>
+              <p class="ig-verify-err" id="ig-verify-err" style="display:none"></p>
+              <button type="button" class="btn" id="btn-verify-ig" data-task-id="<%= dailyTask.id %>">
+                <span class="button-text">Verify my attendance</span>
+                <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
+              </button>
             </div>
-           <span class="text-xs sm:text-sm bg-blue-100 text-blue-800 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
-  <%= dailyTask.date %>
-</span>
-
+          <% } else { %>
+            <% if (dailyTask.proofUploaded && dailyTask.proofStatus === 'rejected') { %>
+              <span class="status bad">Needs another try<% if (dailyTask.reason) { %> — <%= dailyTask.reason %><% } %></span>
+            <% } %>
+            <div class="ig-verify-panel">
+              <p class="ig-verify-hint">Comment from your linked Instagram account, then verify. Results appear below—fix any “missing” item and try again.</p>
+              <ul class="ig-check-list" id="ig-check-list" style="display:none"></ul>
+              <p class="ig-verify-err" id="ig-verify-err" style="display:none"></p>
+              <button type="button" class="btn" id="btn-verify-ig" data-task-id="<%= dailyTask.id %>">
+                <span class="button-text">Verify my attendance</span>
+                <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
+              </button>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="notice-class-link" role="note">
+            <strong>Notice:</strong> When you finish the task, upload a <strong>clear screenshot</strong> (or acceptable video proof) of your work. <strong>Today’s class link is sent only after your proof is submitted and approved.</strong> If you skip the upload or the proof is unusable, <strong>the class link will not be shared</strong> with you.
           </div>
 
           <% if (dailyTask.proofUploaded) { %>
-            <div class="flex flex-col gap-2 mt-2">
-              <p class="text-sm font-medium">
-                ✅ Proof Submitted:
-              </p>
-
-              <% if (dailyTask.proofStatus === 'verified') { %>
-                <span class="inline-block text-green-700 bg-green-100 text-xs px-3 py-1 rounded-full w-fit">✅ Verified</span>
-              <% } else if (dailyTask.proofStatus === 'pending') { %>
-                <span class="inline-block text-gray-700 bg-gray-100 text-xs px-3 py-1 rounded-full w-fit">🕒 Pending Review</span>
-              <% } else if (dailyTask.proofStatus === 'rejected') { %>
-                <span class="inline-block text-red-700 bg-red-100 text-xs px-3 py-1 rounded-full w-fit">❌ Rejected</span>
-                <span class="inline-block text-red-700 bg-red-100 text-xs px-3 py-1 rounded-full w-fit">Reason : <%= dailyTask.reason %> </span>
-
-
- <form action="/shopkeeper/submit-daily-task" method="POST" class="space-y-4 mt-4">
-              <input type="hidden" name="taskId" value="<%= dailyTask.id %>">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof</label>
-                <input type="hidden" name="videoScreenshotData" class="screenshot-data">
-                <input type="hidden" name="proofUrl" class="proof-url">
-                <input type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)">
+            <% if (dailyTask.proofStatus === 'verified') { %>
+              <span class="status ok">Verified — proof accepted</span>
+            <% } else if (dailyTask.proofStatus === 'pending') { %>
+              <span class="status wait">Under review</span>
+            <% } else if (dailyTask.proofStatus === 'rejected') { %>
+              <span class="status bad">Needs resubmission<% if (dailyTask.reason) { %> — <%= dailyTask.reason %><% } %></span>
+              <div class="form-block">
+                <form action="/mern-training-program/submit-daily-task" method="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="taskId" value="<%= dailyTask.id %>" />
+                  <input type="hidden" name="videoScreenshotData" class="screenshot-data" />
+                  <input type="hidden" name="proofUrl" class="proof-url" />
+                  <label for="proof-daily">Upload new proof (image or video)</label>
+                  <input id="proof-daily" type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)" />
+                  <button type="submit" class="btn"><span class="button-text">Submit proof</span>
+                    <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
+                  </button>
+                </form>
               </div>
-             <button type="submit" class="submit-btn relative flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded">
-  <span class="button-text">Submit</span>
-  <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
-  </svg>
-</button>
-            </form>
-
-              <% } %>
-            </div>
+            <% } %>
           <% } else { %>
-            <form action="/shopkeeper/submit-daily-task" method="POST" class="space-y-4 mt-4">
-              <input type="hidden" name="taskId" value="<%= dailyTask.id %>">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof</label>
-                <input type="hidden" name="videoScreenshotData" class="screenshot-data">
-                <input type="hidden" name="proofUrl" class="proof-url">
-                <input type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)">
-              </div>
-              <button type="submit" class="submit-btn relative flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded">
-  <span class="button-text">Submit</span>
-  <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
-  </svg>
-</button>
-            </form>
+            <div class="form-block">
+              <form action="/mern-training-program/submit-daily-task" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="taskId" value="<%= dailyTask.id %>" />
+                <input type="hidden" name="videoScreenshotData" class="screenshot-data" />
+                <input type="hidden" name="proofUrl" class="proof-url" />
+                <label for="proof-daily-new">Upload proof (image or video)</label>
+                <input id="proof-daily-new" type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)" />
+                <button type="submit" class="btn"><span class="button-text">Submit proof</span>
+                  <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
+                </button>
+              </form>
+            </div>
           <% } %>
-        </div>
-      <% } %>
+        <% } %>
 
-      <% if (hustleTask) { %>
-        <!-- CARD 2: Daily Hustle Challenge -->
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-lg p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h3 class="text-lg font-semibold text-pink-700">💸 ₹100 Challenge </h3>
-              <p class="text-sm text-gray-600 mt-1"><%- hustleTask.description %></p>
-            </div>
-             <span class="text-xs sm:text-sm bg-pink-100 text-pink-800 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
-  <%= hustleTask.date %>
-</span>
-
+        <% const cm = typeof classMeet !== 'undefined' ? classMeet : { meetLink: null, inviteSent: false, timeLabel: '', calendarReady: false, calendarInvites: false }; %>
+        <% if (dailyTask && dailyTask.proofStatus === 'verified') { %>
+          <div class="class-meet-card" id="class-meet-section">
+            <h4>Today’s live class (Google Meet)</h4>
+            <p>Class time: <strong><%= cm.timeLabel || '7:00 PM' %></strong>. After you’re verified, request the link once—we email you today’s Meet URL <% if (cm.calendarInvites) { %> and add you to the Google Calendar event so you get an official invite<% } %>.</p>
+            <% if (!cm.calendarReady) { %>
+              <p class="ig-verify-err show" style="margin:0">Calendar integration is not configured yet. Please contact support.</p>
+            <% } else if (cm.inviteSent && cm.meetLink) { %>
+              <p style="margin:0 0 0.35rem;font-size:0.8125rem;color:var(--success);font-weight:600;">We emailed you this link. Check your inbox.</p>
+              <a class="class-meet-link" href="<%= cm.meetLink %>" target="_blank" rel="noopener noreferrer"><%= cm.meetLink %></a>
+            <% } else if (cm.meetLink) { %>
+              <a class="class-meet-link" href="<%= cm.meetLink %>" target="_blank" rel="noopener noreferrer"><%= cm.meetLink %></a>
+              <p class="small" style="margin:0 0 0.75rem;color:var(--muted);">Tap the button to receive the Meet link by email.</p>
+              <button type="button" class="btn" id="btn-class-meet">
+                <span class="button-text">Email me today’s Meet link</span>
+                <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
+              </button>
+            <% } else { %>
+              <button type="button" class="btn" id="btn-class-meet">
+                <span class="button-text">Get today’s Meet link (email)</span>
+                <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
+              </button>
+            <% } %>
+            <p class="class-meet-err" id="class-meet-err" role="alert"></p>
           </div>
-
-          <% if (hustleTask.isClosed) { %>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-  <strong class="font-bold">Oops! </strong>
-  <span class="block sm:inline">This task has already been completed by another ambassador.</span>
-</div>
-
-      <% } else { %>
-
-          <% if (hustleTask.proofUploaded) { %>
-            <div class="flex flex-col gap-2 mt-2">
-              <p class="text-sm font-medium">
-                ✅ Proof Submitted:
-              </p>
-
-              <% if (hustleTask.proofStatus === 'verified') { %>
-                <span class="inline-block text-green-700 bg-green-100 text-xs px-3 py-1 rounded-full w-fit">✅ Verified</span>
-              <% } else if (hustleTask.proofStatus === 'pending') { %>
-                <span class="inline-block text-gray-700 bg-gray-100 text-xs px-3 py-1 rounded-full w-fit">🕒 Pending Review</span>
-              <% } else if (hustleTask.proofStatus === 'rejected') { %>
-                <span class="inline-block text-red-700 bg-red-100 text-xs px-3 py-1 rounded-full w-fit">❌ Rejected</span>
-                <span class="inline-block text-red-700 bg-red-100 text-xs px-3 py-1 rounded-full w-fit">Reason : <%= hustleTask.reason %> </span>
-
-                  <form action="/shopkeeper/submit-hustle-task" method="POST" class="space-y-4 mt-4">
-              <input type="hidden" name="taskId" value="<%= hustleTask.id %>">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof</label>
-                <input type="hidden" name="videoScreenshotData" class="screenshot-data">
-                <input type="hidden" name="proofUrl" class="proof-url">
-                <input type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)">
-              </div>
-              <button type="submit" class="submit-btn relative flex items-center justify-center px-4 py-2 bg-pink-600 text-white rounded">
-  <span class="button-text">Submit</span>
-  <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
-  </svg>
-</button>
-                <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
-  </svg>
-            </form>
-
-              <% } %>
-            </div>
-          <% } else { %>
-            <form action="/shopkeeper/submit-hustle-task" method="POST" class="space-y-4 mt-4">
-              <input type="hidden" name="taskId" value="<%= hustleTask.id %>">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof</label>
-                <input type="hidden" name="videoScreenshotData" class="screenshot-data">
-                <input type="hidden" name="proofUrl" class="proof-url">
-                <input type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)">
-              </div>
-             <button type="submit" class="submit-btn relative flex items-center justify-center px-4 py-2 bg-pink-600 text-white rounded">
-  <span class="button-text">Submit</span>
-  <svg class="loader-icon animate-spin hidden w-5 h-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
-  </svg>
-</button>
-            </form>
-          <% } } %>
+        <% } %>
         </div>
-      <% } %>
 
-    </div>
-  </div>
-<% } %>
+        <% if (!hasInstagram && isIgDaily) { %>
+          <div class="task-lock-overlay" role="dialog" aria-modal="true" aria-labelledby="ig-lock-title">
+            <div class="task-lock-inner">
+              <h3 id="ig-lock-title">Add your Instagram ID</h3>
+              <p>Instagram tasks are verified with your profile username and the Instagram API. Add your <strong>Instagram username</strong>, save, then return here to verify attendance.</p>
+              <a class="btn-lock" href="/mern-training-program/dashboard/profile">Update profile &amp; Instagram</a>
+            </div>
+          </div>
+        <% } %>
+      </article>
+    <% } %>
 
- 
+    <% if (hustleTask) { %>
+      <p class="section-title">Optional challenge</p>
+      <article class="task-card hustle-card">
+        <h3>Bonus task</h3>
+        <div class="task-meta">
+          <span class="pill" style="background:#ede9fe;color:#5b21b6;">Hustle</span>
+          <span class="pill"><%= hustleTask.date %></span>
+        </div>
+        <div class="task-body"><%- hustleTask.description %></div>
 
-
-
-
-
-
-  <!-- Bonus Rewards Card -->
-
-</div>
-
-</section>
-
-
-
-	
-	<style>
-	.streak-tracker {
-		border-radius: 12px;
-		background: white;
-	}
-	
-	.streak-circle {
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 18px;
-		margin: 0 5px;
-		transition: all 0.3s ease-in-out;
-	}
-	
-	.streak-circle.bg-success {
-		box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
-	}
-	
-	.streak-circle.bg-light {
-		border: 1px solid #ddd;
-	}
-	</style>
-	
-
-    
-    </div>
+        <% if (hustleTask.isClosed) { %>
+          <div class="note-closed">This challenge was already completed by another ambassador today.</div>
+        <% } else if (hustleTask.proofUploaded) { %>
+          <% if (hustleTask.proofStatus === 'verified') { %>
+            <span class="status ok">Verified</span>
+          <% } else if (hustleTask.proofStatus === 'pending') { %>
+            <span class="status wait">Under review</span>
+          <% } else if (hustleTask.proofStatus === 'rejected') { %>
+            <span class="status bad">Rejected<% if (hustleTask.reason) { %> — <%= hustleTask.reason %><% } %></span>
+            <div class="form-block">
+              <form action="/mern-training-program/submit-hustle-task" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="taskId" value="<%= hustleTask.id %>" />
+                <input type="hidden" name="videoScreenshotData" class="screenshot-data" />
+                <input type="hidden" name="proofUrl" class="proof-url" />
+                <label for="proof-hustle">Upload proof</label>
+                <input id="proof-hustle" type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)" />
+                <button type="submit" class="btn btn-secondary"><span class="button-text">Submit proof</span>
+                  <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
+                </button>
+              </form>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="form-block">
+            <form action="/mern-training-program/submit-hustle-task" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="taskId" value="<%= hustleTask.id %>" />
+              <input type="hidden" name="videoScreenshotData" class="screenshot-data" />
+              <input type="hidden" name="proofUrl" class="proof-url" />
+              <label for="proof-hustle-new">Upload proof</label>
+              <input id="proof-hustle-new" type="file" name="proofFile" accept="image/*,video/*" onchange="handleProofChange(this)" />
+              <button type="submit" class="btn btn-secondary"><span class="button-text">Submit proof</span>
+                <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
+              </button>
+            </form>
+          </div>
+        <% } %>
+      </article>
+    <% } %>
   </main>
 
+  <canvas id="videoCanvas" class="hidden"></canvas>
+  <video id="previewVideo" class="hidden" controls style="max-width:280px"></video>
+  <img id="previewImage" class="hidden" alt="" style="max-width:280px" />
+  <p id="loader" class="loader-txt">Uploading…</p>
 
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
-
-</body>
-
-</html>
-
-
-<canvas id="videoCanvas" class="hidden"></canvas>
-<video id="previewVideo" class="hidden max-w-sm mb-2" controls></video>
-<img id="previewImage" class="hidden max-w-sm mb-2" />
-<div id="loader" class="hidden text-sm text-gray-600">Uploading to Cloudinary...</div>
-
-
-
-<script>
-
-function showButtonLoader(button) {
-  
-  const text = button.querySelector(".button-text");
-  const loader = button.querySelector(".loader-icon");
-  if (text && loader) {
-    text.classList.add("opacity-50");
-    loader.classList.remove("hidden");
-    button.classList.add("cursor-not-allowed");
-  }
-}
-
-function hideButtonLoader(button) {
-  const text = button.querySelector(".button-text");
-  const loader = button.querySelector(".loader-icon");
-  if (text && loader) {
-    text.classList.remove("opacity-50");
-    loader.classList.add("hidden");
-    button.classList.remove("cursor-not-allowed");
-  }
-}
-
-
-  async function handleProofChange(input) {
-    const file = input.files[0];
-    const form = input.closest("form");
-
-    const screenshotField = form.querySelector(".screenshot-data");
-    const cloudUrlField = form.querySelector(".proof-url");
-    const canvas = document.getElementById("videoCanvas");
-    const ctx = canvas.getContext("2d");
-    const loader = document.getElementById("loader");  // or use local loader per card
-    const previewVideo = document.getElementById("previewVideo");
-    const previewImage = document.getElementById("previewImage");
-    const submitBtn = form.querySelector('button[type="submit"]');
-
-    // Reset fields
-    previewVideo.classList.add("hidden");
-    previewImage.classList.add("hidden");
-    screenshotField.value = "";
-    cloudUrlField.value = "";
-    console.log("Submit Btn:", submitBtn);
-    showButtonLoader(submitBtn);
-    loader.classList.remove("hidden");
-
-    if (!file) return;
-
-    const isVideo = file.type.startsWith("video/");
-    if (!isVideo) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        previewImage.src = e.target.result;
-        previewImage.classList.remove("hidden");
-        try {
-          const uploadUrl = await uploadToCloudinary(e.target.result);
-          cloudUrlField.value = uploadUrl;
-          console.log('uploadurl',uploadUrl)
-
-          hideButtonLoader(submitBtn);
-
-        } catch (err) {
-          alert("Image upload failed.");
-        } finally {
-          loader.classList.add("hidden");
-        }
-      };
-      reader.readAsDataURL(file);
-      return;
+  <script>
+    function showButtonLoader(button) {
+      var text = button.querySelector('.button-text');
+      var loader = button.querySelector('.loader-icon');
+      if (text && loader) {
+        text.classList.add('opacity-50');
+        loader.classList.remove('hidden');
+        button.disabled = true;
+      }
+    }
+    function hideButtonLoader(button) {
+      var text = button.querySelector('.button-text');
+      var loader = button.querySelector('.loader-icon');
+      if (text && loader) {
+        text.classList.remove('opacity-50');
+        loader.classList.add('hidden');
+        button.disabled = false;
+      }
     }
 
-    const video = document.createElement("video");
-    video.src = URL.createObjectURL(file);
-    video.crossOrigin = "anonymous";
-    video.preload = "auto";
-    video.muted = true;
-    video.playsInline = true;
-    video.style.position = "absolute";
-    video.style.left = "-9999px";
-    document.body.appendChild(video);
+    async function handleProofChange(input) {
+      var file = input.files[0];
+      var form = input.closest('form');
+      if (!form || !file) return;
 
-    video.addEventListener("loadedmetadata", () => {
-      const seekTime = Math.min(180, video.duration);
-      video.currentTime = seekTime;
-    });
+      var screenshotField = form.querySelector('.screenshot-data');
+      var cloudUrlField = form.querySelector('.proof-url');
+      var canvas = document.getElementById('videoCanvas');
+      var ctx = canvas.getContext('2d');
+      var loader = document.getElementById('loader');
+      var previewVideo = document.getElementById('previewVideo');
+      var previewImage = document.getElementById('previewImage');
+      var submitBtn = form.querySelector('button[type="submit"]');
 
-    video.addEventListener("seeked", async () => {
-      setTimeout(async () => {
-        try {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const dataURL = canvas.toDataURL("image/jpeg", 0.9);
-          if (dataURL.length < 10000) throw new Error("Blank screenshot");
+      previewVideo.classList.add('hidden');
+      previewImage.classList.add('hidden');
+      screenshotField.value = '';
+      cloudUrlField.value = '';
+      showButtonLoader(submitBtn);
+      loader.classList.add('show');
 
-          screenshotField.value = dataURL;
-          previewVideo.src = video.src;
-          previewVideo.classList.remove("hidden");
+      var isVideo = file.type.startsWith('video/');
+      if (!isVideo) {
+        var reader = new FileReader();
+        reader.onload = async function (e) {
+          previewImage.src = e.target.result;
+          previewImage.classList.remove('hidden');
+          try {
+            cloudUrlField.value = await uploadToCloudinary(e.target.result);
+          } catch (err) {
+            alert('Upload failed. Try again.');
+          } finally {
+            hideButtonLoader(submitBtn);
+            loader.classList.remove('show');
+          }
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
 
-          const uploadedUrl = await uploadToCloudinary(dataURL);
-          cloudUrlField.value = uploadedUrl;
-          hideButtonLoader(submitBtn);
-          console.log('uploadUrl',uploadedUrl)
+      var video = document.createElement('video');
+      video.src = URL.createObjectURL(file);
+      video.crossOrigin = 'anonymous';
+      video.preload = 'auto';
+      video.muted = true;
+      video.playsInline = true;
+      video.style.position = 'absolute';
+      video.style.left = '-9999px';
+      document.body.appendChild(video);
 
+      video.addEventListener('loadedmetadata', function () {
+        video.currentTime = Math.min(180, video.duration);
+      });
 
-        } catch (e) {
-          console.error(e);
-          alert("Video screenshot failed.");
-        } finally {
-          loader.classList.add("hidden");
-          URL.revokeObjectURL(video.src);
-          video.remove();
+      video.addEventListener('seeked', function () {
+        setTimeout(async function () {
+          try {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var dataURL = canvas.toDataURL('image/jpeg', 0.9);
+            if (dataURL.length < 10000) throw new Error('Blank screenshot');
+            screenshotField.value = dataURL;
+            previewVideo.src = video.src;
+            previewVideo.classList.remove('hidden');
+            cloudUrlField.value = await uploadToCloudinary(dataURL);
+          } catch (e) {
+            console.error(e);
+            alert('Could not process video. Try an image or shorter clip.');
+          } finally {
+            hideButtonLoader(submitBtn);
+            loader.classList.remove('show');
+            URL.revokeObjectURL(video.src);
+            video.remove();
+          }
+        }, 300);
+      });
+    }
+
+    async function uploadToCloudinary(base64Data) {
+      var formData = new FormData();
+      formData.append('file', base64Data);
+      formData.append('upload_preset', 'ml_default');
+      var res = await fetch('https://api.cloudinary.com/v1_1/dr5dofa3x/image/upload', {
+        method: 'POST',
+        body: formData
+      });
+      var data = await res.json();
+      if (!data.secure_url) throw new Error('Upload failed');
+      return data.secure_url;
+    }
+
+    (function () {
+      var btn = document.getElementById('btn-verify-ig');
+      if (!btn) return;
+      var listEl = document.getElementById('ig-check-list');
+      var errEl = document.getElementById('ig-verify-err');
+      function escapeHtml(s) {
+        var d = document.createElement('div');
+        d.textContent = s == null ? '' : String(s);
+        return d.innerHTML;
+      }
+      btn.addEventListener('click', async function () {
+        if (errEl) {
+          errEl.style.display = 'none';
+          errEl.textContent = '';
         }
-      }, 300);
-    });
-  }
+        if (listEl) {
+          listEl.style.display = 'none';
+          listEl.innerHTML = '';
+        }
+        showButtonLoader(btn);
+        try {
+          var res = await fetch('/mern-training-program/verify-daily-instagram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ taskId: btn.getAttribute('data-task-id') })
+          });
+          var data = {};
+          try {
+            data = await res.json();
+          } catch (e) {}
+          hideButtonLoader(btn);
+          if (!res.ok) {
+            if (errEl) {
+              errEl.textContent = data.message || 'Verification failed.';
+              errEl.style.display = 'block';
+            }
+            return;
+          }
+          if (listEl && data.checks && data.checks.length) {
+            listEl.style.display = 'block';
+            data.checks.forEach(function (c) {
+              var li = document.createElement('li');
+              var mark = '';
+              if (c.api && c.ok === true) mark = '<span class="ig-check-ok">✓</span>';
+              else if (c.api && c.ok === false) mark = '<span class="ig-check-bad">✗ Missing</span>';
+              else mark = '<span class="ig-check-note">—</span>';
+              var note = c.note
+                ? '<span style="color:var(--muted);font-weight:400;font-size:0.8125rem;display:block;margin-top:0.25rem">' +
+                  escapeHtml(c.note) +
+                  '</span>'
+                : '';
+              li.innerHTML =
+                mark +
+                '<span><strong>' +
+                escapeHtml(c.label) +
+                '</strong>' +
+                note +
+                '</span>';
+              listEl.appendChild(li);
+            });
+          }
+          if (data.verified) {
+            window.location.reload();
+          }
+        } catch (e) {
+          hideButtonLoader(btn);
+          if (errEl) {
+            errEl.textContent = 'Network error. Try again.';
+            errEl.style.display = 'block';
+          }
+        }
+      });
+    })();
 
-  async function uploadToCloudinary(base64Data) {
-    const formData = new FormData();
-    formData.append("file", base64Data);
-    formData.append("upload_preset", "ml_default"); // Replace with your preset
-
-    const res = await fetch("https://api.cloudinary.com/v1_1/dr5dofa3x/image/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (!data.secure_url) throw new Error("Cloudinary upload failed");
-    return data.secure_url;
-  }
-
-
-
-</script>
-
-<script>
-  const menuToggle = document.getElementById("menuToggle");
-  const mobileMenu = document.getElementById("mobileMenu");
-
-  menuToggle.addEventListener("click", () => {
-    mobileMenu.classList.toggle("hidden");
-  });
-</script>
+    (function () {
+      var btn = document.getElementById('btn-class-meet');
+      if (!btn) return;
+      var errEl = document.getElementById('class-meet-err');
+      btn.addEventListener('click', async function () {
+        if (errEl) {
+          errEl.textContent = '';
+          errEl.classList.remove('show');
+        }
+        showButtonLoader(btn);
+        try {
+          var res = await fetch('/mern-training-program/class-meet/today', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: '{}'
+          });
+          var data = {};
+          try { data = await res.json(); } catch (e) {}
+          hideButtonLoader(btn);
+          if (!res.ok) {
+            if (errEl) {
+              errEl.textContent = data.message || 'Request failed.';
+              errEl.classList.add('show');
+            }
+            return;
+          }
+          window.location.reload();
+        } catch (e) {
+          hideButtonLoader(btn);
+          if (errEl) {
+            errEl.textContent = 'Network error. Try again.';
+            errEl.classList.add('show');
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

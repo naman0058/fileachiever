@@ -110,7 +110,7 @@ function shopAuthenticationToken(req, res, next) {
 
   // If session is not valid, stop here
   // Option A: redirect to login route (recommended)
-  return res.redirect('/shopkeeper');
+  return res.redirect('/mern-training-program');
 
   // Option B: render login directly (use this only if you don't have /login route)
   // return res.status(401).render('login', { msg: 'Please login first' });
@@ -524,8 +524,8 @@ const createPaymentRequest = (req, res, data, ccave) => {
       order_id: generateGUID(),
       currency: 'INR',
       amount: data.amount, // Ensure the amount is passed in req.body
-      redirect_url: 'https://www.filemakr.com/shopkeeper/successful/payment',
-      cancel_url: 'https://www.filemakr.com/shopkeeper/successful/payment',
+      redirect_url: 'https://www.filemakr.com/mern-training-program/successful/payment',
+      cancel_url: 'https://www.filemakr.com/mern-training-program/successful/payment',
   };
 
           try {
@@ -677,7 +677,7 @@ async function sendEmails() {
           <p>Welcome to the FileMakr Brand Ambassador Program! We’re excited to have you on board. Below are your login details to access your ambassador dashboard, where you can track your progress and referrals.</p>
           <p><strong>Login Details:</strong></p>
           <ul>
-            <li>Website: <a href="https://filemakr.com/shopkeeper/">https://filemakr.com/shopkeeper/</a></li>
+            <li>Website: <a href="https://filemakr.com/mern-training-program/">https://filemakr.com/mern-training-program/</a></li>
             <li>Login Number: ${shopkeeper.number}</li>
             <li>Password: ${shopkeeper.password}</li>
             <li>Your Unique Referral Code: ${shopkeeper.unique_code}</li>

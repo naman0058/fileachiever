@@ -29,6 +29,9 @@ const cloudinary = require('cloudinary').v2
 
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const projectReportShared = require('../projectReportShared');
+const instagramGraph = require('../instagramGraphHelpers');
+const mernClassMeetService = require('../mernClassMeetService');
           
 cloudinary.config({ 
   cloud_name: 'dggf8vl9p', 
@@ -78,7 +81,7 @@ router.post('/generate-link',verify.shopAuthenticationToken, async (req, res) =>
   const shortCode = nanoid(6);
   await queryAsync('INSERT INTO links (promoter_id, original_url, short_code, created_at) VALUES (?, ?, ?,NOW())', [promoterId, originalUrl, shortCode]);
   // res.json({ shortUrl: `https://filemakr.com/video/${shortCode}` });
-res.redirect('/shopkeeper/generateLink')
+res.redirect('/mern-training-program/generateLink')
 });
 
 
@@ -111,7 +114,7 @@ router.get('/', (req, res) => {
 //      if(err) throw err;
 //      else if(result[0]) {
 //          req.session.shopkeeper = result[0].id
-//          res.redirect('/shopkeeper/dashboard')
+//          res.redirect('/mern-training-program/dashboard')
 //         }
 //      else res.render(`${folder}/login`,{msg : 'Enter Wrong Creaditionals'})
 //  })
@@ -134,9 +137,9 @@ router.post('/login', (req, res) => {
       const thresholdDate = new Date('2025-07-17');
 
       if (createdAt > thresholdDate) {
-        res.redirect('/shopkeeper/new-dashboard');
+        res.redirect('/mern-training-program/new-dashboard');
       } else {
-        res.redirect('/shopkeeper/dashboard');
+        res.redirect('/mern-training-program/dashboard');
       }
 
     } else {
@@ -534,16 +537,6 @@ router.get('/new-dashboard', verify.shopAuthenticationToken, (req, res) => {
     WHERE DATE(created_at) = CURDATE();
   `;
 
-       const winnerQuery = `
-    SELECT hcc.id, hcc.amount, hcc.created_at,
-           s.name AS ambassador_name, s.number
-    FROM hustle_challenge_completion hcc
-    JOIN shopkeeper s ON hcc.brand_ambassador_id = s.id
-    WHERE hcc.status = 'verified'
-    ORDER BY hcc.id DESC
-    LIMIT 20;
-  `;
-
   const profileQuery = `SELECT * FROM shopkeeper WHERE id = ?;`;
 
   pool.query(currentDayQuery, [userId], (err, dayResult) => {
@@ -556,31 +549,27 @@ router.get('/new-dashboard', verify.shopAuthenticationToken, (req, res) => {
       const dailyTaskData = tasks.find(task => task.task_type === 'daily');
       const hustleTaskData = tasks.find(task => task.task_type === 'hustle');
 
-      
-
       // No tasks today
       if (!dailyTaskData && !hustleTaskData) {
-        console.log('run without task here')
-    pool.query(winnerQuery, (err, results) => {
-      if (err) throw err;
-
-      const winners = results.map(row => ({
-        ...row,
-        formattedDate: moment(row.created_at).format('MMMM D, YYYY')
-      }));
-
-      return res.render(`${folder}/newdashboard`, {
-        result: [],
-        currentDay,
-        dailyTask: null,
-        hustleTask: null,
-        winners: winners,
-        userId:userId
-      });
-    });
-
-    return; // ✅ Prevent falling through
-  }
+        return pool.query(profileQuery, [userId], (err, profileResult) => {
+          if (err) throw err;
+          return res.render(`${folder}/newdashboard`, {
+            result: profileResult,
+            currentDay,
+            dailyTask: null,
+            hustleTask: null,
+            userId,
+            notice: req.query.notice || '',
+            classMeet: {
+              meetLink: null,
+              inviteSent: false,
+              timeLabel: mernClassMeetService.formatClassTimeLabel(),
+              calendarReady: mernClassMeetService.isConfigured(),
+              calendarInvites: mernClassMeetService.calendarInvitesEnabled()
+            }
+          });
+        });
+      }
 
 
 
@@ -616,12 +605,14 @@ let hustleTask = null;
           if (dailyTaskData) {
     dailyTask = {
       id: dailyTaskData.id,
+      title: dailyTaskData.title || 'Daily attendance',
       date: moment(dailyTaskData.created_at).format('MMMM D, YYYY'),
       description: dailyTaskData.description,
       proofUploaded: !!dailyProof.id,
       proofLink: dailyProof.proofLink || '',
       proofStatus: dailyProof.status || '',
-      reason: dailyProof.reason || ''
+      reason: dailyProof.reason || '',
+      isInstagramTemplate: instagramGraph.isInstagramTemplateDailyTask(dailyTaskData.description || '')
     };
   }
 
@@ -670,31 +661,44 @@ let hustleTask = null;
         });
 
         function finalizeRender(dailyTask = null, hustleTask = null) {
-          console.log('here daily task ni aaya', dailyTask);
-          pool.query(profileQuery, [userId], (err, profileResult) => {
-            if (err) throw err;
-
-      pool.query(winnerQuery, (err, results) => {
-        if (err) throw err;
-
-        const winners = results.map(row => ({
-          ...row,
-          formattedDate: moment(row.created_at).format('MMMM D, YYYY')
-        }));
-
-
-            res.render(`${folder}/newdashboard`, {
-              result: profileResult,
-              currentDay,
-              dailyTask,
-              hustleTask,
-              winners,
-              userId:userId
-            });
-
-            // res.json(dailyTask)
-          });
+          (async () => {
+            try {
+              await mernClassMeetService.ensureTables();
+              const profileResult = await queryAsync(profileQuery, [userId]);
+              const meetDate = mernClassMeetService.todayMeetDate();
+              const classMeet = {
+                meetLink: null,
+                inviteSent: false,
+                timeLabel: mernClassMeetService.formatClassTimeLabel(),
+                calendarReady: mernClassMeetService.isConfigured(),
+                calendarInvites: mernClassMeetService.calendarInvitesEnabled()
+              };
+              if (dailyTask && dailyTask.proofStatus === 'verified') {
+                const dayRows = await queryAsync(
+                  'SELECT meet_link FROM mern_daily_class_meet WHERE meet_date = ? LIMIT 1',
+                  [meetDate]
+                );
+                const sentRows = await queryAsync(
+                  'SELECT id FROM mern_class_meet_student_sent WHERE meet_date = ? AND shopkeeper_id = ? LIMIT 1',
+                  [meetDate, userId]
+                );
+                classMeet.meetLink = dayRows[0]?.meet_link || null;
+                classMeet.inviteSent = !!sentRows[0];
+              }
+              res.render(`${folder}/newdashboard`, {
+                result: profileResult,
+                currentDay,
+                dailyTask,
+                hustleTask,
+                userId,
+                notice: req.query.notice || '',
+                classMeet
               });
+            } catch (renderErr) {
+              console.error('new-dashboard render:', renderErr);
+              res.status(500).send('Could not load dashboard.');
+            }
+          })();
         }
   
     })
@@ -725,7 +729,12 @@ router.post("/submit-daily-task", isAuthenticated, async (req, res) => {
       return res.status(400).json({ message: "Missing task ID or proof URL" });
     }
 
-    // Insert or update task proof
+    const [taskCheck] = await queryAsync('SELECT description FROM task WHERE id = ? LIMIT 1', [taskId]);
+    if (taskCheck && instagramGraph.isInstagramTemplateDailyTask(taskCheck.description)) {
+      return res.redirect('/mern-training-program/new-dashboard?notice=use_instagram_verify');
+    }
+
+    // Insert or update task proof (custom / non-Instagram daily tasks only)
     const existing = await queryAsync(
       "SELECT id FROM internship_day WHERE task_id = ? AND brand_ambassador_id = ?",
       [taskId, userId]
@@ -745,14 +754,268 @@ router.post("/submit-daily-task", isAuthenticated, async (req, res) => {
       );
     }
 
-    return res.redirect('/shopkeeper/new-dashboard');
+    return res.redirect('/mern-training-program/new-dashboard');
   } catch (err) {
     console.error("Error submitting proof:", err);
     return res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 
+router.post('/verify-daily-instagram', isAuthenticated, async (req, res) => {
+  try {
+    const taskId = req.body.taskId || req.body.task_id;
+    const userId = req.session.shopkeeper;
+    if (!taskId) {
+      return res.status(400).json({ ok: false, message: 'Missing task.' });
+    }
 
+    const [taskRow] = await queryAsync(
+      `SELECT * FROM task WHERE id = ? AND task_type = 'daily' AND DATE(created_at) = CURDATE()`,
+      [taskId]
+    );
+    if (!taskRow) {
+      return res.status(404).json({ ok: false, message: 'Daily task not found for today.' });
+    }
+    if (!instagramGraph.isInstagramTemplateDailyTask(taskRow.description)) {
+      return res.status(400).json({
+        ok: false,
+        message: 'This task uses screenshot upload, not Instagram verification.'
+      });
+    }
+
+    const perm = instagramGraph.extractInstagramPermalinkFromTaskDescription(taskRow.description);
+    if (!perm) {
+      return res.status(400).json({ ok: false, message: 'Could not read the Instagram link from this task.' });
+    }
+
+    const [ambassador] = await queryAsync(
+      'SELECT instagram_id FROM shopkeeper WHERE id = ? LIMIT 1',
+      [userId]
+    );
+    const igUser = ambassador?.instagram_id != null ? String(ambassador.instagram_id).trim() : '';
+    if (!igUser) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Add your Instagram username on your profile before verifying.'
+      });
+    }
+
+    const [config] = await queryAsync(
+      'SELECT instagramAccessToken, instagramUserId FROM config LIMIT 1'
+    );
+    if (!config?.instagramAccessToken || !config?.instagramUserId) {
+      return res.status(503).json({
+        ok: false,
+        message: 'Instagram verification is not configured for the program. Please contact support.'
+      });
+    }
+
+    let mediaId;
+    try {
+      mediaId = await instagramGraph.findMediaIdByPermalink(
+        config.instagramUserId,
+        config.instagramAccessToken,
+        perm
+      );
+    } catch (apiErr) {
+      console.error('findMediaIdByPermalink:', apiErr.response?.data || apiErr.message);
+      return res.status(502).json({
+        ok: false,
+        message: instagramGraph.instagramApiUserFacingMessage(apiErr)
+      });
+    }
+
+    if (!mediaId) {
+      return res.status(404).json({
+        ok: false,
+        message:
+          'We could not match this task link to a post on our Instagram account. The team may need to republish the task, or try again later.'
+      });
+    }
+
+    let commentResult;
+    try {
+      commentResult = await instagramGraph.verifyAmbassadorCommentOnMedia(
+        mediaId,
+        config.instagramAccessToken,
+        igUser
+      );
+    } catch (apiErr) {
+      console.error('verifyAmbassadorCommentOnMedia:', apiErr.response?.data || apiErr.message);
+      return res.status(502).json({
+        ok: false,
+        message: instagramGraph.instagramApiUserFacingMessage(apiErr)
+      });
+    }
+
+    const sinceMs = new Date(taskRow.created_at).getTime() - 120000;
+    let tagMatches;
+    try {
+      tagMatches = await instagramGraph.collectTaggedMediaFromAmbassadorOnBusiness(
+        config.instagramUserId,
+        config.instagramAccessToken,
+        igUser,
+        sinceMs
+      );
+    } catch (apiErr) {
+      console.error(
+        'collectTaggedMediaFromAmbassadorOnBusiness:',
+        apiErr.response?.data || apiErr.message
+      );
+      return res.status(502).json({
+        ok: false,
+        message: instagramGraph.instagramApiUserFacingMessage(apiErr)
+      });
+    }
+
+    const { hasStoryTag, hasFeedRepostTag } =
+      instagramGraph.evaluateStoryAndRepostTags(tagMatches);
+
+    const checks = [
+      {
+        id: 'comment',
+        label: 'Comment on the post',
+        ok: commentResult.found === true,
+        api: true,
+        note:
+          commentResult.found === true
+            ? undefined
+            : 'We did not find a top-level comment from your profile username on this post.'
+      },
+      {
+        id: 'story',
+        label: 'Story — tag our account (tag sticker)',
+        ok: hasStoryTag === true,
+        api: true,
+        note:
+          hasStoryTag === true
+            ? undefined
+            : 'Instagram must show a story where you tagged our account after this task went live. Use the @ mention / tag sticker; wait a minute and try again.'
+      },
+      {
+        id: 'repost',
+        label: 'Repost / feed or reel — tag our account',
+        ok: hasFeedRepostTag === true,
+        api: true,
+        note:
+          hasFeedRepostTag === true
+            ? undefined
+            : 'Instagram must show a feed post, reel, or carousel where you tagged our account after this task went live.'
+      },
+      {
+        id: 'like',
+        label: 'Like the post',
+        ok: null,
+        api: false,
+        note: 'Apps cannot see who liked the post. Please like it in Instagram.'
+      }
+    ];
+
+    const verified =
+      commentResult.found === true && hasStoryTag === true && hasFeedRepostTag === true;
+    const proofStub = 'instagram:api-verified';
+
+    if (verified) {
+      const existing = await queryAsync(
+        'SELECT id FROM internship_day WHERE task_id = ? AND brand_ambassador_id = ?',
+        [taskId, userId]
+      );
+      if (existing.length > 0) {
+        await queryAsync(
+          `UPDATE internship_day SET proofLink = ?, status = 'verified', reason = NULL, created_at = NOW() WHERE task_id = ? AND brand_ambassador_id = ?`,
+          [proofStub, taskId, userId]
+        );
+      } else {
+        await queryAsync(
+          `INSERT INTO internship_day (task_id, brand_ambassador_id, proofLink, status, created_at) VALUES (?, ?, ?, 'verified', NOW())`,
+          [taskId, userId, proofStub]
+        );
+      }
+    }
+
+    return res.json({
+      ok: true,
+      verified,
+      checks,
+      scannedComments: commentResult.scanned
+    });
+  } catch (err) {
+    console.error('verify-daily-instagram:', err);
+    return res.status(500).json({ ok: false, message: 'Server error.' });
+  }
+});
+
+router.post('/class-meet/today', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.session.shopkeeper;
+    const [attendance] = await queryAsync(
+      `SELECT idt.id FROM internship_day idt
+       INNER JOIN task t ON t.id = idt.task_id AND t.task_type = 'daily' AND DATE(t.created_at) = CURDATE()
+       WHERE idt.brand_ambassador_id = ? AND idt.status = 'verified' LIMIT 1`,
+      [userId]
+    );
+    if (!attendance) {
+      return res.status(403).json({
+        ok: false,
+        message: 'Verify today’s attendance before requesting the class link.'
+      });
+    }
+
+    const [user] = await queryAsync('SELECT email, name FROM shopkeeper WHERE id = ? LIMIT 1', [
+      userId
+    ]);
+    const result = await mernClassMeetService.enrollStudentInTodayClass({
+      shopkeeperId: userId,
+      email: user?.email,
+      studentName: user?.name || ''
+    });
+
+    if (result.emailSent && result.meetLink && user?.email) {
+      const safeName = String(user.name || 'there')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const subj = `Today’s MERN class — Google Meet (${result.meetDate})`;
+      const calendarLine = mernClassMeetService.calendarInvitesEnabled()
+        ? '<p>You should also receive a <strong>Google Calendar invite</strong> at this address with the same Meet link.</p>'
+        : '<p>Join using the link above at class time. (No Google Calendar invite is sent—this email is your official invite.)</p>';
+      const body = `<p>Hi ${safeName},</p>
+<p>Your attendance for today is verified. Here is <strong>today’s live class</strong> Google Meet link:</p>
+<p><a href="${result.meetLink}">${result.meetLink}</a></p>
+<p><strong>Time:</strong> ${result.timeLabel}</p>
+${calendarLine}
+<p>— MERN Training Program, FileMakr</p>`;
+      await verify.sendUserMail(user.email, subj, body);
+    }
+
+    return res.json({
+      ok: true,
+      meetLink: result.meetLink,
+      emailSent: result.emailSent,
+      alreadyEnrolled: !!result.alreadyEnrolled,
+      timeLabel: result.timeLabel
+    });
+  } catch (err) {
+    console.error('class-meet/today:', err.response?.data || err.message || err);
+    if (err.code === 'NO_EMAIL') {
+      return res.status(400).json({ ok: false, message: err.message });
+    }
+    if (err.code === 'MEET_NOT_CONFIGURED') {
+      return res.status(503).json({ ok: false, message: err.message });
+    }
+    if (err.code === 'NO_MEET_LINK') {
+      return res.status(502).json({ ok: false, message: err.message });
+    }
+    if (err.code === 'LOCK_TIMEOUT') {
+      return res.status(429).json({ ok: false, message: err.message });
+    }
+    const gMsg = err.response?.data?.error?.message;
+    return res.status(500).json({
+      ok: false,
+      message: gMsg || err.message || 'Could not set up the meeting.'
+    });
+  }
+});
 
 router.post("/submit-hustle-task", isAuthenticated, async (req, res) => {
   try {
@@ -783,7 +1046,7 @@ router.post("/submit-hustle-task", isAuthenticated, async (req, res) => {
       );
     }
 
-    return res.redirect('/shopkeeper/new-dashboard');
+    return res.redirect('/mern-training-program/new-dashboard');
   } catch (err) {
     console.error("Error submitting proof:", err);
     return res.status(500).json({ message: "Server error. Please try again later." });
@@ -1544,12 +1807,17 @@ router.get('/dashboard/order/report/:status', async (req, res) => {
 
 
 
-router.post('/dashboard/project/report/updateStatus',(req,res)=>{
-  pool.query(`update btech_project set status = '${req.body.status}' where id = '${req.body.id}'`,(err,result)=>{
-    if(err) throw err;
-    else res.json({msg:'success'})
-  })
-})
+router.post('/dashboard/project/report/updateStatus', (req, res) => {
+  const tbl = projectReportShared.safeTableName(req.body && req.body.source_table);
+  pool.query(
+    `UPDATE \`${tbl}\` SET \`status\` = ? WHERE \`id\` = ?`,
+    [req.body.status, req.body.id],
+    (err) => {
+      if (err) throw err;
+      else res.json({ msg: 'success' });
+    }
+  );
+});
 
 
 router.post('/dashboard/payment/request/updateStatus',(req,res)=>{
@@ -1569,30 +1837,37 @@ router.post('/dashboard/payment/response/updateStatus',(req,res)=>{
 
 
 
-router.get('/dashboard/project/report/send/reminder', async(req,res)=>{
-  console.log(req.query)
-  const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', req.query.project_name);
-  const userMessage1 = emailTemplates.beforprojectreport.userMessage(req.query.name,req.query.project_name,req.query.roll_number);
-  await verify.sendUserMail(req.query.email,userSubject1,userMessage1);
-
-   await verify.sendWhatsAppMessage(
-    +91 + req.query.number,
-    'project_report_reminder', // Template name
-    'en_US', // Language code
-    [req.query.name.toUpperCase(), req.query.project_name], // Body parameters
-    [req.query.roll_number] // Button parameters
-);
-
-
-pool.query(`update btech_project set status = 'reminder_sent' where id = '${req.query.id}'`,(err,result)=>{
-  if(err) throw err;
-  else {
-    res.json({msg:'success'})
+router.get('/dashboard/project/report/send/reminder', async (req, res) => {
+  console.log(req.query);
+  if (req.query.email) {
+    const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', req.query.project_name);
+    const userMessage1 = emailTemplates.beforprojectreport.userMessage(
+      req.query.name,
+      req.query.project_name,
+      req.query.roll_number
+    );
+    await verify.sendUserMail(req.query.email, userSubject1, userMessage1);
   }
-})
-
-
-})
+  await verify.sendWhatsAppMessage(
+    +91 + +req.query.number,
+    'project_report_reminder',
+    'en_US',
+    [String(req.query.name || '').toUpperCase(), String(req.query.project_name || '')],
+    [String(req.query.roll_number || '')]
+  );
+  const tbl = projectReportShared.safeTableName(req.query.source_table);
+  pool.query(
+    `UPDATE \`${tbl}\` SET \`status\` = 'reminder_sent' WHERE \`id\` = ?`,
+    [req.query.id],
+    (err) => {
+      if (err) {
+        console.error('shopkeeper reminder', tbl, err);
+        return res.status(500).json({ msg: 'error' });
+      }
+      res.json({ msg: 'success' });
+    }
+  );
+});
 
 
 
@@ -1625,24 +1900,23 @@ pool.query(`update payment_request set status = 'reminder_sent' where id = '${re
 
 
 
-router.get('/dashboard/project/report/send/rating', async(req,res)=>{
-  console.log(req.query)
-             await verify.sendWhatsAppMessage(
-                +91 + req.query.number,
-                'reviewtempelate', // Template name
-                'en_US', // Language code
-                [req.query.name.toUpperCase(),req.query.project_name+' Project Report '] // Body parameters
-            );
-
-            pool.query(`update btech_project set israting = 'send' where id = '${req.query.id}'`,(err,result)=>{
-              if(err) throw err;
-              else {
-                res.json({msg:'success'})
-              }
-            })
-
-  
-})
+router.get('/dashboard/project/report/send/rating', async (req, res) => {
+  console.log(req.query);
+  await verify.sendWhatsAppMessage(
+    +91 + +req.query.number,
+    'reviewtempelate',
+    'en_US',
+    [String(req.query.name || '').toUpperCase(), String(req.query.project_name || '') + ' Project Report ']
+  );
+  const tbl = projectReportShared.safeTableName(req.query.source_table);
+  pool.query(`UPDATE \`${tbl}\` SET \`israting\` = 'send' WHERE \`id\` = ?`, [req.query.id], (err) => {
+    if (err) {
+      console.error('shopkeeper rating', tbl, err);
+      return res.status(500).json({ msg: 'error' });
+    }
+    res.json({ msg: 'success' });
+  });
+});
 
 
 
@@ -1805,7 +2079,7 @@ WHERE id = (
 
       if (rows.length > 0) {
         req.session.unique_order_no = rows[0].unique_order_no;
-        return res.redirect('/shopkeeper/thankyou');
+        return res.redirect('/mern-training-program/thankyou');
       } else {
         return res.status(404).send('Order not found.');
       }

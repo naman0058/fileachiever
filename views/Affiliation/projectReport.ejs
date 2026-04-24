@@ -88,7 +88,7 @@
 										</thead>
 										<tbody>
 
-<% for(i=0;i<projectDetails.length;i++){ %>
+<% for(i=0;i<projectDetails.length;i++){ const _prSrc = projectDetails[i].source_table || 'btech_project'; %>
 
 											<tr>
 												<td><span><%=i%></span></td>
@@ -102,11 +102,11 @@
 												</td>
                                                
 												<td>
-													<span><%=projectDetails[i].report_type.replace(/-/g, ' ').toUpperCase()%></span>
+													<span><%=String(projectDetails[i].report_type != null ? projectDetails[i].report_type : '—').replace(/-/g, ' ').toUpperCase()%></span>
 												</td>
 
 												<td>
-													<span><%=projectDetails[i].project_type.replace(/-/g, ' ').toUpperCase()%></span>
+													<span><%=String(projectDetails[i].project_type != null ? projectDetails[i].project_type : '—').replace(/-/g, ' ').toUpperCase()%></span>
 												</td>
 
                                                 <td>
@@ -133,7 +133,7 @@
 
 
                                                    <td>
-													<a href="/view-user-report?roll_number=<%=projectDetails[i].roll_number%>" target="_blank"<button class="badge badge-primary light border-0" >View Report</button>
+													<a href="/view-user-report?roll_number=<%=encodeURIComponent(projectDetails[i].roll_number)%>&amp;source_table=<%=encodeURIComponent(_prSrc)%>" target="_blank" class="badge badge-primary light border-0" role="button">View Report</a>
 													</td>
 
 
@@ -147,7 +147,7 @@
 
 															<td>
 																<button class="badge badge-success light border-0" 
-																	onclick="sendcrossSalesWhatsapp('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].email%>', '<%=projectDetails[i].roll_number%>', '<%=projectDetails[i].seo_name.replace(/-/g, ' ')%>', '<%=projectDetails[i].number%>')">
+																	onclick="sendcrossSalesWhatsapp('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].email%>', '<%=projectDetails[i].roll_number%>', '<%=projectDetails[i].seo_name.replace(/-/g, ' ')%>', '<%=projectDetails[i].number%>', '<%=_prSrc%>')">
 																	Cross Sales
 																</button>
 															</td>
@@ -155,7 +155,7 @@
 
 															<td>
 																<button class="badge badge-success light border-0" 
-																		onclick="sendRating('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].number%>', '<%=projectDetails[i].roll_number%>', '<%=projectDetails[i].seo_name.replace(/-/g, ' ').toUpperCase()%>')">
+																		onclick="sendRating('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].number%>', '<%=projectDetails[i].roll_number%>', '<%=projectDetails[i].seo_name.replace(/-/g, ' ').toUpperCase()%>', '<%=_prSrc%>')">
 																		Request Feedback
 																</button>
 															  </td>
@@ -166,7 +166,7 @@
 
 	<td>
 		<button class="badge badge-success light border-0" 
-				onclick="sendWhatsapp('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].email%>', '<%=projectDetails[i].roll_number%>', '<%=projectDetails[i].seo_name.replace(/-/g, ' ').toUpperCase()%>' , '<%=projectDetails[i].number%>')">
+				onclick="sendWhatsapp('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].email%>', '<%=projectDetails[i].roll_number%>', '<%=projectDetails[i].seo_name.replace(/-/g, ' ').toUpperCase()%>' , '<%=projectDetails[i].number%>', '<%=_prSrc%>')">
 		  Send Whatsapp
 		</button>
 	  </td>
@@ -179,14 +179,14 @@
 
 	<td>
 		<button class="badge badge-warning light border-0" 
-				onclick="sendReminder('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].email%>', '<%=projectDetails[i].roll_number%>', '<%=projectDetails[i].seo_name.replace(/-/g, ' ').toUpperCase()%>' , '<%=projectDetails[i].number%>')">
+				onclick="sendReminder('<%=projectDetails[i].id%>', '<%=projectDetails[i].name%>', '<%=projectDetails[i].email%>', '<%=projectDetails[i].roll_number%>', '<%=projectDetails[i].seo_name.replace(/-/g, ' ').toUpperCase()%>' , '<%=projectDetails[i].number%>', '<%=_prSrc%>')">
 		  Send Reminder
 		</button>
 	  </td>
 
 													<td>
 														<select 
-																onchange="updateStatus('<%=projectDetails[i].id%>', this.value)">
+																onchange="updateStatus('<%=projectDetails[i].id%>', this.value, '<%=_prSrc%>')">
 														  <option value="interested" 
 															<%= projectDetails[i].status === 'interested' ? 'selected' : '' %>>Interested</option>
 														  <option value="pending" 
@@ -402,13 +402,13 @@
 
 
 	<script>
-		function updateStatus(id, status) {
+		function updateStatus(id, status, sourceTable) {
 		  fetch(`/affiliate/dashboard/project/report/updateStatus`, {
 			method: 'POST',
 			headers: {
 			  'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ id: id, status: status })
+			body: JSON.stringify({ id: id, status: status, source_table: sourceTable || 'btech_project' })
 		  })
 		  .then(response => response.json())
 		  .then(data => {
@@ -424,7 +424,7 @@
 
 
 <script>
-	function sendReminder(id,name, email, roll_number,project_name, number) {
+	function sendReminder(id,name, email, roll_number,project_name, number, sourceTable) {
 
 		const loaderOverlay = document.getElementById("loader-overlay");
 
@@ -434,7 +434,7 @@ loaderOverlay.style.display = "flex"; // Show overlay
 
 
   // Construct the URL with query parameters
-  const url = `/affiliate/dashboard/project/report/send/reminder?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&roll_number=${encodeURIComponent(roll_number)}&project_name=${encodeURIComponent(project_name)}&number=${encodeURIComponent(number)}`;
+  const url = `/affiliate/dashboard/project/report/send/reminder?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&roll_number=${encodeURIComponent(roll_number)}&project_name=${encodeURIComponent(project_name)}&number=${encodeURIComponent(number)}&source_table=${encodeURIComponent(sourceTable || 'btech_project')}`;
 
   // Make the GET request
   fetch(url)
@@ -465,7 +465,7 @@ loaderOverlay.style.display = "flex"; // Show overlay
 
 
 <script>
-	function sendRating(id, name, number, roll_number,project_name) {
+	function sendRating(id, name, number, roll_number,project_name, sourceTable) {
 
 		const loaderOverlay = document.getElementById("loader-overlay");
 
@@ -475,7 +475,7 @@ loaderOverlay.style.display = "flex"; // Show overlay
 
 
   // Construct the URL with query parameters
-  const url = `/affiliate/dashboard/project/report/send/rating?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&number=${encodeURIComponent(number)}&roll_number=${encodeURIComponent(roll_number)}&project_name=${encodeURIComponent(project_name)}`;
+  const url = `/affiliate/dashboard/project/report/send/rating?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&number=${encodeURIComponent(number)}&roll_number=${encodeURIComponent(roll_number)}&project_name=${encodeURIComponent(project_name)}&source_table=${encodeURIComponent(sourceTable || 'btech_project')}`;
 
   // Make the GET request
   fetch(url)
@@ -503,7 +503,7 @@ loaderOverlay.style.display = "flex"; // Show overlay
 
 
 <script>
-    function sendWhatsapp(id, name, email, rollNumber, seoName, phoneNumber) {
+    function sendWhatsapp(id, name, email, rollNumber, seoName, phoneNumber, sourceTable) {
         // Construct the dynamic WhatsApp message
         const message = encodeURIComponent(`Just One Step Away from Your Project Report!
 
@@ -515,7 +515,7 @@ You’re just one step away from downloading your project report and getting sta
 
 👉 Complete the payment and download your report now:
 
-https://www.filemakr.com/final/year/project/report/${rollNumber}
+https://www.filemakr.com/download-my-report?roll_number=${encodeURIComponent(rollNumber)}&source_table=${encodeURIComponent(sourceTable || 'btech_project')}
 
 With FileMakr, you not only get a comprehensive project report but also access to source codes and detailed documentation to help you succeed in your final year.
 
@@ -534,7 +534,7 @@ Empower yourself and succeed with FileMakr today!`);
 		
 
 <script>
-	function sendcrossSalesWhatsapp(id, name, email, rollNumber, sourceCode, number) {
+	function sendcrossSalesWhatsapp(id, name, email, rollNumber, sourceCode, number, sourceTable) {
     let message = `Hello ${name},%0A%0AWe hope you're doing well! Since you've already purchased the project report for ${sourceCode}, we wanted to let you know that the source code is also available.%0A%0AWould you like to get the complete source code for your project? Let us know if you're interested! 😊`;
 
     let whatsappUrl = `https://wa.me/91${number}?text=${message}`;

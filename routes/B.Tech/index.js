@@ -77,6 +77,7 @@ router.post(
 
       // Persist roll number for later payment use
       req.session.roll_number = body.roll_number;
+      req.session.project_report_table = 'btech_project';
 
       pool.query(`INSERT INTO ${table} SET ?`, body, async (err, result) => {
         if (err) throw err;

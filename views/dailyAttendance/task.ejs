@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily attendance task</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body class="bg-light py-4">
+  <div class="container" style="max-width: 720px;">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white">
+        <h1 class="h5 mb-0">Daily attendance task</h1>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">Use the link from your morning email. You do not need the affiliate dashboard login.</p>
+
+        <% if (msg === 'saved') { %>
+          <div class="alert alert-success">Saved. Today’s daily task is updated.</div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+        <% if (existingDaily) { %>
+          <div class="alert alert-info">Today’s daily task is already set — you can <strong>edit</strong> it below.</div>
+        <% } %>
+
+        <div id="instagram-task-alert" class="alert alert-warning d-none"></div>
+
+        <form method="POST" action="/daily-attendance/task" id="task-form" onsubmit="return submitForm()">
+          <input type="hidden" name="t" value="<%= token %>">
+
+          <div class="mb-3">
+            <label class="form-label d-block">How do you want to set the task?</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="source_mode" id="src_ig" value="instagram" <%= existingDaily ? '' : 'checked' %>>
+              <label class="form-check-label" for="src_ig">Instagram — today’s latest post (auto-filled)</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="source_mode" id="src_custom" value="custom" <%= existingDaily ? 'checked' : '' %>>
+              <label class="form-check-label" for="src_custom">Custom — enter title and description manually</label>
+            </div>
+          </div>
+
+          <input type="hidden" name="task_template" id="task_template" value="custom">
+
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" id="task_title" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <div id="quill-editor" style="height: 220px;"></div>
+            <input type="hidden" name="description" id="description">
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span id="instagram-loading" class="text-muted small d-none">Loading Instagram…</span>
+            <button type="submit" class="btn btn-success" id="submit-btn">
+              <%= existingDaily ? 'Update task' : 'Create task' %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <script>
+    const TOKEN = <%- JSON.stringify(token) %>;
+    const EXISTING = <%- JSON.stringify(existingDaily || null) %>;
+
+    const quill = new Quill('#quill-editor', { theme: 'snow', placeholder: 'Task description…' });
+    const taskTemplateInput = document.getElementById('task_template');
+    const igAlert = document.getElementById('instagram-task-alert');
+    const igLoading = document.getElementById('instagram-loading');
+
+    function setSourceMode() {
+      const ig = document.getElementById('src_ig').checked;
+      taskTemplateInput.value = ig ? 'instagram' : 'custom';
+      igAlert.classList.add('d-none');
+      if (ig) {
+        loadInstagram();
+      } else if (!EXISTING) {
+        document.getElementById('task_title').value = '';
+        quill.setText('');
+      }
+    }
+
+    document.getElementById('src_ig').addEventListener('change', setSourceMode);
+    document.getElementById('src_custom').addEventListener('change', setSourceMode);
+
+    async function loadInstagram() {
+      igLoading.classList.remove('d-none');
+      try {
+        const r = await fetch('/daily-attendance/api/latest-instagram?t=' + encodeURIComponent(TOKEN));
+        const data = await r.json().catch(function () { return {}; });
+        if (!r.ok) throw new Error(data.error || 'Failed');
+        document.getElementById('task_title').value = data.title || '';
+        quill.clipboard.dangerouslyPasteHTML(data.descriptionHtml || '<p></p>');
+      } catch (e) {
+        igAlert.textContent = e.message || 'Could not load Instagram.';
+        igAlert.classList.remove('d-none');
+      } finally {
+        igLoading.classList.add('d-none');
+      }
+    }
+
+    if (EXISTING) {
+      document.getElementById('task_title').value = EXISTING.title || '';
+      quill.clipboard.dangerouslyPasteHTML(EXISTING.description || '<p></p>');
+      taskTemplateInput.value = 'custom';
+    }
+
+    if (document.getElementById('src_ig').checked && !EXISTING) {
+      loadInstagram();
+    }
+
+    function submitForm() {
+      if (document.getElementById('src_ig').checked) {
+        taskTemplateInput.value = 'instagram';
+      } else {
+        taskTemplateInput.value = 'custom';
+      }
+      document.getElementById('description').value = quill.root.innerHTML;
+      return true;
+    }
+  </script>
+</body>
+</html>

@@ -13,6 +13,7 @@ var onPageSeo = require('./onPageSeo');
 const verify = require('./verify');
 const emailTemplates = require('./utility/emailTemplates');
 const upload = require('./multer');
+const projectReportShared = require('./projectReportShared');
 
 const Tesseract = require('tesseract.js');
 
@@ -648,6 +649,7 @@ router.post(
 
       const body = await buildProjectReportInsertRow(req, table);
       req.session.roll_number = body.roll_number;
+      req.session.project_report_table = table;
       const customerEmail = (req.body && String(req.body.email || '').trim()) || (body.email || '');
 
       await queryAsync(`INSERT INTO ${table} SET ?`, body);
@@ -755,10 +757,13 @@ router.post('/ccavResponseHandler1',(req,response)=>{
 pool.query(`update payment_request set status = 'success' where order_id = '${req.body.orderNo}'`,(err,result)=>{
     if(err) throw err;
     else {
-        pool.query(`update btech_project set status = 'success' where roll_number = '${req.session.roll_number}' order by id desc limit 1`,async(err,result)=>{
-            if(err) throw err;
-            else {
-    
+        const prTable = projectReportShared.safeTableName(req.session.project_report_table);
+        const upSql = `UPDATE \`${prTable}\` SET \`status\` = 'success' WHERE \`roll_number\` = ? ORDER BY \`id\` DESC LIMIT 1`;
+        pool.query(upSql, [req.session.roll_number], async (eUp) => {
+            if (eUp) {
+                console.error('project report status update (ccavResponseHandler1)', prTable, eUp && eUp.sqlMessage ? eUp.sqlMessage : eUp);
+            }
+
                 let project_link = `https://filemakr.com/download-my-report?roll_number=${req.session.roll_number}`
                 const userMessage = emailTemplates.orderConfirmation.userMessage(decryptedJsonResponse.billing_name,project_link);
     
@@ -766,11 +771,11 @@ pool.query(`update payment_request set status = 'success' where order_id = '${re
                 const adminMessage = emailTemplates.orderConfirmation.adminMessage(decryptedJsonResponse.billing_name , decryptedJsonResponse.billing_tel,req.session.roll_number,project_link);
     
     
+                try {
                 await verify.sendUserMail(decryptedJsonResponse.billing_email,emailTemplates.orderConfirmation.userSubject,userMessage);
                 await verify.sendUserMail('filemakrxpert@gmail.com',adminSubject,adminMessage);
+                } catch (mailErr) { console.error('ccav project_report mail', mailErr); }
                 response.redirect('/download-project-report')
-    
-            }
         })
     }
 })
@@ -868,109 +873,47 @@ pool.query(`update payment_request set status = 'success' where order_id = '${re
 
 
 router.get('/download-project-report', async (req, res) => {
-    // req.session.roll_number = '1132230096';
-    // req.session.roll_number = '61'
-    // req.session.ispayment = 'done'
-
-    console.log('why this roll_number',req.session.ispayment)
-    console.log('why this roll_number',req.session.roll_number)
-
-    if (req.session.roll_number && req.session.ispayment) {
-        pool.query(`select * from btech_project where roll_number = '${req.session.roll_number}' order by id desc limit 1`,(err,result)=>{
-            if(err) throw err;
-            else {
-                console.log(req.session.roll_number)
-                // Split the backend string into an array of IDs
-const backendIds = result[0].backend.split(',');
-const frontIds = result[0].frontend.split(',');
-
-
-// Create an array to hold the conditions for each ID
-const conditions = backendIds.map(id => `id = '${id.trim()}'`);
-const conditions1 = frontIds.map(id => `id = '${id.trim()}'`);
-
-                // let frontend = result[0].backend
-                // console.log(result[0].projectid)
-               var query = `select * from btech_project where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
-               var query1 = `SELECT * FROM programming_language WHERE ${conditions1.join(' OR ')};`
-               var query2 = `SELECT * FROM programming_language WHERE ${conditions.join(' OR ')};`;
-               var query3 = `select * from project where id = '${result[0].projectid}';`
-               var query4 = `SELECT * FROM screenshots WHERE source_code_id = (SELECT assign FROM project WHERE id = '${result[0].projectid}');`
-               //For Testing
-    
-               pool.query(query+query1+query2+query3+query4,(err,result)=>{
-                   if(err) throw err;
-                //    else res.json(result)
-
-                //    else 
-                else{
-
-                   // Define a mapping of report types to project types
-const typeMapping = {
-    'BCA': 'Bachelor of Computer Application',
-    'MCA': 'Master of Computer Application',
-    'M.Tech': 'Master of Technology',
-    'B.Tech': 'Bachelor of Technology',
-    'B.E.': 'Bachelor of Engineering',
-    'M.E.': 'Master of Engineering',
-    'BSc': 'Bachelor of Science',
-    'MSc': 'Master of Science'
-};
-
-// Check if the report type exists in the mapping, otherwise use the original report type
-const project_type = typeMapping[result[0][0].report_type] || result[0][0].report_type;
-
-                    res.render('B.Tech/finalnew',{result:result,project_type})
-                    // res.json(result)
-                }
-               })
-    
-            }
-        })
-    }    
-           
-    else {
-        res.redirect('/');
+    console.log('download-project-report session', req.session.ispayment, req.session.roll_number, req.session.project_report_table);
+    if (!req.session.roll_number || !req.session.ispayment) {
+        return res.redirect('/');
+    }
+    try {
+        const found = await projectReportShared.findLatestProjectReport(
+            req.session.roll_number,
+            req.session.project_report_table
+        );
+        if (!found) {
+            return res.redirect('/');
+        }
+        const result = await projectReportShared.buildBtechStyleReportResult(found.row, found.table);
+        const project_type = projectReportShared.projectTypeLabel(result[0][0].report_type) || result[0][0].report_type;
+        return res.render('B.Tech/finalnew', { result, project_type });
+    } catch (e) {
+        console.error('download-project-report', (e && e.message) || e, (e && e.sqlMessage) || '');
+        return res.redirect('/');
     }
 });
 
 
 
 router.get('/download-project-report1', async (req, res) => {
-    // req.session.roll_number = 'SRCEM';
-
-    // req.session.roll_number = '222111210356'
-   
-        pool.query(`select * from btech_project where roll_number = '${req.session.roll_number}' order by id desc limit 1`,(err,result)=>{
-            if(err) throw err;
-            else {
-                console.log(req.session.roll_number)
-                // Split the backend string into an array of IDs
-const backendIds = result[0].backend.split(',');
-const frontIds = result[0].frontend.split(',');
-
-
-// Create an array to hold the conditions for each ID
-const conditions = backendIds.map(id => `id = '${id.trim()}'`);
-const conditions1 = frontIds.map(id => `id = '${id.trim()}'`);
-
-                // let frontend = result[0].backend
-                // console.log(result[0])
-               var query = `select * from btech_project where roll_number = '${req.session.roll_number}' order by id desc limit 1;`
-               var query1 = `SELECT * FROM programming_language WHERE ${conditions1.join(' OR ')};`
-               var query2 = `SELECT * FROM programming_language WHERE ${conditions.join(' OR ')};`;
-               var query3 = `select * from project where id = '${result[0].projectid}';`
-               //For Testing
-    
-               pool.query(query+query1+query2+query3,(err,result)=>{
-                   if(err) throw err;
-                //    else res.json(result)
-                   else res.json(result)
-               })
-    
-            }
-        })
-  
+    if (!req.session.roll_number) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        const found = await projectReportShared.findLatestProjectReport(
+            req.session.roll_number,
+            req.session.project_report_table
+        );
+        if (!found) {
+            return res.status(404).json({ error: 'Not found' });
+        }
+        const result = await projectReportShared.buildBtechStyleReportResult(found.row, found.table);
+        return res.json(result);
+    } catch (e) {
+        console.error('download-project-report1', (e && e.message) || e, (e && e.sqlMessage) || '');
+        return res.status(500).json({ error: 'Server error' });
+    }
 });
 
 
@@ -1896,139 +1839,23 @@ router.get('/login-success', (req, res) => {
 
 
 router.get('/view-user-report', async (req, res) => {
-    req.session.ispayment = 'done'
-
-    console.log('why this roll_number',req.session.ispayment)
-    console.log('why this roll_number',req.query.roll_number)
-
-    if (req.query.roll_number && req.session.ispayment) {
-        pool.query(`select * from btech_project where roll_number = '${req.query.roll_number}' order by id desc limit 1`,(err,result)=>{
-            if(err) throw err;
-            else {
-                console.log(req.query.roll_number)
-                // Split the backend string into an array of IDs
-const backendIds = result[0].backend.split(',');
-const frontIds = result[0].frontend.split(',');
-
-
-// Create an array to hold the conditions for each ID
-const conditions = backendIds.map(id => `id = '${id.trim()}'`);
-const conditions1 = frontIds.map(id => `id = '${id.trim()}'`);
-
-                // let frontend = result[0].backend
-                // console.log(result[0].projectid)
-               var query = `select * from btech_project where roll_number = '${req.query.roll_number}' order by id desc limit 1;`
-               var query1 = `SELECT * FROM programming_language WHERE ${conditions1.join(' OR ')};`
-               var query2 = `SELECT * FROM programming_language WHERE ${conditions.join(' OR ')};`;
-               var query3 = `select * from project where id = '${result[0].projectid}';`
-             var query4 = `SELECT * FROM screenshots WHERE source_code_id = (SELECT assign FROM project WHERE id = '${result[0].projectid}');`
-               //For Testing
-    
-               pool.query(query+query1+query2+query3+query4,(err,result)=>{
-                   if(err) throw err;
-                //    else res.json(result)
-
-                //    else 
-                else{
-
-                   // Define a mapping of report types to project types
-const typeMapping = {
-    'BCA': 'Bachelor of Computer Application',
-    'MCA': 'Master of Computer Application',
-    'M.Tech': 'Master of Technology',
-    'B.Tech': 'Bachelor of Technology',
-    'B.E.': 'Bachelor of Engineering',
-    'M.E.': 'Master of Engineering',
-    'BSc': 'Bachelor of Science',
-    'MSc': 'Master of Science'
-};
-
-// Check if the report type exists in the mapping, otherwise use the original report type
-const project_type = typeMapping[result[0][0].report_type] || result[0][0].report_type;
-
-                    res.render('B.Tech/finalnew',{result:result,project_type})
-                    // res.json(result)
-                }
-               })
-    
-            }
-        })
-    }    
-           
-    else {
-        res.redirect('/');
+    req.session.ispayment = 'done';
+    const roll = req.query.roll_number;
+    const hint = req.query.source_table;
+    if (!roll || !req.session.ispayment) {
+        return res.redirect('/');
     }
-});
-
-
-
-
-
-router.get('/download-my-report', async (req, res) => {
-    req.session.ispayment = 'done'
-
-  
-
-    if (req.query.roll_number && req.session.ispayment) {
-        pool.query(`select * from btech_project where roll_number = '${req.query.roll_number}' and status = 'success' order by id desc limit 1`,(err,result)=>{
-            if(err) throw err;
-            else if(result.length>0){
-                console.log(req.query.roll_number)
-                // Split the backend string into an array of IDs
-const backendIds = result[0].backend.split(',');
-const frontIds = result[0].frontend.split(',');
-
-
-// Create an array to hold the conditions for each ID
-const conditions = backendIds.map(id => `id = '${id.trim()}'`);
-const conditions1 = frontIds.map(id => `id = '${id.trim()}'`);
-
-                // let frontend = result[0].backend
-                // console.log(result[0].projectid)
-               var query = `select * from btech_project where roll_number = '${req.query.roll_number}' order by id desc limit 1;`
-               var query1 = `SELECT * FROM programming_language WHERE ${conditions1.join(' OR ')};`
-               var query2 = `SELECT * FROM programming_language WHERE ${conditions.join(' OR ')};`;
-               var query3 = `select * from project where id = '${result[0].projectid}';`
-               var query4 = `SELECT * FROM screenshots WHERE source_code_id = (SELECT assign FROM project WHERE id = '${result[0].projectid}');`
-               //For Testing
-    
-               pool.query(query+query1+query2+query3+query4,(err,result)=>{
-                   if(err) throw err;
-                //    else res.json(result)
-
-                //    else 
-                else{
-
-                   // Define a mapping of report types to project types
-const typeMapping = {
-    'BCA': 'Bachelor of Computer Application',
-    'MCA': 'Master of Computer Application',
-    'M.Tech': 'Master of Technology',
-    'B.Tech': 'Bachelor of Technology',
-    'B.E.': 'Bachelor of Engineering',
-    'M.E.': 'Master of Engineering',
-    'BSc': 'Bachelor of Science',
-    'MSc': 'Master of Science'
-};
-
-// Check if the report type exists in the mapping, otherwise use the original report type
-const project_type = typeMapping[result[0][0].report_type] || result[0][0].report_type;
-
-                    res.render('B.Tech/finalnew',{result:result,project_type})
-                    // res.json(result)
-                }
-               })
-            }
-            else {
-        res.redirect('/');
-               
-    
-            }
-        })
-    }    
-           
-    else {
-        res.redirect('/');
+    try {
+        const found = await projectReportShared.findLatestProjectReport(roll, hint);
+        if (!found) {
+            return res.redirect('/');
+        }
+        const result = await projectReportShared.buildBtechStyleReportResult(found.row, found.table);
+        const project_type = projectReportShared.projectTypeLabel(result[0][0].report_type) || result[0][0].report_type;
+        return res.render('B.Tech/finalnew', { result, project_type });
+    } catch (e) {
+        console.error('view-user-report', (e && e.message) || e, (e && e.sqlMessage) || '');
+        return res.redirect('/');
     }
 });
 
@@ -2039,70 +1866,28 @@ const project_type = typeMapping[result[0][0].report_type] || result[0][0].repor
 
 
 
+
 router.get('/download-my-report', async (req, res) => {
-    // req.query.roll_number = '21BECE30336';
-    // req.query.roll_number = '61'
-    req.session.ispayment = 'done'
-
-    console.log('why this roll_number',req.session.ispayment)
-    console.log('why this roll_number',req.query.roll_number)
-
-    if (req.query.roll_number && req.session.ispayment) {
-        pool.query(`select * from btech_project where roll_number = '${req.query.roll_number}' order by id desc limit 1`,(err,result)=>{
-            if(err) throw err;
-            else {
-                console.log(req.query.roll_number)
-                // Split the backend string into an array of IDs
-const backendIds = result[0].backend.split(',');
-const frontIds = result[0].frontend.split(',');
-
-
-// Create an array to hold the conditions for each ID
-const conditions = backendIds.map(id => `id = '${id.trim()}'`);
-const conditions1 = frontIds.map(id => `id = '${id.trim()}'`);
-
-                // let frontend = result[0].backend
-                // console.log(result[0].projectid)
-               var query = `select * from btech_project where roll_number = '${req.query.roll_number}' order by id desc limit 1;`
-               var query1 = `SELECT * FROM programming_language WHERE ${conditions1.join(' OR ')};`
-               var query2 = `SELECT * FROM programming_language WHERE ${conditions.join(' OR ')};`;
-               var query3 = `select * from project where id = '${result[0].projectid}';`
-               var query4 = `SELECT * FROM screenshots WHERE source_code_id = (SELECT assign FROM project WHERE id = '${result[0].projectid}');`
-               //For Testing
-    
-               pool.query(query+query1+query2+query3+query4,(err,result)=>{
-                   if(err) throw err;
-                //    else res.json(result)
-
-                //    else 
-                else{
-
-                   // Define a mapping of report types to project types
-const typeMapping = {
-    'BCA': 'Bachelor of Computer Application',
-    'MCA': 'Master of Computer Application',
-    'M.Tech': 'Master of Technology',
-    'B.Tech': 'Bachelor of Technology',
-    'B.E.': 'Bachelor of Engineering',
-    'M.E.': 'Master of Engineering',
-    'BSc': 'Bachelor of Science',
-    'MSc': 'Master of Science'
-};
-
-// Check if the report type exists in the mapping, otherwise use the original report type
-const project_type = typeMapping[result[0][0].report_type] || result[0][0].report_type;
-
-                    res.render('B.Tech/finalnew',{result:result,project_type})
-                    // res.json(result)
-                }
-               })
-    
-            }
-        })
-    }    
-           
-    else {
-        res.redirect('/');
+    req.session.ispayment = 'done';
+    const roll = req.query.roll_number;
+    const hint = req.query.source_table;
+    if (!roll || !req.session.ispayment) {
+        return res.redirect('/');
+    }
+    try {
+        const found = await projectReportShared.findLatestProjectReport(roll, hint);
+        if (!found) {
+            return res.redirect('/');
+        }
+        if (projectReportShared.safeTableName(found.table) === 'btech_project' && found.row.status && found.row.status !== 'success') {
+            return res.redirect('/');
+        }
+        const result = await projectReportShared.buildBtechStyleReportResult(found.row, found.table);
+        const project_type = projectReportShared.projectTypeLabel(result[0][0].report_type) || result[0][0].report_type;
+        return res.render('B.Tech/finalnew', { result, project_type });
+    } catch (e) {
+        console.error('download-my-report', (e && e.message) || e, (e && e.sqlMessage) || '');
+        return res.redirect('/');
     }
 });
 
@@ -2791,7 +2576,7 @@ router.post('/add-ambassador', async (req, res) => {
             <li><strong>Password:</strong> ${password}</li>
           </ul>
           <p style="text-align: center; margin: 20px 0;">
-            <a href="https://www.filemakr.com/shopkeeper" target="_blank"
+            <a href="https://www.filemakr.com/mern-training-program" target="_blank"
               style="background-color: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">
               Go to Dashboard
             </a>

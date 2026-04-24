@@ -1,184 +1,629 @@
-<% include ./header.ejs %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MERN Training Program | Profile</title>
+  <link rel="shortcut icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --teal: #0d9488;
+      --teal-dark: #0f766e;
+      --profile-surface: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    html { overflow-x: hidden; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    .profile-pro-topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .profile-pro-topbar-inner {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0.875rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .profile-pro-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--text);
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .profile-pro-brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .profile-pro-brand-text { line-height: 1.2; }
+    .profile-pro-brand-text strong { display: block; font-size: 0.95rem; font-weight: 700; }
+    .profile-pro-brand-text span { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+    .profile-pro-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--teal);
+      text-decoration: none;
+      padding: 0.5rem 0.95rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      white-space: nowrap;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .profile-pro-back:hover {
+      background: #f0fdfa;
+      border-color: rgba(13, 148, 136, 0.35);
+      color: var(--teal-dark);
+    }
+    .profile-pro-back .material-icons { font-size: 1.125rem; }
+    .profile-pro-wrap {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+      min-width: 0;
+    }
+    .profile-pro-page {
+      --profile-teal: var(--teal);
+      --profile-teal-dark: var(--teal-dark);
+      --profile-slate: var(--text);
+      --profile-muted: var(--muted);
+      --profile-border: var(--border);
+      background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 48%, #fff 100%);
+      min-height: calc(100vh - 57px);
+    }
+    .profile-pro-card {
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06) !important;
+    }
+    .profile-pro-hero {
+      background: linear-gradient(135deg, var(--profile-teal-dark) 0%, var(--profile-teal) 50%, #14b8a6 100%);
+      position: relative;
+    }
+    .profile-pro-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 1;
+      pointer-events: none;
+    }
+    .profile-pro-hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+    .profile-pro-avatar-wrap {
+      flex-shrink: 0;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (min-width: 768px) {
+      .profile-pro-avatar-wrap {
+        width: 104px;
+        height: 104px;
+      }
+    }
+    .profile-pro-avatar-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .profile-pro-initials {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+    .profile-pro-hero h1 {
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .profile-pro-hero .profile-pro-tagline {
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 0.9rem;
+      max-width: 36rem;
+      line-height: 1.5;
+    }
+    .profile-pro-section-title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--profile-slate);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .profile-pro-section-title .material-icons {
+      font-size: 1.125rem;
+      color: var(--profile-teal);
+    }
+    .profile-pro-section-hint {
+      font-size: 0.8125rem;
+      color: var(--profile-muted);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    .profile-pro-page .form-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--profile-slate);
+      margin-bottom: 0.35rem;
+    }
+    .profile-pro-page .input-group-text {
+      background: var(--profile-surface);
+      border-color: var(--profile-border);
+      color: var(--profile-muted);
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+    .profile-pro-page .form-control,
+    .profile-pro-page .form-select {
+      border-color: var(--profile-border);
+      font-size: 0.9375rem;
+    }
+    .profile-pro-page .input-group .form-control[readonly] {
+      background-color: #f1f5f9;
+      cursor: default;
+    }
+    .profile-pro-badge {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: #e0f2f1;
+      color: var(--profile-teal-dark);
+    }
+    .profile-pro-social-card {
+      background: var(--profile-surface);
+      border: 1px solid var(--profile-border);
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+      height: 100%;
+    }
+    .profile-pro-social-card.profile-pro-social-highlight {
+      border-color: rgba(13, 148, 136, 0.35);
+      background: linear-gradient(180deg, #f0fdfa 0%, #f8fafc 100%);
+    }
+    .profile-pro-upload-zone {
+      border: 2px dashed var(--profile-border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      text-align: center;
+      background: var(--profile-surface);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .profile-pro-upload-zone:hover {
+      border-color: var(--profile-teal);
+      background: #f0fdfa;
+    }
+    .profile-pro-upload-zone .material-icons {
+      font-size: 2rem;
+      color: var(--profile-teal);
+      opacity: 0.85;
+    }
+    .profile-pro-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 0.75rem;
+      object-fit: cover;
+      border: 1px solid var(--profile-border);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+    .profile-pro-footer {
+      background: #fafbfc !important;
+      border-top: 1px solid var(--profile-border) !important;
+    }
+    .profile-pro-page .btn-profile-save {
+      background: var(--profile-teal);
+      border: none;
+      font-weight: 600;
+      padding: 0.65rem 1.75rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+    }
+    .profile-pro-page .btn-profile-save:hover {
+      background: var(--profile-teal-dark);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+    }
+    .profile-pro-page .btn-profile-save:focus {
+      box-shadow: 0 0 0 0.2rem rgba(13, 148, 136, 0.35);
+    }
+    #loader-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(2px);
+    }
+    .profile-pro-loader-spin {
+      width: 2.75rem;
+      height: 2.75rem;
+      border: 3px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: profile-pro-spin 0.75s linear infinite;
+    }
+    @keyframes profile-pro-spin {
+      to { transform: rotate(360deg); }
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="profile-pro-topbar">
+    <div class="profile-pro-topbar-inner">
+      <a href="/mern-training-program/new-dashboard" class="profile-pro-brand">
+        <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="" />
+        <div class="profile-pro-brand-text">
+          <strong>MERN Training Program</strong>
+          <span>Profile &amp; verification</span>
+        </div>
+      </a>
+      <a href="/mern-training-program/new-dashboard" class="profile-pro-back">
+        <span class="material-icons" aria-hidden="true">arrow_back</span>
+        Back to attendance
+      </a>
+    </div>
+  </header>
 
-<div class="content-body">
-  <div class="container-fluid py-5">
-    <div class="row justify-content-center">
-      <div class="col-xl-12 col-lg-12 col-md-10">
-        <div class="card shadow-sm border-0 rounded-4">
-          <div class="card-header bg-white border-bottom-0 text-center">
-            <h4 class="mb-0 fw-bold">Update Your Profile</h4>
-          </div>
-          <div class="card-body">
-            <form id="updateProfileForm" enctype="multipart/form-data">
-              
-              <!-- Name -->
-              <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
-                <input type="text" id="name" name="name" class="form-control" value="<%= result[0].name %>" readonly required>
+  <main class="profile-pro-page">
+    <div class="profile-pro-wrap">
+      <div class="row justify-content-center g-0">
+        <div class="col-12">
+          <div class="card profile-pro-card border-0">
+            <div class="profile-pro-hero">
+              <div class="profile-pro-hero-inner d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3 gap-md-4 p-4 p-lg-5">
+                <div class="profile-pro-avatar-wrap" id="heroAvatarWrap">
+                  <% if (result[0].image_url) { %>
+                    <img id="heroAvatar" src="<%= result[0].image_url %>" alt="">
+                  <% } else { %>
+                    <span class="profile-pro-initials" id="heroInitials"><%= (result[0].name || '?').trim().charAt(0).toUpperCase() %></span>
+                  <% } %>
+                </div>
+                <div class="flex-grow-1 pt-1">
+                  <h1 class="h4 mb-2"><%= result[0].name || 'Your profile' %></h1>
+                  <p class="profile-pro-tagline mb-0">Keep your profile complete—especially your Instagram handle—so daily attendance can be verified. When you are done, use <strong>Back to attendance</strong> above to return to your task.</p>
+                </div>
               </div>
+            </div>
 
-              <!-- Number -->
-              <div class="mb-3">
-                <label for="number" class="form-label">Mobile Number</label>
-                <input type="text" id="number" name="number" class="form-control" value="<%= result[0].number %>" readonly required>
-              </div>
-
-              <!-- Password -->
-              <div class="mb-3">
-                <label for="password" class="form-label">New Password</label>
-                <input type="password" id="password" name="password" class="form-control" value="<%=result[0].password%>" placeholder="Leave blank to keep current password">
-              </div>
-
-              <!-- Address -->
-              <div class="mb-3">
-                <label for="address" class="form-label">College Name</label>
-                <input type="text" id="address" name="address" class="form-control" value="<%= result[0].address %>" readonly required>
-              </div>
-
-
-              <!-- Instagram ID -->
-<div class="mb-3">
-  <label for="instagram_id" class="form-label">Instagram Username</label>
-  <input 
-    type="text" 
-    id="instagram_id" 
-    name="instagram_id" 
-    class="form-control" 
-    value="<%= result[0].instagram_id || '' %>" 
-    <%= result[0].instagram_id ? 'readonly' : '' %>
-    placeholder="e.g. your_ig_handle">
-</div>
-
-<!-- YouTube ID -->
-<div class="mb-3">
-  <label for="youtube_id" class="form-label">YouTube Channel Name</label>
-  <input 
-    type="text" 
-    id="youtube_id" 
-    name="youtube_id" 
-    class="form-control" 
-    value="<%= result[0].youtube_id || '' %>" 
-    <%= result[0].youtube_id ? 'readonly' : '' %>
-    placeholder="e.g. YourYouTubeName">
-</div>
-
-<!-- LinkedIn ID -->
-<div class="mb-3">
-  <label for="linkedin_id" class="form-label">LinkedIn Username</label>
-  <input 
-    type="text" 
-    id="linkedin_id" 
-    name="linkedin_id" 
-    class="form-control" 
-    value="<%= result[0].linkedin_id || '' %>" 
-    <%= result[0].linkedin_id ? 'readonly' : '' %>
-    placeholder="e.g. your-linkedin-profile">
-</div>
-
-              <!-- Profile Image -->
-              <div class="mb-3">
-                <label for="image" class="form-label">Profile Image</label>
-                <input type="file" id="image" name="image" class="form-control">
-                <% if (result[0].image_url) { %>
-                  <div class="mt-2">
-                    <img src="<%= result[0].image_url %>" alt="Profile Image" class="img-thumbnail" width="120">
+            <div class="card-body p-4 p-lg-5">
+              <form id="updateProfileForm" enctype="multipart/form-data">
+                <div class="row g-4">
+                  <div class="col-12">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                      <h2 class="profile-pro-section-title mb-0">
+                        <span class="material-icons" aria-hidden="true">badge</span>
+                        Account details
+                      </h2>
+                      <span class="profile-pro-badge">Read-only</span>
+                    </div>
+                    <p class="profile-pro-section-hint mb-0">Name, phone, and college are managed with your enrollment. Reach out if you need a correction.</p>
                   </div>
-                <% } %>
-              </div>
 
+                  <div class="col-md-6">
+                    <label for="name" class="form-label">Full name</label>
+                    <div class="input-group">
+                      <span class="input-group-text" aria-hidden="true"><span class="material-icons" style="font-size:20px">person</span></span>
+                      <input type="text" id="name" name="name" class="form-control" value="<%= result[0].name %>" readonly required>
+                    </div>
+                  </div>
 
+                  <div class="col-md-6">
+                    <label for="number" class="form-label">Mobile number</label>
+                    <div class="input-group">
+                      <span class="input-group-text" aria-hidden="true"><span class="material-icons" style="font-size:20px">smartphone</span></span>
+                      <input type="text" id="number" name="number" class="form-control" value="<%= result[0].number %>" readonly required>
+                    </div>
+                  </div>
 
-              <!-- Submit Button -->
-              <div class="d-grid">
-                <button type="submit" class="btn btn-primary rounded-pill">Update Profile</button>
-              </div>
+                  <div class="col-md-6">
+                    <label for="address" class="form-label">College / institution</label>
+                    <div class="input-group">
+                      <span class="input-group-text" aria-hidden="true"><span class="material-icons" style="font-size:20px">school</span></span>
+                      <input type="text" id="address" name="address" class="form-control" value="<%= result[0].address %>" readonly required>
+                    </div>
+                  </div>
+                </div>
 
-            </form>
+                <hr class="my-4 my-lg-5 opacity-100" style="border-color: var(--profile-border);">
+
+                <div class="row g-4">
+                  <div class="col-12">
+                    <h2 class="profile-pro-section-title">
+                      <span class="material-icons" aria-hidden="true">lock</span>
+                      Security
+                    </h2>
+                    <p class="profile-pro-section-hint mb-0">Set a new password only if you want to change it. Leave blank to keep your current password.</p>
+                  </div>
+                  <div class="col-md-6 col-lg-5">
+                    <label for="password" class="form-label">New password</label>
+                    <div class="input-group">
+                      <span class="input-group-text" aria-hidden="true"><span class="material-icons" style="font-size:20px">vpn_key</span></span>
+                      <input type="password" id="password" name="password" class="form-control" value="" autocomplete="new-password" placeholder="Leave blank to keep current">
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="my-4 my-lg-5 opacity-100" style="border-color: var(--profile-border);">
+
+                <div class="row g-4">
+                  <div class="col-12">
+                    <h2 class="profile-pro-section-title">
+                      <span class="material-icons" aria-hidden="true">share</span>
+                      Social profiles &amp; verification
+                    </h2>
+                    <p class="profile-pro-section-hint mb-0">Each handle can only be saved once. Instagram is used to verify daily attendance tasks.</p>
+                  </div>
+
+                  <div class="col-lg-4">
+                    <div class="profile-pro-social-card profile-pro-social-highlight h-100">
+                      <label for="instagram_id" class="form-label d-flex align-items-center gap-2 flex-wrap">
+                        Instagram username
+                        <% if (!result[0].instagram_id) { %>
+                          <span class="badge bg-warning text-dark" style="font-size:0.65rem;">Required for daily tasks</span>
+                        <% } %>
+                      </label>
+                      <div class="input-group">
+                        <span class="input-group-text" aria-hidden="true"><span class="material-icons" style="font-size:20px">photo_camera</span></span>
+                        <input
+                          type="text"
+                          id="instagram_id"
+                          name="instagram_id"
+                          class="form-control"
+                          value="<%= result[0].instagram_id || '' %>"
+                          <%= result[0].instagram_id ? 'readonly' : '' %>
+                          placeholder="your_handle (no @)"
+                          autocomplete="off">
+                      </div>
+                      <% if (result[0].instagram_id) { %>
+                        <p class="small text-muted mt-2 mb-0">Saved. Contact support if you need to update this.</p>
+                      <% } else { %>
+                        <p class="small text-muted mt-2 mb-0">Without this, you cannot submit daily attendance proof.</p>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4">
+                    <div class="profile-pro-social-card h-100">
+                      <label for="youtube_id" class="form-label">YouTube channel</label>
+                      <div class="input-group">
+                        <span class="input-group-text" aria-hidden="true"><span class="material-icons" style="font-size:20px">play_circle</span></span>
+                        <input
+                          type="text"
+                          id="youtube_id"
+                          name="youtube_id"
+                          class="form-control"
+                          value="<%= result[0].youtube_id || '' %>"
+                          <%= result[0].youtube_id ? 'readonly' : '' %>
+                          placeholder="@YourChannel">
+                      </div>
+                      <% if (result[0].youtube_id) { %>
+                        <p class="small text-muted mt-2 mb-0">Saved. Contact support to change.</p>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4">
+                    <div class="profile-pro-social-card h-100">
+                      <label for="linkedin_id" class="form-label">LinkedIn username</label>
+                      <div class="input-group">
+                        <span class="input-group-text" aria-hidden="true"><span class="material-icons" style="font-size:20px">work</span></span>
+                        <input
+                          type="text"
+                          id="linkedin_id"
+                          name="linkedin_id"
+                          class="form-control"
+                          value="<%= result[0].linkedin_id || '' %>"
+                          <%= result[0].linkedin_id ? 'readonly' : '' %>
+                          placeholder="your-profile-id">
+                      </div>
+                      <% if (result[0].linkedin_id) { %>
+                        <p class="small text-muted mt-2 mb-0">Saved. Contact support to change.</p>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-lg-8">
+                    <h2 class="profile-pro-section-title">
+                      <span class="material-icons" aria-hidden="true">portrait</span>
+                      Profile photo
+                    </h2>
+                    <p class="profile-pro-section-hint">Optional. JPG or PNG recommended. Shown on your dashboard.</p>
+                    <div class="profile-pro-upload-zone">
+                      <span class="material-icons d-block mb-2" aria-hidden="true">cloud_upload</span>
+                      <label for="image" class="form-label mb-1">Choose image</label>
+                      <input type="file" id="image" name="image" class="form-control form-control-sm mx-auto" style="max-width: 280px;" accept="image/*">
+                    </div>
+                    <div class="mt-3 d-flex align-items-start gap-3" id="profileImagePreviewRow" <% if (!result[0].image_url) { %>style="display:none;"<% } %>>
+                      <img id="profileImagePreview" src="<%= result[0].image_url || '' %>" alt="Preview" class="profile-pro-preview" <% if (!result[0].image_url) { %>style="display:none;"<% } %>>
+                      <div class="small text-muted pt-1">Preview updates after you select a file (saved when you click Save changes).</div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="card-footer profile-pro-footer d-flex flex-column flex-sm-row flex-wrap align-items-stretch align-items-sm-center justify-content-between gap-3 py-3 px-4 px-lg-5">
+              <p class="small text-muted mb-0">Your updates apply as soon as you save. Large photos may take a few seconds to upload.</p>
+              <button type="submit" form="updateProfileForm" class="btn btn-primary btn-profile-save">Save changes</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </main>
+
+  <div id="loader-overlay">
+    <div class="profile-pro-loader-spin" role="status" aria-label="Loading"></div>
+    <span class="sr-only">Loading...</span>
   </div>
-</div>
 
-<div id="loader-overlay" style="display: none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-  <div class="spinner-border text-light" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-</div>
+  <script>
+    (function () {
+      var imgInput = document.getElementById('image');
+      var preview = document.getElementById('profileImagePreview');
+      var previewRow = document.getElementById('profileImagePreviewRow');
+      var heroWrap = document.getElementById('heroAvatarWrap');
+      if (!imgInput || !preview || !previewRow) return;
 
-<% include ./footer.ejs %>
+      imgInput.addEventListener('change', function () {
+        var file = imgInput.files && imgInput.files[0];
+        if (!file || !file.type.match(/^image\//)) return;
+        var url = URL.createObjectURL(file);
+        preview.src = url;
+        preview.style.display = '';
+        previewRow.style.display = '';
 
+        if (heroWrap) {
+          var existing = heroWrap.querySelector('img#heroAvatar');
+          if (existing) {
+            existing.src = url;
+          } else {
+            var initials = heroWrap.querySelector('#heroInitials');
+            if (initials) initials.remove();
+            var img = document.createElement('img');
+            img.id = 'heroAvatar';
+            img.alt = '';
+            img.src = url;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            heroWrap.appendChild(img);
+          }
+        }
+      });
+    })();
 
-<script>
-  document.getElementById("updateProfileForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    
-    const loader = document.getElementById("loader-overlay");
-    loader.style.display = "flex";
+    document.getElementById("updateProfileForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const name = document.getElementById("name").value;
-    const number = document.getElementById("number").value;
-    const password = document.getElementById("password").value;
-    const address = document.getElementById("address").value;
-    let instagram_id = document.getElementById("instagram_id").value.trim();
-let youtube_id = document.getElementById("youtube_id").value.trim();
-let linkedin_id = document.getElementById("linkedin_id").value.trim();
-    const imageFile = document.getElementById("image").files[0];
+      const loader = document.getElementById("loader-overlay");
+      loader.style.display = "flex";
 
+      const name = document.getElementById("name").value;
+      const number = document.getElementById("number").value;
+      const password = document.getElementById("password").value;
+      const address = document.getElementById("address").value;
+      let instagram_id = document.getElementById("instagram_id").value.trim();
+      let youtube_id = document.getElementById("youtube_id").value.trim();
+      let linkedin_id = document.getElementById("linkedin_id").value.trim();
+      const imageFile = document.getElementById("image").files[0];
 
-    // ✅ Remove @ from start of Instagram ID if present
-if (instagram_id.startsWith('@')) {
-  instagram_id = instagram_id.slice(1);
-}
+      if (instagram_id.startsWith('@')) {
+        instagram_id = instagram_id.slice(1);
+      }
 
-// ✅ Add @ to start of YouTube ID if not present
-if (!youtube_id.startsWith('@') && youtube_id !== '') {
-  youtube_id = '@' + youtube_id;
-} 
+      if (!youtube_id.startsWith('@') && youtube_id !== '') {
+        youtube_id = '@' + youtube_id;
+      }
 
-    let image_url = "<%= result[0].image_url %>"; // default to current image
+      let image_url = "<%= result[0].image_url %>";
 
-    try {
-      // Upload new image if selected
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append("file", imageFile);
-        formData.append("upload_preset", "docs_upload_example_us_preset"); // Use your Cloudinary preset
+      try {
+        if (imageFile) {
+          const formData = new FormData();
+          formData.append("file", imageFile);
+          formData.append("upload_preset", "docs_upload_example_us_preset");
 
-        const uploadRes = await fetch("https://api.cloudinary.com/v1_1/dggf8vl9p/image/upload", {
+          const uploadRes = await fetch("https://api.cloudinary.com/v1_1/dggf8vl9p/image/upload", {
+            method: "POST",
+            body: formData
+          });
+
+          const uploadData = await uploadRes.json();
+          image_url = uploadData.secure_url;
+        }
+
+        const res = await fetch("/mern-training-program/dashboard/profile/update", {
           method: "POST",
-          body: formData
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ name, number, password, address, image_url, instagram_id, youtube_id, linkedin_id })
         });
 
-        const uploadData = await uploadRes.json();
-        image_url = uploadData.secure_url;
+        const result = await res.json();
+        loader.style.display = "none";
+
+        if (result.status === "success") {
+          alert("Profile updated successfully!");
+          window.location.reload();
+        } else {
+          alert("Failed to update profile.");
+        }
+
+      } catch (error) {
+        loader.style.display = "none";
+        console.error("Error:", error);
+        alert("Something went wrong!");
       }
-
-      // Send updated data to backend API
-      const res = await fetch("/shopkeeper/dashboard/profile/update", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name, number, password, address, image_url , instagram_id , youtube_id , linkedin_id })
-      });
-
-      const result = await res.json();
-      loader.style.display = "none";
-
-      if (result.status === "success") {
-        alert("Profile updated successfully!");
-        window.location.reload();
-      } else {
-        alert("Failed to update profile.");
-      }
-
-    } catch (error) {
-      loader.style.display = "none";
-      console.error("Error:", error);
-      alert("Something went wrong!");
-    }
-  });
-</script>
-
+    });
+  </script>
+</body>
+</html>

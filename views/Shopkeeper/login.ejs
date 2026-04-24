@@ -1,108 +1,410 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100">
-
-
-<!-- Mirrored from w3crm.dexignzone.com/xhtml/page-login.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Jan 2024 16:39:53 GMT -->
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="keywords" content="">
-	<meta name="author" content="">
-	<meta name="robots" content="">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="FileMakr's Shopkeeper Dashboard | Login">
-	<meta property="og:title" content="FileMakr's Shopkeeper Dashboard | Login">
-	<meta property="og:description" content="FileMakr's Shopkeeper Dashboard | Login">
-	<meta property="og:image" content="social-image.png">
-	<meta name="format-detection" content="telephone=no">
-	
-	<!-- PAGE TITLE HERE -->
-	<title>FileMakr's Shopkeeper Dashboard | Login</title>
-	
-	<!-- FAVICONS ICON -->
-	<link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif">
-	<link href="/crm/vendor/bootstrap-select/dist/css/bootstrap-select.min.css" rel="stylesheet">
-   <link href="/crm/css/style.css" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MERN Training Program — FileMakr ambassador login. Complete daily attendance tasks and track your progress.">
+  <meta name="robots" content="noindex, nofollow">
+  <title>MERN Training Program | Ambassador Login — FileMakr</title>
+  <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #0f172a;
+      --bg-panel: #1e293b;
+      --accent: #10b981;
+      --accent-dim: rgba(16, 185, 129, 0.15);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --card: #ffffff;
+      --card-border: #e2e8f0;
+      --input-bg: #f1f5f9;
+      --primary: #0d9488;
+      --primary-hover: #0f766e;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+    }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        padding: 2rem 1.5rem 1.5rem !important;
+        min-height: auto !important;
+      }
+      .hero-illustration {
+        display: none;
+      }
+    }
+
+    .hero {
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(16, 185, 129, 0.18), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(13, 148, 136, 0.12), transparent),
+        linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-panel) 100%);
+      border-right: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .tech-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      background: var(--accent-dim);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .hero h1 {
+      font-size: clamp(1.65rem, 3.5vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0 0 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-lead {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0 0 1.5rem;
+      max-width: 28rem;
+    }
+
+    .hero-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .hero-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      margin-bottom: 0.9rem;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    .hero-list li::before {
+      content: '';
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      margin-top: 0.45rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    .hero-illustration {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      text-align: center;
+    }
+
+    .hero-illustration svg {
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      opacity: 0.92;
+    }
+
+    .hero-footer {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2rem;
+    }
+
+    .hero-footer a {
+      color: #5eead4;
+      text-decoration: none;
+    }
+
+    .hero-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--card-border);
+      padding: 2.25rem 2rem 2rem;
+    }
+
+    .card-logo {
+      display: block;
+      width: 52px;
+      height: auto;
+      margin-bottom: 1.25rem;
+      border-radius: 10px;
+    }
+
+    .card-kicker {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 0.35rem;
+    }
+
+    .card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .card-sub {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin: 0 0 1.5rem;
+      line-height: 1.5;
+    }
+
+    .alert {
+      font-size: 0.875rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      margin-bottom: 1.25rem;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 0.4rem;
+    }
+
+    .field {
+      margin-bottom: 1.15rem;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input[type="tel"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      background: var(--input-bg);
+      color: #0f172a;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+      background: #fff;
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      padding: 6px;
+      cursor: pointer;
+      color: #64748b;
+      border-radius: 6px;
+      line-height: 0;
+    }
+
+    .toggle-pass:hover {
+      color: #0f172a;
+      background: #e2e8f0;
+    }
+
+    .btn-submit {
+      width: 100%;
+      margin-top: 0.25rem;
+      padding: 0.85rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary) 0%, #0f766e 100%);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.12s;
+      box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .card-note {
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.5;
+    }
+  </style>
 </head>
-
-<body class="vh-100">
-    <div class="authincation h-100">
-        <div class="container-fluid h-100">
-            <div class="row h-100">
-				<div class="col-lg-6 col-md-12 col-sm-12 mx-auto align-self-center">
-					<div class="login-form">
-						<div class="text-center">
-
-							<h3 class="title">Sign In</h3>
-							<p>Sign in to your account to start using FileMakr Shopkeeper</p>
-							<p style="color: red;"><%=msg%></p>
-
-
-						</div>
-						<form action="/shopkeeper/login" method="post">
-							<div class="mb-4">
-								<label class="mb-1 text-dark">Mobile Number</label>
-								<input type="number" name="number" class="form-control form-control">
-							</div>
-							<div class="mb-4 position-relative">
-								<label class="mb-1 text-dark">Password</label>
-								<input type="password" name="password" id="dz-password" class="form-control">
-								<span class="show-pass eye">
-								
-									<i class="fa fa-eye-slash"></i>
-									<i class="fa fa-eye"></i>
-								
-								</span>
-							</div>
-							<!-- <div class="form-row d-flex justify-content-between mt-4 mb-2">
-								<div class="mb-4">
-									<div class="form-check custom-checkbox mb-3">
-										<input type="checkbox" class="form-check-input" id="customCheckBox1" required="">
-										<label class="form-check-label" for="customCheckBox1">Remember my preference</label>
-									</div>
-								</div>
-								<div class="mb-4">
-									<a href="page-forgot-password.html" class="btn-link text-primary">Forgot Password?</a>
-								</div>
-							</div> -->
-							<div class="text-center mb-4">
-								<button type="submit" class="btn btn-primary btn-block">Sign In</button>
-							</div>
-							
-							
-						
-						</form>
-					</div>
-				</div>
-                <div class="col-xl-6 col-lg-6">
-					<div class="pages-left h-100">
-						<div class="login-content">
-							<a href="index.html"><img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" class="mb-3 logo-dark" style="width: 150px;" alt=""></a>
-							<a href="index.html"><img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" class="mb-3 logo-light" style="width: 150px;" alt=""></a>
-							
-						</div>
-						<div class="login-media text-center">
-							<img src="/crm/images/login.png" alt="">
-						</div>
-					</div>
-                </div>
-            </div>
+<body>
+  <div class="page">
+    <section class="hero" aria-label="Program overview">
+      <div>
+        <div class="badge-row" aria-hidden="true">
+          <span class="tech-badge">MongoDB</span>
+          <span class="tech-badge">Express</span>
+          <span class="tech-badge">React</span>
+          <span class="tech-badge">Node.js</span>
         </div>
-    </div>
+        <h1>MERN Training Program</h1>
+        <p class="hero-lead">
+          Sign in to access your ambassador dashboard, complete <strong style="color: #e2e8f0;">daily attendance tasks</strong>, and stay on track with the FileMakr campus program.
+        </p>
+        
+      </div>
+      <div class="hero-illustration" aria-hidden="true">
+        <svg viewBox="0 0 400 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="120" y="40" width="200" height="130" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+          <rect x="135" y="55" width="170" height="8" rx="2" fill="#334155"/>
+          <rect x="135" y="72" width="120" height="6" rx="2" fill="#475569"/>
+          <rect x="135" y="88" width="90" height="40" rx="4" fill="#0f766e" opacity="0.4"/>
+          <rect x="235" y="88" width="55" height="18" rx="3" fill="#10b981" opacity="0.6"/>
+          <circle cx="160" cy="165" r="22" fill="#0d9488" opacity="0.9"/>
+          <path d="M154 160l6 6 12-14" stroke="#f8fafc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="280" cy="175" r="18" fill="#334155"/>
+          <rect x="60" y="100" width="50" height="36" rx="6" fill="#334155" stroke="#475569"/>
+          <path d="M75 118h20M75 125h14" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="320" cy="95" r="14" fill="#fbbf24" opacity="0.85"/>
+        </svg>
+      </div>
+      <p class="hero-footer">
+        Powered by <a href="https://www.filemakr.com" target="_blank" rel="noopener noreferrer">FileMakr</a> · Campus Brand Ambassador Program
+      </p>
+    </section>
 
-<!--**********************************
-	Scripts
-***********************************-->
-<!-- Required vendors -->
- <script src="/crm/vendor/global/global.min.js"></script>
-<script src="/crm/vendor/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
-<script src="/crm/js/deznav-init.js"></script>
-<script src="/crm/js/demo.js"></script>
-  <script src="/crm/js/custom.js"></script>
-<script src="/crm/js/styleSwitcher.js"></script>
+    <section class="panel">
+      <div class="card">
+        <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="FileMakr" class="card-logo" width="52" height="52">
+        <p class="card-kicker">Ambassador access</p>
+        <h2>Welcome back</h2>
+        <p class="card-sub">Log in with your credentials to open your dashboard and manage daily attendance tasks.</p>
 
+        <% if (typeof msg !== 'undefined' && msg) { %>
+          <div class="alert" role="alert"><%= msg %></div>
+        <% } %>
+
+        <form action="/mern-training-program/login" method="post" autocomplete="on">
+          <div class="field">
+            <label for="login-number">Mobile number</label>
+            <input id="login-number" type="tel" name="number" inputmode="numeric" autocomplete="username" placeholder="Registered mobile number" required>
+          </div>
+          <div class="field">
+            <label for="login-password">Password</label>
+            <div class="input-wrap">
+              <input id="login-password" type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required style="padding-right: 2.75rem;">
+              <button type="button" class="toggle-pass" id="toggle-password" aria-label="Show password">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit">Sign in to dashboard</button>
+        </form>
+        <p class="card-note">Having trouble signing in? Contact your program coordinator or FileMakr support.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var input = document.getElementById('login-password');
+      var btn = document.getElementById('toggle-password');
+      if (!input || !btn) return;
+      btn.addEventListener('click', function () {
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        btn.innerHTML = show
+          ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+          : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      });
+    })();
+  </script>
 </body>
-
-<!-- Mirrored from w3crm.dexignzone.com/xhtml/page-login.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 19 Jan 2024 16:39:54 GMT -->
 </html>

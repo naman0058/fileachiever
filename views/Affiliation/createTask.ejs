@@ -15,15 +15,49 @@
     <div class="row justify-content-center">
       <div class="col-xl-8 col-lg-10 col-md-12">
         <div class="card shadow-sm rounded border-0">
-          <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Create New Task</h4>
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h4 class="mb-0">
+              <% if (mode === 'edit_daily') { %>Edit today’s daily task<% } else if (mode === 'new_hustle') { %>Create hustle task (today)<% } else { %>Create New Task<% } %>
+            </h4>
           </div>
           <div class="card-body">
-            <form method="POST" action="/affiliate/create-task" onsubmit="return setRichText()">
-              
+            <% if (msg) { %>
+              <div class="alert alert-success"><%= msg %></div>
+            <% } %>
+            <% if (mode === 'edit_daily') { %>
+              <div class="alert alert-info">
+                Today’s <strong>daily</strong> task already exists — you can only update it (no duplicate).
+                <% if (existingDaily) { %>
+                  <a href="/affiliate/create-task?new=hustle" class="alert-link">Create today’s hustle task instead</a>
+                <% } %>
+              </div>
+            <% } %>
+            <% if (mode === 'new_hustle') { %>
+              <div class="alert alert-secondary">
+                You are creating a <strong>hustle</strong> task for today.
+                <a href="/affiliate/create-task" class="alert-link">Back to daily task</a>
+              </div>
+            <% } %>
+            <div id="instagram-task-alert" class="alert alert-warning d-none" role="alert"></div>
+
+            <form method="POST" action="/affiliate/create-task" id="create-task-form" onsubmit="return setRichText()">
+
+              <% if (mode !== 'new_hustle') { %>
+              <div class="mb-3">
+                <label class="form-label">Task source</label>
+                <select id="task_template" name="task_template" class="form-select">
+                  <option value="custom">Custom task</option>
+                  <option value="instagram">Instagram — today’s latest post (daily attendance)</option>
+                </select>
+                <small class="text-muted">Instagram loads the latest post and fills title, link, and instructions. Applies to <strong>daily</strong> tasks only.</small>
+              </div>
+              <% } else { %>
+              <input type="hidden" name="task_template" value="custom">
+              <% } %>
+
               <div class="mb-3">
                 <label class="form-label">Title</label>
-                <input type="text" name="title" class="form-control" placeholder="Enter task title" required>
+                <input type="text" name="title" id="task_title" class="form-control" placeholder="Enter task title" required>
               </div>
 
               <div class="mb-3">
@@ -32,18 +66,48 @@
                 <input type="hidden" name="description" id="description">
               </div>
 
-              <div class="mb-4">
+              <% if (mode === 'edit_daily') { %>
+              <div class="mb-3" id="task-type-edit-daily-wrap">
+                <label class="form-label">Task type</label>
+                <p class="text-muted mb-0">Daily (today’s attendance task)</p>
+                <input type="hidden" name="task_type" value="daily">
+              </div>
+              <div id="task-type-custom-wrap" class="d-none"></div>
+              <div id="task-type-instagram-wrap" class="d-none">
+                <input type="hidden" name="task_type" id="task_type_instagram" value="daily" disabled>
+              </div>
+              <% } else if (mode === 'new_hustle') { %>
+              <div class="mb-3">
                 <label class="form-label">Task Type</label>
-                <select name="task_type" class="form-select" required>
+                <p class="text-muted mb-0">Hustle</p>
+                <input type="hidden" name="task_type" value="hustle">
+              </div>
+              <% } else { %>
+              <div class="mb-3" id="task-type-custom-wrap">
+                <label class="form-label">Task Type</label>
+                <select name="task_type" id="task_type_custom" class="form-select" required>
                   <option value="" disabled selected>Select task type</option>
                   <option value="daily">Daily Task</option>
                   <option value="hustle">Hustle Task</option>
                 </select>
               </div>
+              <div id="task-type-instagram-wrap" class="mb-3 d-none">
+                <label class="form-label">Task Type</label>
+                <input type="text" class="form-control" value="Daily Task (fixed)" readonly disabled>
+                <input type="hidden" name="task_type" id="task_type_instagram" value="daily" disabled>
+              </div>
+              <% } %>
 
-              <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-success px-4">
+              <div class="d-flex justify-content-end align-items-center gap-2">
+                <span id="instagram-loading" class="text-muted small d-none">Loading latest Instagram post…</span>
+                <button type="submit" class="btn btn-success px-4" id="submit-btn">
+                  <% if (mode === 'edit_daily') { %>
+                  <i class="el el-pencil me-1"></i> Update daily task
+                  <% } else if (mode === 'new_hustle') { %>
+                  <i class="el el-plus me-1"></i> Create hustle task
+                  <% } else { %>
                   <i class="el el-plus me-1"></i> Create Task
+                  <% } %>
                 </button>
               </div>
 
@@ -59,10 +123,117 @@
 
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script>
+  const MODE = <%- JSON.stringify(typeof mode !== 'undefined' ? mode : 'new') %>;
+  const EXISTING_DAILY = <%- JSON.stringify(typeof existingDaily !== 'undefined' ? existingDaily : null) %>;
+
   const quill = new Quill('#quill-editor', {
     theme: 'snow',
     placeholder: 'Write your task description here...'
   });
+
+  const templateEl = document.getElementById('task_template');
+  const customWrap = document.getElementById('task-type-custom-wrap');
+  const instagramWrap = document.getElementById('task-type-instagram-wrap');
+  const taskTypeCustom = document.getElementById('task_type_custom');
+  const taskTypeInstagram = document.getElementById('task_type_instagram');
+  const titleInput = document.getElementById('task_title');
+  const igAlert = document.getElementById('instagram-task-alert');
+  const igLoading = document.getElementById('instagram-loading');
+
+  function setTemplateUI(modeIg) {
+    if (MODE === 'edit_daily') {
+      if (modeIg === 'instagram') {
+        if (instagramWrap) {
+          instagramWrap.classList.remove('d-none');
+          const h = document.getElementById('task_type_instagram');
+          if (h) { h.setAttribute('name', 'task_type'); h.removeAttribute('disabled'); }
+        }
+        const editWrap = document.getElementById('task-type-edit-daily-wrap');
+        if (editWrap) {
+          const hid = editWrap.querySelector('input[name="task_type"]');
+          if (hid) { hid.removeAttribute('name'); }
+        }
+      } else {
+        if (instagramWrap) {
+          instagramWrap.classList.add('d-none');
+          const h = document.getElementById('task_type_instagram');
+          if (h) { h.removeAttribute('name'); h.setAttribute('disabled', 'disabled'); }
+        }
+        const editWrap = document.getElementById('task-type-edit-daily-wrap');
+        if (editWrap) {
+          const hid = editWrap.querySelector('input[type="hidden"]');
+          if (hid) hid.setAttribute('name', 'task_type');
+        }
+      }
+      return;
+    }
+
+    igAlert.classList.add('d-none');
+    igAlert.textContent = '';
+    if (modeIg === 'instagram') {
+      customWrap.classList.add('d-none');
+      instagramWrap.classList.remove('d-none');
+      taskTypeCustom.removeAttribute('name');
+      taskTypeCustom.removeAttribute('required');
+      taskTypeInstagram.setAttribute('name', 'task_type');
+      taskTypeInstagram.removeAttribute('disabled');
+    } else {
+      customWrap.classList.remove('d-none');
+      instagramWrap.classList.add('d-none');
+      taskTypeCustom.setAttribute('name', 'task_type');
+      taskTypeCustom.setAttribute('required', 'required');
+      taskTypeInstagram.removeAttribute('name');
+      taskTypeInstagram.setAttribute('disabled', 'disabled');
+    }
+  }
+
+  async function loadInstagramTemplate() {
+    igLoading.classList.remove('d-none');
+    try {
+      const r = await fetch('/affiliate/api/instagram/latest-post', { credentials: 'same-origin' });
+      const data = await r.json().catch(function () { return {}; });
+      if (!r.ok) {
+        throw new Error(data.error || 'Request failed');
+      }
+      titleInput.value = data.title || '';
+      quill.clipboard.dangerouslyPasteHTML(data.descriptionHtml || '<p></p>');
+    } catch (e) {
+      igAlert.textContent = e.message || 'Could not load Instagram post. Check Affiliate → Config (token, Instagram User ID) and .env FACEBOOK_APP_ID / FACEBOOK_APP_SECRET for auto-refresh.';
+      igAlert.classList.remove('d-none');
+      titleInput.value = '';
+      quill.setText('');
+    } finally {
+      igLoading.classList.add('d-none');
+    }
+  }
+
+  if (templateEl) {
+    templateEl.addEventListener('change', function () {
+      const v = templateEl.value;
+      setTemplateUI(v === 'instagram' ? 'instagram' : 'custom');
+      if (v === 'instagram') {
+        loadInstagramTemplate();
+      } else if (MODE !== 'edit_daily') {
+        titleInput.value = '';
+        quill.setText('');
+      }
+    });
+  }
+
+  if (MODE === 'edit_daily' && EXISTING_DAILY) {
+    titleInput.value = EXISTING_DAILY.title || '';
+    quill.clipboard.dangerouslyPasteHTML(EXISTING_DAILY.description || '<p></p>');
+    const desc = (EXISTING_DAILY.description || '').toLowerCase();
+    if (desc.includes('task link:') && desc.includes('instagram')) {
+      if (templateEl) templateEl.value = 'instagram';
+      setTemplateUI('instagram');
+    } else {
+      if (templateEl) templateEl.value = 'custom';
+      setTemplateUI('custom');
+    }
+  } else if (MODE === 'new') {
+    setTemplateUI('custom');
+  }
 
   function setRichText() {
     const html = quill.root.innerHTML;

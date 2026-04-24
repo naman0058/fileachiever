@@ -19,11 +19,11 @@ router.get('/', (req, res) => {
 
 
 router.post('/update-token', (req, res) => {
-  const { instagramAccessToken, youtubeApiKey } = req.body;
+  const { instagramAccessToken, youtubeApiKey, instagramUserId } = req.body;
 
   pool.query(
-    `UPDATE config SET instagramAccessToken = ?, youtubeApiKey = ? WHERE id = 1`,
-    [instagramAccessToken, youtubeApiKey],
+    `UPDATE config SET instagramAccessToken = ?, youtubeApiKey = ?, instagramUserId = ? WHERE id = 1`,
+    [instagramAccessToken, youtubeApiKey, instagramUserId || null],
     (err, result) => {
       if (err) throw err;
       res.redirect('back');

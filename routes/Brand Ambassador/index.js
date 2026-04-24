@@ -21,6 +21,7 @@ const cloudinary = require('cloudinary').v2
 
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const projectReportShared = require('../projectReportShared');
           
 cloudinary.config({ 
   cloud_name: 'dggf8vl9p', 
@@ -831,11 +832,8 @@ router.post('/add-project/insert',upload.single('zip'),(req,res)=> {
 
 router.get('/dashboard/project/report/:status', async (req, res) => {
   try {
-    // Query to get the btech_project with the specified status
-    const projectDetails = await queryAsync(`SELECT * FROM btech_project WHERE status = '${req.params.status}' ORDER BY id DESC`);
-
-   
-    res.render(`${folder}/projectReport`,{projectDetails,status:req.params.status});
+    const projectDetails = await projectReportShared.fetchProjectReportsByStatus(req.params.status);
+    res.render(`${folder}/projectReport`, { projectDetails, status: req.params.status });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
@@ -858,12 +856,17 @@ router.get('/dashboard/customize/order/:status', async (req, res) => {
 
 
 
-router.post('/dashboard/project/report/updateStatus',(req,res)=>{
-  pool.query(`update btech_project set status = '${req.body.status}' where id = '${req.body.id}'`,(err,result)=>{
-    if(err) throw err;
-    else res.json({msg:'success'})
-  })
-})
+router.post('/dashboard/project/report/updateStatus', (req, res) => {
+  const tbl = projectReportShared.safeTableName(req.body && req.body.source_table);
+  pool.query(
+    `UPDATE \`${tbl}\` SET \`status\` = ? WHERE \`id\` = ?`,
+    [req.body.status, req.body.id],
+    (err) => {
+      if (err) throw err;
+      else res.json({ msg: 'success' });
+    }
+  );
+});
 
 
 router.post('/dashboard/customizeOrder/updateStatus',(req,res)=>{
@@ -893,30 +896,30 @@ router.post('/dashboard/payment/response/updateStatus',(req,res)=>{
 const emailTemplates = require('../utility/emailTemplates');
 const verify = require('../verify');
 
-router.get('/dashboard/project/report/send/reminder', async(req,res)=>{
-  console.log(req.query)
-  const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', req.query.project_name);
-  const userMessage1 = emailTemplates.beforprojectreport.userMessage(req.query.name,req.query.project_name,req.query.roll_number);
-  await verify.sendUserMail(req.query.email,userSubject1,userMessage1);
-
-//    await verify.sendWhatsAppMessage(
-//     +91 + req.query.number,
-//     'project_report_reminder', // Template name
-//     'en_US', // Language code
-//     [req.query.name.toUpperCase(), req.query.project_name], // Body parameters
-//     [req.query.roll_number] // Button parameters
-// );
-
-
-pool.query(`update btech_project set status = 'reminder_sent' where id = '${req.query.id}'`,(err,result)=>{
-  if(err) throw err;
-  else {
-    res.json({msg:'success'})
+router.get('/dashboard/project/report/send/reminder', async (req, res) => {
+  console.log(req.query);
+  if (req.query.email) {
+    const userSubject1 = emailTemplates.beforprojectreport.userSubject.replace('{{Project_Name}}', req.query.project_name);
+    const userMessage1 = emailTemplates.beforprojectreport.userMessage(
+      req.query.name,
+      req.query.project_name,
+      req.query.roll_number
+    );
+    await verify.sendUserMail(req.query.email, userSubject1, userMessage1);
   }
-})
-
-
-})
+  const tbl = projectReportShared.safeTableName(req.query.source_table);
+  pool.query(
+    `UPDATE \`${tbl}\` SET \`status\` = 'reminder_sent' WHERE \`id\` = ?`,
+    [req.query.id],
+    (err) => {
+      if (err) {
+        console.error('reminder status update', tbl, err);
+        return res.status(500).json({ msg: 'error' });
+      }
+      res.json({ msg: 'success' });
+    }
+  );
+});
 
 
 
@@ -949,24 +952,23 @@ pool.query(`update payment_request set status = 'reminder_sent' where id = '${re
 
 
 
-router.get('/dashboard/project/report/send/rating', async(req,res)=>{
-  console.log(req.query)
-             await verify.sendWhatsAppMessage(
-                +91 + req.query.number,
-                'reviewtempelate', // Template name
-                'en_US', // Language code
-                [req.query.name.toUpperCase(),req.query.project_name+' Project Report '] // Body parameters
-            );
-
-            pool.query(`update btech_project set israting = 'send' where id = '${req.query.id}'`,(err,result)=>{
-              if(err) throw err;
-              else {
-                res.json({msg:'success'})
-              }
-            })
-
-  
-})
+router.get('/dashboard/project/report/send/rating', async (req, res) => {
+  console.log(req.query);
+  await verify.sendWhatsAppMessage(
+    +91 + +req.query.number,
+    'reviewtempelate',
+    'en_US',
+    [String(req.query.name || '').toUpperCase(), String(req.query.project_name || '') + ' Project Report ']
+  );
+  const tbl = projectReportShared.safeTableName(req.query.source_table);
+  pool.query(`UPDATE \`${tbl}\` SET \`israting\` = 'send' WHERE \`id\` = ?`, [req.query.id], (err) => {
+    if (err) {
+      console.error('rating israting update', tbl, err);
+      return res.status(500).json({ msg: 'error' });
+    }
+    res.json({ msg: 'success' });
+  });
+});
 
 
 
@@ -2615,7 +2617,7 @@ router.get('/credentials/sent', async (req, res) => {
           <p>You can now log in to your brand ambassador dashboard to begin your journey:</p>
 
           <p style="text-align: center; margin: 20px 0;">
-            <a href="https://www.filemakr.com/shopkeeper" target="_blank" 
+            <a href="https://www.filemakr.com/mern-training-program" target="_blank" 
               style="background-color: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">
               🔗 Go to Dashboard
             </a>
