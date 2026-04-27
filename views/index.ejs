@@ -1,123 +1,701 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Filemakr - Final Year Project Solutions</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="FileMakr — final-year project reports, source code, live demos, and documentation for B.Tech, M.Tech, BCA, MCA, and more. IEEE-ready PDFs, diagrams, and working code.">
+  <title>FileMakr — Final Year Project Reports &amp; Source Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0e1220;
+      --muted: #5c6370;
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --brand: #2a47ff;
+      --brand-dark: #1e36d6;
+      --accent: #f17f23;
+      --ring: rgba(42, 71, 255, 0.22);
+      --shadow: 0 8px 32px rgba(14, 18, 32, 0.08);
+      --shadow-sm: 0 2px 12px rgba(14, 18, 32, 0.06);
+      --radius: 16px;
+      --nav-h: 64px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
 
-<body class="bg-gray-50 text-gray-800 font-sans">
-  <!-- Header -->
-  <header class="bg-white shadow-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-indigo-600">Filemakr</h1>
-      <nav class="space-x-6 text-gray-700">
-        <a href="#demo" class="hover:text-indigo-600">Live Demos</a>
-        <a href="#tech" class="hover:text-indigo-600">Technologies</a>
-        <a href="#reports" class="hover:text-indigo-600">Project Reports</a>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--brand); text-underline-offset: 3px; }
+    a:hover { color: var(--brand-dark); }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      padding: 12px 16px;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+      z-index: 10000;
+    }
+    .skip-link:focus { left: 12px; top: 12px; outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid rgba(14, 18, 32, 0.06);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px max(16px, env(safe-area-inset-left)) 12px max(16px, env(safe-area-inset-right));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: var(--nav-h);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+      box-shadow: 0 4px 14px rgba(42, 71, 255, 0.35);
+    }
+    .nav-desktop {
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    @media (min-width: 880px) {
+      .nav-desktop { display: flex; }
+      .nav-toggle { display: none; }
+    }
+    .nav-desktop a {
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 8px 14px;
+      border-radius: 10px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-desktop a:hover {
+      background: rgba(42, 71, 255, 0.08);
+      color: var(--brand);
+    }
+    .nav-cta {
+      background: var(--brand) !important;
+      color: #fff !important;
+      margin-left: 4px;
+    }
+    .nav-cta:hover {
+      background: var(--brand-dark) !important;
+      color: #fff !important;
+    }
+
+    .nav-toggle {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(14, 18, 32, 0.1);
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 0;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--ink);
+      border-radius: 1px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+    .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-mobile {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 16px 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-top: 1px solid rgba(14, 18, 32, 0.06);
+      background: #fff;
+    }
+    .nav-mobile[hidden] { display: none !important; }
+    .nav-mobile a {
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 600;
+      padding: 14px 12px;
+      border-radius: 12px;
+    }
+    .nav-mobile a:hover, .nav-mobile a:focus-visible { background: rgba(42, 71, 255, 0.06); outline: none; }
+    .nav-mobile .nav-cta { text-align: center; margin-top: 6px; }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(2.5rem, 6vw, 4.5rem) max(16px, env(safe-area-inset-left)) clamp(3rem, 8vw, 5rem) max(16px, env(safe-area-inset-right));
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(42, 71, 255, 0.14), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 85% 30%, rgba(241, 127, 35, 0.12), transparent 50%),
+        linear-gradient(180deg, #eef1f8 0%, var(--bg) 100%);
+      z-index: -1;
+    }
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      gap: clamp(2rem, 5vw, 3rem);
+      align-items: center;
+    }
+    @media (min-width: 900px) {
+      .hero-inner { grid-template-columns: 1.05fr 0.95fr; }
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--brand);
+      margin-bottom: 12px;
+    }
+    .hero-kicker::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(241, 127, 35, 0.25);
+    }
+
+    .hero h1 {
+      margin: 0 0 16px;
+      font-size: clamp(1.85rem, 4.5vw, 2.65rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+    .hero-lead {
+      margin: 0 0 24px;
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: var(--muted);
+      max-width: 36em;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 0 22px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.9375rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 6px 24px rgba(42, 71, 255, 0.35);
+    }
+    .btn-primary:hover { background: var(--brand-dark); color: #fff; transform: translateY(-1px); }
+    .btn-secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid rgba(14, 18, 32, 0.12);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-secondary:hover { border-color: var(--brand); color: var(--brand); }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      max-width: 420px;
+    }
+    @media (max-width: 400px) {
+      .hero-stats { grid-template-columns: 1fr; }
+    }
+    .stat {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(14, 18, 32, 0.06);
+      border-radius: 14px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .stat span { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+
+    .hero-panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(14, 18, 32, 0.07);
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 4vw, 28px);
+      position: relative;
+    }
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(42, 71, 255, 0.2), rgba(241, 127, 35, 0.15));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .panel-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .check-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+    .check-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .check-list li::before {
+      content: "✓";
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: rgba(42, 71, 255, 0.1);
+      color: var(--brand);
+      font-size: 0.75rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Sections */
+    .section {
+      padding: clamp(3rem, 6vw, 4.5rem) max(16px, env(safe-area-inset-left)) clamp(3rem, 7vw, 5rem) max(16px, env(safe-area-inset-right));
+    }
+    .section-alt { background: #fff; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+
+    .section-head {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 40px;
+    }
+    .section-head h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.5rem, 3.5vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .section-head p { margin: 0; color: var(--muted); font-size: 1.05rem; }
+
+    .card-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 640px) { .card-grid.cols-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1000px) { .card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); } }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(14, 18, 32, 0.07);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+      border-color: rgba(42, 71, 255, 0.2);
+    }
+    .card-tag {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      background: rgba(241, 127, 35, 0.1);
+      padding: 5px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      align-self: flex-start;
+    }
+    .card h3 { margin: 0 0 10px; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
+    .card p { margin: 0 0 16px; color: var(--muted); font-size: 0.9375rem; flex-grow: 1; }
+    .card-link {
+      font-weight: 800;
+      text-decoration: none;
+      color: var(--brand);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: auto;
+    }
+    .card-link:hover { gap: 10px; }
+
+    .tech-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 700px) { .tech-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .tech-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(14, 18, 32, 0.07);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .tech-card h3 {
+      margin: 0 0 16px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tech-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .tech-dot.php { background: #777bb4; }
+    .tech-dot.node { background: #68a063; }
+    .tech-dot.py { background: #3776ab; }
+    .tech-card ul { margin: 0; padding-left: 1.15rem; color: var(--muted); font-size: 0.9rem; }
+    .tech-card li { margin-bottom: 8px; }
+
+    .cta-band {
+      background: linear-gradient(105deg, var(--brand) 0%, #4a2fa8 45%, var(--accent) 100%);
+      color: #fff;
+      text-align: center;
+      padding: clamp(2.5rem, 5vw, 3.5rem) max(16px, env(safe-area-inset-left)) clamp(2.5rem, 5vw, 3.5rem) max(16px, env(safe-area-inset-right));
+    }
+    .cta-band h2 { margin: 0 0 12px; font-size: clamp(1.35rem, 3vw, 1.75rem); font-weight: 800; }
+    .cta-band p { margin: 0 0 22px; opacity: 0.92; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .cta-band .btn-primary {
+      background: #fff;
+      color: var(--brand);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+    }
+    .cta-band .btn-primary:hover { background: #f0f2ff; color: var(--brand-dark); }
+
+    /* Footer */
+    .site-footer {
+      background: var(--ink);
+      color: rgba(255, 255, 255, 0.78);
+      padding: 48px max(16px, env(safe-area-inset-left)) calc(28px + var(--safe-bottom)) max(16px, env(safe-area-inset-right));
+      font-size: 0.875rem;
+    }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-grid {
+      display: grid;
+      gap: 32px;
+      grid-template-columns: 1fr;
+      margin-bottom: 36px;
+    }
+    @media (min-width: 700px) {
+      .footer-grid { grid-template-columns: 1.4fr repeat(3, 1fr); }
+    }
+    .footer-brand { font-weight: 800; color: #fff; font-size: 1.1rem; margin-bottom: 10px; }
+    .footer-col h4 { margin: 0 0 14px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.45); }
+    .footer-col ul { list-style: none; margin: 0; padding: 0; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a { color: rgba(255, 255, 255, 0.85); text-decoration: none; font-weight: 500; }
+    .footer-col a:hover { color: #fff; text-decoration: underline; }
+    .footer-bottom {
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.8125rem;
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="/" aria-label="FileMakr home">
+        <span class="logo-mark" aria-hidden="true"></span>
+        FileMakr
+      </a>
+      <nav class="nav-desktop" aria-label="Primary">
+        <a href="/demo">Live demos</a>
+        <a href="/source-code">Source code</a>
+        <a href="/final-year-project-ideas">Project ideas</a>
+        <a href="/btech-final-year-project-report">Reports</a>
+        <a class="nav-cta" href="/source-code">Browse projects</a>
       </nav>
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div id="mobile-nav" class="nav-mobile" hidden>
+      <a href="/demo">Live demos</a>
+      <a href="/source-code">Source code</a>
+      <a href="/final-year-project-ideas">Project ideas</a>
+      <a href="/btech-final-year-project-report">Project reports</a>
+      <a class="nav-cta btn btn-primary" href="/source-code">Browse projects</a>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="bg-indigo-600 text-white py-20">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <h2 class="text-4xl font-bold mb-4">Your Final Year Project Partner</h2>
-      <p class="text-lg mb-6">We provide source code and complete documentation for B.Tech, M.Tech, BCA, and MCA students.</p>
-      <a href="#demo" class="bg-white text-indigo-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-200">Explore Projects</a>
-    </div>
-  </section>
-
-  <!-- Live Demo Section -->
-  <section id="demo" class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
-      <h3 class="text-3xl font-semibold text-center text-indigo-600 mb-10">Live Demo Projects</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="border p-6 rounded-lg shadow hover:shadow-lg">
-          <h4 class="text-xl font-bold mb-2">Online Food Ordering System</h4>
-          <p class="text-sm mb-3">Developed in PHP & MySQL</p>
-          <a href="#" class="text-indigo-600 font-semibold">View Demo →</a>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <div>
+          <p class="hero-kicker">Reports · Code · Demos</p>
+          <h1 id="hero-title">Everything you need for a standout final-year project</h1>
+          <p class="hero-lead">IEEE-style documentation, working source code, and browser-ready demos — built for B.Tech, M.Tech, BCA, MCA, and university-specific formats. Ship a submission-ready project without starting from zero.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/source-code">Explore source code</a>
+            <a class="btn btn-secondary" href="/demo">View live demos</a>
+          </div>
+          <div class="hero-stats" role="list">
+            <div class="stat" role="listitem"><strong>IEEE</strong><span>Report structure</span></div>
+            <div class="stat" role="listitem"><strong>Stack-ready</strong><span>PHP, MERN, Python</span></div>
+            <div class="stat" role="listitem"><strong>Fast</strong><span>WhatsApp support</span></div>
+          </div>
         </div>
-        <div class="border p-6 rounded-lg shadow hover:shadow-lg">
-          <h4 class="text-xl font-bold mb-2">Student Attendance System</h4>
-          <p class="text-sm mb-3">Built using MERN Stack</p>
-          <a href="#" class="text-indigo-600 font-semibold">View Demo →</a>
-        </div>
-        <div class="border p-6 rounded-lg shadow hover:shadow-lg">
-          <h4 class="text-xl font-bold mb-2">Hospital Management System</h4>
-          <p class="text-sm mb-3">Created with Java Spring Boot</p>
-          <a href="#" class="text-indigo-600 font-semibold">View Demo →</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Technology-wise Section -->
-  <section id="tech" class="py-16 bg-gray-100">
-    <div class="max-w-7xl mx-auto px-4">
-      <h3 class="text-3xl font-semibold text-center text-indigo-600 mb-10">Projects by Technology</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="bg-white p-6 rounded-lg shadow">
-          <h4 class="text-xl font-bold mb-4">PHP Projects</h4>
-          <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-            <li>Online News Portal</li>
-            <li>Hotel Booking System</li>
-            <li>Job Portal Website</li>
-          </ul>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow">
-          <h4 class="text-xl font-bold mb-4">Node.js Projects</h4>
-          <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-            <li>Task Management System</li>
-            <li>Realtime Chat App</li>
-            <li>Student Result Analyzer</li>
-          </ul>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow">
-          <h4 class="text-xl font-bold mb-4">Python Projects</h4>
-          <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-            <li>Email Spam Detector</li>
-            <li>Face Recognition Attendance</li>
-            <li>Weather Forecast Tool</li>
+        <div class="hero-panel" aria-label="What you get">
+          <p class="panel-title">What students use FileMakr for</p>
+          <ul class="check-list">
+            <li>Turnitin-conscious reports with chapters, diagrams, and test cases</li>
+            <li>Source code with database scripts and README you can defend in viva</li>
+            <li>Live demos to preview behaviour before you commit to a topic</li>
+            <li>Custom formatting when your college template is non-standard</li>
           </ul>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Project Reports Section -->
-  <section id="reports" class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
-      <h3 class="text-3xl font-semibold text-center text-indigo-600 mb-10">Project Reports & Documentation</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="border p-6 rounded-lg shadow hover:shadow-lg">
-          <h4 class="text-xl font-bold mb-3">B.Tech / M.Tech Reports</h4>
-          <p class="text-sm mb-4">Professional Turnitin-safe reports with proper TOC and chapter structure.</p>
-          <a href="#" class="text-indigo-600 font-semibold">Download Sample →</a>
+    <section id="demo" class="section section-alt" aria-labelledby="demo-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2 id="demo-title">Live demo projects</h2>
+          <p>Try real applications in the browser — same stacks we ship in source packages.</p>
         </div>
-        <div class="border p-6 rounded-lg shadow hover:shadow-lg">
-          <h4 class="text-xl font-bold mb-3">BCA / MCA Reports</h4>
-          <p class="text-sm mb-4">Clean, formatted reports with source code explanation and screen designs.</p>
-          <a href="#" class="text-indigo-600 font-semibold">View Format →</a>
-        </div>
-        <div class="border p-6 rounded-lg shadow hover:shadow-lg">
-          <h4 class="text-xl font-bold mb-3">Customized Reports</h4>
-          <p class="text-sm mb-4">We offer university-specific formatting and layout as per your guidelines.</p>
-          <a href="#" class="text-indigo-600 font-semibold">Request Custom Report →</a>
+        <div class="card-grid cols-3">
+          <article class="card">
+            <span class="card-tag">PHP · MySQL</span>
+            <h3>Online food ordering</h3>
+            <p>Full ordering flow with catalog, cart, and admin-friendly structure — ideal for hospitality and e-commerce topics.</p>
+            <a class="card-link" href="/demo">Open demo hub <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="card">
+            <span class="card-tag">MERN</span>
+            <h3>Student attendance</h3>
+            <p>Modern SPA patterns with API-backed records — strong fit for attendance, LMS, and campus portals.</p>
+            <a class="card-link" href="/demo">Open demo hub <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="card">
+            <span class="card-tag">Java · Spring</span>
+            <h3>Hospital management</h3>
+            <p>Enterprise-style modules for patients, staff, and scheduling — demonstrates layered architecture clearly.</p>
+            <a class="card-link" href="/demo">Open demo hub <span aria-hidden="true">→</span></a>
+          </article>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Footer -->
-  <footer class="bg-gray-800 text-white py-10">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="text-sm">&copy; 2025 Filemakr. All rights reserved. | Made for Final Year Students</p>
-      <p class="text-xs mt-2">Follow us on LinkedIn | YouTube | Instagram</p>
+    <section id="tech" class="section" aria-labelledby="tech-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2 id="tech-title">Projects by technology</h2>
+          <p>Pick your stack — we keep listings organised so you spend less time searching.</p>
+        </div>
+        <div class="tech-grid">
+          <div class="tech-card">
+            <h3><span class="tech-dot php" aria-hidden="true"></span> PHP &amp; MySQL</h3>
+            <ul>
+              <li>News portals &amp; CMS-style builds</li>
+              <li>Booking &amp; reservation systems</li>
+              <li>Job boards &amp; classifieds</li>
+            </ul>
+          </div>
+          <div class="tech-card">
+            <h3><span class="tech-dot node" aria-hidden="true"></span> Node.js &amp; MERN</h3>
+            <ul>
+              <li>Task &amp; ticket management</li>
+              <li>Realtime chat &amp; collaboration</li>
+              <li>Analytics &amp; dashboards</li>
+            </ul>
+          </div>
+          <div class="tech-card">
+            <h3><span class="tech-dot py" aria-hidden="true"></span> Python</h3>
+            <ul>
+              <li>ML &amp; classification projects</li>
+              <li>Computer vision &amp; attendance</li>
+              <li>Data tools &amp; APIs</li>
+            </ul>
+          </div>
+        </div>
+        <p style="text-align:center;margin:32px 0 0;color:var(--muted);font-weight:600;">
+          <a href="/source-code">Browse all categories on the source-code page →</a>
+        </p>
+      </div>
+    </section>
+
+    <section id="reports" class="section section-alt" aria-labelledby="reports-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2 id="reports-title">Project reports &amp; documentation</h2>
+          <p>Documentation that matches how evaluators actually read: clear structure, figures, and reproducible results.</p>
+        </div>
+        <div class="card-grid cols-3">
+          <article class="card">
+            <span class="card-tag">Engineering</span>
+            <h3>B.Tech / M.Tech reports</h3>
+            <p>Chapter flow, literature survey, system design, and testing — aligned with common IEEE and university rubrics.</p>
+            <a class="card-link" href="/btech-final-year-project-report">View B.Tech reports <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="card">
+            <span class="card-tag">Computer apps</span>
+            <h3>BCA / MCA reports</h3>
+            <p>Readable explanations, DFD/ER coverage, and UI walkthroughs that match practical viva questions.</p>
+            <a class="card-link" href="/bca-final-year-project-report">View BCA reports <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="card">
+            <span class="card-tag">Custom</span>
+            <h3>University-specific layouts</h3>
+            <p>When your department mandates margins, fonts, or chapter order, we align the deliverable to the template.</p>
+            <a class="card-link" href="https://wa.me/918319339945" target="_blank" rel="noopener noreferrer">Request on WhatsApp <span aria-hidden="true">→</span></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band" aria-labelledby="cta-title">
+      <h2 id="cta-title">Ready to lock your topic?</h2>
+      <p>Browse ideas, compare demos, then grab the report + code bundle that fits your timeline.</p>
+      <a class="btn btn-primary" href="/final-year-project-ideas">Explore project ideas</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">FileMakr</div>
+          <p style="margin:0;line-height:1.6;max-width:320px;">Final-year project reports, source code, and demos — structured for students and reviewers.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="/source-code">Source code</a></li>
+            <li><a href="/demo">Live demos</a></li>
+            <li><a href="/final-year-project-ideas">Project ideas</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Reports</h4>
+          <ul>
+            <li><a href="/btech-final-year-project-report">B.Tech</a></li>
+            <li><a href="/mtech-final-year-project-report">M.Tech</a></li>
+            <li><a href="/bca-final-year-project-report">BCA</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="https://wa.me/918319339945" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+            <li><a href="/">Home</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © 2026 FileMakr. Made for final-year students.
+      </div>
     </div>
   </footer>
-</body>
 
+  <script>
+    (function () {
+      var toggle = document.querySelector(".nav-toggle");
+      var panel = document.getElementById("mobile-nav");
+      if (!toggle || !panel) return;
+      toggle.addEventListener("click", function () {
+        var open = toggle.getAttribute("aria-expanded") === "true";
+        toggle.setAttribute("aria-expanded", open ? "false" : "true");
+        panel.hidden = open;
+      });
+    })();
+  </script>
+</body>
 </html>

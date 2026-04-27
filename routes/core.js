@@ -13,6 +13,12 @@ var onPageSeo = require('./onPageSeo');
 const verify = require('./verify');
 const emailTemplates = require('./utility/emailTemplates');
 const upload = require('./multer');
+const multer = require('multer');
+const { requireMernManagerToolkit, redirectMernManagerAddAmbassadorToPortal, mernPortalEmbedLocals } = require('./mernManagerAccess');
+const bulkAmbassadorUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+});
 const projectReportShared = require('./projectReportShared');
 
 const Tesseract = require('tesseract.js');
@@ -85,6 +91,8 @@ const Tesseract = require('tesseract.js');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
 const queryAsync2 = util.promisify(pool2.query).bind(pool);
+
+router.use(mernPortalEmbedLocals);
 
  
 
@@ -2350,16 +2358,7 @@ ORDER BY
 
 
 
-const nodemailer = require('nodemailer');
-
-
-      
-
-
-router.get('/add-ambassador',(req,res)=>{
-    res.render('add_ambassador',{msg:req.query.msg})
-})
-
+const { createFilemakrSmtpTransport } = require('../utils/filemakrSmtp');
 
 function generatePassword(name, number, address) {
   const base = (name + number + address).replace(/\s+/g, '');
@@ -2367,20 +2366,8 @@ function generatePassword(name, number, address) {
   return shuffled.substring(0, 8);
 }
 
-
-
-
-const transporter = nodemailer.createTransport({
-  pool: true,                 // <— pooled connections = better reliability
-   host: 'smtpout.secureserver.net',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'info@filemakr.com',
-      pass: '123a@*Anmanraspaa',
-    },
-  // Optional hardening for some providers:
-  // tls: { rejectUnauthorized: true, minVersion: 'TLSv1.2' },
+const transporter = createFilemakrSmtpTransport({
+  pool: true,
   maxConnections: 5,
   maxMessages: 50,
   connectionTimeout: 20_000,
@@ -2413,213 +2400,79 @@ async function sendWithRetry(mailOptions, { tries = 3, baseDelayMs = 800 } = {})
 }
 
 const moment = require("moment");
+const createAddAmbassadorPipeline = require('./addAmbassadorPipeline');
+const { addAmbassadorOne, parseSimpleAmbassadorCsv, csvRecordToAmbassadorBody } = createAddAmbassadorPipeline({
+  queryAsync,
+  generatePassword,
+  sendWithRetry,
+  moment,
+});
 
+router.get('/add-ambassador', redirectMernManagerAddAmbassadorToPortal, requireMernManagerToolkit, (req, res) => {
+  res.render('add_ambassador', {
+    msg: req.query.msg || '',
+    bulkError: req.query.bulkError || '',
+  });
+});
 
-
-router.post('/add-ambassador', async (req, res) => {
+router.post('/add-ambassador', requireMernManagerToolkit, async (req, res) => {
   try {
-    const { name, number, address, unique_code, email, instagram_id , referal_code } = req.body;
-    const password = generatePassword(name, number, address);
-
-    const start_date = moment().format('YYYY-MM-DD');
-    const end_date = moment().add(1.5, 'months').format('YYYY-MM-DD');
-
-    // Insert into DB and capture new ambassador id
-    const insertQuery = `
-      INSERT INTO shopkeeper 
-        (name, number, address, password, unique_code, email, instagram_id,
-         comission, discount, is_login_mail_send, is_password_mail_send, certificate_issued,referal_code)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 20, 5, 0, 0, 0,?)
-    `;
-    const insertResult = await queryAsync(insertQuery, [name, number, address, password, unique_code, email, instagram_id,referal_code]);
-    const brandAmbassadorId = insertResult.insertId;
-
-    // Verify SMTP before sending
-    await transporter.verify().catch(() => { /* ignore; some servers don't implement VRFY */ });
-
-    // --- Mails (subjects kept ASCII for reliability) ---
-    const offerLetterMail = {
-  from: `"FILEMAKR Team" <info@filemakr.com>`,
-  to: email,
-  subject: 'Welcome Letter – Campus Brand Ambassador at FileMakr',
-  html: `
-    <div style="font-family: Arial, Helvetica, sans-serif; line-height:1.6; color:#333;">
-  <h2>Dear ${name},</h2>
-
-  <p>Greetings from <strong>FileMakr</strong>!</p>
-
-  <p>
-    We are pleased to welcome you as a <strong>Campus Brand Ambassador</strong> for FileMakr at
-    <strong>${address}</strong>. Your ambassadorship runs from <strong>${start_date}</strong> to
-    <strong>${end_date}</strong>.
-  </p>
-
-  <p>
-    As part of this program, you will also receive access to our <strong>45 Days MERN Stack Training Program</strong>—
-    designed to help you transition from <strong>Student to Industry Professional</strong> through a structured,
-    project-based learning journey.
-  </p>
-
-  <h4>About FileMakr</h4>
-  <p>
-    FileMakr is a trusted academic solutions company operating since 2019, dedicated to empowering students with
-    practical skills and career-focused opportunities. Through our Campus Brand Ambassador Program, we provide a
-    structured <strong>45-day training in web and application development</strong>, along with
-    <strong>industry-recognized certifications</strong> and real-world professional exposure.
-  </p>
-
-  <h4>Our Vision (Zero to Hero)</h4>
-  <ul>
-    <li><strong>Transforming Beginners:</strong> We guide students from absolute basics to strong technical foundations.</li>
-    <li><strong>Industry-Oriented Learning:</strong> Training aligned with real tools, workflows, and technologies.</li>
-    <li><strong>Structured Mentorship:</strong> Continuous guidance from experienced mentors.</li>
-    <li><strong>Skills, Mindset &amp; Confidence:</strong> Building professional habits along with technical ability.</li>
-  </ul>
-
-  <h4>Roles &amp; Responsibilities (Campus Ambassador)</h4>
-  <ul>
-    <li>Promote FileMakr on campus (clubs, peers, faculty) and within your campus network.</li>
-    <li>Promote FileMakr on social media platforms in a professional and consistent manner.</li>
-    <li>Complete one simple daily task (approx. <strong>30 minutes/day</strong>).</li>
-    <li>Maintain professional conduct and timely communication.</li>
-  </ul>
-
-  <h4>Daily Task Process</h4>
-  <ul>
-    <li>Open your dashboard daily and complete the listed task(s).</li>
-    <li>Mark completion; tasks are counted only after verification.</li>
-    <li>Verified performance unlocks benefits and recognition.</li>
-  </ul>
-
-  <h4>45 Days MERN Stack Training Program (Key Details)</h4>
-  <p><strong>Duration:</strong> 45 Days | <strong>Daily:</strong> 1 Hour | <strong>Format:</strong> Practical &amp; Project-Based</p>
-
-  <h4>Training Methodology</h4>
-  <ul>
-    <li>50% Live Coding + 50% Concept Explanation</li>
-    <li>Daily hands-on practice with homework &amp; assignments</li>
-    <li>Real-world project development with mentor guidance</li>
-  </ul>
-
-   <h4>Technologies Covered (MERN + Core Frontend)</h4>
-  <ul>
-    <li><strong>MongoDB</strong> (Database) – CRUD, Mongoose, schemas/models, relationships</li>
-    <li><strong>Express.js</strong> (Backend) – REST APIs, middleware, error handling</li>
-    <li><strong>React.js</strong> (Frontend) – components, hooks, routing, API integration</li>
-    <li><strong>Node.js</strong> (Runtime) – backend fundamentals &amp; server-side development</li>
-    <li>HTML5, CSS3, JavaScript (ES6+), Responsive UI, API Integration</li>
-  </ul>
-
-  <h4>Program Highlights</h4>
-  <ul>
-    <li>Mini projects in JavaScript, React, and Backend APIs</li>
-    <li>Full MERN stack capstone project (plan → build → integrate → deploy)</li>
-    <li>Deployment &amp; hosting (Netlify/Vercel + Render/Railway)</li>
-    <li>Testing, debugging, optimization, and security best practices</li>
-    <li>Project documentation (README, GitHub best practices, clean repo structure)</li>
-    <li>Resume &amp; interview preparation + mock interview sessions</li>
-  </ul>
-
-  <h4>What You Will Receive (Benefits)</h4>
-  <ul>
-    <li><strong>45 Days MERN Stack Training Program</strong> (Industry-oriented, beginner to advanced, practical focused)</li>
-    <li><strong>Training Certificate</strong> upon successful completion</li>
-    <li><strong>Professional Recognition</strong> to strengthen your resume and LinkedIn profile</li>
-    <li><strong>Letter of Recommendation (LOR)</strong> (performance-based)</li>
-    <li><strong>Experience Letter</strong> validating responsibilities and project contributions</li>
-    <li><strong>Relationship Building</strong> with mentors, peers, and industry professionals</li>
-    <li><strong>20% commission</strong> on every new sale you generate</li>
-  </ul>
-
-  <h4>Performance-Based Growth (Opportunities)</h4>
-  <ul>
-    <li><strong>Internal Assessment &amp; Evaluation</strong> to validate skills gained during the program</li>
-    <li><strong>Top Performers Selection</strong> for special recognition in each batch</li>
-    <li><strong>Opportunity to Showcase Skills</strong> through real performance and consistency</li>
-    <li><strong>Balanced Time Commitment</strong> designed to respect academics and personal schedules</li>
-  </ul>
-
-  <h4>Internship Opportunity (For High Performers)</h4>
-  <ul>
-    <li><strong>1 Month Paid Internship Opportunity</strong></li>
-    <li><strong>Stipend:</strong> ₹1000/-</li>
-    <li><strong>Official Offer Letter</strong></li>
-    <li><strong>Real Project Responsibilities</strong></li>
-  </ul>
-
-  <h4>Congratulations</h4>
-  <p>
-    Congratulations, and welcome to the FileMakr community. Your journey toward becoming an industry-ready professional
-    starts here.
-  </p>
-
-  <p>
-    Warm regards,<br />
-    <strong>Team FileMakr</strong><br />
-    <span>www.filemakr.com</span>
-    
-  </p>
-</div>
-  `,
-};
-
-    const credentialsMail = {
-      from: `"FILEMAKR Team" <info@filemakr.com>`,
-      to: email,
-      subject: 'Your Login Credentials',
-      html: `
-        <div style="font-family: Arial, Helvetica, sans-serif; color: #333; line-height: 1.6;">
-          <p>Dear Student,</p>
-          <p>Welcome aboard! Below are your login credentials to access the Attendance Dashboard.</p>
-          <ul>
-            <li><strong>Mobile Number:</strong> ${number}</li>
-            <li><strong>Password:</strong> ${password}</li>
-          </ul>
-          <p style="text-align: center; margin: 20px 0;">
-            <a href="https://www.filemakr.com/mern-training-program" target="_blank"
-              style="background-color: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">
-              Go to Dashboard
-            </a>
-          </p>
-          <p>For support, write to <a href="mailto:info@filemakr.com">info@filemakr.com</a>.</p>
-          <p>Warm regards,<br><strong>Team FileMakr</strong></p>
-        </div>
-      `,
-    };
-
-
-
-
-
-
-    // Send emails with retry, welcome first
-    const welcomeResp = await sendWithRetry(offerLetterMail, { tries: 3 });
-    console.log('welcome mail response', welcomeResp && welcomeResp.messageId);
-
-    const credsResp = await sendWithRetry(credentialsMail, { tries: 3 });
-    console.log('credentials mail response', credsResp && credsResp.messageId);
-
-    // Mark flags after successful sends
-    await queryAsync(
-      `UPDATE shopkeeper SET is_login_mail_send = 1, is_password_mail_send = 1 WHERE id = ?`,
-      [brandAmbassadorId]
-    );
-
-    // Insert benefit issuance record
-    // Adjust table name/columns if different in your schema
-    await queryAsync(
-      `INSERT INTO benefit_claims (brand_ambassador_id, benefit_id, status, claimed_at)
-       VALUES (?, 1, 'issued', ?)`,
-      [brandAmbassadorId, moment().format('YYYY-MM-DD')]
-    );
-
-    return res.redirect('/add-ambassador?msg=Brand Ambassador added and emails sent!');
+    await transporter.verify().catch(() => {});
+    await addAmbassadorOne(req.body);
+    const qs = new URLSearchParams({ msg: 'Brand Ambassador added and emails sent!' });
+    if (req.body.embed === '1' || req.body.embed === 'true') qs.set('embed', '1');
+    return res.redirect('/add-ambassador?' + qs.toString());
   } catch (err) {
-    console.error('Error:', err);
-    // Consider a fallback: if credentials mail succeeded but welcome failed,
-    // you may still update is_password_mail_send = 1 accordingly.
-    return res.status(500).send('Internal Server Error');
+    console.error('add-ambassador:', err);
+    return res.status(500).send(err.message || 'Internal Server Error');
   }
+});
+
+router.post('/add-ambassador/bulk', requireMernManagerToolkit, bulkAmbassadorUpload.single('bulk_csv'), async (req, res) => {
+  const embedSuffix =
+    req.body.embed === '1' || req.body.embed === 'true' ? '&embed=1' : '';
+  try {
+    if (!req.file || !req.file.buffer) {
+      return res.redirect(
+        '/add-ambassador?bulkError=' + encodeURIComponent('Choose a CSV file to upload.') + embedSuffix
+      );
+    }
+    const rows = parseSimpleAmbassadorCsv(req.file.buffer.toString('utf8'));
+    if (!rows.length) {
+      return res.redirect(
+        '/add-ambassador?bulkError=' + encodeURIComponent('No data rows found (need header + rows).') + embedSuffix
+      );
+    }
+    await transporter.verify().catch(() => {});
+    let ok = 0;
+    const errors = [];
+    for (let i = 0; i < rows.length; i++) {
+      try {
+        await addAmbassadorOne(csvRecordToAmbassadorBody(rows[i]));
+        ok++;
+      } catch (e) {
+        errors.push('Row ' + (i + 2) + ': ' + (e.message || 'failed'));
+      }
+    }
+    const msg = 'Bulk import finished: ' + ok + ' succeeded, ' + errors.length + ' failed (of ' + rows.length + ').';
+    const qs = new URLSearchParams({ msg });
+    if (errors.length) qs.set('bulkError', errors.slice(0, 8).join(' | '));
+    if (req.body.embed === '1' || req.body.embed === 'true') qs.set('embed', '1');
+    return res.redirect('/add-ambassador?' + qs.toString());
+  } catch (e) {
+    console.error('add-ambassador bulk:', e);
+    return res.redirect(
+      '/add-ambassador?bulkError=' + encodeURIComponent('Bulk upload failed.') + embedSuffix
+    );
+  }
+});
+
+router.get('/add-ambassador/bulk-sample.csv', requireMernManagerToolkit, (req, res) => {
+  const header = 'name,number,address,email,instagram_id,referal_code\n';
+  const sample = 'Jane Doe,9876543210,ABC College,jane@example.com,@jane_handle,\n';
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="mern-students-sample.csv"');
+  res.send(header + sample);
 });
       
 
@@ -3096,153 +2949,26 @@ router.post('/api/verify/license', (req, res) => {
 
 
 
-router.get('/us/trends', dataService.allCategory, (req, res) => {
-  // --- Inputs ---
-  const pageSize = Math.min(Math.max(parseInt(req.query.pageSize || 12, 10), 6), 48); // clamp 6–48
-  const page     = Math.max(parseInt(req.query.page || 1, 10), 1);
-  const q        = (req.query.q || '').trim();
-  const cat      = (req.query.category || '').trim(); // optional future filter
-  const order    = (req.query.sort || 'new'); // 'new' | 'old' | 'alpha'
-
-  // --- Build SQL safely ---
-  const where = [];
-  const params = [];
-
-  if (q) {
-    where.push(`(meta_title LIKE ? OR meta_description LIKE ? OR title LIKE ?)`);
-    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
-  }
-  if (cat) {
-    where.push(`category_slug = ?`);
-    params.push(cat);
-  }
-  const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
-
-  let orderSql = 'ORDER BY published_at DESC, id DESC';
-  if (order === 'old')   orderSql = 'ORDER BY published_at ASC, id ASC';
-  if (order === 'alpha') orderSql = 'ORDER BY meta_title ASC';
-
-  const offset = (page - 1) * pageSize;
-
-  // --- Queries ---
-  const countSql = `SELECT COUNT(*) AS total FROM blogs ${whereSql}`;
-  const listSql  = `
-    SELECT id, slug, meta_title, meta_description, thumbnail_url, published_at
-    FROM posts
-    ${whereSql}
-    ${orderSql}
-    LIMIT ? OFFSET ?
-  `;
-
-  // --- Run queries ---
-  pool.query(countSql, params, (err, countRows) => {
-    if (err) throw err;
-    const total = countRows[0]?.total || 0;
-    const totalPages = Math.max(Math.ceil(total / pageSize), 1);
-
-    pool.query(listSql, [...params, pageSize, offset], (err2, result) => {
-      if (err2) throw err2;
-
-      // Build canonical & prev/next
-      const baseUrl = req.fullUrl?.split('?')[0] || `${req.protocol}://${req.get('host')}${req.path}`;
-      const queryNoPage = new URLSearchParams(req.query);
-      queryNoPage.delete('page');
-      const qStr = queryNoPage.toString();
-      const canonical = qStr ? `${baseUrl}?${qStr}` : baseUrl;
-
-      const mkUrl = (p) => {
-        const sp = new URLSearchParams(req.query);
-        sp.set('page', p);
-        return `${baseUrl}?${sp.toString()}`;
-      };
-
-      res.render('trend', {
-        Metatags: onPageSeo.newsPage,
-        CommonMetaTags: onPageSeo.commonMetaTags,
-        msg: '',
-        category: req.categories,
-        fullUrl: req.fullUrl,
-        canonicalUrl: canonical,
-        prevUrl: page > 1 ? mkUrl(page - 1) : null,
-        nextUrl: page < totalPages ? mkUrl(page + 1) : null,
-        result,
-        active: 'blog',
-        graduation_type_send: '',
-        pagination: {
-          page,
-          pageSize,
-          total,
-          totalPages,
-          hasPrev: page > 1,
-          hasNext: page < totalPages,
-          prevUrl: page > 1 ? mkUrl(page - 1) : null,
-          nextUrl: page < totalPages ? mkUrl(page + 1) : null,
-          canonical,
-          baseUrl
-        },
-        filters: { q, cat, order }
-      });
-    });
-  });
+// Legacy US Trends URLs (removed) → blog
+router.get('/us/trends', (req, res) => {
+  const i = req.originalUrl.indexOf('?');
+  const q = i >= 0 ? req.originalUrl.slice(i) : '';
+  res.redirect(301, '/blog' + q);
 });
 
-
-
-
-
-router.get('/us/trends/:name', dataService.allCategory, (req, res) => {
-    const blogSlug = req.params.name;
-
-    // Query to fetch the requested blog
-    const blogQuery = `
-        SELECT * FROM posts WHERE slug = ?;
-    `;
-
-    // Query to fetch the latest 10 blogs
-    const recentBlogsQuery = `
-        SELECT id, meta_title, slug, thumbnail_url, published_at 
-        FROM posts 
-        ORDER BY published_at DESC 
-        LIMIT 10;
-    `;
-
-    // Execute both queries
-    pool.query(blogQuery, [blogSlug], (err, blogResult) => {
-        if (err) throw err;
-
-        pool.query(recentBlogsQuery, (err2, recentBlogs) => {
-            if (err2) throw err2;
-
-            res.render('trend_details', {
-                result: blogResult,
-                recentBlogs, // Pass recent blogs to the view
-                Metatags: onPageSeo.contactPage,
-                CommonMetaTags: onPageSeo.commonMetaTags,
-                msg: '',
-                category: req.categories,
-                fullUrl: req.fullUrl,
-                active:'',graduation_type_send:''
-            });
-            // res.json(recentBlogs)
-        });
-    });
+router.get('/us/trends/:name', (req, res) => {
+  res.redirect(301, '/blog');
 });
 
 
 
 router.get('/sitemap-news.xml', async (req, res) => {
-  const rows = await queryAsync(`
-    SELECT slug, title, published_at
-    FROM posts
-    ORDER BY published_at DESC
-  `);
-
   res.set('Content-Type', 'application/xml; charset=UTF-8');
   res.set('Cache-Control', 'public, max-age=60');
   res.render('sitemap-news', {
-    items: rows,
-    siteOrigin: 'https://filemakr.com',
-    publicationName: 'FileMakr Us Trends',
+    items: [],
+    siteOrigin: 'https://www.filemakr.com',
+    publicationName: 'FileMakr',
     publicationLang: 'en'
   });
 });

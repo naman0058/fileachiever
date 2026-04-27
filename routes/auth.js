@@ -54,6 +54,12 @@ router.post('/login', async (req, res) => {
         projectReportManagerLink: true
       });
     }
+    if (role === 'mern_training_manager') {
+      return res.render('freelancing/sales/login', {
+        error: 'This account uses the MERN Training Program Manager Portal. Please use the link below.',
+        mernTrainingManagerLink: true
+      });
+    }
 
     // store in session (ensure role is string - MySQL may return Buffer in some configs)
     req.session.user = {

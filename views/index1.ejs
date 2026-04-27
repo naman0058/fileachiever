@@ -367,7 +367,11 @@
     <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
     <h3>Most Demanding Source Code</h3>
   </div>
-  <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
+  <div class="md-carousel">
+    <button type="button" class="md-carousel-btn md-carousel-prev" aria-label="Previous projects">&#8249;</button>
+    <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
+    <button type="button" class="md-carousel-btn md-carousel-next" aria-label="Next projects">&#8250;</button>
+  </div>
 </section>
 
   
@@ -377,15 +381,23 @@
     <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
     <h3>Most Trending Project Reports</h3>
   </div>
-  <div class="h-scroll" id="StripTrendingReports" aria-label="Most trending reports"></div>
+  <div class="md-carousel">
+    <button type="button" class="md-carousel-btn md-carousel-prev" aria-label="Previous reports">&#8249;</button>
+    <div class="h-scroll" id="StripTrendingReports" aria-label="Most trending reports"></div>
+    <button type="button" class="md-carousel-btn md-carousel-next" aria-label="Next reports">&#8250;</button>
+  </div>
 </section>
 
 <section class="md-wrap md-app">
   <div class="section-title">
     <i class="feather-play-circle" style="color:var(--brandBlue)"></i>
-    <h3>Live Demos (Preview Before You Pay)</h3>
+    <h3>Live Demo </h3>
   </div>
-  <div class="h-scroll" id="StripLiveDemos" aria-label="Live demo projects"></div>
+  <div class="md-carousel">
+    <button type="button" class="md-carousel-btn md-carousel-prev" aria-label="Previous live demos">&#8249;</button>
+    <div class="h-scroll" id="StripLiveDemos" aria-label="Live demo projects"></div>
+    <button type="button" class="md-carousel-btn md-carousel-next" aria-label="Next live demos">&#8250;</button>
+  </div>
 </section>
 
 <section class="md-wrap md-app">
@@ -393,7 +405,11 @@
     <i class="feather-code" style="color:#E34F26"></i>
     <h3>PHP Source Code</h3>
   </div>
-  <div class="h-scroll" id="StripPHP" aria-label="PHP source code"></div>
+  <div class="md-carousel">
+    <button type="button" class="md-carousel-btn md-carousel-prev" aria-label="Previous PHP projects">&#8249;</button>
+    <div class="h-scroll" id="StripPHP" aria-label="PHP source code"></div>
+    <button type="button" class="md-carousel-btn md-carousel-next" aria-label="Next PHP projects">&#8250;</button>
+  </div>
 </section>
 
 <section class="md-wrap md-app">
@@ -401,7 +417,11 @@
     <i class="feather-box" style="color:#689F63"></i>
     <h3>Node.js Source Code</h3>
   </div>
-  <div class="h-scroll" id="StripNode" aria-label="Node.js source code"></div>
+  <div class="md-carousel">
+    <button type="button" class="md-carousel-btn md-carousel-prev" aria-label="Previous Node projects">&#8249;</button>
+    <div class="h-scroll" id="StripNode" aria-label="Node.js source code"></div>
+    <button type="button" class="md-carousel-btn md-carousel-next" aria-label="Next Node projects">&#8250;</button>
+  </div>
 </section>
 
 
@@ -410,7 +430,11 @@
     <i class="feather-cpu" style="color:#3776AB"></i>
     <h3>Python Source Code</h3>
   </div>
-  <div class="h-scroll" id="StripPython"></div>
+  <div class="md-carousel">
+    <button type="button" class="md-carousel-btn md-carousel-prev" aria-label="Previous Python projects">&#8249;</button>
+    <div class="h-scroll" id="StripPython"></div>
+    <button type="button" class="md-carousel-btn md-carousel-next" aria-label="Next Python projects">&#8250;</button>
+  </div>
 </section>
 
 
@@ -420,7 +444,11 @@
     <i class="feather-cpu" style="color:#3776AB"></i>
     <h3>Machine Learning Code</h3>
   </div>
-  <div class="h-scroll" id="StripMachine"></div>
+  <div class="md-carousel">
+    <button type="button" class="md-carousel-btn md-carousel-prev" aria-label="Previous machine learning projects">&#8249;</button>
+    <div class="h-scroll" id="StripMachine"></div>
+    <button type="button" class="md-carousel-btn md-carousel-next" aria-label="Next machine learning projects">&#8250;</button>
+  </div>
 </section>
 
 
@@ -430,7 +458,11 @@
     <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
     <h3>BCA Project Reports</h3>
   </div>
-  <div class="h-scroll" id="StripBCAReports" aria-label="BCA reports"></div>
+  <div class="md-carousel">
+    <button type="button" class="md-carousel-btn md-carousel-prev" aria-label="Previous BCA reports">&#8249;</button>
+    <div class="h-scroll" id="StripBCAReports" aria-label="BCA reports"></div>
+    <button type="button" class="md-carousel-btn md-carousel-next" aria-label="Next BCA reports">&#8250;</button>
+  </div>
 </section>
 
 
@@ -508,14 +540,14 @@
 
   // Card builders
   function cardReport(p){
-    const name = text(p.name);
+    const name = mdStripText(p.name);
     const url  = `/${text(p.seo_name) ? 'final-year-project-report-' + p.seo_name : '#'}`;
-    const desc = text(p.short_description || p.description || 'High-quality academic project documentation.');
+    const desc = mdStripText(p.short_description || p.description || 'High-quality academic project documentation.');
     return `
       <div class="md-item">
         <span class="md-chip"><i class="feather-trending-up"></i> Trending</span>
         <h4 class="md-title">${name}</h4>
-        <p class="md-desc">${desc}</p>
+        <div class="md-desc">${desc}</div>
         <div class="md-actions">
           <a class="md-btn md-btn-light" href="${url}" aria-label="Open ${name} report">View Report</a>
         </div>
@@ -525,16 +557,16 @@
 
 
    function degreeReport(p, category) {
-  const name = text(p.name);
+  const name = mdStripText(p.name);
  const url = text(p.seo_name) 
   ? `/${category ? category + '-' : ''}final-year-project-report-${p.seo_name}` 
   : '#';
-  const desc = text(p.short_description || p.description || 'High-quality academic project documentation.');
+  const desc = mdStripText(p.short_description || p.description || 'High-quality academic project documentation.');
   return `
     <div class="md-item">
       <span class="md-chip"><i class="feather-trending-up"></i> ${category.toUpperCase() || 'Trending'} Project Report</span>
       <h4 class="md-title">${name}</h4>
-      <p class="md-desc">${desc}</p>
+      <div class="md-desc">${desc}</div>
       <div class="md-actions">
         <a class="md-btn md-btn-light" href="${url}" aria-label="Open ${name} report">View Report</a>
       </div>
@@ -543,14 +575,14 @@
 
 
   function cardDemo(s){
-    const name = text(s.name);
+    const name = mdStripText(s.name);
     const url  = text(s.demo_url || '#');
-    const desc = text(s.description || 'Preview the working app in your browser before you pay.');
+    const desc = mdStripText(s.description || 'Preview the working app in your browser before you pay.');
     return `
       <div class="md-item">
         <span class="md-chip"><i class="feather-play-circle"></i> Live</span>
         <h4 class="md-title">${name}</h4>
-        <p class="md-desc">${desc}</p>
+        <div class="md-desc">${desc}</div>
         <div class="md-actions">
           <a class="md-btn md-btn-light" href="${url}" target="_blank" rel="noopener" aria-label="Live demo ${name}">Open Live Demo</a>
         </div>
@@ -558,16 +590,16 @@
   }
 
   function cardSource(s){
-    const name = text(s.name);
+    const name = mdStripText(s.name);
     const category = text(s.category);
 
-    const desc = text(s.description || 'Clean frontend, backend, and database with README.');
+    const desc = mdStripText(s.description || 'Clean frontend, backend, and database with README.');
     const url  = `/${text(s.seo_name)}/source-code`;
     return `
       <div class="md-item">
         <span class="md-chip"><i class="feather-code"></i>${category} Source Code</span>
         <h4 class="md-title">${name}</h4>
-        <p class="md-desc">${desc}</p>
+        <div class="md-desc">${desc}</div>
         <div class="md-actions">
           <a class="md-btn md-btn-light" href="${url}" aria-label="Open ${name} source code">View Details</a>
         </div>
@@ -596,7 +628,7 @@
     return (list || []).filter(i => /mern|nodejs|node/i.test(detectLang(i)));
   }
   function filterPython(list){
-    return (list || []).filter(i => /python|nodejs|nestjs/i.test(detectLang(i)));
+    return (list || []).filter(i => /python|django|flask|nodejs|nestjs/i.test(detectLang(i)));
   }
 
    function filterMachine(list){
@@ -625,14 +657,6 @@
 </script>
 
 
-
-<script>
-  function filterPython(list){ return (list||[]).filter(i => /python|django|flask/i.test(detectLang(i))); }
-  // …inside initStrips()
-  renderStrip('StripPython', filterPython(S), cardSource);
-</script>
-
-
 <script>
   function populateMostDemanding(){
   const container = document.getElementById('MostDemanding');
@@ -641,17 +665,19 @@
 
   const items = shuffle(nodes.slice()).slice(0, Math.min(8, nodes.length));
   items.forEach(n=>{
-    const name = n.getAttribute('data-name') || '';
-    const desc = n.getAttribute('data-desc') || '';
+    const rawName = n.getAttribute('data-name') || '';
+    const rawDesc = n.getAttribute('data-desc') || '';
+    const name = mdStripText(rawName);
+    const desc = mdStripText(rawDesc);
     const url  = n.getAttribute('data-url')  || '#';
-    const wa   = waLink(`Need details for "${name}"`);
+    const wa   = waLink(`Need details for "${rawName}"`);
 
     const card = document.createElement('div');
     card.className = 'md-item';
     card.innerHTML = `
       <span class="md-chip"><i class="feather-trending-up"></i> Popular</span>
       <h4 class="md-title">${name}</h4>
-      <p class="md-desc">${desc}</p>
+      <div class="md-desc">${desc}</div>
       <div class="md-actions">
         <a class="md-btn md-btn-light" href="${url}" aria-label="View ${name} details">View Details</a>
         

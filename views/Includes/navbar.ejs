@@ -6,17 +6,6 @@
 <head>
 
 
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17121917391">
-</script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'AW-17121917391');
-</script>
-
   <script>
     window.addEventListener('load', function() {
         var timing = window.performance.timing;
@@ -271,13 +260,20 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
 <% } %>
 <div class="main-wrapper">
   <style>
-   /* ---- Offer Bar (mobile-first, app-like) ---- */
+   /* ---- Offer Bar (mobile-first, premium strip) ---- */
 .offer-bar{
-   position: sticky;
+  --offer-blue: var(--brandBlue, #2a47ff);
+  --offer-orange: var(--brandOrange, #f17f23);
+  position: sticky;
   top: 0;
-  z-index: 1020; width:100%;
-  background:linear-gradient(90deg,var(--brandBlue),var(--brandOrange));
-  color:#fff; box-shadow:0 6px 20px rgba(0,0,0,.12);
+  z-index: 1020;
+  width: 100%;
+  color: #fff;
+  box-shadow: 0 4px 24px rgba(14, 18, 32, 0.14);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.14) 0%, transparent 42%, rgba(255, 255, 255, 0.06) 100%),
+    linear-gradient(92deg, var(--offer-blue) 0%, #2438c9 38%, var(--offer-orange) 100%);
 }
 
 .app-nav{
@@ -288,78 +284,163 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
   z-index: 1016;              /* above bottom nav, but below offcanvas */
 }
 
-/* Optional: if you want the offer bar ABOVE a fixed-top navbar (1030),
-   bump it slightly but keep it BELOW offcanvas (1045) */
 .has-fixed-navbar .offer-bar { z-index: 1031; }
 
+.offer-inner{
+  padding: 11px 0 12px;
+}
+
 .offer-content{
-  display:flex; align-items:center; gap:10px; padding:10px 0;
-  justify-content:space-between; flex-wrap:wrap;
+  display: flex;
+  align-items: center;
+  gap: 12px 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
+
 .offer-badge{
-  display:inline-flex; align-items:center; gap:6px;
-  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
-  color:#fff; font-weight:900; font-size:11px; padding:6px 10px; border-radius:999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 11px;
+  border-radius: 999px;
 }
-.offer-copy{
-  display:flex; align-items:baseline; gap:8px; color:#fff;
-  font-weight:900; letter-spacing:-.01em;
+.offer-badge i{
+  font-size: 13px;
+  opacity: 0.95;
 }
-.offer-title{ font-size:16px; }
-.offer-price{ font-size:20px; line-height:1; }
-.blink{
-  display:inline-block;
-  animation:blink 1s steps(2, start) infinite;
-  text-shadow:0 2px 10px rgba(255,255,255,.5);
-}
-@keyframes blink { 50% { opacity:.35; } }
 
-/* CTA button */
+.offer-main{
+  flex: 1 1 200px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.offer-headline{
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: #fff;
+}
+
+.offer-price-pill{
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  padding: 2px 10px 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0e1220;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  vertical-align: middle;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  animation: offer-price-glow 2.8s ease-in-out infinite;
+}
+
+.offer-sub{
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.88);
+  letter-spacing: 0.01em;
+}
+
+@keyframes offer-price-glow {
+  0%, 100% { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12); }
+  50% { box-shadow: 0 2px 18px rgba(255, 255, 255, 0.45); }
+}
+
 .offer-cta{
-  display:inline-flex; align-items:center; gap:8px;
-  background:#fff; color:#111; text-decoration:none; font-weight:900;
-  padding:10px 14px; border-radius:12px; box-shadow:0 8px 22px rgba(0,0,0,.18);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #fff;
+  color: #0e1220 !important;
+  text-decoration: none !important;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
-.offer-cta:hover{ filter:brightness(.98); }
+.offer-cta:hover{
+  filter: brightness(1.02);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  color: #0e1220 !important;
+}
+.offer-cta:focus-visible{
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
 
-/* Dismiss */
 .offer-dismiss{
-  background:transparent; border:1px solid rgba(255,255,255,.35);
-  color:#fff; width:36px; height:36px; border-radius:10px;
-  display:inline-flex; align-items:center; justify-content:center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.offer-dismiss:hover{ background:rgba(255,255,255,.12); }
+.offer-dismiss:hover{ background: rgba(255, 255, 255, 0.12); }
 
-/* Compact layout on very small screens */
-@media (max-width:420px){
-  .offer-content{ gap:8px; }
-  .offer-title{ font-size:15px; }
-  .offer-price{ font-size:30px; }
-  .offer-cta{ flex:1; justify-content:center; }
+@media (max-width: 576px){
+  .offer-inner{ padding: 10px 0 11px; }
+  .offer-content{
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .offer-headline{ font-size: 14px; }
+  .offer-price-pill{ font-size: 14px; padding: 2px 8px 3px; }
+  .offer-sub{ font-size: 11px; }
+  .offer-cta{
+    width: 100%;
+    order: 4;
+    padding: 11px 16px;
+  }
+  .offer-badge{ order: 0; }
+  .offer-main{ order: 1; flex: 1 1 100%; }
 }
 
-/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .blink{ animation:none; }
+  .offer-price-pill{ animation: none; }
 }
 
   </style>
 
 <div id="OfferBar" class="offer-bar" role="region" aria-label="Limited time offer">
   <div class="container">
-    <div class="offer-content">
-      <span class="offer-badge"><i class="feather-zap"></i> LIMITED TIME</span>
-
-      <div class="offer-copy">
-        <span class="offer-title">Get Source Code</span>
-        <span class="offer-price"><strong class="blink">₹99</strong></span>
+    <div class="offer-inner">
+      <div class="offer-content">
+        <span class="offer-badge"><i class="feather-zap" aria-hidden="true"></i> Limited offer</span>
+        <div class="offer-main">
+          <p class="offer-headline">
+            Full project source code from <span class="offer-price-pill" aria-label="99 rupees">₹99</span>
+          </p>
+        </div>
       </div>
-
-      <a id="OfferCTA" class="offer-cta" href="/source-code">
-        <i class="feather-shopping-bag"></i> Claim Offer
-      </a>
-
-      
     </div>
   </div>
 </div>

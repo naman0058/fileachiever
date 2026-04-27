@@ -3,7 +3,7 @@
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
 <% items.forEach(function(item){ %>
   <url>
-    <loc><%= siteOrigin %>/us/trends/<%= encodeURIComponent(item.slug) %></loc>
+    <loc><%= siteOrigin %>/blog/<%= encodeURIComponent(item.slug) %></loc>
     <news:news>
       <news:publication>
         <news:name><%= publicationName %></news:name>

@@ -177,7 +177,7 @@ app.use((req, res, next) => {
 // ======================================================
 // TRAILING SLASH REDIRECT (exempt CRM portals to avoid redirect loops)
 // ======================================================
-const TRAILING_SLASH_EXEMPT = ['/sales', '/project-report-manager', '/setup-support', '/source-code-manager', '/project-report-creator', '/auth', '/mern-training-program', '/shopkeeper'];
+const TRAILING_SLASH_EXEMPT = ['/sales', '/project-report-manager', '/mern-training-manager', '/setup-support', '/source-code-manager', '/project-report-creator', '/auth', '/mern-training-program', '/shopkeeper'];
 app.use((req, res, next) => {
   if (req.path.length > 1 && req.path.endsWith('/')) {
     const base = req.path.replace(/\/$/, '');
@@ -193,6 +193,7 @@ app.use((req, res, next) => {
 // LEGACY / STATIC REDIRECTS
 // ======================================================
 const LEGACY_REDIRECTS = {
+  '/trending': '/blog',
   '/terms': '/terms-and-conditions',
   '/final-year-project-tools': '/final-year-project-ideas',
   '/final-year-projects-list': '/final-year-project-ideas',
@@ -217,7 +218,7 @@ app.use((req, res, next) => {
     return res.redirect(301, '/');
   }
   if (p.startsWith('/us/trends/') && p.length < 30) {
-    return res.redirect(301, '/trending');
+    return res.redirect(301, '/blog');
   }
   next();
 });

@@ -1,13 +1,266 @@
 <% include Includes/projectReportNavbar.ejs %>
 <% include Includes/projectReport.ejs %>
 
+<style>
+  /* Project report listing — scoped polish (mobile-first) */
+  .pr-page {
+    padding-bottom: 1.5rem;
+  }
 
+  @media (max-width: 575.98px) {
+    .pr-page.container {
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+    }
+  }
 
+  .pr-page .pr-breadcrumb {
+    margin-bottom: 0.75rem;
+  }
 
-<div class="container">
+  .pr-page .pr-breadcrumb .breadcrumb {
+    margin-bottom: 0;
+    flex-wrap: wrap;
+    gap: 0.25rem 0;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(14, 18, 32, 0.06);
+    border-radius: 12px;
+  }
+
+  @media (min-width: 576px) {
+    .pr-page .pr-breadcrumb .breadcrumb {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  .pr-page .page-hero {
+    padding: clamp(1rem, 4vw, 1.375rem) clamp(1rem, 4vw, 1.25rem);
+    border-radius: clamp(14px, 3vw, 20px);
+  }
+
+  .pr-page .page-hero h1 {
+    font-size: clamp(1.35rem, 4.2vw, 1.85rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  .pr-page .hero-lead {
+    font-size: clamp(0.9rem, 2.4vw, 1rem);
+    line-height: 1.55;
+    max-width: 62ch;
+  }
+
+  .pr-page .hero-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 0;
+  }
+
+  .pr-page .hero-features li {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(14, 18, 32, 0.08);
+    color: var(--ink, #0e1220);
+  }
+
+  .pr-page .cta-strip {
+    margin-top: 14px;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  @media (max-width: 575.98px) {
+    .pr-page .cta-strip {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+      padding: 14px 14px;
+    }
+
+    .pr-page .cta-strip > span {
+      line-height: 1.45;
+    }
+
+    .pr-page .cta-btn {
+      margin-left: 0 !important;
+      width: 100%;
+      justify-content: center;
+      min-height: 48px;
+      border-radius: 12px;
+    }
+  }
+
+  .pr-page .md-wrap {
+    margin-top: 1rem;
+  }
+
+  .pr-page .md-wrap .section-title {
+    align-items: flex-start;
+  }
+
+  .pr-page .md-wrap .section-title > i {
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+  }
+
+  .pr-page .section-title h3 {
+    font-size: clamp(1.05rem, 3vw, 1.2rem);
+  }
+
+  .pr-page .section-sub {
+    margin: 0.35rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.4;
+    max-width: 48ch;
+  }
+
+  .pr-page .toolbar {
+    margin-top: 1rem;
+    padding: clamp(10px, 2.5vw, 14px);
+  }
+
+  .pr-page .toolbar-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(14, 18, 32, 0.06);
+  }
+
+  .pr-page .toolbar-meta strong {
+    font-weight: 800;
+    color: var(--ink, #0e1220);
+  }
+
+  .pr-page .toolbar-meta span {
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .pr-page .sort-select {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  @media (min-width: 992px) {
+    .pr-page .sort-select {
+      width: auto;
+      min-width: 11rem;
+    }
+  }
+
+  .pr-page .pr-main,
+  .pr-page .pr-side {
+    margin-top: 0.75rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .pr-page .sticky-side {
+      position: static;
+      top: auto;
+    }
+  }
+
+  .pr-page .course-box {
+    padding: clamp(14px, 3vw, 18px);
+    border-radius: 14px;
+    min-height: 100%;
+  }
+
+  .pr-page .course-box h2 {
+    font-size: clamp(1rem, 2.5vw, 1.125rem);
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .pr-page .course-box h2 a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .pr-page .course-box h2 a:hover {
+    color: var(--brandBlue);
+  }
+
+  .pr-page .course-box h2 a:focus-visible {
+    outline: 2px solid var(--brandBlue);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .pr-page .course-box p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+
+  @media (min-width: 768px) {
+    .pr-page .course-box p {
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+    }
+  }
+
+  .pr-page .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 0;
+    font-size: 0.875rem;
+    gap: 4px;
+  }
+
+  .pr-page .link-arrow:focus-visible {
+    outline: 2px solid var(--brandOrange);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .pr-page .side-card {
+    border-radius: 14px;
+  }
+
+  .pr-page .qa-item {
+    min-height: 48px;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .pr-page .qa-item:active {
+    background: rgba(42, 71, 255, 0.04);
+  }
+
+  .pr-page .side-title h4 {
+    font-size: 0.9375rem;
+  }
+
+  .pr-page .pr-side .side-card p {
+    font-size: 0.875rem;
+    line-height: 1.55;
+  }
+</style>
+
+<div class="container pr-page">
   <div class="brand-accent"></div>
 
-  <nav aria-label="breadcrumb" class="page-breadcrumb mb-2">
+  <nav aria-label="breadcrumb" class="page-breadcrumb pr-breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a href="<%= typeof homeUrl !== 'undefined' ? homeUrl : '/' %>" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
@@ -16,56 +269,51 @@
     </ol>
   </nav>
 
-  <section class="page-hero">
-    <h1><%= graduation_type_send %> Final Year Project Reports</h1>
-   <p>Download premium <%= graduation_type_send %> final year project report PDFs with complete documentation, source code, PPT & synopsis — IEEE format, ER/DFD, Gantt, test cases, output screens. Affordable, ready-to-submit topics: ERP, Real Estate, Vehicle Rental, Expense Tracker & more.</p>
+  <section class="page-hero" aria-labelledby="pr-hero-heading">
+    <h1 id="pr-hero-heading"><%= graduation_type_send %> Final Year Project Reports</h1>
+    <p class="hero-lead">Download premium <%= graduation_type_send %> final year project report PDFs with complete documentation, source code, PPT & synopsis — IEEE format, ER/DFD, Gantt, test cases, output screens. Affordable, ready-to-submit topics: ERP, Real Estate, Vehicle Rental, Expense Tracker & more.</p>
 
+    <ul class="hero-features" aria-label="What’s included">
+      <li>IEEE-ready PDF</li>
+      <li>Diagrams &amp; test cases</li>
+      <li>PPT &amp; synopsis</li>
+      <li>Source add-ons</li>
+    </ul>
 
-    <!-- Highlighted WhatsApp CTA -->
     <div class="cta-strip">
       <span><strong>Need a Custom Report?</strong> Get it on WhatsApp.</span>
       <a id="WhatsAppHero" class="cta-btn" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
-        <i class="feather-message-circle"></i> Chat on WhatsApp
+        <i class="feather-message-circle" aria-hidden="true"></i> Chat on WhatsApp
       </a>
     </div>
   </section>
 
-  <!-- Project Report Includes -->
-  <section class="inc-wrap">
-    <div class="section-title"><i class="feather-check-circle" style="color:var(--brandBlue)"></i><h3>Project Report Includes</h3></div>
-    <div class="inc-grid">
-      <div class="inc-item"><i class="feather-share-2"></i><span>ER Diagram</span></div>
-      <div class="inc-item"><i class="feather-git-merge"></i><span>DFD Diagram</span></div>
-      <div class="inc-item"><i class="feather-droplet"></i><span>Waterfall Model</span></div>
-      <div class="inc-item"><i class="feather-git-branch"></i><span>Flow Chart</span></div>
-      <div class="inc-item"><i class="feather-cpu"></i><span>Technology</span></div>
-      <div class="inc-item"><i class="feather-check-square"></i><span>Testing Case</span></div>
-      <div class="inc-item"><i class="feather-link"></i><span>References</span></div>
-      <div class="inc-item"><i class="feather-list"></i><span>Indexing</span></div>
-      <div class="inc-item"><i class="feather-award"></i><span>IEEE Standard</span></div>
-      <div class="inc-item"><i class="feather-calendar"></i><span>Gantt Chart</span></div>
-      <div class="inc-item"><i class="feather-monitor"></i><span>Output Screens</span></div>
+  <section class="md-wrap md-app">
+    <div class="section-title">
+      <i class="feather-trending-up" style="color:var(--brandOrange)" aria-hidden="true"></i>
+      <div>
+        <h3>Most Demanding Reports</h3>
+        <p class="section-sub">Popular picks students open first — swipe on mobile.</p>
+      </div>
     </div>
+    <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
   </section>
 
-  <!-- Most Demanding Reports -->
- <section class="md-wrap md-app">
-  <div class="section-title">
-    <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
-    <h3>Most Demanding Reports</h3>
-  </div>
-  <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
-</section>
-
-  <section class="toolbar">
-    <div class="row g-2 align-items-center">
-      <div class="col-lg-9">
+  <section class="toolbar" aria-label="Search and sort reports">
+    <div class="toolbar-meta">
+      <p class="mb-0"><strong id="ResultCount"><%= result.length %></strong> <span>reports in this list</span></p>
+      <span class="d-none d-sm-inline">Refine with search or sort</span>
+    </div>
+    <div class="row g-2 g-md-3 align-items-stretch align-items-lg-center">
+      <div class="col-12 col-lg-9">
         <div class="search-group">
-          <i class="feather-search"></i>
-          <input id="Search" class="form-control search-input" type="text" placeholder="Search project report… e.g., ERP, Real Estate, Daily Expense Tracker" autocomplete="off" />
+          <i class="feather-search" aria-hidden="true"></i>
+          <label for="Search" class="visually-hidden">Search project reports</label>
+          <input id="Search" class="form-control search-input" type="search" inputmode="search" enterkeyhint="search" placeholder="Search… e.g., ERP, Real Estate, expense tracker" autocomplete="off" />
         </div>
       </div>
-      <div class="col-lg-3 text-lg-end">
+      <div class="col-12 col-lg-3 text-lg-end">
+        <label for="Sort" class="visually-hidden">Sort results</label>
         <select id="Sort" class="form-select sort-select" aria-label="Sort results">
           <option value="relevance">Sort: Relevance</option>
           <option value="alpha">Sort: A → Z</option>
@@ -77,17 +325,14 @@
 
   <section class="course-content mt-3">
     <div class="row">
-      <!-- Main grid -->
-      <div class="col-lg-9" style="margin-top: 10px;">
-
-
-        <div class="row g-3" id="Grid">
+      <div class="col-lg-9 pr-main">
+        <div class="row g-3" id="Grid" role="list">
           <% for (let i = 0; i < result.length; i++) { %>
-            <div class="col-md-6 col-xl-4 target"
+            <div class="col-12 col-md-6 col-xl-4 target" role="listitem"
                  data-name="<%= result[i].name %>"
                  data-desc="<%= result[i].short_description %>"
                  data-url="<%= original %>-final-year-project-report-<%= result[i].seo_name %>">
-              <div class="course-box h-100 d-flex flex-column">
+              <article class="course-box h-100 d-flex flex-column">
                 <h2>
                   <a href="<%= original %>-final-year-project-report-<%= result[i].seo_name %>"
                      title="<%= result[i].name %> | PDF for <%= graduation_type_send %> Final Year">
@@ -95,75 +340,68 @@
                   </a>
                 </h2>
                 <p><%= result[i].short_description %></p>
-                <div class="mt-auto d-flex justify-content-between align-items-center">
-                  <a class="link-arrow" href="<%= original %>-final-year-project-report-<%= result[i].seo_name %>">Get Project Report →</a>
+                <div class="mt-auto d-flex justify-content-between align-items-center pt-1">
+                  <a class="link-arrow" href="<%= original %>-final-year-project-report-<%= result[i].seo_name %>">Get project report <span aria-hidden="true">→</span></a>
                 </div>
-              </div>
+              </article>
             </div>
           <% } %>
         </div>
 
-        <!-- Empty state -->
         <div id="EmptyState" class="empty empty-app mt-3" style="display:none;">
-  <div class="empty-topbar"></div>
+          <div class="empty-topbar"></div>
 
-  <div class="empty-head">
-    <div class="icon-wrap-sm"><i class="feather-search"></i></div>
-    <h3 class="empty-title">Didn't find it?</h3>
-    <p class="empty-subtitle">Send your topic—we'll share the report on WhatsApp.</p>
-  </div>
+          <div class="empty-head">
+            <div class="icon-wrap-sm"><i class="feather-search" aria-hidden="true"></i></div>
+            <h3 class="empty-title">Didn't find it?</h3>
+            <p class="empty-subtitle">Send your topic—we'll share the report on WhatsApp.</p>
+          </div>
 
-  <div class="empty-action">
-    <div class="empty-field">
-      <i class="feather-type"></i>
-      <input id="EmptyTopicInput" type="text" placeholder="e.g., Smart Parking System" autocomplete="off" />
-    </div>
-    <a id="WhatsAppEmpty" class="wa-cta" href="#" aria-label="Send on WhatsApp">
-      <span class="pulse" aria-hidden="true"></span>
-      <i class="feather-message-circle"></i> Send on WhatsApp
-    </a>
-  </div>
-
-  
-</div>
+          <div class="empty-action">
+            <div class="empty-field">
+              <i class="feather-type" aria-hidden="true"></i>
+              <input id="EmptyTopicInput" type="text" placeholder="e.g., Smart Parking System" autocomplete="off" />
+            </div>
+            <a id="WhatsAppEmpty" class="wa-cta" href="#" aria-label="Send on WhatsApp">
+              <span class="pulse" aria-hidden="true"></span>
+              <i class="feather-message-circle" aria-hidden="true"></i> Send on WhatsApp
+            </a>
+          </div>
+        </div>
       </div>
 
-      <!-- Sidebar -->
-      <div class="col-lg-3" style="margin-top: 10px;">
+      <aside class="col-lg-3 pr-side" aria-label="Quick links and info">
         <div class="sticky-side">
           <div class="side-card">
-            <div class="side-title"><i class="feather-zap"></i><h4>Quick actions</h4></div>
+            <div class="side-title"><i class="feather-zap" aria-hidden="true"></i><h4>Quick actions</h4></div>
             <div class="qa-list">
               <a class="qa-item" href="<%= typeof codeUrl !== 'undefined' ? codeUrl : '/source-code' %>">
-                <i class="feather-code"></i>
+                <i class="feather-code" aria-hidden="true"></i>
                 <div class="qa-text"><strong>Browse Source Code</strong><span>Working projects with docs</span></div>
               </a>
               <a class="qa-item" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>">
-                <i class="feather-play-circle"></i>
+                <i class="feather-play-circle" aria-hidden="true"></i>
                 <div class="qa-text"><strong>See Live Demos</strong><span>Preview before you choose</span></div>
               </a>
               <a class="qa-item" href="<%= typeof blogUrl !== 'undefined' ? blogUrl : '/blog' %>">
-                <i class="feather-book-open"></i>
-                <div class="qa-text"><strong>Guides & Blogs</strong><span>Tips, checklists & more</span></div>
+                <i class="feather-book-open" aria-hidden="true"></i>
+                <div class="qa-text"><strong>Guides &amp; Blogs</strong><span>Tips, checklists &amp; more</span></div>
               </a>
               <a class="qa-item" id="WhatsAppSide" href="#">
-                <i class="feather-message-circle"></i>
+                <i class="feather-message-circle" aria-hidden="true"></i>
                 <div class="qa-text"><strong>Request Custom Report</strong><span>Fast reply on WhatsApp</span></div>
               </a>
             </div>
           </div>
 
           <div class="side-card">
-            <div class="side-title"><i class="feather-info"></i><h4>What we provide</h4></div>
+            <div class="side-title"><i class="feather-info" aria-hidden="true"></i><h4>What we provide</h4></div>
             <p class="mb-0" style="color:var(--muted)">Project reports, source code, and PPTs tailored for final-year students. Explore, or message us for a custom build.</p>
           </div>
         </div>
-      </div>
+      </aside>
     </div>
   </section>
 </div>
-
-<!-- Floating WhatsApp CTA -->
-
 
 <% include Includes/footer.ejs %>

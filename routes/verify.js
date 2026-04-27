@@ -277,22 +277,13 @@ async function getDatas(tableName, columnName) {
 
 
 
-const nodemailer = require('nodemailer');
+const {
+  createFilemakrSmtpTransport,
+  filemakrFromEmail,
+  filemakrSupportEmail,
+} = require('../utils/filemakrSmtp');
 
-
-
-
-// Create a transporter for sending emails (GoDaddy smtpout.secureserver.net)
-// Port 465 = implicit SSL | Port 587 = STARTTLS (use secure: false)
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtpout.secureserver.net',
-    port: Number(process.env.SMTP_PORT) || 465,
-    secure: (process.env.SMTP_PORT || '465') === '465',
-    auth: {
-      user: process.env.SMTP_USER || 'info@filemakr.com',
-      pass: process.env.SMTP_PASS || '123a@*Anmanraspaa',
-    },
-  });
+const transporter = createFilemakrSmtpTransport();
   
 
 
@@ -304,7 +295,7 @@ const transporter = nodemailer.createTransport({
       try {
             try {
               const mailOptions = {
-                from: 'info@filemakr.com',
+                from: filemakrFromEmail(),
                 to: result.email,
                 subject: subject,
                 html: `
@@ -345,7 +336,7 @@ const transporter = nodemailer.createTransport({
     async function sendPromotionalMail(result, subject, message) {
       try {
         const mailOptions = {
-          from: 'info@filemakr.com',
+          from: filemakrFromEmail(),
           to: result.email,
           subject: subject,
           html: `
@@ -380,7 +371,7 @@ const transporter = nodemailer.createTransport({
       try {
             try {
               const mailOptions = {
-                from: 'info@filemakr.com',
+                from: filemakrFromEmail(),
                 to: result,
                 subject: subject,
                 html: `
@@ -669,7 +660,7 @@ async function sendEmails() {
     // Loop through each shopkeeper and send an email
     for (const shopkeeper of rows) {
       const mailOptions = {
-        from: `info@filemakr.com`,
+        from: filemakrFromEmail(),
         to: shopkeeper.email,
         subject: "Your Brand Ambassador Login Details & Referral Code",
         html: `
@@ -683,10 +674,10 @@ async function sendEmails() {
             <li>Your Unique Referral Code: ${shopkeeper.unique_code}</li>
           </ul>
           <p>Please use this referral code to share with your network. Every successful referral will be tracked through your dashboard.</p>
-          <p>For any assistance, feel free to reach out to our support team at <a href="mailto:info@filemakr.com">info@filemakr.com</a> or call us at 8877152035.</p>
+          <p>For any assistance, feel free to reach out to our support team at <a href="mailto:${filemakrSupportEmail()}">${filemakrSupportEmail()}</a> or call us at 8877152035.</p>
           <p>Looking forward to seeing your success!</p>
           <p>Best regards,</p>
-          <p>Abhishek Jain<br>Business Development Manager<br>FileMakr<br><a href="mailto:info@filemakr.com">info@filemakr.com</a></p>
+          <p>Abhishek Jain<br>Business Development Manager<br>FileMakr<br><a href="mailto:${filemakrSupportEmail()}">${filemakrSupportEmail()}</a></p>
         `,
       };
 
@@ -727,7 +718,7 @@ async function sendWelcomeEmails() {
     // Loop through each shopkeeper and send an email
     for (const shopkeeper of rows) {
       const mailOptions = {
-        from: `info@filemakr.com`,
+        from: filemakrFromEmail(),
         to: shopkeeper.email,
         subject: "Congratulations on Becoming a Campus Brand Ambassador",
         html: `
@@ -738,7 +729,7 @@ async function sendWelcomeEmails() {
           <p>As a Campus Brand Ambassador, you will represent our brand on campus, promoting our programs and initiatives, and inspiring your peers to learn more about the opportunities we offer. We believe your enthusiasm, leadership qualities, and commitment make you the perfect fit for this role.</p>
           <p>Once again, congratulations on this exciting opportunity! We look forward to having you as a valued part of our ambassador program.</p>
           <p>Best regards,</p>
-          <p>Abhishek Jain<br>Business Development Manager<br>FileMakr<br><a href="mailto:info@filemakr.com">info@filemakr.com</a></p>
+          <p>Abhishek Jain<br>Business Development Manager<br>FileMakr<br><a href="mailto:${filemakrSupportEmail()}">${filemakrSupportEmail()}</a></p>
         `,
       };
 

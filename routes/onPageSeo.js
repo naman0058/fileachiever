@@ -20,18 +20,6 @@ const blogPage = {
 };
 
 
-const newsPage = {
-    title: 'Breaking U.S. News & Trending Stories | FileMakr News',
-    description: "Stay updated with the latest U.S. news and trending stories. From politics and business to entertainment and technology, FileMakr News delivers fast, reliable, and fact-checked updates to keep you informed.",
-    author: 'FileMakr News', // use your brand name or specific journalist if applicable
-    abstract: 'Get the most recent breaking news and viral stories from across the United States. FileMakr News covers politics, economy, tech, entertainment, and culture with accuracy, speed, and a fact-check-first approach. Stay ahead with real-time updates and deep insights on the stories shaping America today.',
-    keywords: 'US news, breaking news, trending news, politics, economy, technology, entertainment, celebrity news, viral stories, fact check, FileMakr News',
-    url: 'https://filemakr.com/us/trends' // should be the specific URL of the news/trending article
-};
-
-
-// 
-
 const contactPage = {
     title : 'Contact Us | FileMakr',
     description:'Contact Filemakr for access to comprehensive source code and project reports, ideal for final year students.',
@@ -162,6 +150,5 @@ module.exports = {
     successPage,
     projectPage,
     AmbassadorPage,
-    blogPage,
-    newsPage
+    blogPage
 }

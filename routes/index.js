@@ -75,9 +75,8 @@ router.use('/blog-writer', require('./blog/writer'));
 // ========== Source Code ==========
 router.use('/final-year-projects-source-code', require('./source_code'));
 
-// ========== API / Trends ==========
+// ========== API ==========
 router.use('/api', require('./api'));
-router.use('/trending', require('./Trends/index'));
 
 // ========== Setup Support Portal (dedicated login + panel) ==========
 router.use('/setup-support', require('./setup-support'));
@@ -87,6 +86,9 @@ router.use('/source-code-manager', require('./source-code-manager'));
 
 // ========== Project Report Manager Portal (headings/subheadings/body per source code) ==========
 router.use('/project-report-manager', require('./project-report-manager'));
+
+// ========== MERN Training Program Manager (onboarding tools + affiliate task routes) ==========
+router.use('/mern-training-manager', require('./mern-training-manager'));
 
 // ========== Project Report Creator Portal (create & download customized reports) ==========
 router.use('/project-report-creator', require('./project-report-creator'));

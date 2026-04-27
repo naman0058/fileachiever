@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MERN Training Manager • Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #f1f5f9; min-height: 100vh; }
+    .topbar { background: linear-gradient(135deg, #0f172a 0%, #1e3a2f 100%); color: #e2e8f0; }
+    .tool-card { border-radius: 16px; border: 1px solid #e2e8f0; transition: box-shadow .2s, border-color .2s, transform .15s; height: 100%; background: #fff; }
+    .tool-card:hover { box-shadow: 0 12px 40px rgba(15,23,42,.1); border-color: #cbd5e1; transform: translateY(-2px); }
+    .tool-card .icon-wrap { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+    .accent-green { background: rgba(34,197,94,.15); color: #15803d; }
+    .accent-blue { background: rgba(46,72,251,.12); color: #2E48FB; }
+    .accent-amber { background: rgba(245,158,11,.15); color: #b45309; }
+    .accent-violet { background: rgba(139,92,246,.12); color: #6d28d9; }
+  </style>
+</head>
+<body>
+  <header class="topbar py-4 mb-4">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+          <div class="small text-uppercase text-white-50 fw-semibold letter-spacing">FileMakr</div>
+          <h1 class="h4 mb-0 text-white fw-semibold">MERN training program manager</h1>
+          <p class="mb-0 small text-white-50 mt-1">Signed in as <strong class="text-white"><%= user.name %></strong></p>
+        </div>
+        <a href="/mern-training-manager/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">Sign out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container pb-5">
+    <p class="text-secondary mb-4">Use the tools below to onboard students, publish daily work, verify submissions, and monitor the internship cohort.</p>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-6">
+        <a href="/mern-training-manager/workspace/add-student" class="text-decoration-none text-reset d-block h-100">
+          <div class="tool-card p-4">
+            <div class="d-flex gap-3">
+              <div class="icon-wrap accent-green"><i class="bi bi-person-plus"></i></div>
+              <div>
+                <h2 class="h5 fw-semibold mb-2">Add student &amp; onboarding</h2>
+                <p class="text-secondary small mb-0">Create shopkeeper accounts, send the 45-day MERN onboarding letter and login credentials for <span class="text-dark fw-medium">/mern-training-program</span>. Includes bulk CSV upload.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-6">
+        <a href="/mern-training-manager/workspace/create-task" class="text-decoration-none text-reset d-block h-100">
+          <div class="tool-card p-4">
+            <div class="d-flex gap-3">
+              <div class="icon-wrap accent-blue"><i class="bi bi-list-task"></i></div>
+              <div>
+                <h2 class="h5 fw-semibold mb-2">Create task</h2>
+                <p class="text-secondary small mb-0">Set today’s daily task or add hustle tasks for the ambassador program.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-6">
+        <a href="/mern-training-manager/workspace/review-tasks" class="text-decoration-none text-reset d-block h-100">
+          <div class="tool-card p-4">
+            <div class="d-flex gap-3">
+              <div class="icon-wrap accent-amber"><i class="bi bi-check2-square"></i></div>
+              <div>
+                <h2 class="h5 fw-semibold mb-2">Review tasks</h2>
+                <p class="text-secondary small mb-0">Approve or reject pending daily submissions with proof links.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-6">
+        <a href="/mern-training-manager/workspace/internship" class="text-decoration-none text-reset d-block h-100">
+          <div class="tool-card p-4">
+            <div class="d-flex gap-3">
+              <div class="icon-wrap accent-violet"><i class="bi bi-graph-up-arrow"></i></div>
+              <div>
+                <h2 class="h5 fw-semibold mb-2">Internship dashboard</h2>
+                <p class="text-secondary small mb-0">Cohort performance, 7-day matrix, trends, and today’s attendance.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

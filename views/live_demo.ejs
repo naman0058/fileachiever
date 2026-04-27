@@ -289,17 +289,19 @@
 
   const items = shuffle(nodes.slice()).slice(0, Math.min(8, nodes.length));
   items.forEach(n=>{
-    const name = n.getAttribute('data-name') || '';
-    const desc = n.getAttribute('data-desc') || '';
+    const rawName = n.getAttribute('data-name') || '';
+    const rawDesc = n.getAttribute('data-desc') || '';
+    const name = mdStripText(rawName);
+    const desc = mdStripText(rawDesc);
     const url  = n.getAttribute('data-url')  || '#';
-    const wa   = waLink(`Need details for "${name}"`);
+    const wa   = waLink(`Need details for "${rawName}"`);
 
     const card = document.createElement('div');
     card.className = 'md-item';
     card.innerHTML = `
       <span class="md-chip"><i class="feather-trending-up"></i> Popular</span>
       <h4 class="md-title">${name}</h4>
-      <p class="md-desc">${desc}</p>
+      <div class="md-desc">${desc}</div>
       <div class="md-actions">
         <a class="md-btn md-btn-light" href="${url}" aria-label="View ${name} details">Live Demo</a>
         

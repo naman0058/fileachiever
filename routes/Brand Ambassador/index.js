@@ -22,7 +22,12 @@ const cloudinary = require('cloudinary').v2
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
 const projectReportShared = require('../projectReportShared');
-          
+const {
+  createFilemakrSmtpTransport,
+  filemakrMailFrom,
+  filemakrSupportEmail,
+} = require('../../utils/filemakrSmtp');
+
 cloudinary.config({ 
   cloud_name: 'dggf8vl9p', 
   api_key: '689413729986639', 
@@ -1466,8 +1471,6 @@ router.get('/dashboard/post/:id/details', async (req, res) => {
 
 
 
-const nodemailer = require('nodemailer');
-
 router.post('/dashboard/post/:id/remind', async (req, res) => {
   const { platform, link } = req.body;
   const postId = req.params.id;
@@ -1486,19 +1489,11 @@ router.post('/dashboard/post/:id/remind', async (req, res) => {
       return res.redirect('back');
     }
 
-    const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'info@filemakr.com',
-        pass: '123a@*Anmanraspaa',
-      },
-    });
+    const transporter = createFilemakrSmtpTransport();
 
     for (const user of notEngaged) {
       const mailOptions = {
-        from: `"FILEMAKR Team" <info@filemakr.com>`,
+        from: filemakrMailFrom('FILEMAKR Team'),
         to: user.email,
         subject: "You didn't follow your roles and responsibility",
         html: `
@@ -1931,18 +1926,9 @@ router.post('/performance/email/:id', async (req, res) => {
       </div>
     `;
 
-    // Send Email
-     const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'info@filemakr.com',
-        pass: '123a@*Anmanraspaa',
-      },
-    });
+    const transporter = createFilemakrSmtpTransport();
     await transporter.sendMail({
-      from: '"FileMakr Team" <info@filemakr.com>',
+      from: filemakrMailFrom('FileMakr Team'),
       to: ambassador.email,                 // Ensure this field exists in DB
       subject: 'Your Performance Summary - FileMakr Brand Ambassador',
       html: emailBody
@@ -2014,19 +2000,10 @@ router.post('/performance/certificate/:id', async (req, res) => {
     fs.writeFileSync(filePath, pdfBytes);
     console.log('filepath',filePath)
 
-    // Email setup
-    const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'info@filemakr.com',
-        pass: '123a@*Anmanraspaa',
-      },
-    });
+    const transporter = createFilemakrSmtpTransport();
 
     await transporter.sendMail({
-      from: '"FileMakr Team" <info@filemakr.com>',
+      from: filemakrMailFrom('FileMakr Team'),
       to: ambassador.email,
       subject: '🎓 Your Experience Certificate as a FileMakr Campus Brand Ambassador',
       html: `
@@ -2587,18 +2564,10 @@ router.get('/credentials/sent', async (req, res) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'info@filemakr.com',
-        pass: '123a@*Anmanraspaa',
-      },
-    });
+    const transporter = createFilemakrSmtpTransport();
 
     const mailOptions = {
-      from: '"Team FileMakr" <info@filemakr.com>',
+      from: filemakrMailFrom('Team FileMakr'),
       to: email,
       subject: "🔐 Your Brand Ambassador Login Credentials",
       html: `
@@ -2624,7 +2593,7 @@ router.get('/credentials/sent', async (req, res) => {
           </p>
 
           <p>If you have any questions or need support, feel free to reach out to us at 
-            <a href="mailto:info@filemakr.com">info@filemakr.com</a>.
+            <a href="mailto:${filemakrSupportEmail()}">${filemakrSupportEmail()}</a>.
           </p>
 
           <p>Wishing you all the best in this exciting role!</p>
@@ -3374,7 +3343,7 @@ router.get('/benefits/preview', async (req, res, next) => {
         name: 'FileMakr',
         logo: 'https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif',
         website: 'https://filemakr.com',
-        supportEmail: 'info@filemakr.com'
+        supportEmail: filemakrSupportEmail()
       },
       // QR payload example (string you might convert to a QR image client-side)
       qrPayload: JSON.stringify({ id: amb.id, code: benefit.code, ts: Date.now() })
@@ -3416,7 +3385,7 @@ router.post('/benefits/generate', async (req, res, next) => {
         name: 'FileMakr',
         logo: 'https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif',
         website: 'https://filemakr.com',
-        supportEmail: 'info@filemakr.com'
+        supportEmail: filemakrSupportEmail()
       },
     };
 

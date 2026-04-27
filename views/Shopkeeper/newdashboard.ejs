@@ -533,22 +533,13 @@
 
         <% if (isIgDaily) { %>
           <div class="notice-class-link notice-class-link--ig" role="note">
-            <strong>Instagram attendance:</strong> Use the <strong>same Instagram username</strong> as on your profile. Comment on the task post, then tap <strong>Verify my attendance</strong>. We check your comment; the team approves you on the affiliate dashboard. Please <strong>like</strong> and share the post too.
+            <strong>Instagram attendance:</strong> Use the <strong>same Instagram username</strong> as on your profile.
           </div>
 
           <% if (dailyTask.proofUploaded && dailyTask.proofStatus === 'verified') { %>
             <span class="status ok">Verified — attendance confirmed</span>
           <% } else if (igAwaitingReview) { %>
-            <span class="status wait">Submitted — your comment was found. Awaiting team approval. You’ll get the class Meet link by email after approval.</span>
-            <div class="ig-verify-panel">
-              <p class="ig-verify-hint">Need to fix something? Comment on the post, then tap verify again.</p>
-              <ul class="ig-check-list" id="ig-check-list" style="display:none"></ul>
-              <p class="ig-verify-err" id="ig-verify-err" style="display:none"></p>
-              <button type="button" class="btn" id="btn-verify-ig" data-task-id="<%= dailyTask.id %>">
-                <span class="button-text">Verify again</span>
-                <svg class="loader-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"/><path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"/></svg>
-              </button>
-            </div>
+            <span class="status wait">Waiting for approval — your comment was found and sent to the team. Check your email for the Meet link after they approve.</span>
           <% } else if (igProofPending) { %>
             <span class="status wait">Under review — uploaded proof is pending (older submission). New check: use verify below if this is an Instagram task.</span>
             <div class="ig-verify-panel">

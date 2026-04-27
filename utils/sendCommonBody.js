@@ -1,24 +1,15 @@
-const nodemailer = require('nodemailer');
+const {
+  createFilemakrSmtpTransport,
+  filemakrMailFrom,
+  filemakrSupportEmail,
+} = require('./filemakrSmtp');
 
-// 👉 Use env vars in production
-// SMTP_HOST=smtpout.secureserver.net
-// SMTP_PORT=465
-// SMTP_USER=info@filemakr.com
-// SMTP_PASS=********
- const transporter = nodemailer.createTransport({
-    host: 'smtpout.secureserver.net',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'info@filemakr.com',
-      pass: '123a@*Anmanraspaa',
-    },
-  });
+const transporter = createFilemakrSmtpTransport();
 
 const BRAND = {
   name: 'FileMakr',
-  from: `"FILEMAKR Team" <${process.env.SMTP_USER || 'info@filemakr.com'}>`,
-  support: 'info@filemakr.com',
+  from: filemakrMailFrom('FILEMAKR Team'),
+  support: filemakrSupportEmail(),
   website: 'https://filemakr.com',
   // Minimal inline style tokens
   styles: `

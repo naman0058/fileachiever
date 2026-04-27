@@ -1,18 +1,14 @@
-const nodemailer = require('nodemailer');
+const {
+  createFilemakrSmtpTransport,
+  filemakrMailFrom,
+  filemakrSupportEmail,
+} = require('./filemakrSmtp');
 
 async function sendOfferLetter(toEmail, pdfBuffer, student_name) {
-  const transporter = nodemailer.createTransport({
-    host: 'smtpout.secureserver.net',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'info@filemakr.com',
-      pass: '123a@*Anmanraspaa',
-    },
-  });
+  const transporter = createFilemakrSmtpTransport();
 
   const mailOptions = {
-    from: '"FILEMAKR Team" <info@filemakr.com>',
+    from: filemakrMailFrom('FILEMAKR Team'),
     to: toEmail,
     subject: '🎓 Your Official Offer Letter from FileMakr',
     html: `
@@ -25,7 +21,7 @@ async function sendOfferLetter(toEmail, pdfBuffer, student_name) {
 
         <p>Please find your official offer letter attached with this email.</p>
 
-        <p>If you have any questions or need support, feel free to reach out to us at <a href="mailto:info@filemakr.com">info@filemakr.com</a>.</p>
+        <p>If you have any questions or need support, feel free to reach out to us at <a href="mailto:${filemakrSupportEmail()}">${filemakrSupportEmail()}</a>.</p>
 
         <p>Best regards,<br/>
         <strong>Team FileMakr</strong><br/>

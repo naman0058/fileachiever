@@ -244,6 +244,8 @@ function getCurrentWeekDates() {
 
 // sendBusinessEmails('15n','')
 
+const { isMernTrainingManager } = require('./mernManagerAccess');
+
 function adminAuthenticationToken(req,res,next){
  
   if (req.path === '/login' && req.method === 'POST') {
@@ -260,7 +262,7 @@ pool.query(`select * from affiliate where email ='${body.email}' and password = 
    else res.render(`Affiliation/login`,{msg : 'Enter Wrong Creaditionals'})
 })
  }
-  else if(req.session.affiliation) {
+  else if(req.session.affiliation || isMernTrainingManager(req)) {
     req.categories = true;
      next();
   }

@@ -14,8 +14,16 @@ var dataService = require('../dataService');
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
+const {
+  mernPortalEmbedLocals,
+  redirectMernManagerAffiliatePageLoadsToWorkspace,
+  restrictMernManagerAffiliateAccess,
+} = require('../mernManagerAccess');
 
 router.use(dataService.adminAuthenticationToken);
+router.use(mernPortalEmbedLocals);
+router.use(redirectMernManagerAffiliatePageLoadsToWorkspace);
+router.use(restrictMernManagerAffiliateAccess);
 
 // import {v2 as cloudinary} from 'cloudinary';
 const cloudinary = require('cloudinary').v2
@@ -24,6 +32,11 @@ const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
 const projectReportShared = require('../projectReportShared');
 const ig = require('../instagramGraphHelpers');
+const {
+  createFilemakrSmtpTransport,
+  filemakrMailFrom,
+  filemakrSupportEmail,
+} = require('../../utils/filemakrSmtp');
 
 /** Multer field names for source_code zip + optional readme / schema / sql uploads */
 const sourceCodeMultipartFields = [
@@ -1489,8 +1502,6 @@ router.get('/dashboard/post/:id/details', async (req, res) => {
 
 
 
-const nodemailer = require('nodemailer');
-
 router.post('/dashboard/post/:id/remind', async (req, res) => {
   const { platform, link } = req.body;
   const postId = req.params.id;
@@ -1509,19 +1520,11 @@ router.post('/dashboard/post/:id/remind', async (req, res) => {
       return res.redirect('back');
     }
 
-    const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'info@filemakr.com',
-        pass: '123a@*Anmanraspaa',
-      },
-    });
+    const transporter = createFilemakrSmtpTransport();
 
     for (const user of notEngaged) {
       const mailOptions = {
-        from: `"FILEMAKR Team" <info@filemakr.com>`,
+        from: filemakrMailFrom('FILEMAKR Team'),
         to: user.email,
         subject: "You didn't follow your roles and responsibility",
         html: `
@@ -1782,7 +1785,8 @@ router.get('/report/ambassador-engagement', async (req, res) => {
 
 
 
-const MIN_START_DATE = '2025-07-18'; // do not show ambassadors before this onboarding date
+/** Rolling window for internship attendance counts, charts, exports, and join cohort (days from today). */
+const INTERNSHIP_RECENT_DAYS = 60;
 
 function toDateOnly(d) {
   if (!d) return null;
@@ -1792,9 +1796,10 @@ function toDateOnly(d) {
 }
 
 function ensureDateRange(qs) {
-  // Defaults: last 30 days
+  // Defaults: last INTERNSHIP_RECENT_DAYS calendar days (inclusive of today)
   const today = new Date(); // server time; if your MySQL runs UTC, we rely on SQL DATE() / CURDATE()
-  const start = qs.start ? toDateOnly(qs.start) : toDateOnly(new Date(today.getTime() - 29 * 86400000));
+  const defaultLookbackMs = (INTERNSHIP_RECENT_DAYS - 1) * 86400000;
+  const start = qs.start ? toDateOnly(qs.start) : toDateOnly(new Date(today.getTime() - defaultLookbackMs));
   const end = qs.end ? toDateOnly(qs.end) : toDateOnly(today);
   return { start, end };
 }
@@ -1842,16 +1847,17 @@ router.get('/internship', async (req, res, next) => {
     const sort = (req.query.sort || 'created_at').toLowerCase(); // created_at | name | performance | verified_range
     const order = (req.query.order || 'desc').toLowerCase();     // asc | desc
 
-    // build WHERE fragments
-    const whereAmb = [`s.created_at >= ?`];
-    const ambParams = [MIN_START_DATE];
+    // Cohort: shopkeepers whose account was created in the last INTERNSHIP_RECENT_DAYS (from today)
+    const cohortClause = `s.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)`;
+    const whereAmb = [cohortClause];
+    const ambParams = [];
 
     if (qSearch) {
       whereAmb.push(`(s.name LIKE ? OR s.number LIKE ?)`);
       ambParams.push(`%${qSearch}%`, `%${qSearch}%`);
     }
 
-    // 1) All Ambassadors with overall & range aggregates
+    // 1) Ambassadors with aggregates only for last INTERNSHIP_RECENT_DAYS days
    const ambassadorsSQL = `
   SELECT
     s.id AS brand_ambassador_id,
@@ -1861,27 +1867,28 @@ router.get('/internship', async (req, res, next) => {
     s.created_at,
     DATEDIFF(CURDATE() + INTERVAL 1 DAY, s.created_at) AS total_days,
 
-    /* ALL-TIME verified */
     SUM(CASE WHEN idt.status = 'verified' THEN 1 ELSE 0 END) AS verified_range,
 
-    /* Keep these ALL-TIME too (optional; remove if not needed) */
     SUM(CASE WHEN idt.status = 'pending' THEN 1 ELSE 0 END)  AS pending_total,
     SUM(CASE WHEN idt.status = 'rejected' THEN 1 ELSE 0 END) AS rejected_total
 
   FROM shopkeeper s
   LEFT JOIN internship_day idt
     ON idt.brand_ambassador_id = s.id
+    AND idt.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)
   WHERE ${whereAmb.join(' AND ')}
   GROUP BY s.id, s.name, s.email, s.number, s.address, s.created_at
 `;
 
 const ambassadors = await q(pool, ambassadorsSQL, [...ambParams]);
 
-// Compute performance using ALL-TIME totals
-ambassadors.forEach(a => {
-  // "days_in_range" is actually "total_days" for this all-time definition
-  a.range_total_days = a.total_days;
+// Performance over rolling window: denominator capped at INTERNSHIP_RECENT_DAYS and membership length
+ambassadors.forEach((a) => {
+  const cap = Math.min(INTERNSHIP_RECENT_DAYS, Math.max(1, Number(a.total_days) || 0));
+  a.range_total_days = cap;
   a.performance_range = perfPercent(a.verified_range, a.range_total_days);
+  a.pending_range = a.pending_total;
+  a.rejected_range = a.rejected_total;
 });
 
     // Filter by status (for main listing)
@@ -1889,9 +1896,9 @@ ambassadors.forEach(a => {
     if (statusFilter === 'verified') {
       filtered = filtered.filter(a => a.verified_range > 0);
     } else if (statusFilter === 'pending') {
-      filtered = filtered.filter(a => a.pending_range > 0);
+      filtered = filtered.filter((a) => a.pending_total > 0);
     } else if (statusFilter === 'rejected') {
-      filtered = filtered.filter(a => a.rejected_range > 0);
+      filtered = filtered.filter((a) => a.rejected_total > 0);
     }
     if (minPerf > 0) {
       filtered = filtered.filter(a => a.performance_range >= minPerf);
@@ -1919,6 +1926,7 @@ ambassadors.forEach(a => {
   FROM internship_day idt
   JOIN shopkeeper s ON s.id = idt.brand_ambassador_id
   WHERE DATE(idt.created_at) = CURDATE() AND idt.status = 'verified'
+    AND ${cohortClause}
   ORDER BY s.name ASC
 `;
     const todayVerified = await q(pool, todayVerifiedSQL);
@@ -1933,11 +1941,11 @@ ambassadors.forEach(a => {
         WHERE DATE(created_at) = CURDATE() AND status = 'verified'
       ) v ON v.brand_ambassador_id = s.id
       WHERE s.created_at <= CURDATE()
-        AND s.created_at >= ?
+        AND ${cohortClause}
         AND v.brand_ambassador_id IS NULL
       ORDER BY s.name ASC
     `;
-    const todayMissed = await q(pool, todayMissedSQL, [MIN_START_DATE]);
+    const todayMissed = await q(pool, todayMissedSQL);
 
     // 4) Last 7 days per ambassador (Y/N heatmap)
     const weeklySQL = `
@@ -1953,14 +1961,16 @@ ambassadors.forEach(a => {
         SUM(CASE WHEN DATE(idt.created_at) = CURDATE() - INTERVAL 5 DAY AND idt.status='verified' THEN 1 ELSE 0 END) AS d5,
         SUM(CASE WHEN DATE(idt.created_at) = CURDATE() - INTERVAL 6 DAY AND idt.status='verified' THEN 1 ELSE 0 END) AS d6
       FROM shopkeeper s
-      LEFT JOIN internship_day idt ON idt.brand_ambassador_id = s.id
-      WHERE s.created_at >= ?
+      LEFT JOIN internship_day idt
+        ON idt.brand_ambassador_id = s.id
+        AND idt.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)
+      WHERE ${cohortClause}
       GROUP BY s.id, s.name, s.email, s.number
       ORDER BY s.name ASC
     `;
-    const weekly = await q(pool, weeklySQL, [MIN_START_DATE]);
+    const weekly = await q(pool, weeklySQL);
 
-    // 5) Daily trend time-series for current range
+    // 5) Daily trend (selected range, capped to attendance within rolling window)
     const timeseriesSQL = `
       SELECT
         DATE(idt.created_at) AS d,
@@ -1968,42 +1978,52 @@ ambassadors.forEach(a => {
         SUM(idt.status='pending') AS pending,
         SUM(idt.status='rejected') AS rejected
       FROM internship_day idt
+      INNER JOIN shopkeeper s ON s.id = idt.brand_ambassador_id AND ${cohortClause}
       WHERE DATE(idt.created_at) BETWEEN ? AND ?
+        AND idt.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)
       GROUP BY DATE(idt.created_at)
       ORDER BY d ASC
     `;
     const timeseries = await q(pool, timeseriesSQL, [start, end]);
 
-    // summary cards
-    const totalAmbassadorsSQL = `SELECT COUNT(*) AS c FROM shopkeeper s WHERE s.created_at >= ?`;
-    const [{ c: totalAmbassadors }] = await q(pool, totalAmbassadorsSQL, [MIN_START_DATE]);
+    // summary cards (same 60-day join cohort)
+    const totalAmbassadorsSQL = `SELECT COUNT(*) AS c FROM shopkeeper s WHERE ${cohortClause}`;
+    const [{ c: totalAmbassadors }] = await q(pool, totalAmbassadorsSQL);
 
-    const eligibleTodaySQL = `SELECT COUNT(*) AS c FROM shopkeeper s WHERE s.created_at <= CURDATE() AND s.created_at >= ?`;
-    const [{ c: eligibleToday }] = await q(pool, eligibleTodaySQL, [MIN_START_DATE]);
+    const eligibleTodaySQL = `SELECT COUNT(*) AS c FROM shopkeeper s WHERE s.created_at <= CURDATE() AND ${cohortClause}`;
+    const [{ c: eligibleToday }] = await q(pool, eligibleTodaySQL);
 
     const todayVerifiedCount = todayVerified.length;
     const todayMissedCount = todayMissed.length;
     const todayCompletionRate = eligibleToday ? Math.round((todayVerifiedCount / eligibleToday) * 100) : 0;
 
-    // Top 10 for bar chart by performance in selected range
-    const top10 = ambassadors
+    // Top / bottom performers from filtered list (respects search & status filters)
+    const top10 = filtered
       .slice()
       .sort((a, b) => b.performance_range - a.performance_range)
+      .slice(0, 10);
+    const bottom10 = filtered
+      .slice()
+      .sort((a, b) => a.performance_range - b.performance_range)
       .slice(0, 10);
 
     // Pass to EJS
     res.render(`${folder}/intership`, {
       // filters
-      start, end, qSearch, statusFilter, minPerf, sort, order,
+      start,
+      end,
+      qSearch,
+      statusFilter,
+      minPerf,
+      internshipRecentDays: INTERNSHIP_RECENT_DAYS,
 
       // data
-      result: filtered,                // main table
-      rawAmbassadors: ambassadors,     // raw (for client-side extra calc if needed)
       todayVerified,
       todayMissed,
       weekly,
       timeseries,
       top10,
+      bottom10,
 
       // summary
       totalAmbassadors,
@@ -2025,8 +2045,9 @@ router.get('/internship/export/main.csv', async (req, res, next) => {
     const statusFilter = (req.query.status || 'all').toLowerCase();
     const minPerf = Number(req.query.minPerf || 0);
 
-    const whereAmb = [`s.created_at >= ?`];
-    const ambParams = [MIN_START_DATE];
+    const cohortClause = `s.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)`;
+    const whereAmb = [cohortClause];
+    const ambParams = [];
     if (qSearch) {
       whereAmb.push(`(s.name LIKE ? OR s.number LIKE ?)`);
       ambParams.push(`%${qSearch}%`, `%${qSearch}%`);
@@ -2046,15 +2067,18 @@ router.get('/internship/export/main.csv', async (req, res, next) => {
         SUM(CASE WHEN idt.status='rejected' THEN 1 ELSE 0 END) AS rejected_total
 
       FROM shopkeeper s
-      LEFT JOIN internship_day idt ON idt.brand_ambassador_id = s.id
+      LEFT JOIN internship_day idt
+        ON idt.brand_ambassador_id = s.id
+        AND idt.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)
       WHERE ${whereAmb.join(' AND ')}
       GROUP BY s.id
       ORDER BY s.created_at DESC
     `;
     const rows = await q(pool, sql, ambParams);
 
-    const shaped = rows.map(r => {
-      const perf = perfPercent(r.verified_range, r.total_days);
+    const shaped = rows.map((r) => {
+      const cap = Math.min(INTERNSHIP_RECENT_DAYS, Math.max(1, Number(r.total_days) || 0));
+      const perf = perfPercent(r.verified_range, cap);
       return {
         brand_ambassador_id: r.brand_ambassador_id,
         name: r.name,
@@ -2069,14 +2093,14 @@ router.get('/internship/export/main.csv', async (req, res, next) => {
       };
     });
 
-    // Filters on all-time view
+    // Filters (counts are last INTERNSHIP_RECENT_DAYS only; CSV column names kept for compatibility)
     let filtered = shaped.slice();
     if (statusFilter === 'verified') filtered = filtered.filter(x => x.verified_all_time > 0);
     if (statusFilter === 'pending')  filtered = filtered.filter(x => x.pending_all_time > 0);
     if (statusFilter === 'rejected') filtered = filtered.filter(x => x.rejected_all_time > 0);
     if (minPerf > 0) filtered = filtered.filter(x => x.performance_percent_all_time >= minPerf);
 
-    sendCSV(res, `ambassadors_all_time.csv`, filtered, [
+    sendCSV(res, `ambassadors_last_${INTERNSHIP_RECENT_DAYS}_days.csv`, filtered, [
       'brand_ambassador_id','name','number','address','created_at',
       'total_days','verified_all_time','pending_all_time','rejected_all_time','performance_percent_all_time'
     ]);
@@ -2101,6 +2125,7 @@ router.get('/internship/export/today-verified.csv', async (req, res, next) => {
       JOIN shopkeeper s ON s.id = idt.brand_ambassador_id
       WHERE DATE(idt.created_at) = CURDATE() 
         AND idt.status = 'verified'
+        AND s.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)
       ORDER BY s.name ASC
     `;
 
@@ -2133,11 +2158,11 @@ router.get('/internship/export/today-missed.csv', async (req, res, next) => {
         WHERE DATE(created_at) = CURDATE() AND status='verified'
       ) v ON v.brand_ambassador_id = s.id
       WHERE s.created_at <= CURDATE()
-        AND s.created_at >= ?
+        AND s.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)
         AND v.brand_ambassador_id IS NULL
       ORDER BY s.name ASC
     `;
-    const rows = await q(pool, sql, [MIN_START_DATE]);
+    const rows = await q(pool, sql);
     sendCSV(res, `today_missed.csv`, rows.map(r => ({
       brand_ambassador_id: r.brand_ambassador_id,
       name: r.name,
@@ -2163,12 +2188,14 @@ router.get('/internship/export/weekly-matrix.csv', async (req, res, next) => {
         SUM(CASE WHEN DATE(idt.created_at) = CURDATE() - INTERVAL 5 DAY AND idt.status='verified' THEN 1 ELSE 0 END) AS d5,
         SUM(CASE WHEN DATE(idt.created_at) = CURDATE() - INTERVAL 6 DAY AND idt.status='verified' THEN 1 ELSE 0 END) AS d6
       FROM shopkeeper s
-      LEFT JOIN internship_day idt ON idt.brand_ambassador_id = s.id
-      WHERE s.created_at >= ?
+      LEFT JOIN internship_day idt
+        ON idt.brand_ambassador_id = s.id
+        AND idt.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)
+      WHERE s.created_at >= DATE_SUB(CURDATE(), INTERVAL ${INTERNSHIP_RECENT_DAYS} DAY)
       GROUP BY s.id, s.name, s.email, s.number
       ORDER BY s.name ASC
     `;
-    const rows = await q(pool, sql, [MIN_START_DATE]);
+    const rows = await q(pool, sql);
     const headers = ['brand_ambassador_id','name','number','day0','day1','day2','day3','day4','day5','day6'];
     const shaped = rows.map(r => ({
       brand_ambassador_id: r.brand_ambassador_id,
@@ -2363,18 +2390,9 @@ router.post('/performance/email/:id', async (req, res) => {
       </div>
     `;
 
-    // Send Email
-     const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'info@filemakr.com',
-        pass: '123a@*Anmanraspaa',
-      },
-    });
+    const transporter = createFilemakrSmtpTransport();
     await transporter.sendMail({
-      from: '"FileMakr Team" <info@filemakr.com>',
+      from: filemakrMailFrom('FileMakr Team'),
       to: ambassador.email,                 // Ensure this field exists in DB
       subject: 'Your Performance Summary - FileMakr Brand Ambassador',
       html: emailBody
@@ -2446,19 +2464,10 @@ router.post('/performance/certificate/:id', async (req, res) => {
     fs.writeFileSync(filePath, pdfBytes);
     console.log('filepath',filePath)
 
-    // Email setup
-    const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'info@filemakr.com',
-        pass: '123a@*Anmanraspaa',
-      },
-    });
+    const transporter = createFilemakrSmtpTransport();
 
     await transporter.sendMail({
-      from: '"FileMakr Team" <info@filemakr.com>',
+      from: filemakrMailFrom('FileMakr Team'),
       to: ambassador.email,
       subject: '🎓 Your Experience Certificate as a FileMakr Campus Brand Ambassador',
       html: `
@@ -2974,18 +2983,10 @@ router.get('/credentials/sent', async (req, res) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'info@filemakr.com',
-        pass: '123a@*Anmanraspaa',
-      },
-    });
+    const transporter = createFilemakrSmtpTransport();
 
     const mailOptions = {
-      from: '"Team FileMakr" <info@filemakr.com>',
+      from: filemakrMailFrom('Team FileMakr'),
       to: email,
       subject: "🔐 Your Brand Ambassador Login Credentials",
       html: `
@@ -3011,7 +3012,7 @@ router.get('/credentials/sent', async (req, res) => {
           </p>
 
           <p>If you have any questions or need support, feel free to reach out to us at 
-            <a href="mailto:info@filemakr.com">info@filemakr.com</a>.
+            <a href="mailto:${filemakrSupportEmail()}">${filemakrSupportEmail()}</a>.
           </p>
 
           <p>Wishing you all the best in this exciting role!</p>
@@ -3344,13 +3345,16 @@ router.post('/create-task', async (req, res) => {
     task_type = 'daily';
   }
 
+  const embedQ =
+    req.body.embed === '1' || req.body.embed === 'true' || req.body.embed === 1 ? '&embed=1' : '';
+
   try {
     if (task_type === 'hustle') {
       await queryAsync(
         `INSERT INTO task (title, description, task_type, created_at) VALUES (?, ?, 'hustle', NOW())`,
         [title, description]
       );
-      return res.redirect('/affiliate/create-task?msg=Hustle task created');
+      return res.redirect('/affiliate/create-task?msg=Hustle task created' + embedQ);
     }
 
     const rows = await queryAsync(
@@ -3362,14 +3366,14 @@ router.post('/create-task', async (req, res) => {
         description,
         rows[0].id
       ]);
-      return res.redirect('/affiliate/create-task?msg=Daily task updated');
+      return res.redirect('/affiliate/create-task?msg=Daily task updated' + embedQ);
     }
 
     await queryAsync(
       `INSERT INTO task (title, description, task_type, created_at) VALUES (?, ?, 'daily', NOW())`,
       [title, description]
     );
-    return res.redirect('/affiliate/create-task?msg=Daily task created');
+    return res.redirect('/affiliate/create-task?msg=Daily task created' + embedQ);
   } catch (err) {
     throw err;
   }
@@ -3378,6 +3382,7 @@ router.post('/create-task', async (req, res) => {
 
 
 router.get('/review-tasks', (req, res) => {
+  const momentTz = require('moment');
   const sql = `
     SELECT idt.id AS internshipTaskId, idt.proofLink, idt.status, idt.created_at,
            t.title, t.task_type, t.description,
@@ -3393,7 +3398,11 @@ router.get('/review-tasks', (req, res) => {
 
   pool.query(sql, (err, results) => {
     if (err) throw err;
-    res.render(`${folder}/review-tasks`, { tasks: results });
+    const tasks = (results || []).map((row) => ({
+      ...row,
+      submittedAtLabel: momentTz(row.created_at).format('MMM D, YYYY · h:mm A')
+    }));
+    res.render(`${folder}/review-tasks`, { tasks });
   });
 });
 
@@ -3567,7 +3576,9 @@ ${
       }
     }
 
-    res.redirect('/affiliate/review-tasks');
+    const rEmb =
+      req.body.embed === '1' || req.body.embed === 'true' || req.body.embed === 1 ? '?embed=1' : '';
+    res.redirect('/affiliate/review-tasks' + rEmb);
   } catch (err) {
     console.error('update-task-status:', err);
     return res.status(500).send('Server error.');
@@ -3904,7 +3915,7 @@ router.get('/benefits/preview', async (req, res, next) => {
         name: 'FileMakr',
         logo: 'https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif',
         website: 'https://filemakr.com',
-        supportEmail: 'info@filemakr.com'
+        supportEmail: filemakrSupportEmail()
       },
       // QR payload example (string you might convert to a QR image client-side)
       qrPayload: JSON.stringify({ id: amb.id, code: benefit.code, ts: Date.now() })
@@ -3946,7 +3957,7 @@ router.post('/benefits/generate', async (req, res, next) => {
         name: 'FileMakr',
         logo: 'https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif',
         website: 'https://filemakr.com',
-        supportEmail: 'info@filemakr.com'
+        supportEmail: filemakrSupportEmail()
       },
     };
 

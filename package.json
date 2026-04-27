@@ -27,7 +27,6 @@
     "fs": "^0.0.1-security",
     "geoip-lite": "^1.4.10",
     "google-auth-library": "^9.15.1",
-    "google-trends-api": "^4.9.2",
     "googleapis": "^144.0.0",
     "http-errors": "~1.6.2",
     "image-size": "^2.0.2",

@@ -32,11 +32,32 @@
 	<!-- tagify-css -->
 	<link href="/crm/vendor/tagify/dist/tagify.css" rel="stylesheet">
 	
-	<!-- Style css -->
+   <!-- Style css -->
    <link href="/crm/css/style.css" rel="stylesheet">
-	
+	<% if (typeof mernPortalEmbed !== 'undefined' && mernPortalEmbed) { %>
+	<style id="mern-affiliate-embed-chrome">
+		body.mern-affiliate-embed #preloader,
+		body.mern-affiliate-embed .nav-header,
+		body.mern-affiliate-embed .chatbox,
+		body.mern-affiliate-embed .header,
+		body.mern-affiliate-embed .deznav,
+		body.mern-affiliate-embed .footer {
+			display: none !important;
+		}
+		body.mern-affiliate-embed #main-wrapper .content-body {
+			margin-left: 0 !important;
+			margin-right: 0 !important;
+			margin-top: 0 !important;
+			padding-left: 0.75rem !important;
+			padding-right: 0.75rem !important;
+			padding-top: 0 !important;
+			width: 100% !important;
+			max-width: 100% !important;
+		}
+	</style>
+	<% } %>
 </head>
-<body data-typography="poppins" data-theme-version="light" data-layout="vertical" data-nav-headerbg="black" data-headerbg="color_1">
+<body data-typography="poppins" data-theme-version="light" data-layout="vertical" data-nav-headerbg="black" data-headerbg="color_1" class="<%= typeof mernPortalEmbed !== 'undefined' && mernPortalEmbed ? 'mern-affiliate-embed' : '' %>">
 
     <!--*******************
         Preloader start
