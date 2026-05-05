@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 const debug = require('debug')('my-store:server');
-const { app, server } = require('../app'); // use server from app.js (Socket.IO attached)
+const { app, server, setupSocketIoAdapter } = require('../app'); // use server from app.js (Socket.IO attached)
 
 /**
  * Get port from environment and store in Express.
@@ -15,9 +15,17 @@ app.set('port', port);
 /**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+(async () => {
+  try {
+    await setupSocketIoAdapter();
+  } catch (e) {
+    console.error('Socket.IO adapter setup failed:', e);
+    process.exit(1);
+  }
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
+})();
 
 /**
  * Normalize a port into a number, string, or false.

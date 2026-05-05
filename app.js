@@ -356,6 +356,37 @@ io.on('connection', (socket) => {
   });
 });
 
+/**
+ * When PM2/nginx runs more than one Node worker, io.to("sales").emit only reaches
+ * sockets on the same process as the HTTP request that handled the webhook. Optional
+ * Redis adapter broadcasts to all workers.
+ */
+async function setupSocketIoAdapter() {
+  const url =
+    process.env.SOCKET_IO_REDIS_URL ||
+    (String(process.env.REDIS_URL || '').startsWith('redis://')
+      ? process.env.REDIS_URL
+      : '');
+  if (!url) {
+    console.warn(
+      '[socket.io] No SOCKET_IO_REDIS_URL (or redis:// REDIS_URL). Using default in-memory adapter — OK only with a single Node process. If lead:new does not show in the browser while webhooks return 200, set SOCKET_IO_REDIS_URL or run PM2 with instances: 1.'
+    );
+    return;
+  }
+  try {
+    const { createClient } = require('redis');
+    const { createAdapter } = require('@socket.io/redis-adapter');
+    const pubClient = createClient({ url });
+    const subClient = pubClient.duplicate();
+    await Promise.all([pubClient.connect(), subClient.connect()]);
+    io.adapter(createAdapter(pubClient, subClient));
+    console.log('[socket.io] Redis adapter enabled (multi-worker lead broadcasts)');
+  } catch (e) {
+    console.error('[socket.io] Redis adapter failed:', e.message);
+    throw e;
+  }
+}
+
 app.set('io', io);
 
 // ======================================================
@@ -421,4 +452,4 @@ app.use((err, req, res, next) => {
 // ======================================================
 // EXPORT
 // ======================================================
-module.exports = { app, server };
+module.exports = { app, server, setupSocketIoAdapter };

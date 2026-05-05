@@ -42,17 +42,20 @@ if (!SMTP_USER || !SMTP_PASS) {
 }
 
 const WEBHOOK_URL = process.env.LEAD_WEBHOOK_URL || "https://www.filemakr.com/salesalert/api/internal/lead-new";
-const WEBHOOK_KEY = process.env.LEAD_WEBHOOK_KEY || "dev_key_change_me";
+const WEBHOOK_SECRET =
+  process.env.LEAD_WEBHOOK_SECRET ||
+  process.env.LEAD_WEBHOOK_KEY ||
+  "MyStrongSecret123";
 
 
 
 
-async function notifyServerNewLead(payload) {
+ async function notifyServerNewLead(payload) {
  const resp = await fetch(WEBHOOK_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-webhook-secret": 'MyStrongSecret123'
+      "x-webhook-secret": WEBHOOK_SECRET
     },
     body: JSON.stringify(payload || {})
   });

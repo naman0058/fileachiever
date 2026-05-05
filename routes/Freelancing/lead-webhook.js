@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
-const SECRET = "MyStrongSecret123";
+const SECRET =
+  process.env.LEAD_WEBHOOK_SECRET ||
+  process.env.LEAD_WEBHOOK_KEY ||
+  "MyStrongSecret123";
 
 router.post("/api/internal/lead-new", (req, res) => {
   try {
     const incoming = String(req.headers["x-webhook-secret"] || "");
 
     if (!SECRET || incoming !== SECRET) {
-      console.log("DEBUG incoming secret:", req.headers["x-webhook-secret"]);
-console.log("DEBUG all headers:", req.headers);
       return res.status(401).json({ ok: false, message: "Unauthorized" });
     }
 
