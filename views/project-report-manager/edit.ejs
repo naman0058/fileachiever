@@ -85,6 +85,12 @@
               <div class="small source-detail-html"><%- sc.user_features %></div>
             </div>
             <% } %>
+              <% if (sc.other_features && String(sc.other_features).trim()) { %>
+              <div class="col-12">
+                <label class="form-label small fw-semibold text-muted mb-1">Other Features</label>
+                <div class="small source-detail-html"><%- sc.other_features %></div>
+              </div>
+              <% } %>
             <% if (sc.functionality && String(sc.functionality).trim()) { %>
             <div class="col-12">
               <label class="form-label small fw-semibold text-muted mb-1">Functionality</label>
