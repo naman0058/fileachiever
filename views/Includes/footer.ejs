@@ -1,24 +1,24 @@
-
+<% const navActive = (typeof active !== 'undefined' && active) ? active : ''; %>
 
 <!-- Bottom App Navigation -->
 <nav class="app-nav" role="navigation" aria-label="Primary" style="background-color: white;">
-  <a href="/" class="<%= active === 'home' ? 'active' : '' %>">
+  <a href="/" class="<%= navActive === 'home' ? 'active' : '' %>">
     <i class="feather-home"></i><span>Home</span>
   </a>
   
-  <a href="/final-year-project-ideas" class="<%= active === 'report' ? 'active' : '' %>">
+  <a href="/final-year-project-ideas" class="<%= navActive === 'report' ? 'active' : '' %>">
     <i class="feather-file-text"></i><span>Report</span>
   </a>
   
-  <a href="/source-code" class="<%= active === 'source-code' ? 'active' : '' %>">
+  <a href="/source-code" class="<%= navActive === 'source-code' ? 'active' : '' %>">
     <i class="feather-code"></i><span>Code</span>
   </a>
   
-  <a href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>" class="<%= active === 'demo' ? 'active' : '' %>">
+  <a href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>" class="<%= navActive === 'demo' ? 'active' : '' %>">
     <i class="feather-play-circle"></i><span>Demo</span>
   </a>
   
-  <a href="https://wa.me/918319339945" class="<%= active === 'chat' ? 'active' : '' %>">
+  <a href="https://wa.me/918319339945" class="<%= navActive === 'chat' ? 'active' : '' %>">
    <i class="fa-brands fa-whatsapp thumb-icon" aria-hidden="true"></i><span>Chat</span>
   </a>
 </nav>

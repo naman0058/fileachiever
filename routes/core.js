@@ -365,12 +365,24 @@ router.post('/ccavResponseHandler',dataService.allCategory, (request, response) 
                                         
 
 
+                                        const downloadSuccessLocals = {
+                                            result,
+                                            Metatags: onPageSeo.refundPage,
+                                            CommonMetaTags: onPageSeo.commonMetaTags,
+                                            msg: '',
+                                            category: request.categories,
+                                            fullUrl: request.fullUrl,
+                                            navOnly: true,
+                                            active: 'source-code',
+                                            graduation_type_send: ''
+                                        };
+
                                         if(decryptedJsonResponse.amount>110){
-                                        response.render('download-successfull', { result: result,Metatags:onPageSeo.refundPage,CommonMetaTags:onPageSeo.commonMetaTags,msg:'',category:request.categories ,fullUrl:request.fullUrl,setupSupport:true,navOnly:true});
+                                        response.render('download-successfull', { ...downloadSuccessLocals, setupSupport: true });
 
                                         }
                                         else{
-                                        response.render('download-successfull', { result: result,Metatags:onPageSeo.refundPage,CommonMetaTags:onPageSeo.commonMetaTags,msg:'',category:request.categories ,fullUrl:request.fullUrl,setupSupport:false,navOnly:true});
+                                        response.render('download-successfull', { ...downloadSuccessLocals, setupSupport: false });
 
                                         }
                                 

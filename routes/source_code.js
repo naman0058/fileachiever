@@ -216,7 +216,14 @@ pool.query(`insert into book set ?`,req.body , (err,result)=>{
     pool.query(`select source_code from source_code where id = '${req.session.userprojectid}'`,(err,result)=>{
         if(err) throw err;
         //else res.json(result)
-        else res.render('download-successfull',{result:result,category:req.categories,fullUrl:req.fullUrl,navOnly:true})
+        else res.render('download-successfull',{
+            result,
+            category: req.categories,
+            fullUrl: req.fullUrl,
+            navOnly: true,
+            active: 'source-code',
+            graduation_type_send: ''
+        })
     })
     }
     else{

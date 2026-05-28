@@ -132,7 +132,14 @@ values('${decryptedJsonResponse.order_id}' , '${decryptedJsonResponse.tracking_i
                     pool.query(`select source_code from source_code where id = '${result[0].source_code_id}'`,(err,result)=>{
                         if(err) throw err;
                         //else res.json(result)
-                        else response.render('download-successfull',{result:result,category:request.categories||[],fullUrl:request.fullUrl||'https://www.filemakr.com',navOnly:true})
+                        else response.render('download-successfull',{
+                            result,
+                            category: request.categories || [],
+                            fullUrl: request.fullUrl || 'https://www.filemakr.com',
+                            navOnly: true,
+                            active: 'source-code',
+                            graduation_type_send: ''
+                        })
                     })
                 }
             })
