@@ -374,7 +374,18 @@ router.post('/ccavResponseHandler',dataService.allCategory, (request, response) 
                                             fullUrl: request.fullUrl,
                                             navOnly: true,
                                             active: 'source-code',
-                                            graduation_type_send: ''
+                                            graduation_type_send: '',
+                                            conversionTrack: {
+                                                order_id: String(decryptedJsonResponse.order_id || request.body.orderNo || ''),
+                                                value: parseFloat(decryptedJsonResponse.amount) || 1,
+                                                currency: String(decryptedJsonResponse.currency || 'INR').toUpperCase(),
+                                                email: decryptedJsonResponse.billing_email || '',
+                                                product_type: 'source_code',
+                                                item_name: result[0] && result[0].source_code
+                                                    ? 'Source Code - ' + result[0].source_code
+                                                    : 'Source Code',
+                                                item_category: 'Source Code'
+                                            }
                                         };
 
                                         if(decryptedJsonResponse.amount>110){
@@ -799,7 +810,10 @@ pool.query(`update payment_request set status = 'success' where order_id = '${re
                     order_id: String(decryptedJsonResponse.order_id || req.body.orderNo || ''),
                     value: parseFloat(decryptedJsonResponse.amount) || 1,
                     currency: String(decryptedJsonResponse.currency || 'INR').toUpperCase(),
-                    email: decryptedJsonResponse.billing_email || ''
+                    email: decryptedJsonResponse.billing_email || '',
+                    product_type: 'project_report',
+                    item_name: 'Project Report',
+                    item_category: 'Project Report'
                 };
                 response.redirect('/download-project-report')
         })

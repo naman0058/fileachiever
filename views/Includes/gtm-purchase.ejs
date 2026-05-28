@@ -1,15 +1,19 @@
 <% if (typeof conversionTrack !== 'undefined' && conversionTrack && conversionTrack.order_id) {
   const _adsId = (typeof googleAdsConversionId !== 'undefined' && googleAdsConversionId) ? googleAdsConversionId : 'AW-17121917391';
   const _adsLabel = (typeof googleAdsConversionLabel !== 'undefined' && googleAdsConversionLabel) ? googleAdsConversionLabel : '92AdCPCm5rQcEM_zruQ_';
+  const _productType = conversionTrack.product_type || 'project_report';
+  const _itemName = conversionTrack.item_name || (_productType === 'source_code' ? 'Source Code' : 'Project Report');
+  const _itemCategory = conversionTrack.item_category || (_productType === 'source_code' ? 'Source Code' : 'Project Report');
   const _purchasePayload = {
     event: 'purchase',
+    product_type: _productType,
     ecommerce: {
       transaction_id: String(conversionTrack.order_id),
       value: Number(conversionTrack.value) || 1,
       currency: conversionTrack.currency || 'INR',
       items: [{
-        item_name: 'Project Report',
-        item_category: 'Project Report',
+        item_name: _itemName,
+        item_category: _itemCategory,
         price: Number(conversionTrack.value) || 1,
         quantity: 1
       }]
