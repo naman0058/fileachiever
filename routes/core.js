@@ -783,6 +783,12 @@ pool.query(`update payment_request set status = 'success' where order_id = '${re
                 await verify.sendUserMail(decryptedJsonResponse.billing_email,emailTemplates.orderConfirmation.userSubject,userMessage);
                 await verify.sendUserMail('filemakrxpert@gmail.com',adminSubject,adminMessage);
                 } catch (mailErr) { console.error('ccav project_report mail', mailErr); }
+                req.session.conversionTrack = {
+                    order_id: String(decryptedJsonResponse.order_id || req.body.orderNo || ''),
+                    value: parseFloat(decryptedJsonResponse.amount) || 1,
+                    currency: String(decryptedJsonResponse.currency || 'INR').toUpperCase(),
+                    email: decryptedJsonResponse.billing_email || ''
+                };
                 response.redirect('/download-project-report')
         })
     }
@@ -895,7 +901,12 @@ router.get('/download-project-report', async (req, res) => {
         }
         const result = await projectReportShared.buildBtechStyleReportResult(found.row, found.table);
         const project_type = projectReportShared.projectTypeLabel(result[0][0].report_type) || result[0][0].report_type;
-        return res.render('B.Tech/finalnew', { result, project_type });
+        let conversionTrack = null;
+        if (req.session.conversionTrack) {
+            conversionTrack = req.session.conversionTrack;
+            delete req.session.conversionTrack;
+        }
+        return res.render('B.Tech/finalnew', { result, project_type, conversionTrack });
     } catch (e) {
         console.error('download-project-report', (e && e.message) || e, (e && e.sqlMessage) || '');
         return res.redirect('/');

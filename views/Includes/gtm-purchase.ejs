@@ -1,0 +1,31 @@
+<% if (typeof conversionTrack !== 'undefined' && conversionTrack && conversionTrack.order_id) {
+  const _adsId = (typeof googleAdsConversionId !== 'undefined' && googleAdsConversionId) ? googleAdsConversionId : 'AW-17121917391';
+  const _adsLabel = (typeof googleAdsConversionLabel !== 'undefined' && googleAdsConversionLabel) ? googleAdsConversionLabel : '92AdCPCm5rQcEM_zruQ_';
+  const _purchasePayload = {
+    event: 'purchase',
+    ecommerce: {
+      transaction_id: String(conversionTrack.order_id),
+      value: Number(conversionTrack.value) || 1,
+      currency: conversionTrack.currency || 'INR',
+      items: [{
+        item_name: 'Project Report',
+        item_category: 'Project Report',
+        price: Number(conversionTrack.value) || 1,
+        quantity: 1
+      }]
+    },
+    user_data: {
+      email: conversionTrack.email || ''
+    },
+    google_ads: {
+      conversion_id: _adsId,
+      conversion_label: _adsLabel,
+      send_to: _adsLabel ? (_adsId + '/' + _adsLabel) : _adsId
+    }
+  };
+%>
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push(<%- JSON.stringify(_purchasePayload) %>);
+</script>
+<% } %>

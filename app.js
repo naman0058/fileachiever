@@ -19,6 +19,26 @@ const vhost = require('vhost');
 const { Server } = require('socket.io');
 const cookie = require('cookie');
 const Keygrip = require('keygrip');
+const ejs = require('ejs');
+
+const viewsPath = path.join(__dirname, 'views');
+
+function configureEjsEngine(appInstance) {
+  appInstance.engine('ejs', (filePath, data, callback) => {
+    ejs.renderFile(
+      filePath,
+      data,
+      {
+        root: viewsPath,
+        views: [viewsPath],
+        filename: filePath,
+        cache: process.env.NODE_ENV === 'production',
+        async: false
+      },
+      callback
+    );
+  });
+}
 
 const { leadWatcher } = require('./routes/Freelancing/lead-watcher');
 // require('./routes/leaderboardCron'); // disabled
@@ -66,8 +86,9 @@ app.use((req, res, next) => {
 // ======================================================
 // VIEW ENGINE
 // ======================================================
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', viewsPath);
 app.set('view engine', 'ejs');
+configureEjsEngine(app);
 app.set('view cache', process.env.NODE_ENV === 'production');
 
 // ======================================================
@@ -92,6 +113,10 @@ app.use(cookieSession({
 app.use((req, res, next) => {
   res.locals.start = req.query.start || '';
   res.locals.end = req.query.end || '';
+  res.locals.gtmContainerId = config.gtmContainerId;
+  res.locals.ga4MeasurementId = config.ga4MeasurementId;
+  res.locals.googleAdsConversionId = config.googleAdsConversionId;
+  res.locals.googleAdsConversionLabel = config.googleAdsConversionLabel;
   next();
 });
 
@@ -263,8 +288,9 @@ subApp.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '31536000'
 }));
 
-subApp.set('views', path.join(__dirname, 'views'));
+subApp.set('views', viewsPath);
 subApp.set('view engine', 'ejs');
+configureEjsEngine(subApp);
 
 subApp.use('/', manishaRouter);
 
