@@ -20,6 +20,7 @@ const { Server } = require('socket.io');
 const cookie = require('cookie');
 const Keygrip = require('keygrip');
 const ejs = require('ejs');
+const { createGtmInjectMiddleware } = require('./middleware/gtmInject');
 
 const viewsPath = path.join(__dirname, 'views');
 
@@ -119,6 +120,8 @@ app.use((req, res, next) => {
   res.locals.googleAdsConversionLabel = config.googleAdsConversionLabel;
   next();
 });
+
+app.use(createGtmInjectMiddleware(config.gtmContainerId));
 
 // ======================================================
 // NON-WWW TO WWW (canonical domain)
