@@ -405,14 +405,14 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:flex-start;
-    gap:4px;
-    font-size:11px;
+    justify-content:center;
+    gap:3px;
+    font-size:10px;
     font-weight:700;
     min-width:0;
     flex:1;
     max-width:20%;
-    padding:6px 4px 0;
+    padding:8px 4px 6px;
     border:0;
     border-bottom:0 !important;
     box-shadow:none !important;
@@ -428,13 +428,44 @@
   }
   .app-nav a.active{color:var(--brandOrange);font-weight:800;}
   .app-nav a.active span{color:inherit;}
-  .app-nav i,.app-nav .thumb-icon{
-    font-size:18px;
+  .app-nav i{
+    font-size:20px;
     line-height:1;
     display:block;
     text-decoration:none !important;
     border:0;
     box-shadow:none;
+  }
+  .app-nav a span{
+    line-height:1.15;
+    white-space:nowrap;
+  }
+  /* WhatsApp tab — clean brand icon, no hero thumb styles */
+  .app-nav a.app-nav-chat .app-nav-wa{
+    width:22px;
+    height:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#25D366;
+    flex-shrink:0;
+  }
+  .app-nav a.app-nav-chat .app-nav-wa svg{
+    width:22px;
+    height:22px;
+    display:block;
+  }
+  .app-nav a.app-nav-chat.active .app-nav-wa{ color:#25D366; }
+  .app-nav a.app-nav-chat.active{ color:#111; font-weight:800; }
+  .app-nav a.app-nav-chat.active > span:last-child{ color:var(--brandOrange); }
+  /* Reset if page styles leak .thumb-icon into nav */
+  .app-nav .thumb-icon{
+    font-size:20px !important;
+    line-height:1 !important;
+    color:#25D366 !important;
+    background:none !important;
+    padding:0 !important;
+    border-radius:0 !important;
   }
   @media(min-width:992px){.app-nav{display:none}.wa-fab{bottom:18px;}}
 

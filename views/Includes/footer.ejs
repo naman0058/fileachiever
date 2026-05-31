@@ -18,8 +18,13 @@
     <i class="feather-play-circle"></i><span>Demo</span>
   </a>
   
-  <a href="https://wa.me/918319339945" class="<%= navActive === 'chat' ? 'active' : '' %>">
-   <i class="fa-brands fa-whatsapp thumb-icon" aria-hidden="true"></i><span>Chat</span>
+  <a href="https://wa.me/918319339945" class="app-nav-chat <%= navActive === 'chat' ? 'active' : '' %>" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+    <span class="app-nav-wa" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </span>
+    <span>Chat</span>
   </a>
 </nav>
 
@@ -34,7 +39,7 @@
     return `${base}?text=${text}`;
   }
   function setAllWaLinks(query=''){
-    ['WhatsAppFloat','WhatsAppTop','WhatsAppEmpty','WhatsAppSide','WhatsAppHero'].forEach(id=>{
+    ['WhatsAppFloat','WhatsAppTop','WhatsAppEmpty','WhatsAppSide','WhatsAppHero','WhatsAppSticky'].forEach(id=>{
       const a=document.getElementById(id);
       if(a){a.setAttribute('href',waLink(query));a.setAttribute('target','_blank');a.setAttribute('rel','noopener');}
     });
@@ -47,21 +52,60 @@
   const emptyEl=document.getElementById('EmptyState');
   const grid=document.getElementById('Grid');
   const sortSel=document.getElementById('Sort');
+  const demoFilterBtn=document.getElementById('FilterDemoOnly');
+  const demoFilterMobile=document.getElementById('FilterDemoOnlyMobile');
   const mdBtnLabel = <%- JSON.stringify(typeof listCtaLabel !== 'undefined' ? listCtaLabel : 'View') %>;
 
   let q='';
+  let activeStack='';
   const normalize=s=> (s||'').toLowerCase();
 
+  function isDemoFilterActive(){
+    return (demoFilterBtn && demoFilterBtn.classList.contains('active'))
+      || (demoFilterMobile && demoFilterMobile.classList.contains('active'));
+  }
+
+  function setDemoFilterActive(on){
+    [demoFilterBtn, demoFilterMobile].forEach(function(btn){
+      if (!btn) return;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
  function apply(){
-  const nq = normalize(q); 
+  const nq = normalize(q);
+  const demoOnlyActive = isDemoFilterActive();
   let visible = [];
+  let hiddenPool = document.getElementById('GridHiddenPool');
+  if (!hiddenPool && grid) {
+    hiddenPool = document.createElement('div');
+    hiddenPool.id = 'GridHiddenPool';
+    hiddenPool.hidden = true;
+    hiddenPool.setAttribute('aria-hidden', 'true');
+    grid.parentNode.insertBefore(hiddenPool, grid.nextSibling);
+  }
 
   nodes.forEach(n=>{
     const name = normalize(n.getAttribute('data-name'));
     const desc = normalize(n.getAttribute('data-desc'));
-    const matches = !nq || name.includes(nq) || desc.includes(nq);
-    n.style.display = matches ? '' : 'none';
-    if(matches) visible.push(n);
+    const hasDemo = n.getAttribute('data-demo') === '1';
+    const stackSlug = (n.getAttribute('data-stack-slug') || '').toLowerCase();
+    const matchText = !nq || name.includes(nq) || desc.includes(nq);
+    const matchDemo = !demoOnlyActive || hasDemo;
+    const matchStack = !activeStack || stackSlug === activeStack;
+    const matches = matchText && matchDemo && matchStack;
+    n.classList.toggle('is-filter-hidden', !matches);
+    if (matches) {
+      if (grid) grid.appendChild(n);
+      n.hidden = false;
+      n.style.display = '';
+      visible.push(n);
+    } else {
+      if (hiddenPool) hiddenPool.appendChild(n);
+      n.hidden = true;
+      n.style.display = 'none';
+    }
   });
 
   // Sort visible in DOM
@@ -98,6 +142,12 @@
     // Fallback: still keep WA links updated
     setAllWaLinks(q);
   }
+
+  if (window.AOS && typeof window.AOS.refreshHard === 'function') {
+    window.AOS.refreshHard();
+  } else if (window.AOS && typeof window.AOS.refresh === 'function') {
+    window.AOS.refresh();
+  }
 }
 
   // ====== Most Demanding (random from current results) ======
@@ -118,17 +168,23 @@
     const name = mdStripText(rawName);
     const desc = mdStripText(rawDesc);
     const url  = n.getAttribute('data-url')  || '#';
+    const stack = mdStripText(n.getAttribute('data-stack') || '');
+    const hasDemo = n.getAttribute('data-demo') === '1';
     const wa   = waLink(`Need details for "${rawName}"`);
 
     const card = document.createElement('div');
     card.className = 'md-item';
     card.innerHTML = `
-      <span class="md-chip"><i class="feather-trending-up"></i> Popular</span>
+      <div class="md-badges">
+        <span class="md-chip"><i class="feather-trending-up"></i> Popular</span>
+        ${stack ? `<span class="md-chip md-chip--stack">${stack}</span>` : ''}
+        ${hasDemo ? `<span class="md-chip md-chip--demo"><i class="feather-play-circle"></i> Live demo</span>` : ''}
+        <span class="md-chip md-chip--price">₹99</span>
+      </div>
       <h4 class="md-title">${name}</h4>
       <div class="md-desc">${desc}</div>
       <div class="md-actions">
-        <a class="md-btn md-btn-light" href="${url}" aria-label="${mdBtnLabel}: ${name}">${mdBtnLabel}</a>
-        
+        <a class="md-btn md-btn-light" href="${url}" aria-label="${mdBtnLabel}: ${name}">${mdBtnLabel} →</a>
       </div>
     `;
     container.appendChild(card);
@@ -140,6 +196,26 @@
   let t;
   input && input.addEventListener('input',(e)=>{q=e.target.value||'';clearTimeout(t);t=setTimeout(apply,150);});
   sortSel && sortSel.addEventListener('change',apply);
+  demoFilterBtn && demoFilterBtn.addEventListener('click', function(){
+    setDemoFilterActive(!isDemoFilterActive());
+    apply();
+  });
+  demoFilterMobile && demoFilterMobile.addEventListener('click', function(){
+    setDemoFilterActive(!isDemoFilterActive());
+    apply();
+  });
+  document.querySelectorAll('[data-stack-filter]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      activeStack = btn.getAttribute('data-stack-filter') || '';
+      document.querySelectorAll('[data-stack-filter]').forEach(function(b){
+        const slug = b.getAttribute('data-stack-filter') || '';
+        const on = slug === activeStack;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      apply();
+    });
+  });
 
   // Init
   setAllWaLinks('');
@@ -317,6 +393,17 @@
 
 
 						<style>
+							/* Bottom nav WhatsApp icon (global — works on all pages) */
+							.app-nav a.app-nav-chat .app-nav-wa{
+								width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+								color:#25D366;flex-shrink:0;
+							}
+							.app-nav a.app-nav-chat .app-nav-wa svg{width:22px;height:22px;display:block;}
+							.app-nav a.app-nav-chat.active > span:last-child{color:#FF6B00;}
+							.app-nav .thumb-icon{
+								font-size:20px!important;line-height:1!important;color:#25D366!important;
+								background:none!important;padding:0!important;border-radius:0!important;
+							}
 							.float{
 	position:fixed;
 	width:60px;

@@ -1596,46 +1596,62 @@ var graduation_type_send = words.map(word => word.charAt(0).toUpperCase() + word
 // using this routes
 router.get('/:name/source-code', dataService.allCategory, async (req, res) => {
     try {
-        const projectidQuery = await queryAsync('SELECT id,category,license FROM source_code WHERE seo_name = ?', [req.params.name]);
+        const seoName = String(req.params.name || '').trim();
+        if (!seoName || seoName.includes('/')) {
+            return res.status(404).render('error', { message: 'Source code not found', error: { status: 404, stack: '' } });
+        }
+
+        const projectidQuery = await queryAsync(
+            'SELECT id, category, license, name, seo_name, demo_url, image FROM source_code WHERE seo_name = ? LIMIT 1',
+            [seoName]
+        );
         if (!projectidQuery || projectidQuery.length === 0) {
             return res.status(404).render('error', { message: 'Source code not found', error: { status: 404, stack: '' } });
         }
+
         const projectid = projectidQuery[0].id;
         const projectcategory = projectidQuery[0].category;
         const projectlicense = projectidQuery[0].license;
+        const canPurchase = !!(projectidQuery[0].image || projectidQuery[0].demo_url || projectlicense);
 
-     
+        const result = await queryAsync(
+            'SELECT * FROM source_code WHERE seo_name = ?; ' +
+            'SELECT sc.name, sc.seo_name, sc.description, sc.demo_url FROM source_code sc WHERE sc.seo_name != ? AND sc.category = ? ORDER BY RAND() LIMIT 12; ' +
+            'SELECT * FROM screenshots WHERE source_code_id = ?;',
+            [seoName, seoName, projectcategory, projectid]
+        );
 
-              const queries = [
-            'SELECT * FROM source_code WHERE seo_name = ?;',
-            `SELECT name, seo_name, description, image FROM source_code WHERE seo_name != ? and category = '${projectcategory}' ORDER BY RAND() LIMIT 12;`,
-            'SELECT * FROM screenshots WHERE source_code_id = ?;'
-        ];
-        const params = [req.params.name, req.params.name, projectid];
-        const result = await queryAsync(queries.join(' '), params);
+        const product = result[0] && result[0][0] ? result[0][0] : null;
+        if (!product) {
+            return res.status(404).render('error', { message: 'Source code not found', error: { status: 404, stack: '' } });
+        }
 
-        // res.render('download-source-code', { result, category: req.categories, fullUrl:req.fullUrl });
+        const pageTitle = `${product.name} Source Code Download | FileMakr`;
+        const pageDesc = product.meta_desc || `Download ${product.name} final year project source code with frontend, backend, database and setup guide. Instant secure download for B.Tech, MCA, BCA students.`;
 
-        const endTime = Date.now();
-        console.log(`Response time: ${endTime - req.startTime}ms`);
-
-        // if(projectlicense){
-            res.render('download-source-code', { result, category: req.categories, fullUrl:req.fullUrl,active:'source-code',graduation_type_send:'' ,projectlicense, listCtaLabel: 'Get Source Code' });
-        // }
-        // else{
-        //  res.render('under_maintenace',{result, category: req.categories, fullUrl:req.fullUrl,active:'source-code',graduation_type_send:'',projectlicense })
-        // }
-   
-         
-
-      
-
-         } catch (error) {
+        res.render('download-source-code', {
+            result,
+            category: req.categories,
+            fullUrl: req.fullUrl,
+            active: 'source-code',
+            graduation_type_send: '',
+            projectlicense,
+            canPurchase,
+            priceBasic: 99,
+            priceSupport: 248,
+            listCtaLabel: 'Get Source Code',
+            Metatags: {
+                title: pageTitle,
+                description: pageDesc,
+                abstract: pageDesc,
+                keywords: product.meta_keywords || `${product.name}, source code, final year project`
+            },
+            CommonMetaTags: onPageSeo.commonMetaTags
+        });
+    } catch (error) {
         console.error('Error executing queries:', error);
         res.status(500).send('Internal Server Error');
     }
-
-      
 });
 
 

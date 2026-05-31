@@ -1,381 +1,979 @@
 <% include Includes/navbar2.ejs %>
-
-
-
 <% include Includes/projectReport.ejs %>
 
-<style>
-  /* ===== Degree Pills Bar ===== */
-.degree-pills-wrap{
-  position: relative;
-  margin-top: .5rem;
-  padding: .5rem 0;
-}
-
-/* scroller */
-.degree-scroller{
-  display: flex;
-  gap: .6rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;  /* Firefox */
-  padding: .25rem .25rem;
-  scroll-snap-type: x proximity;
-  border-radius: 14px;
-  background: linear-gradient(180deg,#fff, #fff);
-  box-shadow: 0 2px 12px rgba(17,24,39,.06);
-  border: 1px solid var(--border, #E8EAED);
-}
-.degree-scroller::-webkit-scrollbar{ display:none; }
-
-/* edge fades for a premium feel */
-.degree-pills-wrap::before,
-.degree-pills-wrap::after{
-  content:"";
-  position:absolute;
-  top:0; bottom:0;
-  width:40px;
-  pointer-events:none;
-}
-.degree-pills-wrap::before{
-  left:0;
-  background: linear-gradient(to right, #fff, rgba(255,255,255,0));
-}
-.degree-pills-wrap::after{
-  right:0;
-  background: linear-gradient(to left, #fff, rgba(255,255,255,0));
-}
-
-/* pill */
-.degree-pill{
-  scroll-snap-align: start;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding: .56rem 1rem;
-  border-radius: 999px;                /* fully rounded */
-  background: #F6F8FA;
-  color:#111827;
-  text-decoration:none;
-  font-weight:600;
-  font-size:.93rem;
-  border:1px solid transparent;
-  transition: background .15s, color .15s, border-color .15s, box-shadow .15s, transform .06s;
-  white-space:nowrap;
-}
-.degree-pill:hover{
-  background:#EEF2F7;
-}
-.degree-pill:active{
-  transform: translateY(1px);
-}
-.degree-pill:focus{
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(32,99,255,.20);
-}
-.degree-pill.active{
-  background:#fff;
-  color: var(--brandBlue, #2063FF);
-  border-color: var(--brandBlue, #2063FF);
-  box-shadow: 0 2px 10px rgba(32,99,255,.15);
-}
-
-/* arrows (hidden on small screens, appear on md+) */
-.degree-arrow{
-  position:absolute;
-  top:50%; transform: translateY(-50%);
-  width:36px; height:36px;
-  border-radius: 999px;
-  border:1px solid var(--border, #E8EAED);
-  background:#fff;
-  display:none;        /* default hidden */
-  place-items:center;
-  box-shadow:0 4px 14px rgba(17,24,39,.08);
-  cursor:pointer;
-}
-.degree-left{  left: .25rem; }
-.degree-right{ right: .25rem; }
-.degree-arrow:disabled{ opacity:.45; cursor:not-allowed; }
-
-/* show arrows on >=992px (Bootstrap lg) */
-@media (min-width: 992px){
-  .degree-arrow{ display:grid; }
-  .degree-scroller{ padding: .25rem 2.75rem; } /* room for arrows */
-}
-
-</style>
-
+<% const projectCount = result.length; %>
+<% function scStackLabel(cat) {
+  if (!cat) return 'Source Code';
+  return String(cat).split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+} %>
+<% function scStripDesc(html) {
+  return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+} %>
 
 <style>
-  /* Base wrap */
-.inc-wrap { margin-top: 1rem; }
+  /* ===== Source code listing — conversion-first, text-only ===== */
+  :root {
+    --scStickyDockH: 88px;
+    --scListEndPad: calc(var(--scStickyDockH) + 24px + env(safe-area-inset-bottom, 0px));
+    --scMobileBottomPad: calc(var(--navH, 64px) + var(--scStickyDockH) + 20px + env(safe-area-inset-bottom, 0px));
+    --scToolbarH: 120px;
+  }
+  .sc-code-page { padding-bottom: 0; }
+  .sc-code-list .target.is-filter-hidden { display: none !important; }
+  @media (min-width: 992px) {
+    body:has(.sc-code-page) footer.footer {
+      display: block !important;
+      margin-top: 28px;
+    }
+    body:has(.sc-code-page) footer.footer .footer-top,
+    body:has(.sc-code-page) footer.footer .footer-top.aos {
+      opacity: 1 !important;
+      transform: none !important;
+      visibility: visible !important;
+    }
+    body:has(.sc-code-page) .sc-list-scroll-pad {
+      display: none !important;
+      height: 0 !important;
+      min-height: 0 !important;
+    }
+  }
+  @media (max-width: 991.98px) {
+    html { scroll-padding-bottom: var(--scMobileBottomPad); }
+    body.sc-code-sticky-active {
+      padding-bottom: calc(var(--navH, 64px) + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    /* Full site footer adds dead scroll on mobile — hide on this conversion page */
+    footer.footer { display: none !important; }
+    .sc-browse { margin-top: 14px; }
+    .sc-browse .row.mt-3 { margin-top: 0 !important; }
+    .sc-results-bar { margin: 12px 0 8px; }
+    .sc-code-list { margin-bottom: 0; }
+    /* Guaranteed scroll room so last card CTA clears fixed bottom UI */
+    .sc-list-scroll-pad {
+      height: var(--scListEndPad);
+      min-height: 142px;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+  }
 
-/* Title */
-.section-title {
-  display: flex; align-items: center; gap: .5rem;
-}
-.section-title h3 { margin: 0; }
+  .sc-code-page .page-breadcrumb { margin-bottom: 10px; }
+  .sc-code-page .page-breadcrumb .breadcrumb-item { font-size: 13px; font-weight: 600; color: #64748b; }
+  .sc-code-page .page-breadcrumb .breadcrumb-item.active { color: #0f172a; }
 
-/* Grid — upgraded style */
-.inc-grid--code {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0,1fr));
-  gap: .75rem;
-  margin-top: .75rem;
-}
-@media (max-width: 992px) {
-  .inc-grid--code { grid-template-columns: repeat(2, minmax(0,1fr)); }
-}
-@media (max-width: 576px) {
-  .inc-grid--code { grid-template-columns: 1fr 1fr; }
-}
+  /* Hero */
+  .sc-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    padding: 22px 18px 20px;
+    background:
+      radial-gradient(900px 280px at 100% -20%, rgba(241,127,35,.14), transparent 55%),
+      radial-gradient(700px 240px at -10% 0%, rgba(42,71,255,.12), transparent 50%),
+      linear-gradient(135deg, #fff 0%, #f8faff 100%);
+    border: 1px solid rgba(14,18,32,.07);
+    box-shadow: 0 8px 32px rgba(14,18,32,.06);
+  }
+  @media (min-width: 768px) {
+    .sc-hero {
+      padding: 28px 28px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
+      gap: 22px;
+      align-items: stretch;
+    }
+  }
+  .sc-hero__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(42,71,255,.08);
+    color: var(--brandBlue);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .sc-hero h1 {
+    margin: 0 0 8px;
+    font-size: clamp(22px, 5vw, 32px);
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .sc-hero__lead {
+    margin: 0 0 14px;
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 640px;
+  }
+  .sc-hero__trust {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  .sc-hero__trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+  }
+  .sc-hero__trust li i { color: #16a34a; font-size: 13px; }
+  .sc-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .sc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none !important;
+    border: none;
+    cursor: pointer;
+    transition: filter .2s, transform .2s, box-shadow .2s;
+  }
+  .sc-btn:hover { filter: brightness(.98); transform: translateY(-1px); }
+  .sc-btn--primary {
+    background: var(--brandBlue);
+    color: #fff;
+    box-shadow: 0 10px 28px rgba(42,71,255,.25);
+  }
+  .sc-btn--ghost {
+    background: #fff;
+    color: var(--brandBlue);
+    border: 2px solid var(--brandBlue);
+  }
+  .sc-btn--wa {
+    background: #25D366;
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(37,211,102,.25);
+  }
+  .sc-hero__aside { min-width: 0; }
+  .sc-wa-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(37,211,102,.28);
+    box-shadow: 0 10px 32px rgba(37,211,102,.1);
+    background: linear-gradient(160deg, rgba(37,211,102,.06) 0%, #fff 45%);
+  }
+  .sc-wa-card__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(37,211,102,.12);
+    color: #15803d;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .sc-wa-card__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.25;
+    color: #0f172a;
+  }
+  .sc-wa-card__text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #475569;
+    font-weight: 600;
+  }
+  .sc-wa-card__points {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .sc-wa-card__points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    line-height: 1.35;
+  }
+  .sc-wa-card__points li i {
+    color: #16a34a;
+    font-size: 13px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .sc-wa-card__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+    min-height: 46px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: #25D366;
+    color: #fff !important;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none !important;
+    box-shadow: 0 8px 22px rgba(37,211,102,.28);
+    transition: filter .2s;
+  }
+  .sc-wa-card__btn:hover { filter: brightness(.98); color: #fff; }
+  @media (max-width: 991.98px) {
+    .sc-code-page .sc-hero__aside { display: none !important; }
+    .sc-code-page .sc-hero {
+      display: block;
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 767.98px) {
+    .sc-wa-card { padding: 16px; }
+    .sc-wa-card__title { font-size: 17px; }
+  }
 
-.inc-item {
-  background: #fff;
-  border: 1px solid var(--border, #E8EAED);
-  border-radius: 14px;
-  padding: .9rem .95rem;
-  display: grid;
-  gap: .25rem;
-  box-shadow: 0 3px 12px rgba(17,24,39,.05);
-  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
-}
-.inc-item i {
-  font-size: 18px;
-  opacity: .8;
-}
-.inc-item span {
-  font-weight: 600;
-  color: #111827;
-}
-.inc-item small {
-  color: var(--muted, #6B7280);
-  line-height: 1.25;
-}
-.inc-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(17,24,39,.08);
-  border-color: rgba(32,99,255,.25);
-}
+  /* Popular section */
+  .sc-popular {
+    margin-top: 18px;
+    background: #fff;
+    border: 1px solid rgba(14,18,32,.07);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 4px 20px rgba(14,18,32,.04);
+  }
+  .sc-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .sc-section-head h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sc-section-head p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+  }
+  .sc-popular .md-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 2px;
+  }
+  .sc-popular .md-chip--stack {
+    background: rgba(42,71,255,.08);
+    color: var(--brandBlue);
+  }
+  .sc-popular .md-chip--demo {
+    background: rgba(22,163,74,.1);
+    color: #15803d;
+  }
+  .sc-popular .md-chip--price {
+    background: rgba(241,127,35,.1);
+    color: var(--brandOrange);
+  }
+  .sc-popular .md-btn-light {
+    background: var(--brandBlue);
+    color: #fff;
+    border: none;
+    box-shadow: 0 6px 18px rgba(42,71,255,.22);
+  }
 
-/* USP row */
-.usp-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-@media (max-width: 992px) {
-  .usp-row { grid-template-columns: 1fr; }
-}
+  /* Browse toolbar */
+  .sc-browse { margin-top: 20px; }
 
-/* USP cards — distinct styling to stand out */
-.usp-card {
-  position: relative;
-  background: #fff;
-  border: 1px solid var(--border, #E8EAED);
-  border-radius: 16px;
-  padding: 1rem;
-  box-shadow: 0 6px 20px rgba(17,24,39,.07);
-  overflow: hidden;
-}
-.usp-card .usp-head {
-  display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem;
-}
-.usp-badge {
-  font-size: .7rem; font-weight: 700; letter-spacing: .02em;
-  background: #111827; color: #fff; padding: .15rem .45rem; border-radius: 999px;
-}
-.usp-card h4 { margin: 0 0 .25rem; }
-.usp-card p { margin: 0 0 .5rem; color: var(--muted, #6B7280); }
-.usp-card i { opacity: .9; }
+  /* Offer bar — sticky at top until search toolbar takes over (no layout padding toggle) */
+  body:has(.sc-code-page) #OfferBar {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    width: 100%;
+  }
 
-/* Accent variants */
-.usp-demo {
-  border-color: rgba(32,99,255,.25);
-  background:
-    radial-gradient(1200px 200px at 10% -10%, rgba(32,99,255,.06), transparent 60%),
-    #fff;
-}
-.usp-support {
-  border-color: rgba(16,185,129,.25);
-  background:
-    radial-gradient(1200px 200px at 10% -10%, rgba(16,185,129,.08), transparent 60%),
-    #fff;
-}
+  .sc-toolbar-sticky-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+    background: var(--bg);
+  }
+  body:has(.sc-code-page):not(.sc-toolbar-stuck) .sc-toolbar-sticky-wrap {
+    top: var(--offerBarH, 52px);
+  }
+  body:has(.sc-code-page).sc-toolbar-stuck .sc-toolbar-sticky-wrap {
+    top: 0;
+  }
+  .sc-toolbar-sticky-wrap.is-stuck {
+    z-index: 1025;
+    box-shadow: 0 10px 28px rgba(14,18,32,.06);
+  }
+  /* Hide promo when search is pinned — one sticky row at top (mobile + laptop) */
+  body.sc-toolbar-stuck #OfferBar {
+    display: none !important;
+  }
+  .sc-toolbar-sticky-wrap.is-stuck .sc-toolbar {
+    box-shadow: 0 8px 28px rgba(14,18,32,.1);
+  }
+  .sc-toolbar {
+    background: #fff;
+    border: 1px solid rgba(14,18,32,.07);
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 2px 12px rgba(14,18,32,.04);
+    transition: box-shadow .2s ease;
+  }
+  @media (max-width: 991.98px) {
+    .sc-toolbar-sticky-wrap {
+      top: var(--offerBarH, 52px);
+      z-index: 9980;
+      /* Full-bleed: break out of .container horizontal padding */
+      width: 100vw;
+      max-width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-right: calc(50% - 50vw);
+      padding: 0 0 10px;
+      background: #fff;
+    }
+    .sc-toolbar-sticky-wrap.is-stuck {
+      box-shadow: 0 6px 20px rgba(14,18,32,.08);
+    }
+    .sc-toolbar {
+      border-radius: 0;
+      padding: 12px 14px 10px;
+      border: none;
+      border-bottom: 1px solid rgba(14,18,32,.07);
+      box-shadow: none;
+    }
+    .sc-toolbar-sticky-wrap.is-stuck .sc-toolbar {
+      border-radius: 0;
+    }
+    .sc-chip-scroll {
+      padding-left: 2px;
+      padding-right: 2px;
+    }
+    .sc-toolbar__row .sort-select,
+    .sc-toolbar__row .sc-toolbar__demo-btn { display: none !important; }
+  }
+  @media (min-width: 992px) {
+    .sc-toolbar-sticky-wrap {
+      padding-bottom: 14px;
+      background: linear-gradient(to bottom, var(--bg) 92%, rgba(247,248,252,0));
+    }
+    .sc-toolbar-sticky-wrap.is-stuck {
+      padding-top: 8px;
+    }
+    .sc-code-page .sticky-side {
+      top: calc(var(--scToolbarH, 130px) + 16px);
+      z-index: 2;
+      max-height: calc(100vh - var(--scToolbarH, 130px) - 32px);
+      overflow-y: auto;
+    }
+    body.sc-toolbar-stuck .sc-code-page .sticky-side {
+      top: calc(var(--scToolbarH, 130px) + 12px);
+    }
+    .sc-chip-scroll #FilterDemoOnlyMobile {
+      display: none;
+    }
+    .sc-browse__body {
+      align-items: flex-start;
+      min-height: 0;
+    }
+    .target,
+    .sc-code-card {
+      scroll-margin-top: calc(var(--scToolbarH, 130px) + 16px);
+    }
+  }
+  .sc-toolbar__row {
+    display: grid;
+    gap: 10px;
+  }
+  @media (min-width: 992px) {
+    .sc-toolbar__row {
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+    }
+  }
+  .sc-toolbar .search-group { margin: 0; }
+  .sc-toolbar .search-input { height: 46px; font-weight: 600; }
+  .sc-toolbar .search-input::placeholder { color: #94a3b8; font-weight: 500; }
+  .sc-toolbar .sort-select { height: 46px; font-weight: 600; min-width: 160px; }
 
-/* CTA link */
-.usp-cta {
-  display: inline-flex; align-items: center; gap: .25rem;
-  font-weight: 600; text-decoration: none;
-  color: var(--brandBlue, #2063FF);
-  padding: .4rem .6rem;
-  border-radius: 10px;
-  transition: background .2s ease, transform .1s ease;
-}
-.usp-cta:hover { background: rgba(32,99,255,.08); }
-.muted { color: var(--muted, #6B7280); font-weight: 500; }
+  /* Scrollable stack chips — all viewports */
+  .sc-chip-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 10px 0 2px;
+    margin: 0 -2px;
+    scrollbar-width: none;
+  }
+  .sc-chip-scroll::-webkit-scrollbar { display: none; }
+  .sc-filter-row--desktop { display: none !important; }
+  .sc-chip-scroll .sc-filter-chip {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    white-space: nowrap;
+    padding: 8px 13px;
+    font-size: 12px;
+  }
+  .sc-chip-scroll .sc-filter-chip--demo {
+    background: rgba(22,163,74,.08);
+    border-color: rgba(22,163,74,.25);
+    color: #15803d;
+  }
+  .sc-chip-scroll .sc-filter-chip--demo.active {
+    background: #15803d;
+    border-color: #15803d;
+    color: #fff;
+  }
 
+  .sc-browse__main {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sc-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    align-items: center;
+  }
+  .sc-filter-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-right: 4px;
+  }
+  .sc-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(14,18,32,.1);
+    background: #f8fafc;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .sc-filter-chip:hover { border-color: rgba(42,71,255,.35); color: var(--brandBlue); }
+  .sc-filter-chip.active {
+    background: rgba(42,71,255,.08);
+    border-color: var(--brandBlue);
+    color: var(--brandBlue);
+  }
+  .sc-filter-chip i { font-size: 14px; }
+  a.sc-filter-chip {
+    text-decoration: none !important;
+    color: #334155;
+  }
+  a.sc-filter-chip:hover { color: var(--brandBlue); }
+
+  /* Degree pills — tighter */
+  .sc-code-page .degree-pills-wrap { margin-top: 14px; }
+  .sc-code-page .degree-scroller {
+    border-radius: 14px;
+    box-shadow: none;
+    border: 1px solid rgba(14,18,32,.08);
+    background: #fff;
+  }
+  .sc-code-page .degree-pill {
+    font-size: 13px;
+    padding: 8px 14px;
+    background: #f1f5f9;
+  }
+
+  /* Results bar */
+  .sc-results-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 16px 0 12px;
+  }
+  .sc-results-bar h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+  .sc-results-count {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+  }
+  .sc-results-count strong { color: var(--brandBlue); }
+
+  /* Project list — text cards, no thumbnails */
+  .sc-code-list { display: grid; gap: 10px; }
+  .sc-code-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid rgba(14,18,32,.07);
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(14,18,32,.04);
+    transition: border-color .2s, box-shadow .2s, transform .15s;
+    height: 100%;
+  }
+  .sc-code-card:hover {
+    border-color: rgba(42,71,255,.28);
+    box-shadow: 0 10px 28px rgba(14,18,32,.08);
+    transform: translateY(-1px);
+  }
+  @media (min-width: 768px) {
+    .sc-code-card {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 20px;
+    }
+  }
+  .sc-code-card__main { min-width: 0; flex: 1 1 auto; }
+  .sc-code-card__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .sc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .sc-badge--stack { background: rgba(42,71,255,.08); color: var(--brandBlue); }
+  .sc-badge--demo { background: rgba(22,163,74,.1); color: #15803d; }
+  .sc-badge--price { background: rgba(241,127,35,.1); color: var(--brandOrange); }
+  .sc-badge--pick { background: rgba(241,127,35,.12); color: #c2410c; }
+  .sc-code-card h2 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+  @media (min-width: 768px) { .sc-code-card h2 { font-size: 17px; } }
+  .sc-code-card h2 a {
+    color: #0f172a;
+    text-decoration: none;
+  }
+  .sc-code-card h2 a:hover { color: var(--brandBlue); }
+  .sc-code-card p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .sc-code-card__actions {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .sc-code-card__actions { width: auto; min-width: 168px; align-items: stretch; }
+  }
+  .sc-code-card__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: var(--brandBlue);
+    color: #fff !important;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none !important;
+    box-shadow: 0 6px 18px rgba(42,71,255,.22);
+    white-space: nowrap;
+    transition: filter .2s;
+  }
+  .sc-code-card__cta:hover { filter: brightness(.97); color: #fff; }
+  .sc-code-card__demo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--brandBlue) !important;
+    border: 1px solid rgba(42,71,255,.25);
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none !important;
+  }
+  .sc-code-card__demo:hover { background: rgba(42,71,255,.05); }
+
+  /* Sidebar — desktop conversion */
+  .sc-side-promo {
+    background: linear-gradient(160deg, #2A47FF 0%, #1e3a8a 100%);
+    color: #fff;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 12px 32px rgba(42,71,255,.25);
+  }
+  .sc-side-promo h4 { margin: 0 0 6px; font-size: 18px; font-weight: 900; }
+  .sc-side-promo p { margin: 0 0 14px; font-size: 13px; opacity: .92; line-height: 1.45; }
+  .sc-side-promo ul {
+    list-style: none;
+    margin: 0 0 14px;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .sc-side-promo li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .sc-side-promo li i { opacity: .9; }
+  .sc-side-promo .sc-btn {
+    width: 100%;
+    background: #fff;
+    color: var(--brandBlue);
+    box-shadow: none;
+  }
+  .sc-code-page .side-card { border-radius: 16px; }
+  .sc-code-page .qa-item { border-radius: 12px; }
+
+  /* Mobile sticky CTA — shows after scroll, stays visible while browsing list */
+  .sc-list-sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--navH, 64px);
+    z-index: 9997;
+    padding: 8px 12px;
+    background: rgba(255,255,255,.96);
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    border-top: 1px solid rgba(14,18,32,.08);
+    box-shadow: 0 -4px 16px rgba(14,18,32,.08);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(110%);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .sc-list-sticky.is-visible {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .sc-list-sticky__wa {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 52px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: #25D366;
+    color: #fff !important;
+    text-decoration: none !important;
+    box-shadow: 0 8px 24px rgba(37,211,102,.32);
+    transition: filter .2s;
+  }
+  .sc-list-sticky__wa:hover { filter: brightness(.98); color: #fff; }
+  .sc-list-sticky__wa-icon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .sc-list-sticky__wa-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    text-align: left;
+  }
+  .sc-list-sticky__wa-text strong {
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.25;
+  }
+  .sc-list-sticky__wa-text span {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: .92;
+    line-height: 1.3;
+  }
+  .sc-sticky-sentinel {
+    height: 1px;
+    width: 100%;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  @media (min-width: 992px) {
+    .sc-list-sticky { display: none !important; }
+  }
 </style>
 
-
-<div class="container">
-  <div class="brand-accent"></div>
-
-  <nav aria-label="breadcrumb" class="page-breadcrumb mb-2">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="<%= typeof homeUrl !== 'undefined' ? homeUrl : '/' %>" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page"><%= graduation_type_send %> Final Year Project Source Code Download</li>
-    </ol>
-  </nav>
-
-  <section class="page-hero">
-    <h1><%= graduation_type_send %> Final Year Project Source Code Download</h1>
-   <p>Download <%= graduation_type_send %> final year project source code with frontend, backend, and database included. Easy to set up, fully functional, and ideal for students looking for PHP projects with source code in topics like ERP, Real Estate, Vehicle Rental, and Expense Tracker.</p>
+<div class="container sc-code-page">
 
 
-    <!-- Highlighted WhatsApp CTA -->
-    <div class="cta-strip">
-      <span><strong>Need a Custom Source Code?</strong> Get it on WhatsApp.</span>
-      <a id="WhatsAppHero" class="cta-btn" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
-        <i class="feather-message-circle"></i> Chat on WhatsApp
-      </a>
+  <section class="sc-hero" style="margin-top: 20px;">
+    <div class="sc-hero__content">
+      <p class="sc-hero__kicker"><i class="feather-zap"></i> Instant download · From ₹99</p>
+      <h1><%= graduation_type_send || '' %> Final Year Project Source Code</h1>
+      <p class="sc-hero__lead">Working full-stack projects with frontend, backend, and database — ready to run, document, and submit. Browse <%= projectCount %>+ projects or message us for a custom build.</p>
+      <ul class="sc-hero__trust">
+        <li><i class="feather-check-circle"></i> Full source + DB file</li>
+        <li><i class="feather-check-circle"></i> Setup README included</li>
+        <li><i class="feather-check-circle"></i> Live demos on many projects</li>
+        <li><i class="feather-check-circle"></i> Secure instant ZIP</li>
+      </ul>
+      <div class="sc-hero__actions">
+        <a class="sc-btn sc-btn--primary" href="#BrowseAll"><i class="feather-search"></i> Browse all projects</a>
+        <a class="sc-btn sc-btn--ghost" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>"><i class="feather-play-circle"></i> Live demos</a>
+      </div>
     </div>
+    <aside class="sc-hero__aside">
+      <div class="sc-wa-card">
+        <span class="sc-wa-card__badge"><i class="feather-message-circle"></i> Custom builds</span>
+        <h2 class="sc-wa-card__title">Can't find your topic?</h2>
+        <p class="sc-wa-card__text">We build custom source code on request — share your idea and get a working project with docs.</p>
+        <ul class="sc-wa-card__points">
+          <li><i class="feather-check"></i> Any stack · PHP, Node, Python &amp; more</li>
+          <li><i class="feather-check"></i> Full source + database included</li>
+          <li><i class="feather-clock"></i> Reply on WhatsApp in ~15 minutes</li>
+        </ul>
+        <a id="WhatsAppHero" class="sc-wa-card__btn" href="#" target="_blank" rel="noopener">
+          <i class="feather-message-circle"></i> Chat on WhatsApp
+        </a>
+      </div>
+    </aside>
   </section>
 
-  <!-- Project Report Includes -->
+  <section class="sc-popular md-wrap md-app" aria-labelledby="popularHeading">
+    <div class="sc-section-head">
+      <div>
+        <h2 id="popularHeading"><i class="feather-trending-up" style="color:var(--brandOrange)"></i> Most picked this week</h2>
+        <p>Students download these most — tap to view details &amp; buy</p>
+      </div>
+    </div>
+    <div class="h-scroll" id="MostDemanding" aria-label="Popular source code projects"></div>
+  </section>
 
+  <div id="ScStickySentinel" class="sc-sticky-sentinel" aria-hidden="true"></div>
 
-
-  <!-- Most Demanding Reports -->
- <section class="md-wrap md-app">
-  <div class="section-title">
-    <i class="feather-trending-up" style="color:var(--brandOrange)"></i>
-    <h3>Most Demanding Source Code</h3>
-  </div>
-  <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
-</section>
-
-  <section class="toolbar">
-    <div class="row g-2 align-items-center">
-      <div class="col-lg-9">
+  <section class="sc-browse" id="BrowseAll">
+    <div class="sc-sticky-sentinel sc-sticky-sentinel--toolbar" id="ScToolbarSentinel" aria-hidden="true"></div>
+    <div class="sc-toolbar-sticky-wrap" id="ScToolbarWrap">
+    <div class="sc-toolbar" id="ScToolbar">
+      <div class="sc-toolbar__row">
         <div class="search-group">
           <i class="feather-search"></i>
-          <input id="Search" class="form-control search-input" type="text" placeholder="Search source code… e.g., ERP, Real Estate, Daily Expense Tracker" autocomplete="off" />
+          <input id="Search" class="form-control search-input" type="search" placeholder="Search ERP, Hospital, PHP, Python…" autocomplete="off" aria-label="Search source code projects" />
         </div>
-      </div>
-      <div class="col-lg-3 text-lg-end">
-        <select id="Sort" class="form-select sort-select" aria-label="Sort results">
+        <button type="button" class="sc-filter-chip sc-toolbar__demo-btn" id="FilterDemoOnly" aria-pressed="false">
+          <i class="feather-play-circle"></i> Live demo only
+        </button>
+        <select id="Sort" class="form-select sort-select sc-toolbar__sort" aria-label="Sort results">
           <option value="relevance">Sort: Relevance</option>
           <option value="alpha">Sort: A → Z</option>
           <option value="alphaDesc">Sort: Z → A</option>
         </select>
       </div>
+
+      <div class="sc-chip-scroll" role="toolbar" aria-label="Filter projects">
+        <button type="button" class="sc-filter-chip active" data-stack-filter="" aria-pressed="true">All</button>
+        <button type="button" class="sc-filter-chip" data-stack-filter="php" aria-pressed="false">PHP</button>
+        <button type="button" class="sc-filter-chip" data-stack-filter="node-js" aria-pressed="false">Node.js</button>
+        <button type="button" class="sc-filter-chip" data-stack-filter="python" aria-pressed="false">Python</button>
+        <button type="button" class="sc-filter-chip" data-stack-filter="codeigniter" aria-pressed="false">CodeIgniter</button>
+        <button type="button" class="sc-filter-chip" data-stack-filter="machine-learning" aria-pressed="false">ML</button>
+        <button type="button" class="sc-filter-chip sc-filter-chip--demo" id="FilterDemoOnlyMobile" aria-pressed="false">
+          <i class="feather-play-circle"></i> Live demo
+        </button>
+      </div>
+
+      <div class="sc-filter-row sc-filter-row--desktop" aria-label="Filter by technology">
+        <span class="sc-filter-label">Stack</span>
+        <a class="sc-filter-chip degree-pill-link" href="/source-code/php">PHP</a>
+        <a class="sc-filter-chip degree-pill-link" href="/source-code/node-js">Node.js</a>
+        <a class="sc-filter-chip degree-pill-link" href="/source-code/python">Python</a>
+        <a class="sc-filter-chip degree-pill-link" href="/source-code/codeigniter">CodeIgniter</a>
+        <a class="sc-filter-chip degree-pill-link" href="/source-code/machine-learning">ML</a>
+      </div>
     </div>
-  </section>
+    </div>
 
+    <div class="sc-browse__body row mt-3">
+      <div class="col-lg-9 sc-browse__main">
+        <div class="sc-results-bar">
+          <h3>All source code projects</h3>
+          <p class="sc-results-count">Showing <strong id="ResultCount"><%= projectCount %></strong> projects</p>
+        </div>
 
-  <section class="degree-pills-wrap" aria-label="Filter by degree">
-<div class="degree-scroller" id="DegreeScroller">
-  <a class="degree-pill" href="/source-code/php">PHP</a>
-  <a class="degree-pill" href="/source-code/node-js">Node.js</a>
-  <a class="degree-pill" href="/source-code/python">Python</a>
-  <a class="degree-pill" href="/source-code/codeigniter">CodeIgniter</a>
-  <a class="degree-pill" href="/source-code/machine-learning">Machine Learning</a>
-</div>
-
-  <!-- optional arrows for desktop -->
-  <button class="degree-arrow degree-left" type="button" aria-label="Scroll left">
-    <i class="feather-chevron-left"></i>
-  </button>
-  <button class="degree-arrow degree-right" type="button" aria-label="Scroll right">
-    <i class="feather-chevron-right"></i>
-  </button>
-</section>
-
-  <section class="course-content mt-3">
-    <div class="row">
-      <!-- Main grid -->
-      <div class="col-lg-9" style="margin-top: 10px;">
-
-
-        <div class="row g-3" id="Grid">
-          <% for (let i = 0; i < result.length; i++) { %>
-            <div class="col-md-6 col-xl-4 target"
-                 data-name="<%= result[i].name %>"
-                 data-desc="<%= result[i].description %>"
-                 data-url="/<%= result[i].seo_name %>/source-code">
-              <div class="course-box h-100 d-flex flex-column">
+        <div class="sc-code-list" id="Grid">
+          <% for (let i = 0; i < result.length; i++) {
+            const item = result[i];
+            const stack = scStackLabel(item.category);
+            const hasDemo = !!(item.demo_url);
+            const isPopular = i < 6;
+          %>
+          <div class="target"
+               data-name="<%= item.name %>"
+               data-desc="<%= item.description %>"
+               data-url="/<%= item.seo_name %>/source-code"
+               data-demo="<%= hasDemo ? '1' : '0' %>"
+               data-stack="<%= stack %>"
+               data-stack-slug="<%= (item.category || '').toLowerCase() %>">
+            <article class="sc-code-card">
+              <div class="sc-code-card__main">
+                <div class="sc-code-card__badges">
+                  <% if (isPopular) { %><span class="sc-badge sc-badge--pick"><i class="feather-trending-up"></i> Popular</span><% } %>
+                  <span class="sc-badge sc-badge--stack"><%= stack %></span>
+                  <% if (hasDemo) { %><span class="sc-badge sc-badge--demo"><i class="feather-play-circle"></i> Live demo</span><% } %>
+                  <span class="sc-badge sc-badge--price">₹99</span>
+                </div>
                 <h2>
-                  <a href="/<%= result[i].seo_name %>/source-code"
-                     title="<%= result[i].name %> | PDF for <%= graduation_type_send %> Final Year">
-                    <%= result[i].name %>
+                  <a href="/<%= item.seo_name %>/source-code"
+                     title="<%= item.name %> Source Code Download">
+                    <%= item.name %>
                   </a>
                 </h2>
-                <p><%= result[i].description %></p>
-                <div class="mt-auto d-flex justify-content-between align-items-center">
-                  <a class="link-arrow" href="/<%= result[i].seo_name %>/source-code">Get Source Code →</a>
-                </div>
+                <p><%= scStripDesc(item.description) %></p>
               </div>
-            </div>
+              <div class="sc-code-card__actions">
+                <a class="sc-code-card__cta" href="/<%= item.seo_name %>/source-code">
+                  Get Source Code <i class="feather-arrow-right"></i>
+                </a>
+                <% if (hasDemo) { %>
+                  <a class="sc-code-card__demo" href="<%= item.demo_url %>" target="_blank" rel="noopener">
+                    <i class="feather-external-link"></i> Try live demo
+                  </a>
+                <% } %>
+              </div>
+            </article>
+          </div>
           <% } %>
         </div>
 
-        <!-- Empty state -->
+        <div class="sc-list-scroll-pad d-lg-none" aria-hidden="true"></div>
+
         <div id="EmptyState" class="empty empty-app mt-3" style="display:none;">
-  <div class="empty-topbar"></div>
-
-  <div class="empty-head">
-    <div class="icon-wrap-sm"><i class="feather-search"></i></div>
-    <h3 class="empty-title">Didn't find it?</h3>
-    <p class="empty-subtitle">Send your topic—we'll share the source code on WhatsApp.</p>
-  </div>
-
-  <div class="empty-action">
-    <div class="empty-field">
-      <i class="feather-type"></i>
-      <input id="EmptyTopicInput" type="text" placeholder="e.g., Smart Parking System" autocomplete="off" />
-    </div>
-    <a id="WhatsAppEmpty" class="wa-cta" href="#" aria-label="Send on WhatsApp">
-      <span class="pulse" aria-hidden="true"></span>
-      <i class="feather-message-circle"></i> Send on WhatsApp
-    </a>
-  </div>
-
-  
-</div>
+          <div class="empty-topbar"></div>
+          <div class="empty-head">
+            <div class="icon-wrap-sm"><i class="feather-search"></i></div>
+            <h3 class="empty-title">No exact match found</h3>
+            <p class="empty-subtitle">Tell us your topic — we'll share matching source code on WhatsApp within minutes.</p>
+          </div>
+          <div class="empty-action">
+            <div class="empty-field">
+              <i class="feather-type"></i>
+              <input id="EmptyTopicInput" type="text" placeholder="e.g., Smart Parking System" autocomplete="off" />
+            </div>
+            <a id="WhatsAppEmpty" class="wa-cta" href="#" aria-label="Send on WhatsApp">
+              <span class="pulse" aria-hidden="true"></span>
+              <i class="feather-message-circle"></i> Send on WhatsApp
+            </a>
+          </div>
+          <div class="empty-assure">
+            <span class="chip"><i class="feather-clock"></i> Reply in ~15 min</span>
+            <span class="chip"><i class="feather-shield"></i> No spam</span>
+            <span class="chip"><i class="feather-check-circle"></i> Custom builds OK</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Sidebar -->
-      <div class="col-lg-3" style="margin-top: 10px;">
+      <div class="col-lg-3 d-none d-lg-block">
         <div class="sticky-side">
+          <div class="sc-side-promo">
+            <h4>All projects from ₹99</h4>
+            <p>Instant secure download after payment. Full source, database, and setup guide included.</p>
+            <ul>
+              <li><i class="feather-check-circle"></i> 100% working code</li>
+              <li><i class="feather-check-circle"></i> Viva-ready documentation</li>
+              <li><i class="feather-check-circle"></i> WhatsApp support available</li>
+            </ul>
+            <a class="sc-btn" href="#BrowseAll">Browse projects</a>
+          </div>
           <div class="side-card">
-            <div class="side-title"><i class="feather-zap"></i><h4>Quick actions</h4></div>
+            <div class="side-title"><i class="feather-zap"></i><h4>Quick links</h4></div>
             <div class="qa-list">
-              <a class="qa-item" href="<%= typeof codeUrl !== 'undefined' ? codeUrl : '/source-code' %>">
-                <i class="feather-code"></i>
-                <div class="qa-text"><strong>Browse Source Code</strong><span>Working projects with docs</span></div>
-              </a>
-              <a class="qa-item" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>">
+              <a class="qa-item" href="/demo">
                 <i class="feather-play-circle"></i>
-                <div class="qa-text"><strong>See Live Demos</strong><span>Preview before you choose</span></div>
+                <div class="qa-text"><strong>Live demos</strong><span>Preview before you buy</span></div>
               </a>
-              <a class="qa-item" href="<%= typeof blogUrl !== 'undefined' ? blogUrl : '/blog' %>">
-                <i class="feather-book-open"></i>
-                <div class="qa-text"><strong>Guides & Blogs</strong><span>Tips, checklists & more</span></div>
+              <a class="qa-item" href="/final-year-project-ideas">
+                <i class="feather-file-text"></i>
+                <div class="qa-text"><strong>Project reports</strong><span>Matching report files</span></div>
               </a>
               <a class="qa-item" id="WhatsAppSide" href="#">
                 <i class="feather-message-circle"></i>
-                <div class="qa-text"><strong>Request Custom Report</strong><span>Fast reply on WhatsApp</span></div>
+                <div class="qa-text"><strong>Custom source code</strong><span>Fast reply on WhatsApp</span></div>
               </a>
             </div>
-          </div>
-
-          <div class="side-card">
-            <div class="side-title"><i class="feather-info"></i><h4>What we provide</h4></div>
-            <p class="mb-0" style="color:var(--muted)">Project reports, source code, and PPTs tailored for final-year students. Explore, or message us for a custom build.</p>
           </div>
         </div>
       </div>
@@ -383,58 +981,128 @@
   </section>
 </div>
 
-<!-- Floating WhatsApp CTA -->
+<div class="sc-list-sticky" id="ScListSticky" aria-hidden="true">
+  <a id="WhatsAppSticky" class="sc-list-sticky__wa" href="#" target="_blank" rel="noopener" aria-label="Request custom source code on WhatsApp">
+    <span class="sc-list-sticky__wa-icon" aria-hidden="true"><i class="feather-message-circle"></i></span>
+    <span class="sc-list-sticky__wa-text">
+      <strong>Need custom source code?</strong>
+      <span>Chat on WhatsApp · We reply in ~15 minutes</span>
+    </span>
+  </a>
+</div>
 
+<% include Includes/footer.ejs %>
 
 <script>
 (function(){
-  const scroller = document.getElementById('DegreeScroller');
-  const leftBtn  = document.querySelector('.degree-left');
-  const rightBtn = document.querySelector('.degree-right');
-  const pills    = scroller ? scroller.querySelectorAll('.degree-pill') : [];
+  const sticky = document.getElementById('ScListSticky');
+  const sentinel = document.getElementById('ScStickySentinel');
+  const waSticky = document.getElementById('WhatsAppSticky');
+  if (!sticky || !sentinel) return;
 
-  // Active state from URL
-  function setActive(){
-    const path = location.pathname.toLowerCase();
-    pills.forEach(a=>{
-      const href = (a.getAttribute('href')||'').toLowerCase();
-      a.classList.toggle('active', href && path.startsWith(href));
-    });
+  if (window.matchMedia('(min-width: 992px)').matches) return;
+
+  function syncWaSticky() {
+    if (!waSticky || typeof waLink !== 'function') return;
+    waSticky.setAttribute('href', waLink('Need custom source code'));
   }
 
-  // Arrow enable/disable
-  function updateArrows(){
-    if(!scroller || !leftBtn || !rightBtn) return;
-    const max = scroller.scrollWidth - scroller.clientWidth;
-    leftBtn.disabled  = scroller.scrollLeft <= 2;
-    rightBtn.disabled = scroller.scrollLeft >= (max - 2);
+  function setStickyVisible(show) {
+    sticky.classList.toggle('is-visible', show);
+    sticky.setAttribute('aria-hidden', show ? 'false' : 'true');
+    document.body.classList.toggle('sc-code-sticky-active', show);
   }
 
-  // Scroll handlers
-  function scrollByX(x){ scroller.scrollBy({left:x, behavior:'smooth'}); }
+  /* Sentinel sits after hero/popular — once it scrolls up past viewport, show bar and keep it visible */
+  const io = new IntersectionObserver(function(entries){
+    setStickyVisible(!entries[0].isIntersecting);
+  }, { threshold: 0, rootMargin: '0px 0px 0px 0px' });
+  io.observe(sentinel);
 
-  if (scroller){
-    scroller.addEventListener('scroll', updateArrows);
-    window.addEventListener('resize', updateArrows);
-    updateArrows();
-  }
-  if (leftBtn)  leftBtn.addEventListener('click', ()=>scrollByX(-260));
-  if (rightBtn) rightBtn.addEventListener('click', ()=>scrollByX(260));
-
-  // Keyboard support: arrow keys when focused on a pill
-  pills.forEach((p, i)=>{
-    p.setAttribute('tabindex','0');
-    p.addEventListener('keydown', (e)=>{
-      if(e.key==='ArrowRight'){ e.preventDefault(); (pills[i+1]||pills[0]).focus(); }
-      if(e.key==='ArrowLeft'){  e.preventDefault(); (pills[i-1]||pills[pills.length-1]).focus(); }
-    });
+  waSticky && waSticky.addEventListener('click', function(){
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'custom_code_sticky_click', page: 'source_code_list' });
   });
 
-  setActive();
+  syncWaSticky();
+})();
+
+(function initOfferSticky(){
+  if (!document.querySelector('.sc-code-page')) return;
+  const offer = document.getElementById('OfferBar');
+  if (!offer) return;
+
+  let cachedOfferH = offer.offsetHeight || 52;
+
+  function syncOfferH(){
+    if (offer.offsetHeight > 0) cachedOfferH = offer.offsetHeight;
+    document.documentElement.style.setProperty('--offerBarH', cachedOfferH + 'px');
+  }
+
+  syncOfferH();
+  window.addEventListener('resize', syncOfferH);
+  window.addEventListener('load', syncOfferH);
+})();
+
+(function initStickyToolbar(){
+  const wrap = document.getElementById('ScToolbarWrap');
+  const toolbar = document.getElementById('ScToolbar');
+  const sentinel = document.getElementById('ScToolbarSentinel');
+  if (!wrap || !toolbar || !sentinel) return;
+
+  let stuck = false;
+  const UNSTICK_BUFFER = 12;
+
+  function syncStickyMetrics(){
+    document.documentElement.style.setProperty('--scToolbarH', toolbar.offsetHeight + 'px');
+  }
+
+  function setToolbarStuck(next) {
+    if (next === stuck) return;
+    stuck = next;
+    wrap.classList.toggle('is-stuck', stuck);
+    document.body.classList.toggle('sc-toolbar-stuck', stuck);
+    syncStickyMetrics();
+  }
+
+  function updateStuckState(){
+    const top = sentinel.getBoundingClientRect().top;
+    if (!stuck && top <= 0) setToolbarStuck(true);
+    else if (stuck && top > UNSTICK_BUFFER) setToolbarStuck(false);
+  }
+
+  syncStickyMetrics();
+  window.addEventListener('resize', function(){
+    syncStickyMetrics();
+    updateStuckState();
+  });
+  window.addEventListener('load', function(){
+    syncStickyMetrics();
+    updateStuckState();
+  });
+  window.addEventListener('scroll', updateStuckState, { passive: true });
+
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncStickyMetrics).observe(toolbar);
+  }
+
+  updateStuckState();
+})();
+
+(function ensureDesktopFooter(){
+  if (!window.matchMedia('(min-width: 992px)').matches) return;
+  function revealFooterTop(){
+    const footerTop = document.querySelector('footer.footer .footer-top');
+    if (footerTop) footerTop.classList.add('aos-animate');
+    if (window.AOS && typeof window.AOS.refreshHard === 'function') {
+      window.AOS.refreshHard();
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', revealFooterTop);
+  } else {
+    revealFooterTop();
+  }
+  window.addEventListener('load', revealFooterTop);
 })();
 </script>
-
-
-
-
-<% include Includes/footer.ejs %>
