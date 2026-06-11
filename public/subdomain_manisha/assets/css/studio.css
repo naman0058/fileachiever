@@ -72,12 +72,15 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  min-width: 0;
 }
 .mc-logo__img {
   display: block;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  height: 48px;
+  width: auto;
+  max-width: min(240px, 52vw);
+  object-fit: contain;
+  object-position: left center;
 }
 
 .mc-mobile-only { display: none !important; }
@@ -2163,7 +2166,6 @@ a { color: inherit; text-decoration: none; }
   .mc-desktop-only { display: none !important; }
   .mc-mobile-only { display: block !important; }
   .mc-mobile-only.mc-trust-strip { display: block !important; }
-  .mc-mobile-only.mc-nav__status { display: inline-flex !important; }
 
   :root {
     --mc-nav-h: 56px;
@@ -2198,7 +2200,10 @@ a { color: inherit; text-decoration: none; }
     box-shadow: none;
   }
   .mc-nav__inner { gap: 12px; }
-  .mc-logo__img { width: 32px; height: 32px; border-radius: 9px; }
+  .mc-logo__img {
+    height: 42px;
+    max-width: min(210px, 68vw);
+  }
 
   /* Bottom tab bar */
   .mc-tabbar {
