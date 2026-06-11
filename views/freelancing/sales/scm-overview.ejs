@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><%- include('partials/admin-head', { pageTitle: 'Source Code Manager' }) %></head>
+<head>
+  <%- include('partials/admin-head', { pageTitle: 'Source Code Manager' }) %>
+  <link rel="stylesheet" href="/sales/scm-dashboard.css?v=3">
+</head>
 <body class="agent-crm admin-crm">
 <div class="agent-shell">
   <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
@@ -8,142 +11,40 @@
     <header class="agent-page-header">
       <div>
         <h1>Source Code Manager</h1>
-        <p>Audit screenshots, demo links, diagrams, and database assets across the product catalog. Verify completed work before publishing.</p>
+        <p>Enterprise catalog audit — track screenshots, demo links, UML diagrams, and database assets. Filter by gaps, verify completed work, and monitor completion across <%= stats.total %> products.</p>
+      </div>
+      <div class="agent-page-header__actions">
+        <span class="agent-badge agent-badge--muted" style="font-size:12px;padding:8px 14px;">
+          <i class="bi bi-pie-chart me-1"></i><%= stats.completionRate %>% catalog complete
+        </span>
       </div>
     </header>
 
     <%- include('partials/admin-module-tabs', { module: 'scm', activeTab: 'overview' }) %>
 
-    <% if (error) { %><div class="admin-alert admin-alert--danger"><%= error %></div><% } %>
-    <% if (success) { %><div class="admin-alert admin-alert--success"><%= success %></div><% } %>
+    <% if (error) { %><div class="admin-alert admin-alert--danger"><i class="bi bi-exclamation-circle"></i> <%= error %></div><% } %>
+    <% if (success) { %><div class="admin-alert admin-alert--success"><i class="bi bi-check-circle"></i> <%= success %></div><% } %>
 
-    <div class="agent-metrics mb-3" style="grid-template-columns:repeat(3,1fr);max-width:720px;">
-      <div class="agent-metric" style="--metric-accent:#6366f1;--metric-bg:#eef2ff;">
-        <div class="agent-metric__label">Total Products</div>
-        <div class="agent-metric__value"><%= stats.total %></div>
-      </div>
-      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
-        <div class="agent-metric__label">Incomplete</div>
-        <div class="agent-metric__value"><%= stats.pending %></div>
-      </div>
-      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
-        <div class="agent-metric__label">Complete</div>
-        <div class="agent-metric__value"><%= stats.complete %></div>
-      </div>
-    </div>
-
-    <div class="admin-filter-bar">
-      <a class="admin-filter-pill <%= filters.tab === 'all' ? 'is-active' : '' %>" href="/sales/admin/source-code-manager<%= filters.q ? '?q=' + encodeURIComponent(filters.q) : '' %>">All</a>
-      <a class="admin-filter-pill <%= filters.tab === 'pending' ? 'is-active is-active--warn' : '' %>" href="/sales/admin/source-code-manager?tab=pending<%= filters.q ? '&q=' + encodeURIComponent(filters.q) : '' %>">
-        Pending <span class="admin-filter-pill__count">(<%= stats.pending %>)</span>
-      </a>
-      <a class="admin-filter-pill <%= filters.tab === 'complete' ? 'is-active is-active--ok' : '' %>" href="/sales/admin/source-code-manager?tab=complete<%= filters.q ? '&q=' + encodeURIComponent(filters.q) : '' %>">
-        Complete <span class="admin-filter-pill__count">(<%= stats.complete %>)</span>
-      </a>
-      <form method="GET" action="/sales/admin/source-code-manager" class="ms-auto d-flex gap-2">
-        <input type="hidden" name="tab" value="<%= filters.tab %>">
-        <input type="search" name="q" class="form-control" style="max-width:220px;border-radius:12px;" value="<%= filters.q || '' %>" placeholder="Search products…">
-        <button type="submit" class="agent-btn agent-btn--primary agent-btn--sm"><i class="bi bi-search"></i></button>
-      </form>
-    </div>
-
-    <div class="agent-table-card">
-      <div class="p-3 border-bottom"><div class="fw-bold">Product Catalog</div><div class="crm-small"><%= rows.length %> items · ✓ present · ✗ missing</div></div>
-      <div class="crm-table-wrap table-responsive">
-        <table class="crm-table">
-          <thead>
-            <tr>
-              <th>ID</th><th>Product</th><th>Category</th><th>Screenshots</th><th>Demo</th>
-              <th>Diagrams</th><th>DB SS</th><th>Verified</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (!rows.length) { %>
-              <tr><td colspan="9" class="agent-empty"><i class="bi bi-code-square"></i>No source codes found.</td></tr>
-            <% } %>
-            <% (rows || []).forEach(function(r){ %>
-              <tr>
-                <td><span class="crm-chip">#<%= r.id %></span></td>
-                <td><strong><%= r.name || '—' %></strong></td>
-                <td><span class="agent-badge agent-badge--muted"><%= r.category || '—' %></span></td>
-                <td class="crm-small">
-                  <% if (r.hasScreenshot) { %>
-                    <span class="admin-tick">✓</span>
-                    <% var ssList = r.viewableScreenshots || []; %>
-                    <% if (ssList.length) { %>
-                      <a href="#" class="crm-linktext view-screenshots-btn ms-1" data-screenshots="<%= encodeURIComponent(JSON.stringify(ssList)) %>" data-name="<%= (r.name || '').replace(/"/g, '&quot;') %>">(<%= ssList.length %>)</a>
-                    <% } %>
-                  <% } else { %><span class="admin-cross">✗</span><% } %>
-                </td>
-                <td class="crm-small">
-                  <% if (r.hasDemo) { %><span class="admin-tick">✓</span> <a href="<%= r.demo_url %>" target="_blank" rel="noopener" class="crm-linktext">Open</a>
-                  <% } else { %><span class="admin-cross">✗</span><% } %>
-                </td>
-                <td class="crm-small">
-                  <% if (r.hasAllDiagrams) { %><span class="admin-tick">✓</span><% } else { %><%= r.diagramCount || 0 %>/10<% } %>
-                </td>
-                <td class="crm-small">
-                  <% if (r.hasDbScreenshots) { %><%= r.dbScreenshotCount %><% } else { %><span class="admin-cross">✗</span><% } %>
-                </td>
-                <td>
-                  <% if (r.scm_screenshot_verified && r.scm_demo_verified) { %>
-                    <span class="admin-status admin-status--done">Verified</span>
-                  <% } else { %><span class="crm-small">—</span><% } %>
-                </td>
-                <td>
-                  <a class="agent-btn agent-btn--ghost agent-btn--sm" href="/source-code-manager/edit/<%= r.id %>"><i class="bi bi-pencil"></i> Edit</a>
-                  <% var canVerifyAll = r.hasScreenshot && r.hasDemo && (!r.scm_screenshot_verified || !r.scm_demo_verified); %>
-                  <% if (canVerifyAll) { %>
-                    <button type="button" class="agent-btn agent-btn--success agent-btn--sm verify-btn" data-id="<%= r.id %>" data-field="all">Verify</button>
-                  <% } %>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <%- include('partials/scm-catalog-dashboard', {
+      basePath: '/sales/admin/source-code-manager',
+      screenshotsApiPrefix: '/sales/api/admin/source-code-manager',
+      rows, stats, chartData, categoryList, filters, buildQuery,
+      isAdmin: true
+    }) %>
   </main>
 </div>
 
-<div class="modal fade" id="screenshotsModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content" style="border-radius:16px;border:none;">
-      <div class="modal-header border-0"><h5 class="modal-title fw-bold" id="screenshotsModalTitle">Screenshots</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body"><div class="d-flex flex-wrap gap-3" id="screenshotsModalThumbs"></div></div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.querySelectorAll('.verify-btn').forEach(function(btn){
   btn.addEventListener('click', async function(){
+    if (!confirm('Mark this product as admin-verified?')) return;
     const res = await fetch('/sales/api/admin/source-code-manager/' + this.dataset.id + '/verify', {
       method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'field=' + encodeURIComponent(this.dataset.field)
     });
     const j = await res.json();
     if (j.ok) window.location.reload(); else alert(j.message || 'Failed');
-  });
-});
-document.querySelectorAll('.view-screenshots-btn').forEach(function(btn){
-  btn.addEventListener('click', function(e){
-    e.preventDefault();
-    let screenshots = [];
-    try { screenshots = JSON.parse(decodeURIComponent(this.dataset.screenshots || '[]')); } catch(_) {}
-    document.getElementById('screenshotsModalTitle').textContent = (this.dataset.name || 'Product') + ' — ' + screenshots.length + ' screenshot(s)';
-    const container = document.getElementById('screenshotsModalThumbs');
-    container.innerHTML = '';
-    screenshots.forEach(function(ss){
-      const url = typeof ss === 'string' ? ss : (ss.url || '');
-      const wrap = document.createElement('div');
-      wrap.className = 'text-center';
-      const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener';
-      const img = document.createElement('img'); img.src = url; img.className = 'admin-thumb'; img.alt = 'Screenshot';
-      a.appendChild(img); wrap.appendChild(a); container.appendChild(wrap);
-    });
-    new bootstrap.Modal(document.getElementById('screenshotsModal')).show();
   });
 });
 </script>

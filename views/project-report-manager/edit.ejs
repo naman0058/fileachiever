@@ -1,405 +1,549 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title><%= pageTitle %> • FileAchiever</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="/setup-support/support.css">
+  <%- include('partials/portal-head', { pageTitle: 'Edit · ' + (sc.name || 'Report') }) %>
   <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-  <style>
-    .section-card { border-left: 4px solid #2E48FB; }
-    .section-card.filled { border-left-color: #10b981; }
-    .section-card.empty { border-left-color: #ef4444; }
-    .prm-tick { color: #10b981; }
-    .prm-cross { color: #ef4444; }
-    .body-editor-wrap { min-height: 180px; }
-    /* Body editor: default Times New Roman 12px */
-    .body-editor-wrap .ql-editor {
-      font-family: 'Times New Roman', Times, serif !important;
-      font-size: 12px !important;
-      min-height: 150px;
-    }
-    .source-detail-html ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0; }
-    .source-detail-html li { margin-bottom: 0.25rem; }
-    .source-detail-html ul ul { list-style: circle; }
-  </style>
+  <link rel="stylesheet" href="/sales/scm-edit.css?v=2">
+  <link rel="stylesheet" href="/sales/prm-edit.css?v=1">
 </head>
-<body class="support-body">
-<div class="support-layout">
-  <aside class="support-sidebar-wrap">
-    <div class="support-sidebar">
-      <div class="support-sidebar__brand">
-        <div class="support-brand">Project Report Manager</div>
-        <div class="support-sub">Headings, subheadings & body</div>
+<body class="scm-portal">
+<% var p = product || {}; %>
+<% var mh = minHeadings || 10; %>
+<% var ringClass = p.completionPct >= 100 ? '' : (p.completionPct >= 50 ? 'scm-edit-hero__ring--mid' : 'scm-edit-hero__ring--low'); %>
+<% var initialSectionCount = (sections || []).length; %>
+
+<div class="scm-portal-layout">
+  <%- include('partials/portal-sidebar', { user, stats, activeNav: 'edit', minHeadings: mh }) %>
+  <div class="scm-portal-main">
+    <%- include('partials/portal-topbar', { stats, pageHeading: 'Edit Report', showSearch: false }) %>
+    <div class="scm-portal-content">
+
+      <div class="scm-edit-hero">
+        <div class="scm-edit-hero__main">
+          <h1 class="scm-edit-hero__title"><%= sc.name || 'Report' %></h1>
+          <div class="scm-edit-hero__meta">
+            <span class="scm-edit-hero__id">#<%= sc.id %></span>
+            <% if (sc.category) { %><span class="scm-edit-hero__cat"><i class="bi bi-tag"></i> <%= sc.category %></span><% } %>
+            <span id="prmHeroMeta"><%= initialSectionCount %> / <%= mh %> headings</span>
+          </div>
+          <div class="prm-edit-progress-strip" id="prmProgressStrip">
+            <span class="prm-edit-progress-pill <%= p.hasEnoughHeadings ? 'prm-edit-progress-pill--ok' : (p.reportSectionCount > 0 ? 'prm-edit-progress-pill--warn' : 'prm-edit-progress-pill--miss') %>" id="prmHeadingsPill">
+              <i class="bi bi-list-ol"></i> <span id="prmHeadingsLabel"><%= p.reportSectionCount || 0 %> / <%= mh %> sections</span>
+            </span>
+            <% if (p.isVerified) { %>
+              <span class="prm-edit-progress-pill prm-edit-progress-pill--ok"><i class="bi bi-patch-check-fill"></i> Admin verified</span>
+            <% } else if (p.hasEnoughHeadings) { %>
+              <span class="prm-edit-progress-pill prm-edit-progress-pill--warn"><i class="bi bi-hourglass-split"></i> Awaiting admin review</span>
+            <% } else { %>
+              <span class="prm-edit-progress-pill prm-edit-progress-pill--miss"><i class="bi bi-pencil"></i> In progress</span>
+            <% } %>
+          </div>
+        </div>
+        <div class="scm-edit-hero__aside">
+          <div class="scm-edit-hero__ring <%= ringClass %>" id="prmHeroRing" style="--pct:<%= p.completionPct || 0 %>"><span id="prmHeroPct"><%= p.completionPct || 0 %>%</span></div>
+          <a href="/project-report-manager" class="scm-edit-btn scm-edit-btn--outline"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
       </div>
-      <nav class="support-nav">
-        <a class="support-link" href="/project-report-manager"><i class="bi bi-grid-3x3-gap-fill"></i>Dashboard</a>
-        <div class="support-nav__sep"></div>
-        <a class="support-link danger" href="/project-report-manager/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
+
+      <div class="prm-edit-actions">
+        <button type="button" class="scm-edit-btn scm-edit-btn--primary" id="btnSaveAllTop">
+          <i class="bi bi-check2-circle"></i> Save report
+        </button>
+        <button type="button" class="scm-edit-btn scm-edit-btn--outline" id="btnDownloadWord">
+          <i class="bi bi-file-earmark-word"></i> Download Word
+        </button>
+        <span class="prm-edit-actions__spacer"></span>
+        <button type="button" class="scm-edit-btn scm-edit-btn--outline scm-edit-btn--sm" id="btnAddSectionTop">
+          <i class="bi bi-plus-lg"></i> Add section
+        </button>
+      </div>
+
+      <% if (error) { %><div class="admin-alert admin-alert--danger mb-3"><i class="bi bi-exclamation-circle"></i> <%= error %></div><% } %>
+      <% if (success) { %><div class="admin-alert admin-alert--success mb-3"><i class="bi bi-check-circle"></i> <%= success %></div><% } %>
+
+      <nav class="scm-edit-nav" id="prmEditNav">
+        <a class="scm-edit-nav__link" href="#prm-section-context"><i class="bi bi-journal-text"></i> Project context</a>
+        <a class="scm-edit-nav__link is-active" href="#prm-section-editor"><i class="bi bi-file-earmark-richtext"></i> Report sections <span class="scm-edit-nav__badge" id="prmNavSectionCount"><%= initialSectionCount %></span></a>
       </nav>
-      <div class="support-user">
-        <div class="support-user__avatar"><i class="bi bi-person-circle"></i></div>
-        <div class="support-user__info">
-          <div class="support-user__name"><%= user.name || 'User' %></div>
-          <div class="support-user__meta">Project Report Manager</div>
-        </div>
-      </div>
-    </div>
-  </aside>
-  <main class="support-main">
-    <div class="container-fluid px-4 py-5">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-        <h1 class="support-page-title mb-0">Edit Report Sections: <%= sc.name %></h1>
-        <div class="d-flex align-items-center gap-2">
-          <button type="button" class="btn btn-primary" id="btnDownloadWord" title="Download Word with all headings and full content library (diagrams, DB shots, tables, screenshots)">
-            <i class="bi bi-file-earmark-word me-1"></i>Download Report
-          </button>
-          <a href="/project-report-manager" class="btn btn-outline-secondary">← Back</a>
-        </div>
-      </div>
-      <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
-      <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
 
-      <!-- Source Code Context (Admin features, User features, Functionality) -->
-      <div class="card support-card mb-4" style="border-left: 5px solid #2E48FB;">
-        <div class="card-header" style="background: #f0f4ff;">
-          <h5 class="mb-1 fw-bold"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Source Code Details</h5>
-          <p class="mb-0 small text-muted">Use this context when writing headings, subheadings and body content</p>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-12"><label class="form-label small fw-semibold text-muted mb-1">Name</label><div class="fw-semibold"><%= sc.name || '—' %></div></div>
-            <% if (sc.category) { %><div class="col-md-6"><label class="form-label small fw-semibold text-muted mb-1">Category</label><div><span class="badge bg-secondary"><%= sc.category %></span></div></div><% } %>
-            <div class="col-12"><label class="form-label small fw-semibold text-muted mb-1">Description</label><div class="small text-break" style="white-space: pre-wrap;"><%= sc.description || sc.short_description || '—' %></div></div>
-            <% if (sc.admin_features && String(sc.admin_features).trim()) { %>
-            <div class="col-12">
-              <label class="form-label small fw-semibold text-muted mb-1">Admin Features</label>
-              <div class="small source-detail-html"><%- sc.admin_features %></div>
+      <div class="scm-portal-edit-wrap">
+
+        <section class="scm-edit-panel" id="prm-section-context">
+          <div class="scm-edit-panel__head">
+            <div class="scm-edit-panel__head-left">
+              <h2 class="scm-edit-panel__title"><i class="bi bi-info-circle"></i> Source code reference</h2>
+              <p class="scm-edit-panel__sub">Use admin features, user features, and functionality when writing report content</p>
             </div>
-            <% } %>
-            <% if (sc.user_features && String(sc.user_features).trim()) { %>
-            <div class="col-12">
-              <label class="form-label small fw-semibold text-muted mb-1">User Features</label>
-              <div class="small source-detail-html"><%- sc.user_features %></div>
-            </div>
-            <% } %>
-              <% if (sc.other_features && String(sc.other_features).trim()) { %>
-              <div class="col-12">
-                <label class="form-label small fw-semibold text-muted mb-1">Other Features</label>
-                <div class="small source-detail-html"><%- sc.other_features %></div>
+          </div>
+          <div class="scm-edit-panel__body">
+            <details class="prm-context-details" open>
+              <summary><i class="bi bi-chevron-down"></i> Show project details &amp; features</summary>
+              <div class="prm-context-details__body">
+                <div class="scm-edit-context-grid">
+                  <div class="scm-edit-context-item scm-edit-context-item--full">
+                    <div class="scm-edit-context-item__label">Description</div>
+                    <div class="scm-edit-context-item__value" style="white-space:pre-wrap;"><%= sc.description || sc.short_description || '—' %></div>
+                  </div>
+                  <% if (sc.admin_features && String(sc.admin_features).trim()) { %>
+                  <div class="scm-edit-context-item scm-edit-context-item--full">
+                    <div class="scm-edit-context-item__label">Admin features</div>
+                    <div class="scm-edit-context-html"><%- sc.admin_features %></div>
+                  </div>
+                  <% } %>
+                  <% if (sc.user_features && String(sc.user_features).trim()) { %>
+                  <div class="scm-edit-context-item scm-edit-context-item--full">
+                    <div class="scm-edit-context-item__label">User features</div>
+                    <div class="scm-edit-context-html"><%- sc.user_features %></div>
+                  </div>
+                  <% } %>
+                  <% if (sc.other_features && String(sc.other_features).trim()) { %>
+                  <div class="scm-edit-context-item scm-edit-context-item--full">
+                    <div class="scm-edit-context-item__label">Other features</div>
+                    <div class="scm-edit-context-html"><%- sc.other_features %></div>
+                  </div>
+                  <% } %>
+                  <% if (sc.functionality && String(sc.functionality).trim()) { %>
+                  <div class="scm-edit-context-item scm-edit-context-item--full">
+                    <div class="scm-edit-context-item__label">Functionality</div>
+                    <div class="scm-edit-context-html"><%- sc.functionality %></div>
+                  </div>
+                  <% } %>
+                </div>
               </div>
-              <% } %>
-            <% if (sc.functionality && String(sc.functionality).trim()) { %>
-            <div class="col-12">
-              <label class="form-label small fw-semibold text-muted mb-1">Functionality</label>
-              <div class="small source-detail-html text-break"><%- sc.functionality %></div>
-            </div>
-            <% } %>
+            </details>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Report Sections (fully dynamic: add/remove) -->
-      <div class="card support-card mb-4">
-        <div class="card-header support-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <div>
-            <h5 class="support-card-title mb-1">Report Sections</h5>
-            <p class="mb-0 small text-muted">Each section has a Main Heading. Add multiple Subheadings with their Body (rich text). Example: Heading "Introduction" → Subheading "Background of Study" + Body, Subheading "Aim and Objective" + Body.</p>
+        <section class="scm-edit-panel" id="prm-section-editor">
+          <div class="scm-edit-panel__head">
+            <div class="scm-edit-panel__head-left">
+              <h2 class="scm-edit-panel__title"><i class="bi bi-file-earmark-richtext"></i> Report sections</h2>
+              <p class="scm-edit-panel__sub">Each section needs a main heading. Add subheadings with rich-text body content underneath.</p>
+            </div>
           </div>
-          <button type="button" class="btn btn-success" id="btnAddSection"><i class="bi bi-plus-lg me-1"></i>Add Section</button>
-        </div>
-        <div class="card-body">
-          <form id="sectionsForm">
-            <div id="sectionsContainer"></div>
-            <button type="submit" class="btn btn-primary btn-lg mt-3" id="btnSaveAll">Save All Sections</button>
-          </form>
-        </div>
+          <div class="scm-edit-panel__body">
+            <div class="prm-sections-toolbar">
+              <p class="prm-sections-toolbar__hint">
+                Example: <strong>Introduction</strong> → subheading <em>Background of Study</em> + body, subheading <em>Aim and Objective</em> + body.
+                Minimum <strong><%= mh %> headings</strong> required for catalog completion.
+              </p>
+              <span class="prm-sections-toolbar__count"><strong id="prmFilledCount">0</strong> filled · <span id="prmTotalCount">0</span> total</span>
+            </div>
+
+            <form id="sectionsForm">
+              <div id="sectionsContainer"></div>
+              <button type="button" class="prm-add-section-btn" id="btnAddSection">
+                <i class="bi bi-plus-circle"></i> Add new section
+              </button>
+
+              <div class="prm-save-bar">
+                <div class="prm-save-bar__meta">
+                  <strong id="prmSaveBarMeta"><%= initialSectionCount %></strong> sections · unsaved changes are lost if you leave without saving
+                </div>
+                <div class="prm-save-bar__actions">
+                  <button type="button" class="scm-edit-btn scm-edit-btn--outline scm-edit-btn--sm" id="btnDownloadWordBar">
+                    <i class="bi bi-download"></i> Word
+                  </button>
+                  <button type="submit" class="scm-edit-btn scm-edit-btn--primary" id="btnSaveAll">
+                    <i class="bi bi-check2-circle"></i> Save all sections
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+
       </div>
     </div>
-  </main>
+  </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<div class="prm-toast-wrap" id="prmToastWrap" aria-live="polite"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script>
-const scId = <%= sc.id %>;
-const scName = <%- JSON.stringify(sc.name || 'Report') %>;
-const minHeadings = <%= minHeadings || 10 %>;
-let sections = <%- JSON.stringify((sections || []).map(s => ({
-  heading: s.heading || '',
-  subheadings: (Array.isArray(s.subheadings) ? s.subheadings : [{ subheading: s.subheading || '', body: s.body || '' }]).map(sh => ({ subheading: sh.subheading || '', body: sh.body || '' }))
-}))) %>;
-const quillInstances = {};
+(function(){
+  const scId = <%= sc.id %>;
+  const scName = <%- JSON.stringify(sc.name || 'Report') %>;
+  const minHeadings = <%= mh %>;
+  let sections = <%- JSON.stringify((sections || []).map(s => ({
+    heading: s.heading || '',
+    subheadings: (Array.isArray(s.subheadings) ? s.subheadings : [{ subheading: s.subheading || '', body: s.body || '' }]).map(sh => ({ subheading: sh.subheading || '', body: sh.body || '' }))
+  }))) %>;
+  const quillInstances = {};
 
-const quillToolbar = [
-  [{ 'header': [1, 2, 3, false] }],
-  ['bold', 'italic', 'underline', 'strikethrough'],
-  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-  [{ 'color': [] }, { 'background': [] }],
-  ['link', 'image'],
-  ['clean']
-];
+  const quillToolbar = [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strikethrough'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ color: [] }, { background: [] }],
+    ['link', 'image'],
+    ['clean']
+  ];
 
-function getSectionHtml(sectionId, data) {
-  data = data || { heading: '', subheadings: [{ subheading: '', body: '' }] };
-  const subs = Array.isArray(data.subheadings) && data.subheadings.length ? data.subheadings : [{ subheading: '', body: '' }];
-  const isFilled = !!(data.heading && String(data.heading).trim());
-  const escaped = (v) => (v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  let subheadingsHtml = '';
-  subs.forEach((sh, j) => {
-    subheadingsHtml += `
-        <div class="subheading-block mb-3 p-3 border rounded" data-subhead-idx="${j}">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <label class="form-label mb-0 fw-semibold small">Subheading ${j + 1}</label>
-            <button type="button" class="btn btn-sm btn-outline-danger subheading-remove-btn" title="Remove subheading"><i class="bi bi-x-lg"></i></button>
+  function escaped(v) {
+    return (v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function showToast(msg, type) {
+    const wrap = document.getElementById('prmToastWrap');
+    if (!wrap) return;
+    const el = document.createElement('div');
+    el.className = 'prm-toast prm-toast--' + (type || 'success');
+    el.innerHTML = '<i class="bi bi-' + (type === 'error' ? 'exclamation-circle' : 'check-circle-fill') + '"></i> ' + msg;
+    wrap.appendChild(el);
+    setTimeout(function() { el.remove(); }, 4000);
+  }
+
+  function sectionState(data) {
+    const hasHeading = !!(data.heading && String(data.heading).trim());
+    const subs = data.subheadings || [];
+    const hasSubContent = subs.some(function(sh) {
+      return (sh.subheading && sh.subheading.trim()) || (sh.body && sh.body.replace(/<[^>]+>/g, '').trim());
+    });
+    if (hasHeading && hasSubContent) return 'filled';
+    if (hasHeading || hasSubContent) return 'partial';
+    return 'empty';
+  }
+
+  function updateProgressUI() {
+    syncSectionsFromDOM();
+    const filled = sections.filter(function(s) { return s.heading && String(s.heading).trim(); }).length;
+    const total = sections.length;
+    const pct = Math.min(100, Math.round((filled / minHeadings) * 100));
+
+    const ring = document.getElementById('prmHeroRing');
+    const pctEl = document.getElementById('prmHeroPct');
+    const meta = document.getElementById('prmHeroMeta');
+    const navCount = document.getElementById('prmNavSectionCount');
+    const filledEl = document.getElementById('prmFilledCount');
+    const totalEl = document.getElementById('prmTotalCount');
+    const headingsLabel = document.getElementById('prmHeadingsLabel');
+    const saveMeta = document.getElementById('prmSaveBarMeta');
+    const pill = document.getElementById('prmHeadingsPill');
+
+    if (pctEl) pctEl.textContent = pct + '%';
+    if (ring) {
+      ring.style.setProperty('--pct', pct);
+      ring.className = 'scm-edit-hero__ring' + (pct >= 100 ? '' : (pct >= 50 ? ' scm-edit-hero__ring--mid' : ' scm-edit-hero__ring--low'));
+    }
+    if (meta) meta.textContent = filled + ' / ' + minHeadings + ' headings';
+    if (navCount) navCount.textContent = total;
+    if (filledEl) filledEl.textContent = filled;
+    if (totalEl) totalEl.textContent = total;
+    if (headingsLabel) headingsLabel.textContent = filled + ' / ' + minHeadings + ' sections';
+    if (saveMeta) saveMeta.textContent = total;
+    if (pill) {
+      pill.className = 'prm-edit-progress-pill' + (filled >= minHeadings ? ' prm-edit-progress-pill--ok' : (filled > 0 ? ' prm-edit-progress-pill--warn' : ' prm-edit-progress-pill--miss'));
+    }
+  }
+
+  function getSectionHtml(sectionId, data) {
+    data = data || { heading: '', subheadings: [{ subheading: '', body: '' }] };
+    const subs = Array.isArray(data.subheadings) && data.subheadings.length ? data.subheadings : [{ subheading: '', body: '' }];
+    const state = sectionState(data);
+    const headingPreview = (data.heading && data.heading.trim()) ? escaped(data.heading) : 'Untitled section';
+    const titleClass = (data.heading && data.heading.trim()) ? '' : ' prm-section-card__title--placeholder';
+
+    let subheadingsHtml = '';
+    subs.forEach(function(sh, j) {
+      subheadingsHtml += `
+        <div class="prm-subheading-block subheading-block" data-subhead-idx="${j}">
+          <div class="prm-subheading-block__head">
+            <p class="prm-subheading-block__label">Subheading ${j + 1}</p>
+            <button type="button" class="scm-edit-btn scm-edit-btn--danger scm-edit-btn--sm subheading-remove-btn" title="Remove subheading"><i class="bi bi-trash"></i></button>
           </div>
-          <input type="text" class="form-control form-control-sm subheading-input mb-2" placeholder="e.g. Background of Study" value="${escaped(sh.subheading)}">
-          <div class="body-editor-wrap" id="body-editor-${sectionId}-${j}"></div>
+          <input type="text" class="form-control subheading-input mb-2" placeholder="e.g. Background of Study" value="${escaped(sh.subheading)}">
+          <div class="prm-body-editor-wrap body-editor-wrap" id="body-editor-${sectionId}-${j}"></div>
         </div>`;
-  });
-  return `
-    <div class="card section-card mb-4 ${isFilled ? 'filled' : 'empty'}" data-section-id="${sectionId}">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="fw-semibold">Section <span class="section-num">${sectionId + 1}</span></span>
-        <div class="d-flex align-items-center gap-2">
-          ${isFilled ? '<i class="bi bi-check-circle-fill prm-tick" title="Filled"></i>' : '<i class="bi bi-x-circle-fill prm-cross" title="Missing"></i>'}
-          <button type="button" class="btn btn-sm btn-outline-danger section-remove-btn" title="Remove section"><i class="bi bi-trash me-1"></i>Remove</button>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Heading <span class="text-danger">*</span></label>
-          <input type="text" class="form-control section-heading" placeholder="e.g. Introduction" value="${escaped(data.heading)}">
-        </div>
-        <div class="subheadings-wrap">
-          ${subheadingsHtml}
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary add-subheading-btn" data-section-id="${sectionId}"><i class="bi bi-plus-lg me-1"></i>Add Subheading</button>
-      </div>
-    </div>`;
-}
+    });
 
-function initQuill(key, body) {
-  const el = document.getElementById('body-editor-' + key);
-  if (!el) return;
-  if (el.querySelector('.ql-editor')) return; // already initialized
-  if (quillInstances[key]) { quillInstances[key] = null; }
-  const q = new Quill(el, {
-    theme: 'snow',
-    placeholder: 'Enter body content (Times New Roman 12px default)...',
-    modules: { toolbar: quillToolbar }
-  });
-  if (body) q.root.innerHTML = body;
-  quillInstances[key] = q;
-}
+    const statusHtml = state === 'filled'
+      ? '<span class="prm-section-card__status prm-section-card__status--ok"><i class="bi bi-check-circle-fill"></i> Ready</span>'
+      : '<span class="prm-section-card__status prm-section-card__status--miss"><i class="bi bi-circle"></i> Incomplete</span>';
 
-function renderSections() {
-  Object.keys(quillInstances).forEach(k => { quillInstances[k] = null; });
-  const container = document.getElementById('sectionsContainer');
-  container.innerHTML = '';
-  sections.forEach((sec, i) => {
-    const div = document.createElement('div');
-    div.innerHTML = getSectionHtml(i, sec);
-    container.appendChild(div.firstElementChild);
-  });
-  setTimeout(function() {
+    return `
+      <div class="prm-section-card section-card prm-section-card--${state}" data-section-id="${sectionId}">
+        <div class="prm-section-card__head">
+          <div class="prm-section-card__head-left">
+            <span class="prm-section-card__num section-num">${sectionId + 1}</span>
+            <div>
+              <h3 class="prm-section-card__title${titleClass} section-title-preview">${headingPreview}</h3>
+              ${statusHtml}
+            </div>
+          </div>
+          <div class="prm-section-card__actions">
+            <button type="button" class="scm-edit-btn scm-edit-btn--danger scm-edit-btn--sm section-remove-btn" title="Remove section"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+        <div class="prm-section-card__body">
+          <div class="scm-edit-field mb-3">
+            <label class="scm-edit-field__label">Main heading <span class="text-danger">*</span></label>
+            <input type="text" class="form-control section-heading" placeholder="e.g. Introduction" value="${escaped(data.heading)}">
+          </div>
+          <div class="subheadings-wrap">${subheadingsHtml}</div>
+          <button type="button" class="scm-edit-btn scm-edit-btn--outline scm-edit-btn--sm add-subheading-btn" data-section-id="${sectionId}">
+            <i class="bi bi-plus-lg"></i> Add subheading
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function initQuill(key, body) {
+    const el = document.getElementById('body-editor-' + key);
+    if (!el || el.querySelector('.ql-editor')) return;
+    if (quillInstances[key]) quillInstances[key] = null;
+    const q = new Quill(el, {
+      theme: 'snow',
+      placeholder: 'Write body content here…',
+      modules: { toolbar: quillToolbar }
+    });
+    if (body) q.root.innerHTML = body;
+    quillInstances[key] = q;
+  }
+
+  function renderSections(scrollToLast) {
+    Object.keys(quillInstances).forEach(function(k) { quillInstances[k] = null; });
+    const container = document.getElementById('sectionsContainer');
+    container.innerHTML = '';
     sections.forEach(function(sec, i) {
-      (sec.subheadings || []).forEach(function(sh, j) {
-        initQuill(i + '-' + j, sh.body);
+      const div = document.createElement('div');
+      div.innerHTML = getSectionHtml(i, sec);
+      container.appendChild(div.firstElementChild);
+    });
+    setTimeout(function() {
+      sections.forEach(function(sec, i) {
+        (sec.subheadings || []).forEach(function(sh, j) {
+          initQuill(i + '-' + j, sh.body);
+        });
+      });
+      bindHeadingPreview();
+      updateProgressUI();
+      if (scrollToLast) {
+        const cards = container.querySelectorAll('.prm-section-card');
+        if (cards.length) cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 80);
+  }
+
+  function bindHeadingPreview() {
+    document.querySelectorAll('.section-heading').forEach(function(input) {
+      input.removeEventListener('input', onHeadingInput);
+      input.addEventListener('input', onHeadingInput);
+    });
+  }
+
+  function onHeadingInput(e) {
+    const card = e.target.closest('.prm-section-card');
+    if (!card) return;
+    const preview = card.querySelector('.section-title-preview');
+    const val = (e.target.value || '').trim();
+    if (preview) {
+      preview.textContent = val || 'Untitled section';
+      preview.classList.toggle('prm-section-card__title--placeholder', !val);
+    }
+    updateProgressUI();
+  }
+
+  function quillKeyForSectionCard(card, subIndex, cardIndexFallback) {
+    const sid = parseInt(card.getAttribute('data-section-id'), 10);
+    const si = Number.isFinite(sid) ? sid : cardIndexFallback;
+    return si + '-' + subIndex;
+  }
+
+  function syncSectionsFromDOM() {
+    const newSections = [];
+    const container = document.getElementById('sectionsContainer');
+    if (!container) return;
+    container.querySelectorAll('.section-card').forEach(function(card, idx) {
+      const headingInput = card.querySelector('.section-heading');
+      const heading = (headingInput && headingInput.value || '').trim();
+      const subheadingBlocks = card.querySelectorAll('.subheading-block');
+      const subheadings = [];
+      subheadingBlocks.forEach(function(block, j) {
+        const input = block.querySelector('.subheading-input');
+        const subheading = (input && input.value || '').trim();
+        let body = '';
+        const key = quillKeyForSectionCard(card, j, idx);
+        if (quillInstances[key] && quillInstances[key].root) {
+          body = quillInstances[key].root.innerHTML || '';
+        }
+        subheadings.push({ subheading, body });
+      });
+      newSections.push({
+        heading: heading || '',
+        subheadings: subheadings.length ? subheadings : [{ subheading: '', body: '' }]
       });
     });
-  }, 100);
-  updateSectionNumbers();
-}
-
-// Event delegation: section remove, subheading remove, add subheading
-document.getElementById('sectionsContainer').addEventListener('click', function(e) {
-  const sectionRemoveBtn = e.target.closest('.section-remove-btn');
-  if (sectionRemoveBtn) {
-    e.preventDefault();
-    e.stopPropagation();
-    const card = sectionRemoveBtn.closest('.section-card');
-    if (!card) return;
-    const id = parseInt(card.getAttribute('data-section-id'), 10);
-    if (!Number.isFinite(id) || id < 0) return;
-    syncSectionsFromDOM();
-    sections.splice(id, 1);
-    if (sections.length === 0) sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
-    renderSections();
-    return;
+    sections.length = 0;
+    sections.push.apply(sections, newSections);
   }
-  const subheadingRemoveBtn = e.target.closest('.subheading-remove-btn');
-  if (subheadingRemoveBtn) {
-    e.preventDefault();
-    e.stopPropagation();
-    const block = subheadingRemoveBtn.closest('.subheading-block');
-    const card = subheadingRemoveBtn.closest('.section-card');
-    if (!block || !card) return;
-    const sectionId = parseInt(card.getAttribute('data-section-id'), 10);
-    const subheadIdx = parseInt(block.getAttribute('data-subhead-idx'), 10);
-    if (!Number.isFinite(sectionId) || !Number.isFinite(subheadIdx) || subheadIdx < 0) return;
+
+  function collectSections() {
     syncSectionsFromDOM();
-    const sec = sections[sectionId];
-    if (sec && sec.subheadings) {
-      sec.subheadings.splice(subheadIdx, 1);
-      if (sec.subheadings.length === 0) sec.subheadings.push({ subheading: '', body: '' });
+    return sections.map(function(sec) {
+      return {
+        heading: (sec.heading || '').trim() || '(Untitled)',
+        subheadings: (sec.subheadings || []).map(function(sh) {
+          return {
+            subheading: (sh.subheading || '').trim() || '(Untitled)',
+            body: sh.body || ''
+          };
+        })
+      };
+    });
+  }
+
+  function addSection() {
+    sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
+    renderSections(true);
+  }
+
+  document.getElementById('sectionsContainer').addEventListener('click', function(e) {
+    const sectionRemoveBtn = e.target.closest('.section-remove-btn');
+    if (sectionRemoveBtn) {
+      e.preventDefault();
+      const card = sectionRemoveBtn.closest('.section-card');
+      if (!card || !confirm('Remove this section?')) return;
+      const id = parseInt(card.getAttribute('data-section-id'), 10);
+      syncSectionsFromDOM();
+      sections.splice(id, 1);
+      if (sections.length === 0) sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
       renderSections();
-    }
-    return;
-  }
-  const addSubheadingBtn = e.target.closest('.add-subheading-btn');
-  if (addSubheadingBtn) {
-    e.preventDefault();
-    e.stopPropagation();
-    const sectionId = parseInt(addSubheadingBtn.getAttribute('data-section-id'), 10);
-    if (!Number.isFinite(sectionId)) return;
-    syncSectionsFromDOM();
-    const sec = sections[sectionId];
-    if (sec) {
-      if (!sec.subheadings) sec.subheadings = [];
-      sec.subheadings.push({ subheading: '', body: '' });
-      renderSections();
-    }
-    return;
-  }
-});
-
-document.getElementById('btnAddSection').onclick = function() {
-  sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
-  renderSections();
-};
-
-function updateSectionNumbers() {
-  document.querySelectorAll('.section-num').forEach((el, i) => { el.textContent = i + 1; });
-}
-
-/** Must match initQuill keys: body-editor-{data-section-id}-{j} */
-function quillKeyForSectionCard(card, subIndex, cardIndexFallback) {
-  const sid = parseInt(card.getAttribute('data-section-id'), 10);
-  const si = Number.isFinite(sid) ? sid : cardIndexFallback;
-  return si + '-' + subIndex;
-}
-
-function syncSectionsFromDOM() {
-  const newSections = [];
-  const container = document.getElementById('sectionsContainer');
-  if (!container) return;
-  container.querySelectorAll('.section-card').forEach((card, idx) => {
-    const headingInput = card.querySelector('.section-heading');
-    const heading = (headingInput && headingInput.value || '').trim();
-    const subheadingBlocks = card.querySelectorAll('.subheading-block');
-    const subheadings = [];
-    subheadingBlocks.forEach((block, j) => {
-      const input = block.querySelector('.subheading-input');
-      const subheading = (input && input.value || '').trim();
-      let body = '';
-      const key = quillKeyForSectionCard(card, j, idx);
-      if (quillInstances[key] && quillInstances[key].root) {
-        body = quillInstances[key].root.innerHTML || '';
-      }
-      subheadings.push({ subheading, body });
-    });
-    newSections.push({ heading: heading || '', subheadings: subheadings.length ? subheadings : [{ subheading: '', body: '' }] });
-  });
-  sections.length = 0;
-  sections.push(...newSections);
-}
-
-function collectSections() {
-  const items = [];
-  const container = document.getElementById('sectionsContainer');
-  (container ? container.querySelectorAll('.section-card') : []).forEach((card, idx) => {
-    const headingInput = card.querySelector('.section-heading');
-    const heading = (headingInput && headingInput.value || '').trim();
-    const subheadingBlocks = card.querySelectorAll('.subheading-block');
-    const subheadings = [];
-    subheadingBlocks.forEach((block, j) => {
-      const input = block.querySelector('.subheading-input');
-      const subheading = (input && input.value || '').trim();
-      let body = '';
-      const key = quillKeyForSectionCard(card, j, idx);
-      if (quillInstances[key] && quillInstances[key].root) {
-        body = quillInstances[key].root.innerHTML || '';
-      }
-      subheadings.push({ subheading: subheading || '(Untitled)', body: body });
-    });
-    items.push({ heading: heading || '(Untitled)', subheadings: subheadings });
-  });
-  return items;
-}
-
-function collectSectionsForWordDownload() {
-  if (document.activeElement && typeof document.activeElement.blur === 'function') {
-    document.activeElement.blur();
-  }
-  syncSectionsFromDOM();
-  return collectSections();
-}
-
-// Initial load: ensure at least 1 section
-if (sections.length === 0) sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
-renderSections();
-
-document.getElementById('sectionsForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const items = collectSections();
-  if (items.length === 0) {
-    alert('Add at least one section.');
-    return;
-  }
-  const res = await fetch('/project-report-manager/api/' + scId + '/sections/batch', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items })
-  });
-  const j = await res.json();
-  if (j.ok) {
-    alert('Saved.');
-    window.location.href = '/project-report-manager/edit/' + scId + '?success=Saved';
-  } else {
-    alert(j.message || 'Failed to save.');
-  }
-});
-
-document.getElementById('btnDownloadWord').addEventListener('click', async function() {
-  const btn = this;
-  const label = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generating…';
-  try {
-    const res = await fetch('/project-report-manager/api/' + scId + '/download-word', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({ items: collectSectionsForWordDownload() })
-    });
-    const ct = (res.headers.get('Content-Type') || '').toLowerCase();
-    if (!res.ok) {
-      let msg = 'Download failed.';
-      try {
-        if (ct.includes('application/json')) {
-          const j = await res.json();
-          if (j.message) msg = j.message;
-        }
-      } catch (_) { /* ignore */ }
-      alert(msg);
       return;
     }
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = (scName || 'report').replace(/[^\w\s-]/g, '') + '.docx';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  } catch (err) {
-    alert(err.message || 'Failed to download.');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = label;
+    const subheadingRemoveBtn = e.target.closest('.subheading-remove-btn');
+    if (subheadingRemoveBtn) {
+      e.preventDefault();
+      const block = subheadingRemoveBtn.closest('.subheading-block');
+      const card = subheadingRemoveBtn.closest('.section-card');
+      if (!block || !card) return;
+      const sectionId = parseInt(card.getAttribute('data-section-id'), 10);
+      const subheadIdx = parseInt(block.getAttribute('data-subhead-idx'), 10);
+      syncSectionsFromDOM();
+      const sec = sections[sectionId];
+      if (sec && sec.subheadings) {
+        sec.subheadings.splice(subheadIdx, 1);
+        if (sec.subheadings.length === 0) sec.subheadings.push({ subheading: '', body: '' });
+        renderSections();
+      }
+      return;
+    }
+    const addSubheadingBtn = e.target.closest('.add-subheading-btn');
+    if (addSubheadingBtn) {
+      e.preventDefault();
+      const sectionId = parseInt(addSubheadingBtn.getAttribute('data-section-id'), 10);
+      syncSectionsFromDOM();
+      const sec = sections[sectionId];
+      if (sec) {
+        if (!sec.subheadings) sec.subheadings = [];
+        sec.subheadings.push({ subheading: '', body: '' });
+        renderSections();
+      }
+    }
+  });
+
+  document.getElementById('btnAddSection').onclick = addSection;
+  document.getElementById('btnAddSectionTop').onclick = addSection;
+
+  document.getElementById('sectionsForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const items = collectSections();
+    if (!items.length) {
+      showToast('Add at least one section.', 'error');
+      return;
+    }
+    const btn = document.getElementById('btnSaveAll');
+    const topBtn = document.getElementById('btnSaveAllTop');
+    const label = btn.innerHTML;
+    btn.disabled = true;
+    topBtn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving…';
+    try {
+      const res = await fetch('/project-report-manager/api/' + scId + '/sections/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items })
+      });
+      const j = await res.json();
+      if (j.ok) {
+        showToast('Report saved successfully.');
+        if (window.history.replaceState) {
+          window.history.replaceState({}, '', '/project-report-manager/edit/' + scId + '?success=Saved');
+        }
+      } else {
+        showToast(j.message || 'Failed to save.', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to save.', 'error');
+    } finally {
+      btn.disabled = false;
+      topBtn.disabled = false;
+      btn.innerHTML = label;
+    }
+  });
+
+  document.getElementById('btnSaveAllTop').addEventListener('click', function() {
+    document.getElementById('sectionsForm').requestSubmit();
+  });
+
+  async function downloadWord(btn) {
+    const label = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating…';
+    try {
+      const res = await fetch('/project-report-manager/api/' + scId + '/download-word', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ items: collectSections() })
+      });
+      const ct = (res.headers.get('Content-Type') || '').toLowerCase();
+      if (!res.ok) {
+        let msg = 'Download failed.';
+        try {
+          if (ct.includes('application/json')) {
+            const j = await res.json();
+            if (j.message) msg = j.message;
+          }
+        } catch (_) {}
+        showToast(msg, 'error');
+        return;
+      }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (scName || 'report').replace(/[^\w\s-]/g, '') + '.docx';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('Word document downloaded.');
+    } catch (err) {
+      showToast(err.message || 'Download failed.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = label;
+    }
   }
-});
+
+  document.getElementById('btnDownloadWord').addEventListener('click', function() { downloadWord(this); });
+  document.getElementById('btnDownloadWordBar').addEventListener('click', function() { downloadWord(this); });
+
+  document.querySelectorAll('#prmEditNav a[href^="#"]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const id = this.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelectorAll('#prmEditNav .scm-edit-nav__link').forEach(function(l) { l.classList.remove('is-active'); });
+      this.classList.add('is-active');
+    });
+  });
+
+  if (sections.length === 0) sections.push({ heading: '', subheadings: [{ subheading: '', body: '' }] });
+  renderSections();
+})();
 </script>
+<%- include('partials/portal-scripts') %>
 </body>
 </html>

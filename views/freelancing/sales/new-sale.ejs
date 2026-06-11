@@ -45,7 +45,7 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Deal Value (₹) <span class="text-danger">*</span></label>
-                  <input class="form-control" name="lead_price" value="<%= form?.lead_price || '' %>" type="number" min="0" step="0.01" placeholder="12000" required>
+                  <input class="form-control" id="newSaleLeadPrice" name="lead_price" value="<%= form?.lead_price || '' %>" type="number" min="0" step="0.01" placeholder="12000" required>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Advance Collected (₹)</label>
@@ -78,8 +78,9 @@
                   </select>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Agent Commission (₹)</label>
-                  <input class="form-control" name="agent_price" value="<%= form?.agent_price || '' %>" type="number" min="0" step="0.01">
+                  <label class="form-label">Agent Commission (5%)</label>
+                  <input id="newSaleCommission" type="text" class="form-control agent-commission-readonly" readonly tabindex="-1" placeholder="Enter deal value" />
+                  <div class="crm-small mt-1">Fixed at 5% of deal value</div>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Delivery Deadline</label>
@@ -140,5 +141,24 @@
     </form>
   </main>
 </div>
+<script>
+  (function () {
+    const RATE = 0.05;
+    const lp = document.getElementById('newSaleLeadPrice');
+    const ap = document.getElementById('newSaleCommission');
+    if (!lp || !ap) return;
+    function update() {
+      const v = lp.value;
+      if (v === '' || v == null) {
+        ap.value = '';
+        return;
+      }
+      const c = Math.round((Number(v) || 0) * RATE * 100) / 100;
+      ap.value = '₹' + c.toLocaleString('en-IN');
+    }
+    lp.addEventListener('input', update);
+    update();
+  })();
+</script>
 </body>
 </html>

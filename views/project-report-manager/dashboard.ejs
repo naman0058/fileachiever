@@ -1,165 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title><%= pageTitle %> • FileAchiever</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="/setup-support/support.css">
-  <style>
-    .prm-tick { color: #10b981; font-size: 1.2rem; }
-    .prm-cross { color: #ef4444; font-size: 1.2rem; }
-  </style>
-</head>
-<body class="support-body">
+<head><%- include('partials/portal-head', { pageTitle: 'Report Dashboard' }) %></head>
+<body class="scm-portal">
 
-<div class="support-layout">
-  <aside class="support-sidebar-wrap">
-    <div class="support-sidebar">
-      <div class="support-sidebar__brand">
-        <div class="support-brand">Project Report Manager</div>
-        <div class="support-sub">Headings, subheadings & body</div>
-      </div>
-      <nav class="support-nav">
-        <a class="support-link active" href="/project-report-manager"><i class="bi bi-grid-3x3-gap-fill"></i>Dashboard</a>
-        <div class="support-nav__sep"></div>
-        <a class="support-link danger" href="/project-report-manager/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
-      </nav>
-      <div class="support-user">
-        <div class="support-user__avatar"><i class="bi bi-person-circle"></i></div>
-        <div class="support-user__info">
-          <div class="support-user__name"><%= user.name %></div>
-          <div class="support-user__meta">Project Report Manager</div>
-        </div>
-      </div>
+<% var pageHeading = 'Report Dashboard'; %>
+<% var showOverview = activeNav === 'overview'; %>
+<% var filterLabels = {
+  gaps: 'Work Queue — Incomplete',
+  'missing-empty': 'Zero Headings',
+  'missing-partial': 'Partial Reports',
+  complete: 'Complete Reports',
+  verified: 'Admin Verified',
+  unverified: 'Pending Admin Review'
+}; %>
+<% var filterLabel = !showOverview ? (filterLabels[activeNav] || null) : null; %>
+
+<div class="scm-portal-layout">
+  <%- include('partials/portal-sidebar', { user, stats, activeNav, minHeadings }) %>
+  <div class="scm-portal-main">
+    <%- include('partials/portal-topbar', { stats, filters, pageHeading, showSearch: true }) %>
+    <div class="scm-portal-content">
+      <header class="scm-portal-page-head">
+        <h1><%= pageHeading %></h1>
+        <p>Write and maintain project report headings and body content. Minimum <strong><%= minHeadings %> headings</strong> per product — <strong><%= stats.completionRate %>%</strong> of <%= stats.total %> products are complete.</p>
+      </header>
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+      <%- include('../freelancing/sales/partials/prm-catalog-dashboard', {
+        basePath: '/project-report-manager',
+        rows, stats, chartData, categoryList, filters, buildQuery,
+        minHeadings,
+        isAdmin: false,
+        showOverview,
+        filterLabel
+      }) %>
     </div>
-  </aside>
-
-  <main class="support-main">
-    <div class="container-fluid px-4 px-lg-5 py-5">
-      <div class="support-page-header mb-5">
-        <div class="support-header-accent"></div>
-        <h1 class="support-page-title">Project Report Manager</h1>
-        <p class="support-page-sub">Add headings, subheadings & body (min. <%= minHeadings %> headings per source code). ✓ = complete, ✗ = missing.</p>
-      </div>
-
-      <!-- Stats -->
-      <section class="mb-5">
-        <h2 class="support-section-title">Overview</h2>
-        <div class="row g-4">
-          <div class="col-12 col-sm-6 col-xl-4">
-            <a href="/project-report-manager" class="stat-card stat-total text-decoration-none">
-              <div class="stat-icon"><i class="bi bi-collection"></i></div>
-              <div class="stat-content">
-                <span class="stat-value"><%= stats.total || 0 %></span>
-                <span class="stat-label">Total Source Codes</span>
-              </div>
-            </a>
-          </div>
-          <div class="col-12 col-sm-6 col-xl-4">
-            <a href="/project-report-manager?tab=pending" class="stat-card stat-pending text-decoration-none">
-              <div class="stat-icon"><i class="bi bi-exclamation-circle"></i></div>
-              <div class="stat-content">
-                <span class="stat-value"><%= stats.pending || 0 %></span>
-                <span class="stat-label">Pending (&lt;<%= minHeadings %> headings)</span>
-              </div>
-            </a>
-          </div>
-          <div class="col-12 col-sm-6 col-xl-4">
-            <a href="/project-report-manager?tab=complete" class="stat-card stat-done text-decoration-none">
-              <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
-              <div class="stat-content">
-                <span class="stat-value"><%= stats.complete || 0 %></span>
-                <span class="stat-label">Complete (≥<%= minHeadings %> headings)</span>
-              </div>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <!-- Filters -->
-      <div class="card support-card support-filter-card mb-5">
-        <div class="card-body p-0">
-          <form method="get" action="/project-report-manager" class="support-filters row g-3 align-items-end p-4 px-lg-5">
-            <input type="hidden" name="tab" value="<%= filters.tab %>">
-            <div class="col-12 col-md-8 col-lg-9">
-              <label class="form-label support-form-label">Search</label>
-              <div class="input-group support-input-group">
-                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                <input type="search" name="q" class="form-control support-input" value="<%= filters.q || '' %>" placeholder="Name, seo_name, description…" autocomplete="off">
-              </div>
-            </div>
-            <div class="col-12 col-md-4 col-lg-3">
-              <button type="submit" class="btn w-100 support-btn-apply"><i class="bi bi-funnel me-2"></i>Apply</button>
-            </div>
-          </form>
-          <div class="support-tabs-bar px-4 px-lg-5 py-4">
-            <div class="nav nav-pills gap-2">
-              <a class="nav-link support-tab <%= filters.tab === 'all' ? 'active' : '' %>" href="/project-report-manager<%= buildQuery && buildQuery('all') ? '?' + buildQuery('all') : '' %>">All</a>
-              <a class="nav-link support-tab <%= filters.tab === 'pending' ? 'active active-pending' : '' %>" href="/project-report-manager?tab=pending<%= filters.q ? '&q=' + encodeURIComponent(filters.q) : '' %>">Pending (<%= stats.pending %>)</a>
-              <a class="nav-link support-tab <%= filters.tab === 'complete' ? 'active active-done' : '' %>" href="/project-report-manager?tab=complete<%= filters.q ? '&q=' + encodeURIComponent(filters.q) : '' %>">Complete (<%= stats.complete %>)</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Source Code List -->
-      <div class="card support-card support-data-card">
-        <div class="card-header support-card-header">
-          <h5 class="support-card-title">Source Code List</h5>
-          <p class="mb-0 small text-muted">Headings X/<%= minHeadings %> — ✓ = complete, ✗ = missing. Click Edit to add content.</p>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 support-table">
-              <thead class="support-table-head">
-                <tr>
-                  <th class="text-uppercase small fw-bold text-muted" style="width:50px;">ID</th>
-                  <th class="text-uppercase small fw-bold text-muted">Name</th>
-                  <th class="text-uppercase small fw-bold text-muted">Category</th>
-                  <th class="text-uppercase small fw-bold text-muted" style="width:120px;">Headings</th>
-                  <th class="text-uppercase small fw-bold text-muted">Admin Verified</th>
-                  <th class="text-uppercase small fw-bold text-muted" style="width:100px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (!rows.length) { %>
-                <tr><td colspan="6" class="py-5 text-center text-muted">No source codes found.</td></tr>
-                <% } %>
-                <% rows.forEach(function(r){ %>
-                <tr>
-                  <td class="fw-semibold">#<%= r.id %></td>
-                  <td><%= r.name || '-' %></td>
-                  <td><span class="badge bg-secondary"><%= r.category || '-' %></span></td>
-                  <td>
-                    <% if (r.hasEnoughHeadings) { %>
-                    <i class="bi bi-check-circle-fill prm-tick" title="<%= r.reportSectionCount %>/<%= minHeadings %>">✓</i> <%= r.reportSectionCount %>/<%= minHeadings %>
-                    <% } else { %>
-                    <i class="bi bi-x-circle-fill prm-cross" title="<%= r.reportSectionCount %>/<%= minHeadings %> missing <%= r.missingCount %>"></i> <%= r.reportSectionCount %>/<%= minHeadings %> <span class="text-warning">(−<%= r.missingCount %>)</span>
-                    <% } %>
-                  </td>
-                  <td class="small">
-                    <% if (r.prm_report_verified) { %>
-                    <span class="text-success"><i class="bi bi-patch-check-fill"></i> Verified</span>
-                    <% } else { %><span class="text-muted">—</span><% } %>
-                  </td>
-                  <td>
-                    <a href="/project-report-manager/edit/<%= r.id %>" class="btn btn-sm btn-outline-primary">Edit</a>
-                  </td>
-                </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+  </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<%- include('partials/portal-scripts') %>
 </body>
 </html>

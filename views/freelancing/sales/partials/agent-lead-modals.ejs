@@ -78,8 +78,9 @@
             <input id="convertLeadPrice" type="number" min="0" step="0.01" class="form-control" />
           </div>
           <div class="col-md-6">
-            <label class="form-label fw-bold">Your Commission (₹)</label>
-            <input id="convertAgentPrice" type="number" min="0" step="0.01" class="form-control" />
+            <label class="form-label fw-bold">Your Commission (5%)</label>
+            <input id="convertAgentPrice" type="text" class="form-control agent-commission-readonly" readonly tabindex="-1" placeholder="Enter deal value" />
+            <div class="crm-small mt-1">Fixed at 5% of deal value — not editable</div>
           </div>
           <div class="col-md-6">
             <label class="form-label fw-bold">Delivery Deadline</label>
@@ -146,6 +147,25 @@
   window.copyText = async function(text){
     try { await navigator.clipboard.writeText(text||''); toast('Copied'); } catch(e){ toast('Copied'); }
   };
+  const AGENT_COMMISSION_RATE = 0.05;
+  function commissionFromDealValue(v) {
+    const n = Number(v) || 0;
+    return Math.round(n * AGENT_COMMISSION_RATE * 100) / 100;
+  }
+  function updateConvertCommission() {
+    const lp = document.getElementById('convertLeadPrice')?.value;
+    const ap = document.getElementById('convertAgentPrice');
+    if (!ap) return;
+    if (lp === '' || lp == null) {
+      ap.value = '';
+      ap.dataset.commission = '0';
+      return;
+    }
+    const c = commissionFromDealValue(lp);
+    ap.value = '₹' + c.toLocaleString('en-IN');
+    ap.dataset.commission = String(c);
+  }
+  document.getElementById('convertLeadPrice')?.addEventListener('input', updateConvertCommission);
   window.setStage = async function(id, stage){
     try { await apiPost('/sales/api/assignment/stage', { assignment_id: Number(id), stage }); location.reload(); }
     catch(e){ alert('Stage update failed: ' + e.message); }
@@ -207,9 +227,11 @@
   window.openConvert = function(id, name){
     document.getElementById('convertAssignmentId').value = Number(id);
     document.getElementById('convertTitle').textContent = 'Close as Won • ' + (name||'Lead');
-    ['convertName','convertNumber','convertEnquiry','convertLeadPrice','convertAgentPrice','convertDeadline','convertAdvance','convertAssign','convertPakPrice','convertSheetUid','convertRemarks'].forEach(i => {
+    ['convertName','convertNumber','convertEnquiry','convertLeadPrice','convertDeadline','convertAdvance','convertAssign','convertPakPrice','convertSheetUid','convertRemarks'].forEach(i => {
       const el = document.getElementById(i); if(el) el.value = '';
     });
+    const ap = document.getElementById('convertAgentPrice');
+    if (ap) { ap.value = ''; ap.dataset.commission = '0'; }
     const card = document.querySelector('[data-assignment-id="'+id+'"]');
     if(card){
       document.getElementById('convertName').value = card.getAttribute('data-lead-name')||'';
@@ -217,6 +239,7 @@
       document.getElementById('convertEnquiry').value = card.getAttribute('data-lead-enquiry')||'';
     }
     showModal('convertModal');
+    updateConvertCommission();
   };
   window.doConvert = async function(){
     const id = Number(document.getElementById('convertAssignmentId').value);
@@ -228,7 +251,7 @@
     try {
       await apiPost('/sales/api/assignment/convert', {
         assignment_id: id, name, number, enquiry, lead_price: Number(lead_price),
-        agent_price: document.getElementById('convertAgentPrice').value ? Number(document.getElementById('convertAgentPrice').value) : 0,
+        agent_price: commissionFromDealValue(lead_price),
         deadline: document.getElementById('convertDeadline').value||null,
         assign: (document.getElementById('convertAssign').value||'').trim()||null,
         advance_amount: document.getElementById('convertAdvance').value ? Number(document.getElementById('convertAdvance').value) : null,

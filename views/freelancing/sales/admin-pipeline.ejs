@@ -52,13 +52,33 @@
       </div>
     </div>
 
+    <div class="agent-pipeline-copy-bar">
+      <span class="agent-pipeline-copy-bar__label"><i class="bi bi-clipboard"></i> Copy numbers</span>
+      <button type="button" class="agent-btn agent-btn--ghost agent-btn--sm" onclick="copyStagePhones('new')">
+        New Inquiry <span class="agent-pipeline-copy-bar__n"><%= stats.newOpen %></span>
+      </button>
+      <button type="button" class="agent-btn agent-btn--ghost agent-btn--sm" onclick="copyStagePhones('followup')">
+        In Follow-up <span class="agent-pipeline-copy-bar__n"><%= stats.followupOpen %></span>
+      </button>
+      <button type="button" class="agent-btn agent-btn--ghost agent-btn--sm" onclick="copyStagePhones('interested')">
+        High Intent <span class="agent-pipeline-copy-bar__n"><%= stats.interestedOpen %></span>
+      </button>
+    </div>
+
     <div class="agent-pipeline">
       <% stages.forEach(function(stage){ %>
         <% const cards = pipelineBoard[stage.key] || []; %>
         <div class="agent-pipeline-col" style="--col-color:<%= stage.color %>">
           <div class="agent-pipeline-col__head">
             <div class="agent-pipeline-col__title"><i class="bi <%= stage.icon %>"></i> <%= stage.label %></div>
-            <span class="agent-pipeline-col__count"><%= cards.length %></span>
+            <div class="agent-pipeline-col__head-right">
+              <span class="agent-pipeline-col__count"><%= cards.length %></span>
+              <% if (cards.length) { %>
+                <button type="button" class="agent-pipeline-col__copy" onclick="copyStagePhones('<%= stage.key %>')" title="Copy all <%= stage.label %> phone numbers">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              <% } %>
+            </div>
           </div>
           <div class="agent-pipeline-col__body">
             <% if (!cards.length) { %>
@@ -78,7 +98,14 @@
                     <span class="agent-tag agent-tag--due"><i class="bi bi-calendar"></i> <%= r.last_next_followup_date %></span>
                   <% } %>
                 </div>
-                <div class="agent-deal-card__enq"><%= r.enquiry_title || 'No project description' %></div>
+                <div class="agent-deal-card__enq"><%= r.enquiry_title || 'No enquiry title' %></div>
+                <% if (r.enquiry_description && String(r.enquiry_description).trim()) { %>
+                  <% const enqDesc = String(r.enquiry_description).trim(); %>
+                  <% const enqTitle = String(r.enquiry_title || '').trim(); %>
+                  <% if (!enqTitle || enqDesc !== enqTitle) { %>
+                    <div class="agent-deal-card__enq-desc"><%= enqDesc %></div>
+                  <% } %>
+                <% } %>
                 <div class="crm-small">
                   <span class="crm-linktext" onclick="copyText('<%= (r.phone||'').replace(/'/g,"\\'") %>')"><%= r.phone || 'No phone' %></span>
                 </div>
@@ -114,6 +141,34 @@
   </main>
 </div>
 <%- include('partials/agent-lead-modals') %>
-<script>window.copyText = async function(t){ try{ await navigator.clipboard.writeText(t||''); }catch(e){} };</script>
+<script>
+(function(){
+  const pipelinePhonesByStage = <%- JSON.stringify({
+    new: (pipelineBoard.new || []).map(function(r){ return (r.phone || '').trim(); }).filter(Boolean),
+    followup: (pipelineBoard.followup || []).map(function(r){ return (r.phone || '').trim(); }).filter(Boolean),
+    interested: (pipelineBoard.interested || []).map(function(r){ return (r.phone || '').trim(); }).filter(Boolean)
+  }) %>;
+
+  window.copyStagePhones = function(stage){
+    const raw = pipelinePhonesByStage[stage] || [];
+    const seen = new Set();
+    const list = [];
+    raw.forEach(function(p){
+      const n = String(p).replace(/\s+/g, '').trim();
+      if (!n || seen.has(n)) return;
+      seen.add(n);
+      list.push(n);
+    });
+    if (!list.length) {
+      if (typeof toast === 'function') toast('No phone numbers in this stage');
+      return;
+    }
+    const text = list.join('\n');
+    if (typeof copyText === 'function') copyText(text);
+    else navigator.clipboard.writeText(text).catch(function(){});
+    if (typeof toast === 'function') toast('Copied ' + list.length + ' number(s)');
+  };
+})();
+</script>
 </body>
 </html>

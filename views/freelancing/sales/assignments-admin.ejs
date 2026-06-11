@@ -365,8 +365,9 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label fw-bold">Agent Price</label>
-            <input id="convertAgentPrice" type="number" min="0" step="0.01" class="form-control" />
+            <label class="form-label fw-bold">Agent Commission (5%)</label>
+            <input id="convertAgentPrice" type="text" class="form-control agent-commission-readonly" readonly tabindex="-1" placeholder="Enter deal value" />
+            <div class="crm-small mt-1">Fixed at 5% of deal value — not editable</div>
           </div>
 
           <div class="col-md-6">
@@ -600,6 +601,26 @@
     }
   };
 
+  const AGENT_COMMISSION_RATE = 0.05;
+  function commissionFromDealValue(v) {
+    const n = Number(v) || 0;
+    return Math.round(n * AGENT_COMMISSION_RATE * 100) / 100;
+  }
+  function updateConvertCommission() {
+    const lp = document.getElementById('convertLeadPrice')?.value;
+    const ap = document.getElementById('convertAgentPrice');
+    if (!ap) return;
+    if (lp === '' || lp == null) {
+      ap.value = '';
+      ap.dataset.commission = '0';
+      return;
+    }
+    const c = commissionFromDealValue(lp);
+    ap.value = '₹' + c.toLocaleString('en-IN');
+    ap.dataset.commission = String(c);
+  }
+  document.getElementById('convertLeadPrice')?.addEventListener('input', updateConvertCommission);
+
   window.setStage = async function(assignmentId, stage){
     try{
       await apiPost('/sales/api/assignment/stage', { assignment_id: Number(assignmentId), stage });
@@ -714,8 +735,10 @@
     document.getElementById('convertTitle').innerText = 'Convert • ' + (name || 'Lead');
 
     // reset
-    ['convertName','convertNumber','convertEnquiry','convertLeadPrice','convertAgentPrice','convertDeadline','convertAdvance','convertAssign','convertPakPrice','convertSheetUid','convertRemarks']
+    ['convertName','convertNumber','convertEnquiry','convertLeadPrice','convertDeadline','convertAdvance','convertAssign','convertPakPrice','convertSheetUid','convertRemarks']
       .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    const ap = document.getElementById('convertAgentPrice');
+    if (ap) { ap.value = ''; ap.dataset.commission = '0'; }
 
     const row = document.querySelector(`tr[data-assignment-id="${aId}"]`);
     if(row){
@@ -729,6 +752,7 @@
     }
 
     showModal('convertModal');
+    updateConvertCommission();
   };
 
   window.doConvert = async function(){
@@ -750,7 +774,7 @@
       number,
       enquiry,
       lead_price: Number(lead_price),
-      agent_price: document.getElementById('convertAgentPrice').value ? Number(document.getElementById('convertAgentPrice').value) : 0,
+      agent_price: commissionFromDealValue(lead_price),
       deadline: document.getElementById('convertDeadline').value || null,
       assign: (document.getElementById('convertAssign').value || '').trim() || null,
       advance_amount: document.getElementById('convertAdvance').value ? Number(document.getElementById('convertAdvance').value) : null,

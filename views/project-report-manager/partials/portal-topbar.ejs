@@ -1,0 +1,22 @@
+<% var s = stats || { total: 0, complete: 0, completionRate: 0, minHeadings: 10 }; %>
+<% var crumb = typeof pageHeading !== 'undefined' ? pageHeading : 'Reports'; %>
+<header class="scm-portal-topbar">
+  <button type="button" class="scm-portal-topbar__menu" id="scmPortalMenuBtn" aria-label="Open menu"><i class="bi bi-list"></i></button>
+  <nav class="scm-portal-breadcrumb"><a href="/project-report-manager">PRM</a><span class="scm-portal-breadcrumb__sep">/</span><strong><%= crumb %></strong></nav>
+  <div class="scm-portal-topbar__actions">
+    <% if (typeof showSearch !== 'undefined' && showSearch !== false) { %>
+    <form method="GET" action="/project-report-manager" class="scm-portal-search">
+      <% if (typeof filters !== 'undefined' && filters) { %>
+        <% if (filters.tab && filters.tab !== 'all') { %><input type="hidden" name="tab" value="<%= filters.tab %>"><% } %>
+        <% if (filters.missing && filters.missing !== 'all') { %><input type="hidden" name="missing" value="<%= filters.missing %>"><% } %>
+      <% } %>
+      <input type="search" name="q" placeholder="Quick search…" value="<%= (typeof filters !== 'undefined' && filters && filters.q) ? filters.q : '' %>">
+      <button type="submit" aria-label="Search"><i class="bi bi-search"></i></button>
+    </form>
+    <% } %>
+    <div class="scm-portal-kpi-pill" style="--pct:<%= s.completionRate || 0 %>">
+      <div class="scm-portal-kpi-pill__ring"><span><%= s.completionRate || 0 %>%</span></div>
+      <span><%= s.complete || 0 %> / <%= s.total || 0 %> complete</span>
+    </div>
+  </div>
+</header>

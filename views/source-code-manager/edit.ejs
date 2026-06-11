@@ -1,345 +1,349 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title><%= pageTitle %> • FileAchiever</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="/setup-support/support.css">
+  <%- include('partials/portal-head', { pageTitle: 'Edit · ' + (sc.name || 'Product') }) %>
   <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
-  <style>
-    .screenshot-thumb { max-width: 120px; max-height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-    .datatable-editor-wrap { min-height: 150px; }
-    .source-code-details-card { border-left: 4px solid #2E48FB; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100px; }
-    .source-detail-html ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0; }
-    .source-detail-html li { margin-bottom: 0.25rem; }
-    .source-detail-html ul { margin-bottom: 0; padding-left: 1.25rem; }
-    .source-detail-html li { margin-bottom: 0.25rem; }
-    .source-detail-html ul { margin-bottom: 0; padding-left: 1.25rem; }
-    .source-detail-html li { margin-bottom: 0.25rem; }
-    /* Datatable: Times New Roman 12px fixed, not changeable */
-    .datatable-editor-wrap .note-editable,
-    .datatable-editor-wrap .note-editable * {
-      font-family: 'Times New Roman', Times, serif !important;
-      font-size: 12px !important;
-    }
-    /* Source Code Details - always visible, prominent */
-    .sc-details-card,
-    .source-code-details-card {
-      display: block !important;
-      visibility: visible !important;
-      min-height: 120px !important;
-      border-left: 4px solid #2E48FB !important;
-      background: linear-gradient(135deg, #fafbff 0%, #fff 100%) !important;
-    }
-    /* Admin/User Features & Functionality - render HTML as formatted content */
-    .source-detail-html ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0; }
-    .source-detail-html li { margin-bottom: 0.25rem; }
-    .source-detail-html ul ul { list-style: circle; }
-  </style>
+  <link rel="stylesheet" href="/sales/scm-edit.css?v=1">
 </head>
-<body class="support-body">
-<div class="support-layout">
-  <aside class="support-sidebar-wrap">
-    <div class="support-sidebar">
-      <div class="support-sidebar__brand">
-        <div class="support-brand">Source Code Manager</div>
-        <div class="support-sub">Screenshots & demo links</div>
-      </div>
-      <nav class="support-nav">
-        <a class="support-link" href="/source-code-manager"><i class="bi bi-grid-3x3-gap-fill"></i>Dashboard</a>
-        <div class="support-nav__sep"></div>
-        <a class="support-link danger" href="/source-code-manager/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
-      </nav>
-      <div class="support-user">
-        <div class="support-user__avatar"><i class="bi bi-person-circle"></i></div>
-        <div class="support-user__info">
-          <div class="support-user__name"><%= user.name || 'User' %></div>
-          <div class="support-user__meta">Source Code Manager</div>
-        </div>
-      </div>
-    </div>
-  </aside>
-  <main class="support-main">
-    <div class="container-fluid px-4 py-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="support-page-title mb-0">Edit: <%= sc.name %></h1>
-        <a href="/source-code-manager" class="btn btn-outline-secondary">← Back</a>
-      </div>
-      <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
-      <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
-
-      <!-- Source Code Details – always visible for context when managing datatables -->
-      <div class="card support-card mb-4" id="source-code-details" style="border-left: 5px solid #2E48FB !important; background: #fff !important; box-shadow: 0 4px 20px rgba(46,72,251,.12) !important;">
-        <div class="card-header" style="background: #f0f4ff !important; border-bottom: 1px solid #e2e8f0;">
-          <h5 class="mb-1 fw-bold"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Source Code Details</h5>
-          <p class="mb-0 small text-muted">Project context — use this when creating datatables, diagrams, and screenshots</p>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label small fw-semibold text-muted mb-1">Name</label>
-              <div class="fw-semibold"><%= sc.name || '—' %></div>
-            </div>
-            <% if (sc.category) { %>
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-muted mb-1">Category</label>
-              <div><span class="badge bg-secondary"><%= sc.category %></span></div>
-            </div>
-            <% } %>
-            <div class="col-12">
-              <label class="form-label small fw-semibold text-muted mb-1">Description</label>
-              <div class="small text-break" style="white-space: pre-wrap;"><%= sc.description || sc.short_description || '—' %></div>
-            </div>
-            <% if (sc.admin_features && String(sc.admin_features).trim()) { %>
-            <div class="col-12">
-              <label class="form-label small fw-semibold text-muted mb-1">Admin Features</label>
-              <div class="small source-detail-html"><%- sc.admin_features %></div>
-            </div>
-            <% } %>
-            <% if (sc.user_features && String(sc.user_features).trim()) { %>
-            <div class="col-12">
-              <label class="form-label small fw-semibold text-muted mb-1">User Features</label>
-              <div class="small source-detail-html"><%- sc.user_features %></div>
-            </div>
-            <% } %>
-            <% if (sc.other_features && String(sc.other_features).trim()) { %>
-              <div class="col-12">
-                <label class="form-label small fw-semibold text-muted mb-1">Other Features</label>
-                <div class="small source-detail-html"><%- sc.other_features %></div>
-              </div>
-              <% } %>
-            <% if (sc.functionality && String(sc.functionality).trim()) { %>
-            <div class="col-12">
-              <label class="form-label small fw-semibold text-muted mb-1">Functionality</label>
-              <div class="small source-detail-html text-break"><%- sc.functionality %></div>
-            </div>
-            <% } %>
-            <div class="col-12 mt-2 pt-3 border-top">
-              <label class="form-label small fw-semibold text-muted mb-2">Project files (from CMS uploads)</label>
-              <p class="small text-muted mb-2">Download optional attachments stored with this project. Files are served from <code>/images/</code>.</p>
-              <div class="d-flex flex-wrap gap-2 align-items-center">
-                <% var readmeName = sc.readme_file && String(sc.readme_file).trim(); %>
-                <% var schemaName = sc.schema_file && String(sc.schema_file).trim(); %>
-                <% var sqlName = sc.sql_file && String(sc.sql_file).trim(); %>
-                <% if (readmeName) { %>
-                <a href="/images/<%= encodeURIComponent(readmeName) %>" class="btn btn-outline-primary btn-sm" download="<%= readmeName.replace(/"/g, '') %>" target="_blank" rel="noopener"><i class="bi bi-file-earmark-text me-1"></i>README file</a>
-                <% } else { %>
-                <span class="badge rounded-pill text-bg-light border text-muted fw-normal py-2 px-3"><i class="bi bi-file-earmark-text me-1"></i>README — not uploaded</span>
-                <% } %>
-                <% if (schemaName) { %>
-                <a href="/images/<%= encodeURIComponent(schemaName) %>" class="btn btn-outline-primary btn-sm" download="<%= schemaName.replace(/"/g, '') %>" target="_blank" rel="noopener"><i class="bi bi-file-earmark-code me-1"></i>Schema file</a>
-                <% } else { %>
-                <span class="badge rounded-pill text-bg-light border text-muted fw-normal py-2 px-3"><i class="bi bi-file-earmark-code me-1"></i>Schema — not uploaded</span>
-                <% } %>
-                <% if (sqlName) { %>
-                <a href="/images/<%= encodeURIComponent(sqlName) %>" class="btn btn-outline-primary btn-sm" download="<%= sqlName.replace(/"/g, '') %>" target="_blank" rel="noopener"><i class="bi bi-filetype-sql me-1"></i>SQL file</a>
-                <% } else { %>
-                <span class="badge rounded-pill text-bg-light border text-muted fw-normal py-2 px-3"><i class="bi bi-filetype-sql me-1"></i>SQL — not uploaded</span>
-                <% } %>
-              </div>
-            </div>
+<body class="scm-portal">
+<% var p = product || {}; %>
+<% var ringClass = p.completionPct >= 100 ? '' : (p.completionPct >= 50 ? 'scm-edit-hero__ring--mid' : 'scm-edit-hero__ring--low'); %>
+<div class="scm-portal-layout">
+  <%- include('partials/portal-sidebar', { user, stats, activeNav: 'edit' }) %>
+  <div class="scm-portal-main">
+    <%- include('partials/portal-topbar', { stats, pageHeading: 'Edit Product', showSearch: false }) %>
+    <div class="scm-portal-content">
+      <div class="scm-edit-hero">
+        <div class="scm-edit-hero__main">
+          <h1 class="scm-edit-hero__title"><%= sc.name || 'Product' %></h1>
+          <div class="scm-edit-hero__meta">
+            <span class="scm-edit-hero__id">#<%= sc.id %></span>
+            <% if (sc.category) { %><span class="scm-edit-hero__cat"><i class="bi bi-tag"></i> <%= sc.category %></span><% } %>
+            <span><%= (screenshots || []).length %> gallery · <%= diagramPresent || 0 %>/10 diagrams · <%= (dbScreenshots || []).length %> DB shots</span>
+          </div>
+          <div class="scm-edit-asset-strip mt-3">
+            <span class="scm-edit-asset-pill <%= p.hasScreenshot ? 'scm-edit-asset-pill--ok' : 'scm-edit-asset-pill--miss' %>"><i class="bi bi-image"></i> Screenshots</span>
+            <span class="scm-edit-asset-pill <%= p.hasDemo ? 'scm-edit-asset-pill--ok' : 'scm-edit-asset-pill--miss' %>"><i class="bi bi-link-45deg"></i> Demo</span>
+            <span class="scm-edit-asset-pill <%= p.hasAllDiagrams ? 'scm-edit-asset-pill--ok' : 'scm-edit-asset-pill--partial' %>"><i class="bi bi-diagram-3"></i> Diagrams <%= p.diagramCount || 0 %>/10</span>
+            <span class="scm-edit-asset-pill <%= p.hasDbScreenshots ? 'scm-edit-asset-pill--ok' : 'scm-edit-asset-pill--miss' %>"><i class="bi bi-database"></i> DB SS</span>
           </div>
         </div>
+        <div class="scm-edit-hero__aside">
+          <div class="scm-edit-hero__ring <%= ringClass %>" style="--pct:<%= p.completionPct || 0 %>"><span><%= p.completionPct || 0 %>%</span></div>
+          <a href="/source-code-manager" class="scm-edit-btn scm-edit-btn--outline"><i class="bi bi-arrow-left"></i> Catalog</a>
+        </div>
       </div>
 
-      <div class="row">
-        <div class="col-lg-8">
-          <div class="card support-card mb-4">
-            <div class="card-header support-card-header">
-              <h5 class="support-card-title">Add Missing Content</h5>
-              <p class="mb-0 small text-muted">Paste image URL or demo URL</p>
+      <% if (error) { %><div class="admin-alert admin-alert--danger mb-3"><i class="bi bi-exclamation-circle"></i> <%= error %></div><% } %>
+      <% if (success) { %><div class="admin-alert admin-alert--success mb-3"><i class="bi bi-check-circle"></i> <%= success %></div><% } %>
+
+      <nav class="scm-edit-nav" id="scmEditNav">
+        <a class="scm-edit-nav__link is-active" href="#scm-section-context"><i class="bi bi-info-circle"></i> Context</a>
+        <a class="scm-edit-nav__link" href="#scm-section-media"><i class="bi bi-play-circle"></i> Media & Demo</a>
+        <a class="scm-edit-nav__link" href="#scm-section-gallery"><i class="bi bi-images"></i> Gallery <span class="scm-edit-nav__badge"><%= (screenshots || []).length %></span></a>
+        <a class="scm-edit-nav__link" href="#scm-section-diagrams"><i class="bi bi-diagram-3"></i> Diagrams <span class="scm-edit-nav__badge"><%= diagramPresent || 0 %>/10</span></a>
+        <a class="scm-edit-nav__link" href="#scm-section-database"><i class="bi bi-database"></i> Database <span class="scm-edit-nav__badge"><%= (dbScreenshots || []).length %></span></a>
+      </nav>
+
+      <div class="scm-portal-edit-wrap">
+
+        <!-- Project context -->
+        <section class="scm-edit-panel" id="scm-section-context">
+          <div class="scm-edit-panel__head">
+            <div class="scm-edit-panel__head-left">
+              <h2 class="scm-edit-panel__title"><i class="bi bi-journal-text"></i> Project Context</h2>
+              <p class="scm-edit-panel__sub">Reference material for screenshots, diagrams, and database documentation</p>
             </div>
-            <div class="card-body">
-              <!-- Main Image -->
-              <div class="mb-4">
-                <label class="form-label fw-semibold">
-                  Main Image / Screenshot
-                  <% if (hasScreenshot) { %><span class="text-success ms-2"><i class="bi bi-check-circle-fill"></i> Present</span><% } else { %><span class="text-danger ms-2"><i class="bi bi-x-circle-fill"></i> Missing</span><% } %>
-                </label>
-                <input type="url" id="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" value="<%= sc.image || '' %>">
-                <button type="button" class="btn btn-primary mt-2" id="btnSaveImage">Save Image</button>
+          </div>
+          <div class="scm-edit-panel__body">
+            <div class="scm-edit-context-grid">
+              <div class="scm-edit-context-item scm-edit-context-item--full">
+                <div class="scm-edit-context-item__label">Description</div>
+                <div class="scm-edit-context-item__value"><%= sc.description || sc.short_description || '—' %></div>
               </div>
-
-              <!-- Demo URL -->
-              <div class="mb-4">
-                <label class="form-label fw-semibold">
-                  Demo Link
-                  <% if (hasDemo) { %><span class="text-success ms-2"><i class="bi bi-check-circle-fill"></i> Present</span><% } else { %><span class="text-danger ms-2"><i class="bi bi-x-circle-fill"></i> Missing</span><% } %>
-                </label>
-                <input type="url" id="demoUrl" class="form-control" placeholder="https://demo.example.com" value="<%= sc.demo_url || '' %>">
-                <button type="button" class="btn btn-primary mt-2" id="btnSaveDemo">Save Demo Link</button>
+              <% if (sc.admin_features && String(sc.admin_features).trim()) { %>
+              <div class="scm-edit-context-item scm-edit-context-item--full">
+                <div class="scm-edit-context-item__label">Admin Features</div>
+                <div class="scm-edit-context-html"><%- sc.admin_features %></div>
               </div>
-
-              <!-- Additional Screenshots -->
-              <div>
-                <label class="form-label fw-semibold">Add New Screenshot</label>
-                <div class="row g-2">
-                  <div class="col-12">
-                    <input type="url" id="screenshotUrl" class="form-control" placeholder="https://example.com/image.jpg">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label small mb-0">Type</label>
-                    <select id="screenshotType" class="form-select">
-                      <option value="input_design">Input Design</option>
-                      <option value="output_design">Output Design</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label small mb-0">Name</label>
-                    <input type="text" id="screenshotName" class="form-control" placeholder="e.g. Login Screen">
-                  </div>
-                  <div class="col-12">
-                    <button type="button" class="btn btn-outline-primary" id="btnAddScreenshot">Add Screenshot</button>
-                  </div>
+              <% } %>
+              <% if (sc.user_features && String(sc.user_features).trim()) { %>
+              <div class="scm-edit-context-item scm-edit-context-item--full">
+                <div class="scm-edit-context-item__label">User Features</div>
+                <div class="scm-edit-context-html"><%- sc.user_features %></div>
+              </div>
+              <% } %>
+              <% if (sc.other_features && String(sc.other_features).trim()) { %>
+              <div class="scm-edit-context-item scm-edit-context-item--full">
+                <div class="scm-edit-context-item__label">Other Features</div>
+                <div class="scm-edit-context-html"><%- sc.other_features %></div>
+              </div>
+              <% } %>
+              <% if (sc.functionality && String(sc.functionality).trim()) { %>
+              <div class="scm-edit-context-item scm-edit-context-item--full">
+                <div class="scm-edit-context-item__label">Functionality</div>
+                <div class="scm-edit-context-html"><%- sc.functionality %></div>
+              </div>
+              <% } %>
+              <div class="scm-edit-context-item scm-edit-context-item--full">
+                <div class="scm-edit-context-item__label">Project Files</div>
+                <div class="scm-edit-files">
+                  <% var readmeName = sc.readme_file && String(sc.readme_file).trim(); %>
+                  <% var schemaName = sc.schema_file && String(sc.schema_file).trim(); %>
+                  <% var sqlName = sc.sql_file && String(sc.sql_file).trim(); %>
+                  <% if (readmeName) { %>
+                    <a href="/images/<%= encodeURIComponent(readmeName) %>" class="scm-edit-file-btn" download target="_blank" rel="noopener"><i class="bi bi-file-earmark-text"></i> README</a>
+                  <% } else { %><span class="scm-edit-file-btn scm-edit-file-btn--empty"><i class="bi bi-file-earmark-text"></i> README N/A</span><% } %>
+                  <% if (schemaName) { %>
+                    <a href="/images/<%= encodeURIComponent(schemaName) %>" class="scm-edit-file-btn" download target="_blank" rel="noopener"><i class="bi bi-file-earmark-code"></i> Schema</a>
+                  <% } else { %><span class="scm-edit-file-btn scm-edit-file-btn--empty"><i class="bi bi-file-earmark-code"></i> Schema N/A</span><% } %>
+                  <% if (sqlName) { %>
+                    <a href="/images/<%= encodeURIComponent(sqlName) %>" class="scm-edit-file-btn" download target="_blank" rel="noopener"><i class="bi bi-filetype-sql"></i> SQL</a>
+                  <% } else { %><span class="scm-edit-file-btn scm-edit-file-btn--empty"><i class="bi bi-filetype-sql"></i> SQL N/A</span><% } %>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="col-lg-4">
-          <div class="card support-card">
-            <div class="card-header support-card-header">
-              <h5 class="support-card-title">Current Screenshots (<%= screenshots.length %>)</h5>
-              <p class="mb-0 small text-muted">Edit URL or delete as needed</p>
+        </section>
+
+        <!-- Media & demo -->
+        <section class="scm-edit-panel" id="scm-section-media">
+          <div class="scm-edit-panel__head">
+            <div class="scm-edit-panel__head-left">
+              <h2 class="scm-edit-panel__title"><i class="bi bi-play-circle"></i> Media & Demo</h2>
+              <p class="scm-edit-panel__sub">Cover image and live demo URL — required for catalog completion</p>
             </div>
-            <div class="card-body">
-              <% if (screenshots.length) { %>
-              <div class="d-flex flex-column gap-3">
-                <% screenshots.forEach(function(s){ %>
-                <div class="screenshot-item border rounded p-2" data-sid="<%= s.id %>">
-                  <div class="d-flex gap-2 align-items-start">
-                    <img src="<%= s.url %>" alt="Screenshot" class="screenshot-thumb" onerror="this.style.display='none'">
-                    <div class="flex-grow-1 min-w-0">
-                      <input type="url" class="form-control form-control-sm screenshot-url-input mb-1" value="<%= s.url %>" placeholder="URL" data-sid="<%= s.id %>">
-                      <select class="form-select form-select-sm screenshot-type-input mb-1" data-sid="<%= s.id %>">
-                        <option value="input_design" <%= (s.type || 'input_design') === 'input_design' ? 'selected' : '' %>>Input Design</option>
-                        <option value="output_design" <%= (s.type || '') === 'output_design' ? 'selected' : '' %>>Output Design</option>
+          </div>
+          <div class="scm-edit-panel__body">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="scm-edit-field">
+                  <label class="scm-edit-field__label">
+                    Main Cover Image
+                    <span class="scm-edit-status <%= hasScreenshot ? 'scm-edit-status--ok' : 'scm-edit-status--miss' %>">
+                      <i class="bi bi-<%= hasScreenshot ? 'check-circle-fill' : 'x-circle-fill' %>"></i> <%= hasScreenshot ? 'Present' : 'Missing' %>
+                    </span>
+                  </label>
+                  <input type="url" id="imageUrl" class="form-control" placeholder="https://cdn.example.com/cover.jpg" value="<%= sc.image || '' %>">
+                  <div class="scm-edit-field__hint">Primary thumbnail shown in the product catalog</div>
+                  <button type="button" class="scm-edit-btn scm-edit-btn--primary mt-2" id="btnSaveImage"><i class="bi bi-check2"></i> Save Image</button>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="scm-edit-field">
+                  <label class="scm-edit-field__label">
+                    Live Demo URL
+                    <span class="scm-edit-status <%= hasDemo ? 'scm-edit-status--ok' : 'scm-edit-status--miss' %>">
+                      <i class="bi bi-<%= hasDemo ? 'check-circle-fill' : 'x-circle-fill' %>"></i> <%= hasDemo ? 'Present' : 'Missing' %>
+                    </span>
+                  </label>
+                  <input type="url" id="demoUrl" class="form-control" placeholder="https://demo.example.com" value="<%= sc.demo_url || '' %>">
+                  <div class="scm-edit-field__hint">Working demo link for sales and verification</div>
+                  <button type="button" class="scm-edit-btn scm-edit-btn--primary mt-2" id="btnSaveDemo"><i class="bi bi-check2"></i> Save Demo</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screenshot gallery -->
+        <section class="scm-edit-panel" id="scm-section-gallery">
+          <div class="scm-edit-panel__head">
+            <div class="scm-edit-panel__head-left">
+              <h2 class="scm-edit-panel__title"><i class="bi bi-images"></i> Screenshot Gallery</h2>
+              <p class="scm-edit-panel__sub">Input/output design screenshots for the product listing</p>
+            </div>
+            <span class="scm-edit-status scm-edit-status--ok"><%= (screenshots || []).length %> items</span>
+          </div>
+          <div class="scm-edit-panel__body">
+            <div class="scm-edit-grid-2">
+              <div>
+                <div class="scm-edit-field">
+                  <label class="scm-edit-field__label">Add New Screenshot</label>
+                  <input type="url" id="screenshotUrl" class="form-control mb-2" placeholder="https://example.com/screen.jpg">
+                  <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                      <select id="screenshotType" class="form-select">
+                        <option value="input_design">Input Design</option>
+                        <option value="output_design">Output Design</option>
                       </select>
-                      <input type="text" class="form-control form-control-sm screenshot-name-input mb-1" value="<%= s.name || '' %>" placeholder="Name" data-sid="<%= s.id %>">
-                      <div class="d-flex gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-primary screenshot-edit-btn" data-sid="<%= s.id %>">Save</button>
-                        <button type="button" class="btn btn-sm btn-outline-danger screenshot-delete-btn" data-sid="<%= s.id %>">Delete</button>
+                    </div>
+                    <div class="col-md-6">
+                      <input type="text" id="screenshotName" class="form-control" placeholder="Label e.g. Login Screen">
+                    </div>
+                  </div>
+                  <button type="button" class="scm-edit-btn scm-edit-btn--outline" id="btnAddScreenshot"><i class="bi bi-plus-lg"></i> Add to Gallery</button>
+                </div>
+              </div>
+              <div>
+                <label class="scm-edit-field__label mb-2">Current Gallery</label>
+                <% if (screenshots.length) { %>
+                <div class="scm-edit-gallery">
+                  <% screenshots.forEach(function(s){ %>
+                  <div class="scm-edit-gallery-item screenshot-item" data-sid="<%= s.id %>">
+                    <img src="<%= s.url %>" alt="<%= s.name || 'Screenshot' %>" class="scm-edit-gallery-item__thumb" onerror="this.src='';this.classList.add('bg-light')">
+                    <div class="scm-edit-gallery-item__body">
+                      <input type="url" class="form-control form-control-sm screenshot-url-input mb-1" value="<%= s.url %>" placeholder="URL" data-sid="<%= s.id %>">
+                      <div class="row g-1 mb-1">
+                        <div class="col-6">
+                          <select class="form-select form-select-sm screenshot-type-input" data-sid="<%= s.id %>">
+                            <option value="input_design" <%= (s.type || 'input_design') === 'input_design' ? 'selected' : '' %>>Input</option>
+                            <option value="output_design" <%= (s.type || '') === 'output_design' ? 'selected' : '' %>>Output</option>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <input type="text" class="form-control form-control-sm screenshot-name-input" value="<%= s.name || '' %>" placeholder="Name" data-sid="<%= s.id %>">
+                        </div>
+                      </div>
+                      <div class="scm-edit-gallery-item__actions">
+                        <button type="button" class="scm-edit-btn scm-edit-btn--sm scm-edit-btn--primary screenshot-edit-btn" data-sid="<%= s.id %>">Save</button>
+                        <button type="button" class="scm-edit-btn scm-edit-btn--sm scm-edit-btn--danger screenshot-delete-btn" data-sid="<%= s.id %>">Delete</button>
                       </div>
                     </div>
                   </div>
+                  <% }) %>
                 </div>
-                <% }) %>
+                <% } else { %>
+                <div class="scm-edit-gallery-empty"><i class="bi bi-image"></i>No screenshots yet — add URLs above</div>
+                <% } %>
               </div>
-              <% } else { %>
-              <p class="text-muted mb-0">No screenshots yet. Add URLs in the form to the left.</p>
-              <% } %>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Diagrams Section -->
-      <div class="card support-card mt-4">
-        <div class="card-header support-card-header">
-          <h5 class="support-card-title"><i class="bi bi-diagram-3 me-2"></i>Diagrams</h5>
-          <p class="mb-0 small text-muted">Upload diagram URLs (ER, DFD, Use Case, Class, Activity, Sequence, Flow Chart, System Architecture)</p>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <% (diagramTypes || []).forEach(function(dt){ %>
-            <% var existingUrl = (diagramsMap || {})[dt.key]; var hasDiagram = !!(existingUrl && String(existingUrl).trim()); %>
-            <div class="col-12 col-md-6 col-lg-4">
-              <div class="border rounded p-3 diagram-item h-100" data-type="<%= dt.key %>">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="fw-semibold"><%= dt.label %></span>
-                  <% if (hasDiagram) { %><span class="badge bg-success">Present</span><% } else { %><span class="badge bg-secondary">Missing</span><% } %>
+        <!-- Diagrams -->
+        <section class="scm-edit-panel" id="scm-section-diagrams">
+          <div class="scm-edit-panel__head">
+            <div class="scm-edit-panel__head-left">
+              <h2 class="scm-edit-panel__title"><i class="bi bi-diagram-3"></i> UML & Architecture Diagrams</h2>
+              <p class="scm-edit-panel__sub">10 required diagram types — ER, DFD levels, use case, class, activity, sequence, flow chart, system architecture</p>
+            </div>
+            <span class="scm-edit-status <%= p.hasAllDiagrams ? 'scm-edit-status--ok' : 'scm-edit-status--miss' %>"><%= diagramPresent || 0 %>/10 uploaded</span>
+          </div>
+          <div class="scm-edit-panel__body">
+            <div class="scm-edit-diagram-grid">
+              <% (diagramTypes || []).forEach(function(dt){ %>
+              <% var existingUrl = (diagramsMap || {})[dt.key]; var hasDiagram = !!(existingUrl && String(existingUrl).trim()); %>
+              <div class="scm-edit-diagram-card diagram-item <%= hasDiagram ? 'scm-edit-diagram-card--done' : '' %>" data-type="<%= dt.key %>">
+                <div class="scm-edit-diagram-card__top">
+                  <span class="scm-edit-diagram-card__label"><%= dt.label %></span>
+                  <span class="scm-edit-status <%= hasDiagram ? 'scm-edit-status--ok' : 'scm-edit-status--miss' %>"><%= hasDiagram ? 'Done' : 'Missing' %></span>
                 </div>
-                <input type="url" class="form-control form-control-sm diagram-url-input mb-2" placeholder="https://..." value="<%= existingUrl || '' %>" data-type="<%= dt.key %>">
-                <div class="d-flex gap-1">
+                <input type="url" class="form-control form-control-sm diagram-url-input" placeholder="https://..." value="<%= existingUrl || '' %>" data-type="<%= dt.key %>">
+                <div class="scm-edit-diagram-card__actions">
                   <% if (hasDiagram) { %>
-                  <button type="button" class="btn btn-sm btn-outline-primary diagram-update-btn flex-grow-1" data-type="<%= dt.key %>">Update</button>
-                  <button type="button" class="btn btn-sm btn-outline-danger diagram-delete-btn" data-type="<%= dt.key %>">Delete</button>
+                    <button type="button" class="scm-edit-btn scm-edit-btn--sm scm-edit-btn--primary diagram-update-btn flex-grow-1" data-type="<%= dt.key %>">Update</button>
+                    <button type="button" class="scm-edit-btn scm-edit-btn--sm scm-edit-btn--danger diagram-delete-btn" data-type="<%= dt.key %>"><i class="bi bi-trash"></i></button>
                   <% } else { %>
-                  <button type="button" class="btn btn-sm btn-primary diagram-add-btn flex-grow-1" data-type="<%= dt.key %>">Add</button>
+                    <button type="button" class="scm-edit-btn scm-edit-btn--sm scm-edit-btn--primary diagram-add-btn w-100" data-type="<%= dt.key %>"><i class="bi bi-plus-lg"></i> Add Diagram</button>
                   <% } %>
                 </div>
               </div>
+              <% }) %>
             </div>
-            <% }) %>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Database Screenshots Section (with Datatable) -->
-      <div class="card support-card mt-4">
-        <div class="card-header support-card-header">
-          <h5 class="support-card-title"><i class="bi bi-database me-2"></i>Database Screenshots</h5>
-          <p class="mb-0 small text-muted">Add database screenshots with names and data tables. Each item has a datatable (rich text) for tabular data. Track: Upload if missing, update or delete if exists.</p>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6 mb-4">
-              <label class="form-label fw-semibold">Add New Database Screenshot</label>
-              <div class="row g-2 mb-2">
-                <div class="col-12">
-                  <input type="text" id="dbScreenshotName" class="form-control" placeholder="Name (e.g. users table)">
-                </div>
-                <div class="col-12">
-                  <input type="url" id="dbScreenshotUrl" class="form-control" placeholder="https://...">
-                </div>
-                <div class="col-12">
-                  <label class="form-label small mb-1">Data Table (optional — use table tool to create)</label>
+        <!-- Database screenshots -->
+        <section class="scm-edit-panel" id="scm-section-database">
+          <div class="scm-edit-panel__head">
+            <div class="scm-edit-panel__head-left">
+              <h2 class="scm-edit-panel__title"><i class="bi bi-database"></i> Database Screenshots</h2>
+              <p class="scm-edit-panel__sub">Schema captures with optional datatable documentation per table</p>
+            </div>
+            <span class="scm-edit-status <%= p.hasDbScreenshots ? 'scm-edit-status--ok' : 'scm-edit-status--miss' %>"><%= (dbScreenshots || []).length %> records</span>
+          </div>
+          <div class="scm-edit-panel__body">
+            <div class="scm-edit-db-grid">
+              <div>
+                <div class="scm-edit-field">
+                  <label class="scm-edit-field__label">Add Database Screenshot</label>
+                  <input type="text" id="dbScreenshotName" class="form-control mb-2" placeholder="Table name e.g. users">
+                  <input type="url" id="dbScreenshotUrl" class="form-control mb-2" placeholder="Screenshot URL">
+                  <label class="scm-edit-field__label mt-2">Data Table (optional)</label>
                   <div id="dbScreenshotDataTableAdd" class="datatable-editor-wrap"></div>
-                </div>
-                <div class="col-12">
-                  <button type="button" class="btn btn-outline-primary" id="btnAddDbScreenshot">Add Database Screenshot</button>
+                  <button type="button" class="scm-edit-btn scm-edit-btn--primary mt-3" id="btnAddDbScreenshot"><i class="bi bi-plus-lg"></i> Add Record</button>
                 </div>
               </div>
-            </div>
-            <div class="col-lg-6">
-              <label class="form-label fw-semibold">Current Database Screenshots (<%= (dbScreenshots || []).length %>)</label>
-              <% if ((dbScreenshots || []).length) { %>
-              <div class="d-flex flex-column gap-3">
-                <% (dbScreenshots || []).forEach(function(ds){ %>
-                <% var hasDatatable = !!(ds.data_table && String(ds.data_table).trim()); %>
-                <div class="border rounded p-3 db-screenshot-item" data-dsid="<%= ds.id %>">
-                  <div class="d-flex gap-2 align-items-start mb-2">
-                    <img src="<%= ds.url %>" alt="<%= ds.name %>" class="screenshot-thumb" onerror="this.style.display='none'">
-                    <div class="flex-grow-1 min-w-0">
-                      <input type="text" class="form-control form-control-sm db-screenshot-name-input mb-1" value="<%= ds.name || '' %>" placeholder="Name" data-dsid="<%= ds.id %>">
-                      <input type="url" class="form-control form-control-sm db-screenshot-url-input mb-1" value="<%= ds.url %>" placeholder="URL" data-dsid="<%= ds.id %>">
-                      <div class="mb-1">
-                        <% if (hasDatatable) { %><span class="badge bg-success">Datatable: Present</span><% } else { %><span class="badge bg-warning text-dark">Datatable: Missing</span><% } %>
-                      </div>
-                      <div class="d-flex gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-primary db-screenshot-edit-btn" data-dsid="<%= ds.id %>">Save</button>
-                        <button type="button" class="btn btn-sm btn-outline-danger db-screenshot-delete-btn" data-dsid="<%= ds.id %>">Delete</button>
+              <div>
+                <label class="scm-edit-field__label mb-2">Existing Records</label>
+                <% if ((dbScreenshots || []).length) { %>
+                  <% (dbScreenshots || []).forEach(function(ds){ %>
+                  <% var hasDatatable = !!(ds.data_table && String(ds.data_table).trim()); %>
+                  <div class="scm-edit-db-item db-screenshot-item" data-dsid="<%= ds.id %>">
+                    <div class="scm-edit-db-item__head">
+                      <img src="<%= ds.url %>" alt="<%= ds.name %>" class="scm-edit-gallery-item__thumb" onerror="this.style.display='none'">
+                      <div class="flex-grow-1 min-w-0">
+                        <input type="text" class="form-control form-control-sm db-screenshot-name-input mb-1" value="<%= ds.name || '' %>" placeholder="Name" data-dsid="<%= ds.id %>">
+                        <input type="url" class="form-control form-control-sm db-screenshot-url-input mb-1" value="<%= ds.url %>" placeholder="URL" data-dsid="<%= ds.id %>">
+                        <span class="scm-edit-status <%= hasDatatable ? 'scm-edit-status--ok' : 'scm-edit-status--miss' %>"><%= hasDatatable ? 'Datatable present' : 'Datatable missing' %></span>
+                        <div class="scm-edit-gallery-item__actions mt-2">
+                          <button type="button" class="scm-edit-btn scm-edit-btn--sm scm-edit-btn--primary db-screenshot-edit-btn" data-dsid="<%= ds.id %>">Save</button>
+                          <button type="button" class="scm-edit-btn scm-edit-btn--sm scm-edit-btn--danger db-screenshot-delete-btn" data-dsid="<%= ds.id %>">Delete</button>
+                        </div>
                       </div>
                     </div>
+                    <div class="scm-edit-db-item__editor">
+                      <label class="scm-edit-field__label">Data Table Editor</label>
+                      <div id="data-table-editor-<%= ds.id %>" class="datatable-editor-wrap" data-initial="<%- (ds.data_table || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') %>"></div>
+                    </div>
                   </div>
-                  <div class="mt-2">
-                    <label class="form-label small mb-1">Data Table (create/edit table)</label>
-                    <div id="data-table-editor-<%= ds.id %>" class="datatable-editor-wrap" data-initial="<%- (ds.data_table || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') %>"></div>
-                  </div>
-                </div>
-                <% }) %>
+                  <% }) %>
+                <% } else { %>
+                  <div class="scm-edit-gallery-empty"><i class="bi bi-database"></i>No database screenshots yet</div>
+                <% } %>
               </div>
-              <% } else { %>
-              <p class="text-muted mb-0">No database screenshots yet. Add one using the form on the left.</p>
-              <% } %>
             </div>
           </div>
-        </div>
+        </section>
+
       </div>
+    </div>
+  </div>
 </div>
-</main>
+
+<div class="toast-container scm-edit-toast-wrap">
+  <div id="scmEditToast" class="toast align-items-center text-bg-dark border-0">
+    <div class="d-flex">
+      <div class="toast-body" id="scmEditToastBody">Saved</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
 <script>
 const scId = <%= sc.id %>;
-// Datatable config: Times New Roman 12px, no font controls (unchangeable)
+function scmToast(msg, reload) {
+  const el = document.getElementById('scmEditToast');
+  document.getElementById('scmEditToastBody').textContent = msg || 'Done';
+  bootstrap.Toast.getOrCreateInstance(el, { delay: reload ? 1200 : 2200 }).show();
+  if (reload) setTimeout(function(){ location.reload(); }, 1300);
+}
+(function(){
+  var nav = document.getElementById('scmEditNav');
+  if (!nav) return;
+  var links = nav.querySelectorAll('.scm-edit-nav__link');
+  var sections = [];
+  links.forEach(function(a){
+    var id = (a.getAttribute('href') || '').replace('#','');
+    if (id) sections.push({ link: a, el: document.getElementById(id) });
+  });
+  function onScroll(){
+    var y = window.scrollY + 160;
+    var current = sections[0];
+    sections.forEach(function(s){ if (s.el && s.el.offsetTop <= y) current = s; });
+    links.forEach(function(l){ l.classList.remove('is-active'); });
+    if (current && current.link) current.link.classList.add('is-active');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
 var datatableNoteOpts = {
   placeholder: 'Create table or paste data...',
-  height: 150,
-  minHeight: 120,
+  height: 150, minHeight: 120,
   toolbar: [['style',['bold','italic']],['insert',['link','table']]],
   fontNames: [], fontSize: [],
   callbacks: {
@@ -356,12 +360,8 @@ var datatableNoteOpts = {
   }
 };
 $(function() {
-  // Add New section - always init
   var $addEditor = $('#dbScreenshotDataTableAdd');
-  if ($addEditor.length) {
-    $addEditor.summernote(datatableNoteOpts);
-  }
-  // Current database screenshots - init each editor with content from data-initial
+  if ($addEditor.length) $addEditor.summernote(datatableNoteOpts);
   $('.datatable-editor-wrap[data-initial]').each(function() {
     var $el = $(this);
     if ($el.attr('id') && $el.attr('id') !== 'dbScreenshotDataTableAdd') {
@@ -371,174 +371,114 @@ $(function() {
     }
   });
 });
-document.getElementById('btnSaveImage').onclick = async () => {
+document.getElementById('btnSaveImage').onclick = async function(){
   const url = document.getElementById('imageUrl').value.trim();
-  if (!url) { alert('Enter image URL'); return; }
-  const res = await fetch('/source-code-manager/api/' + scId + '/image', {
-    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'url=' + encodeURIComponent(url)
-  });
+  if (!url) return alert('Enter image URL');
+  const res = await fetch('/source-code-manager/api/' + scId + '/image', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'url=' + encodeURIComponent(url) });
   const j = await res.json();
-  if (j.ok) { alert('Saved.'); location.reload(); } else { alert(j.message || 'Failed'); }
+  if (j.ok) scmToast('Cover image saved', true); else alert(j.message || 'Failed');
 };
-document.getElementById('btnSaveDemo').onclick = async () => {
+document.getElementById('btnSaveDemo').onclick = async function(){
   const url = document.getElementById('demoUrl').value.trim();
-  if (!url) { alert('Enter demo URL'); return; }
-  const res = await fetch('/source-code-manager/api/' + scId + '/demo', {
-    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'url=' + encodeURIComponent(url)
-  });
+  if (!url) return alert('Enter demo URL');
+  const res = await fetch('/source-code-manager/api/' + scId + '/demo', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'url=' + encodeURIComponent(url) });
   const j = await res.json();
-  if (j.ok) { alert('Saved.'); location.reload(); } else { alert(j.message || 'Failed'); }
+  if (j.ok) scmToast('Demo link saved', true); else alert(j.message || 'Failed');
 };
-
-document.getElementById('btnAddScreenshot').onclick = async () => {
+document.getElementById('btnAddScreenshot').onclick = async function(){
   const url = document.getElementById('screenshotUrl').value.trim();
   const type = document.getElementById('screenshotType').value;
   const name = document.getElementById('screenshotName').value.trim();
-  if (!url) { alert('Enter screenshot URL'); return; }
+  if (!url) return alert('Enter screenshot URL');
   const params = new URLSearchParams({ url, type, name });
-  const res = await fetch('/source-code-manager/api/' + scId + '/screenshots', {
-    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString()
-  });
+  const res = await fetch('/source-code-manager/api/' + scId + '/screenshots', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
   const j = await res.json();
-  if (j.ok) { alert('Screenshot added.'); location.reload(); } else { alert(j.message || 'Failed'); }
+  if (j.ok) scmToast('Screenshot added', true); else alert(j.message || 'Failed');
 };
-
 document.querySelectorAll('.screenshot-edit-btn').forEach(function(btn) {
   btn.addEventListener('click', async function() {
     const sid = this.dataset.sid;
     const item = this.closest('.screenshot-item');
-    const urlInput = item && item.querySelector('.screenshot-url-input');
-    const typeInput = item && item.querySelector('.screenshot-type-input');
-    const nameInput = item && item.querySelector('.screenshot-name-input');
-    const url = (urlInput && urlInput.value || '').trim();
-    const type = (typeInput && typeInput.value) || 'input_design';
-    const name = (nameInput && nameInput.value || '').trim();
-    if (!url) { alert('Enter screenshot URL'); return; }
-    const params = new URLSearchParams({ url, type, name });
-    const res = await fetch('/source-code-manager/api/' + scId + '/screenshots/' + sid, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString()
-    });
+    const url = (item.querySelector('.screenshot-url-input')?.value || '').trim();
+    const type = item.querySelector('.screenshot-type-input')?.value || 'input_design';
+    const name = (item.querySelector('.screenshot-name-input')?.value || '').trim();
+    if (!url) return alert('Enter screenshot URL');
+    const res = await fetch('/source-code-manager/api/' + scId + '/screenshots/' + sid, { method: 'PUT', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ url, type, name }).toString() });
     const j = await res.json();
-    if (j.ok) { alert('Screenshot updated.'); location.reload(); } else { alert(j.message || 'Failed'); }
+    if (j.ok) scmToast('Screenshot updated', true); else alert(j.message || 'Failed');
   });
 });
-
 document.querySelectorAll('.screenshot-delete-btn').forEach(function(btn) {
   btn.addEventListener('click', async function() {
     if (!confirm('Delete this screenshot?')) return;
     const sid = this.dataset.sid;
-    const res = await fetch('/source-code-manager/api/' + scId + '/screenshots/' + sid, {
-      method: 'DELETE'
-    });
+    const res = await fetch('/source-code-manager/api/' + scId + '/screenshots/' + sid, { method: 'DELETE' });
     const j = await res.json();
-    if (j.ok) {
-      const item = this.closest('.screenshot-item');
-      if (item) item.remove();
-      else location.reload();
-    } else { alert(j.message || 'Failed'); }
+    if (j.ok) { const item = this.closest('.screenshot-item'); if (item) item.remove(); else location.reload(); scmToast('Deleted'); } else alert(j.message || 'Failed');
   });
 });
-
-// Diagram Add
 document.querySelectorAll('.diagram-add-btn').forEach(function(btn) {
   btn.addEventListener('click', async function() {
     const type = this.dataset.type;
-    const item = this.closest('.diagram-item');
-    const input = item && item.querySelector('.diagram-url-input');
-    const url = (input && input.value || '').trim();
-    if (!url) { alert('Enter diagram URL'); return; }
-    const params = new URLSearchParams({ diagram_type: type, url });
-    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams', {
-      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString()
-    });
+    const input = this.closest('.diagram-item')?.querySelector('.diagram-url-input');
+    const url = (input?.value || '').trim();
+    if (!url) return alert('Enter diagram URL');
+    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ diagram_type: type, url }).toString() });
     const j = await res.json();
-    if (j.ok) { location.reload(); } else { alert(j.message || 'Failed'); }
+    if (j.ok) scmToast('Diagram added', true); else alert(j.message || 'Failed');
   });
 });
-// Diagram Update
 document.querySelectorAll('.diagram-update-btn').forEach(function(btn) {
   btn.addEventListener('click', async function() {
     const type = this.dataset.type;
-    const item = this.closest('.diagram-item');
-    const input = item && item.querySelector('.diagram-url-input');
-    const url = (input && input.value || '').trim();
-    if (!url) { alert('Enter diagram URL'); return; }
-    const params = new URLSearchParams({ url });
-    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams/' + type, {
-      method: 'PUT', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString()
-    });
+    const input = this.closest('.diagram-item')?.querySelector('.diagram-url-input');
+    const url = (input?.value || '').trim();
+    if (!url) return alert('Enter diagram URL');
+    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams/' + type, { method: 'PUT', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'url=' + encodeURIComponent(url) });
     const j = await res.json();
-    if (j.ok) { location.reload(); } else { alert(j.message || 'Failed'); }
+    if (j.ok) scmToast('Diagram updated', true); else alert(j.message || 'Failed');
   });
 });
-// Diagram Delete
 document.querySelectorAll('.diagram-delete-btn').forEach(function(btn) {
   btn.addEventListener('click', async function() {
     if (!confirm('Delete this diagram?')) return;
-    const type = this.dataset.type;
-    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams/' + type, { method: 'DELETE' });
+    const res = await fetch('/source-code-manager/api/' + scId + '/diagrams/' + this.dataset.type, { method: 'DELETE' });
     const j = await res.json();
-    if (j.ok) { location.reload(); } else { alert(j.message || 'Failed'); }
+    if (j.ok) scmToast('Diagram deleted', true); else alert(j.message || 'Failed');
   });
 });
-
-// Database Screenshot Add
-document.getElementById('btnAddDbScreenshot') && document.getElementById('btnAddDbScreenshot').addEventListener('click', async function() {
+document.getElementById('btnAddDbScreenshot')?.addEventListener('click', async function() {
   const url = document.getElementById('dbScreenshotUrl')?.value?.trim() || '';
   const name = document.getElementById('dbScreenshotName')?.value?.trim() || '';
-  if (!url) { alert('Enter URL'); return; }
-  if (!name) { alert('Enter name'); return; }
+  if (!url || !name) return alert('Enter name and URL');
   const dataTable = ($('#dbScreenshotDataTableAdd').summernote('code') || '').toString().trim();
-  const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, name, data_table: dataTable })
-  });
+  const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url, name, data_table: dataTable }) });
   const j = await res.json();
-  if (j.ok) { location.reload(); } else { alert(j.message || 'Failed'); }
+  if (j.ok) scmToast('Database record added', true); else alert(j.message || 'Failed');
 });
-
-// Database Screenshot Update & Delete
 document.querySelectorAll('.db-screenshot-edit-btn').forEach(function(btn) {
   btn.addEventListener('click', async function() {
     const dsid = this.dataset.dsid;
     const item = this.closest('.db-screenshot-item');
-    const nameInput = item && item.querySelector('.db-screenshot-name-input');
-    const urlInput = item && item.querySelector('.db-screenshot-url-input');
-    const url = (urlInput && urlInput.value || '').trim();
-    const name = (nameInput && nameInput.value || '').trim();
+    const url = (item.querySelector('.db-screenshot-url-input')?.value || '').trim();
+    const name = (item.querySelector('.db-screenshot-name-input')?.value || '').trim();
     let dataTable = '';
-    try {
-      var $ed = $('#data-table-editor-' + dsid);
-      if ($ed.length && $ed.summernote) dataTable = ($ed.summernote('code') || '').toString().trim();
-    } catch (e) {}
-    if (!url) { alert('Enter URL'); return; }
-    if (!name) { alert('Enter name'); return; }
-    const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots/' + dsid, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, name, data_table: dataTable })
-    });
+    try { dataTable = ($('#data-table-editor-' + dsid).summernote('code') || '').toString().trim(); } catch(e) {}
+    if (!url || !name) return alert('Enter name and URL');
+    const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots/' + dsid, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url, name, data_table: dataTable }) });
     const j = await res.json();
-    if (j.ok) { alert('Saved.'); location.reload(); } else { alert(j.message || 'Failed'); }
+    if (j.ok) scmToast('Database record saved', true); else alert(j.message || 'Failed');
   });
 });
 document.querySelectorAll('.db-screenshot-delete-btn').forEach(function(btn) {
   btn.addEventListener('click', async function() {
     if (!confirm('Delete this database screenshot?')) return;
-    const dsid = this.dataset.dsid;
-    const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots/' + dsid, { method: 'DELETE' });
+    const res = await fetch('/source-code-manager/api/' + scId + '/database-screenshots/' + this.dataset.dsid, { method: 'DELETE' });
     const j = await res.json();
-    if (j.ok) { const item = this.closest('.db-screenshot-item'); if (item) item.remove(); else location.reload(); } else { alert(j.message || 'Failed'); }
+    if (j.ok) { const item = this.closest('.db-screenshot-item'); if (item) item.remove(); else location.reload(); scmToast('Deleted'); } else alert(j.message || 'Failed');
   });
 });
 </script>
+<%- include('partials/portal-scripts') %>
 </body>
 </html>

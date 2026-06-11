@@ -1,0 +1,29 @@
+<% var s = stats || { total: 0, completionRate: 0 }; %>
+<% var crumb = typeof pageHeading !== 'undefined' ? pageHeading : 'Catalog'; %>
+<header class="scm-portal-topbar">
+  <button type="button" class="scm-portal-topbar__menu" id="scmPortalMenuBtn" aria-label="Open menu">
+    <i class="bi bi-list"></i>
+  </button>
+  <nav class="scm-portal-breadcrumb" aria-label="Breadcrumb">
+    <a href="/source-code-manager">SCM</a>
+    <span class="scm-portal-breadcrumb__sep">/</span>
+    <strong><%= crumb %></strong>
+  </nav>
+  <div class="scm-portal-topbar__actions">
+    <% if (typeof showSearch !== 'undefined' && showSearch !== false) { %>
+    <form method="GET" action="/source-code-manager" class="scm-portal-search">
+      <% if (typeof filters !== 'undefined' && filters) { %>
+        <% if (filters.tab && filters.tab !== 'all') { %><input type="hidden" name="tab" value="<%= filters.tab %>"><% } %>
+        <% if (filters.missing && filters.missing !== 'all') { %><input type="hidden" name="missing" value="<%= filters.missing %>"><% } %>
+        <% if (filters.category) { %><input type="hidden" name="category" value="<%= filters.category %>"><% } %>
+      <% } %>
+      <input type="search" name="q" placeholder="Quick search products…" value="<%= (typeof filters !== 'undefined' && filters && filters.q) ? filters.q : '' %>" autocomplete="off">
+      <button type="submit" aria-label="Search"><i class="bi bi-search"></i></button>
+    </form>
+    <% } %>
+    <div class="scm-portal-kpi-pill" style="--pct:<%= s.completionRate %>">
+      <div class="scm-portal-kpi-pill__ring"><span><%= s.completionRate %>%</span></div>
+      <span><%= s.complete || 0 %> / <%= s.total %> complete</span>
+    </div>
+  </div>
+</header>

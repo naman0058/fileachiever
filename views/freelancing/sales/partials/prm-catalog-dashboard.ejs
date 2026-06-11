@@ -1,0 +1,298 @@
+<% var base = typeof basePath !== 'undefined' ? basePath : '/sales/admin/project-report-manager'; %>
+<% var mh = minHeadings || stats.minHeadings || 10; %>
+<% var showOverview = typeof showOverview === 'undefined' ? true : showOverview; %>
+<% function prmHref(overrides) {
+  var qs = buildQuery(overrides || {});
+  return base + (qs ? '?' + qs : '');
+} %>
+
+<% if (showOverview) { %>
+<div class="scm-metrics">
+  <div class="scm-metric" style="--scm-accent:#6366f1;--scm-bg:#eef2ff;">
+    <div class="scm-metric__icon"><i class="bi bi-collection"></i></div>
+    <div class="scm-metric__label">Total Products</div>
+    <div class="scm-metric__value"><%= stats.total %></div>
+  </div>
+  <div class="scm-metric" style="--scm-accent:#16a34a;--scm-bg:#f0fdf4;">
+    <div class="scm-metric__icon"><i class="bi bi-check2-circle"></i></div>
+    <div class="scm-metric__label">Report Complete</div>
+    <div class="scm-metric__value"><%= stats.complete %></div>
+    <div class="scm-metric__hint"><%= stats.completionRate %>% have <%= mh %>+ headings</div>
+  </div>
+  <div class="scm-metric" style="--scm-accent:#f59e0b;--scm-bg:#fffbeb;">
+    <div class="scm-metric__icon"><i class="bi bi-exclamation-triangle"></i></div>
+    <div class="scm-metric__label">Incomplete</div>
+    <div class="scm-metric__value"><%= stats.pending %></div>
+    <div class="scm-metric__hint">Need more report sections</div>
+  </div>
+  <div class="scm-metric" style="--scm-accent:#2563eb;--scm-bg:#eff6ff;">
+    <div class="scm-metric__icon"><i class="bi bi-patch-check"></i></div>
+    <div class="scm-metric__label">Admin Verified</div>
+    <div class="scm-metric__value"><%= stats.verified %></div>
+    <div class="scm-metric__hint"><%= stats.unverified %> awaiting review</div>
+  </div>
+  <div class="scm-metric" style="--scm-accent:#ef4444;--scm-bg:#fef2f2;">
+    <div class="scm-metric__icon"><i class="bi bi-file-earmark-x"></i></div>
+    <div class="scm-metric__label">Zero Headings</div>
+    <div class="scm-metric__value"><%= stats.gaps.empty %></div>
+    <div class="scm-metric__hint">Not started</div>
+  </div>
+  <div class="scm-metric" style="--scm-accent:#a855f7;--scm-bg:#f5f3ff;">
+    <div class="scm-metric__icon"><i class="bi bi-file-earmark-diff"></i></div>
+    <div class="scm-metric__label">Partial (1–<%= mh - 1 %>)</div>
+    <div class="scm-metric__value"><%= stats.gaps.partial %></div>
+    <div class="scm-metric__hint">In progress</div>
+  </div>
+</div>
+
+<div class="scm-charts" id="prm-analytics">
+  <div class="scm-chart-card">
+    <div class="scm-chart-card__head">
+      <h3 class="scm-chart-card__title">Report Completion</h3>
+      <p class="scm-chart-card__sub">Products with <%= mh %>+ headings vs incomplete</p>
+    </div>
+    <div class="scm-chart-card__body scm-chart-card__body--sm"><canvas id="prmCompletionChart"></canvas></div>
+  </div>
+  <div class="scm-chart-card scm-chart-card--wide">
+    <div class="scm-chart-card__head">
+      <h3 class="scm-chart-card__title">Heading Gap Analysis</h3>
+      <p class="scm-chart-card__sub">Report writing progress across the catalog</p>
+    </div>
+    <div class="scm-gap-bars">
+      <% var maxGap = Math.max(stats.gaps.empty, stats.gaps.partial, stats.gaps.incomplete, 1); %>
+      <div class="scm-gap-bar">
+        <div class="scm-gap-bar__label"><i class="bi bi-file-earmark-x me-1"></i>No headings</div>
+        <div class="scm-gap-bar__track"><div class="scm-gap-bar__fill scm-gap-bar__fill--screenshot" style="width:<%= Math.round((stats.gaps.empty/maxGap)*100) %>%"></div></div>
+        <div class="scm-gap-bar__value"><%= stats.gaps.empty %></div>
+      </div>
+      <div class="scm-gap-bar">
+        <div class="scm-gap-bar__label"><i class="bi bi-file-earmark-diff me-1"></i>Partial</div>
+        <div class="scm-gap-bar__track"><div class="scm-gap-bar__fill scm-gap-bar__fill--diagrams" style="width:<%= Math.round((stats.gaps.partial/maxGap)*100) %>%"></div></div>
+        <div class="scm-gap-bar__value"><%= stats.gaps.partial %></div>
+      </div>
+      <div class="scm-gap-bar">
+        <div class="scm-gap-bar__label"><i class="bi bi-hourglass-split me-1"></i>All incomplete</div>
+        <div class="scm-gap-bar__track"><div class="scm-gap-bar__fill scm-gap-bar__fill--demo" style="width:<%= Math.round((stats.gaps.incomplete/maxGap)*100) %>%"></div></div>
+        <div class="scm-gap-bar__value"><%= stats.gaps.incomplete %></div>
+      </div>
+    </div>
+  </div>
+  <div class="scm-chart-card">
+    <div class="scm-chart-card__head">
+      <h3 class="scm-chart-card__title">By Category</h3>
+      <p class="scm-chart-card__sub">Products per technology stack</p>
+    </div>
+    <div class="scm-chart-card__body scm-chart-card__body--sm"><canvas id="prmCategoryChart"></canvas></div>
+  </div>
+</div>
+<% } else if (typeof filterLabel !== 'undefined' && filterLabel) { %>
+<div class="scm-filter-context mb-3">
+  <i class="bi bi-funnel"></i>
+  <span>Filtered view: <strong><%= filterLabel %></strong></span>
+  <a href="<%= base %>" class="scm-filter-context__link">Back to Report Dashboard</a>
+</div>
+<% } %>
+
+<div class="scm-filter-panel">
+  <div class="scm-filter-panel__head">
+    <h3 class="scm-filter-panel__title"><i class="bi bi-funnel me-2"></i>Filters & Search</h3>
+    <div class="scm-legend">
+      <span><span class="dot" style="background:#16a34a"></span> Complete</span>
+      <span><span class="dot" style="background:#f59e0b"></span> Partial</span>
+      <span><span class="dot" style="background:#ef4444"></span> Missing</span>
+    </div>
+  </div>
+  <div class="scm-filter-panel__body">
+    <div class="scm-filter-row">
+      <span class="scm-filter-label">Status</span>
+      <a class="scm-filter-pill <%= filters.tab === 'all' ? 'is-active' : '' %>" href="<%= prmHref({ tab: 'all' }) %>">All <span class="scm-filter-pill__count"><%= stats.total %></span></a>
+      <a class="scm-filter-pill <%= filters.tab === 'pending' ? 'is-active is-active--warn' : '' %>" href="<%= prmHref({ tab: 'pending' }) %>">Incomplete <span class="scm-filter-pill__count"><%= stats.pending %></span></a>
+      <a class="scm-filter-pill <%= filters.tab === 'complete' ? 'is-active is-active--ok' : '' %>" href="<%= prmHref({ tab: 'complete' }) %>">Complete <span class="scm-filter-pill__count"><%= stats.complete %></span></a>
+      <a class="scm-filter-pill <%= filters.tab === 'verified' ? 'is-active is-active--info' : '' %>" href="<%= prmHref({ tab: 'verified' }) %>">Verified <span class="scm-filter-pill__count"><%= stats.verified %></span></a>
+      <a class="scm-filter-pill <%= filters.tab === 'unverified' ? 'is-active is-active--muted' : '' %>" href="<%= prmHref({ tab: 'unverified' }) %>">Unverified <span class="scm-filter-pill__count"><%= stats.unverified %></span></a>
+    </div>
+    <div class="scm-filter-row">
+      <span class="scm-filter-label">Missing</span>
+      <a class="scm-filter-pill <%= filters.missing === 'all' ? 'is-active' : '' %>" href="<%= prmHref({ missing: 'all' }) %>">Any</a>
+      <a class="scm-filter-pill <%= filters.missing === 'empty' ? 'is-active' : '' %>" href="<%= prmHref({ missing: 'empty' }) %>">Zero headings <span class="scm-filter-pill__count"><%= stats.gaps.empty %></span></a>
+      <a class="scm-filter-pill <%= filters.missing === 'partial' ? 'is-active' : '' %>" href="<%= prmHref({ missing: 'partial' }) %>">Partial <span class="scm-filter-pill__count"><%= stats.gaps.partial %></span></a>
+      <a class="scm-filter-pill <%= filters.missing === 'headings' ? 'is-active' : '' %>" href="<%= prmHref({ missing: 'headings' }) %>">Need <%= mh %>+ <span class="scm-filter-pill__count"><%= stats.pending %></span></a>
+    </div>
+    <form method="GET" action="<%= base %>" class="scm-filter-form">
+      <input type="hidden" name="tab" value="<%= filters.tab %>">
+      <input type="hidden" name="missing" value="<%= filters.missing %>">
+      <div>
+        <label>Search</label>
+        <input type="search" name="q" class="form-control" value="<%= filters.q || '' %>" placeholder="Product name, SEO slug, description…">
+      </div>
+      <div>
+        <label>Category</label>
+        <select name="category" class="form-select">
+          <option value="">All categories</option>
+          <% (categoryList || []).forEach(function(cat){ %>
+            <option value="<%= cat %>" <%= filters.category === cat ? 'selected' : '' %>><%= cat %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label>Verification</label>
+        <select name="verified" class="form-select">
+          <option value="all" <%= filters.verified === 'all' ? 'selected' : '' %>>All</option>
+          <option value="verified" <%= filters.verified === 'verified' ? 'selected' : '' %>>Verified only</option>
+          <option value="unverified" <%= filters.verified === 'unverified' ? 'selected' : '' %>>Unverified only</option>
+        </select>
+      </div>
+      <div>
+        <label>Sort By</label>
+        <select name="sort" class="form-select">
+          <option value="id_desc" <%= filters.sort === 'id_desc' ? 'selected' : '' %>>Newest first</option>
+          <option value="name_asc" <%= filters.sort === 'name_asc' ? 'selected' : '' %>>Name A–Z</option>
+          <option value="gaps_desc" <%= filters.sort === 'gaps_desc' ? 'selected' : '' %>>Most gaps first</option>
+          <option value="headings_asc" <%= filters.sort === 'headings_asc' ? 'selected' : '' %>>Fewest headings</option>
+          <option value="completion_desc" <%= filters.sort === 'completion_desc' ? 'selected' : '' %>>Highest completion</option>
+        </select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button type="submit" class="agent-btn agent-btn--primary w-100"><i class="bi bi-search"></i> Apply</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="scm-table-card scm-catalog">
+  <div class="scm-table-card__head">
+    <div>
+      <h3 class="scm-table-card__title">Report Catalog</h3>
+      <p class="scm-table-card__sub mb-0"><%= rows.length %> shown · minimum <%= mh %> headings per product</p>
+    </div>
+    <div class="scm-table-toolbar">
+      <div class="scm-table-legend">
+        <span class="scm-table-legend__item scm-table-legend__item--ok"><i class="bi bi-circle-fill"></i> <%= mh %>+ headings</span>
+        <span class="scm-table-legend__item scm-table-legend__item--partial"><i class="bi bi-circle-fill"></i> Partial</span>
+        <span class="scm-table-legend__item scm-table-legend__item--miss"><i class="bi bi-circle-fill"></i> Empty</span>
+      </div>
+      <% if (filters.tab !== 'all' || filters.missing !== 'all' || filters.q || filters.category) { %>
+        <a href="<%= base %>" class="scm-table-toolbar__btn"><i class="bi bi-x-lg"></i> Clear filters</a>
+      <% } %>
+    </div>
+  </div>
+  <div class="scm-catalog-table-wrap">
+    <table class="scm-catalog-table">
+      <thead>
+        <tr>
+          <th class="scm-catalog-table__th scm-catalog-table__th--id">ID</th>
+          <th class="scm-catalog-table__th scm-catalog-table__th--product">Product</th>
+          <th class="scm-catalog-table__th">Category</th>
+          <th class="scm-catalog-table__th scm-catalog-table__th--progress">Headings</th>
+          <th class="scm-catalog-table__th">Review</th>
+          <th class="scm-catalog-table__th scm-catalog-table__th--actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!rows.length) { %>
+          <tr><td colspan="6" class="scm-catalog-empty"><i class="bi bi-file-earmark-text"></i><span>No products match your filters</span></td></tr>
+        <% } %>
+        <% (rows || []).forEach(function(r){
+          var pctClass = r.completionPct >= 100 ? 'scm-ring--complete' : (r.completionPct >= 50 ? 'scm-ring--mid' : 'scm-ring--low');
+          var rowState = r.isFullyComplete ? 'scm-catalog-row--complete' : (r.isEmpty ? 'scm-catalog-row--critical' : 'scm-catalog-row--gap');
+        %>
+          <tr class="scm-catalog-row <%= rowState %>">
+            <td><span class="scm-id-badge">#<%= r.id %></span></td>
+            <td class="scm-catalog-table__product">
+              <div class="scm-product-cell">
+                <div class="scm-product-cell__name" title="<%= (r.name || '').replace(/"/g, '&quot;') %>"><%= r.name || '—' %></div>
+                <% if (r.isEmpty) { %>
+                  <div class="scm-missing-chips"><span class="scm-missing-chip">Not started</span></div>
+                <% } else if (!r.hasEnoughHeadings) { %>
+                  <div class="scm-missing-chips"><span class="scm-missing-chip scm-missing-chip--diagrams">−<%= r.missingCount %> headings</span></div>
+                <% } else if (!r.isVerified) { %>
+                  <span class="scm-product-cell__ready"><i class="bi bi-shield-check"></i> Ready for admin review</span>
+                <% } %>
+              </div>
+            </td>
+            <td><span class="scm-cat-pill"><i class="bi bi-tag"></i> <%= r.category || '—' %></span></td>
+            <td>
+              <div class="scm-completion-cell">
+                <div class="scm-ring <%= pctClass %>" style="--pct:<%= r.completionPct %>"><span><%= r.reportSectionCount %></span></div>
+                <div class="scm-completion-cell__bar">
+                  <div class="scm-progress__track"><div class="scm-progress__fill <%= r.completionPct >= 100 ? '' : (r.completionPct >= 50 ? 'scm-progress__fill--mid' : 'scm-progress__fill--low') %>" style="width:<%= r.completionPct %>%"></div></div>
+                  <span class="scm-completion-cell__label"><%= r.reportSectionCount %>/<%= mh %> headings</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <% if (r.isVerified) { %>
+                <span class="scm-review-badge scm-review-badge--verified"><i class="bi bi-patch-check-fill"></i> Verified</span>
+              <% } else if (r.hasEnoughHeadings) { %>
+                <span class="scm-review-badge scm-review-badge--ready"><i class="bi bi-hourglass-split"></i> Awaiting</span>
+              <% } else { %>
+                <span class="scm-review-badge scm-review-badge--pending"><i class="bi bi-dash-circle"></i> In progress</span>
+              <% } %>
+            </td>
+            <td class="scm-catalog-table__actions">
+              <div class="scm-action-group">
+                <a class="scm-action-btn scm-action-btn--primary" href="/project-report-manager/edit/<%= r.id %>"><i class="bi bi-pencil-square"></i><span>Edit</span></a>
+                <% if (typeof isAdmin !== 'undefined' && isAdmin && r.hasEnoughHeadings && !r.isVerified) { %>
+                  <button type="button" class="scm-action-btn scm-action-btn--verify verify-btn" data-id="<%= r.id %>" title="Verify"><i class="bi bi-check2-circle"></i></button>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% if (rows.length) { %>
+  <div class="scm-table-card__foot">
+    <span><strong><%= rows.length %></strong> products displayed</span>
+    <span class="scm-table-card__foot-hint">Minimum <%= mh %> headings required · Click Edit to write report sections</span>
+  </div>
+  <% } %>
+</div>
+
+<% if (showOverview) { %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  const cd = <%- JSON.stringify(chartData) %>;
+  Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+  const doughnutOpts = {
+    responsive: true, maintainAspectRatio: false, cutout: '62%',
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 14, font: { size: 11, weight: '600' } } } }
+  };
+  const completionEl = document.getElementById('prmCompletionChart');
+  if (completionEl && cd.completionValues) {
+    new Chart(completionEl, {
+      type: 'doughnut',
+      data: {
+        labels: cd.completionLabels,
+        datasets: [{ data: cd.completionValues, backgroundColor: ['#16a34a', '#f59e0b'], borderWidth: 0, hoverOffset: 6 }]
+      },
+      options: doughnutOpts
+    });
+  }
+  const catEl = document.getElementById('prmCategoryChart');
+  if (catEl && cd.categoryLabels && cd.categoryLabels.length) {
+    const colors = ['#6366f1','#a855f7','#2563eb','#0891b2','#16a34a','#f59e0b','#ef4444','#ec4899','#64748b','#84cc16','#14b8a6','#f97316'];
+    new Chart(catEl, {
+      type: 'bar',
+      data: {
+        labels: cd.categoryLabels,
+        datasets: [{ data: cd.categoryTotals, backgroundColor: colors.slice(0, cd.categoryLabels.length), borderRadius: 6, maxBarThickness: 28 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } }, grid: { color: '#eef2f7' }, border: { display: false } },
+          x: { ticks: { font: { size: 10 }, maxRotation: 45 }, grid: { display: false }, border: { display: false } }
+        }
+      }
+    });
+  } else if (catEl) {
+    catEl.parentElement.innerHTML = '<div class="agent-empty" style="padding:40px 16px"><i class="bi bi-bar-chart"></i>No category data</div>';
+  }
+})();
+</script>
+<% } %>

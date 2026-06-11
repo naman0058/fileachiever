@@ -11,11 +11,19 @@ const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
 const { buildFullReportItems } = require('./prc-build-full-report-items');
 const { handleProjectReportWordDownload } = require('./project-report-creator');
+const {
+  MIN_PRM_HEADINGS,
+  parsePrmFilters,
+  fetchPrmDashboard,
+  fetchPrmStats,
+  enrichPrmRow,
+  resolvePrmActiveNav
+} = require('../utils/prmHelpers');
 
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 
 const ADMIN_ROLES = new Set(['admin', 'administrator', 'superadmin']);
-const MIN_HEADINGS_REQUIRED = 10;
+const MIN_HEADINGS_REQUIRED = MIN_PRM_HEADINGS;
 
 function getUser(req) {
   if (req.session?.adminid) {
@@ -90,74 +98,20 @@ router.get('/logout', (req, res) => {
 // Dashboard - list all source_code with report section counts
 router.get('/', requirePRMOrAdmin, async (req, res) => {
   try {
-    const tab = (req.query.tab || 'all').toString();
-    const q = (req.query.q || '').toString().trim();
-    let where = ['1=1'];
-    const params = [];
-
-    if (tab === 'pending') {
-      where.push(`(SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) < ?`);
-      params.push(MIN_HEADINGS_REQUIRED);
-    } else if (tab === 'complete') {
-      where.push(`(SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) >= ?`);
-      params.push(MIN_HEADINGS_REQUIRED);
-    }
-
-    if (q) {
-      where.push(`(sc.name LIKE ? OR sc.seo_name LIKE ? OR sc.description LIKE ?)`);
-      const like = `%${q.replace(/%/g, '\\%')}%`;
-      params.push(like, like, like);
-    }
-
-    const rows = await queryAsync(`
-      SELECT sc.id, sc.name, sc.seo_name, sc.category, sc.prm_report_verified,
-        (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) AS report_section_count
-      FROM source_code sc
-      WHERE ${where.join(' AND ')}
-      ORDER BY sc.id DESC
-      LIMIT 500
-    `, params);
-
-    const enriched = rows.map(r => {
-      const count = parseInt(r.report_section_count || 0, 10);
-      const hasEnoughHeadings = count >= MIN_HEADINGS_REQUIRED;
-      return {
-        ...r,
-        reportSectionCount: count,
-        hasEnoughHeadings,
-        needsHeadings: count < MIN_HEADINGS_REQUIRED,
-        missingCount: Math.max(0, MIN_HEADINGS_REQUIRED - count)
-      };
-    });
-
-    const [pendingResult, completeResult, totalResult] = await Promise.all([
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code sc WHERE (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) < ?`, [MIN_HEADINGS_REQUIRED]),
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code sc WHERE (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) >= ?`, [MIN_HEADINGS_REQUIRED]),
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code`)
-    ]);
-
-    const stats = {
-      total: totalResult[0]?.c || 0,
-      pending: pendingResult[0]?.c || 0,
-      complete: completeResult[0]?.c || 0
-    };
-
-    const filters = { tab, q };
-    const buildQuery = (t) => {
-      const p = new URLSearchParams();
-      if (t !== 'all') p.set('tab', t);
-      if (q) p.set('q', q);
-      return p.toString();
-    };
+    const filters = parsePrmFilters(req.query);
+    const dashboard = await fetchPrmDashboard(queryAsync, filters);
 
     return res.render('project-report-manager/dashboard', {
       pageTitle: 'Project Report Manager',
+      activeNav: resolvePrmActiveNav(dashboard.filters),
       user: req._user,
-      rows: enriched,
-      stats,
-      filters,
-      buildQuery,
-      minHeadings: MIN_HEADINGS_REQUIRED
+      rows: dashboard.rows,
+      stats: dashboard.stats,
+      chartData: dashboard.chartData,
+      categoryList: dashboard.categoryList,
+      filters: dashboard.filters,
+      buildQuery: dashboard.buildQuery,
+      minHeadings: dashboard.minHeadings
     });
   } catch (e) {
     console.error('Project Report Manager dashboard error:', e);
@@ -206,8 +160,18 @@ router.get('/edit/:id', requirePRMOrAdmin, async (req, res) => {
       }
     });
 
+    const stats = await fetchPrmStats(queryAsync);
+    const scCounts = await queryAsync(
+      `SELECT (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = ?) AS report_section_count`,
+      [id]
+    );
+    const product = enrichPrmRow({ ...sc, report_section_count: scCounts[0]?.report_section_count || sections.length, prm_report_verified: sc.prm_report_verified });
+
     return res.render('project-report-manager/edit', {
       pageTitle: 'Edit Report Sections',
+      activeNav: 'edit',
+      stats,
+      product,
       user: req._user,
       sc,
       sections: sectionsWithSubheadings || [],

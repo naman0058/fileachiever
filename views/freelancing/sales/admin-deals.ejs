@@ -41,8 +41,9 @@
       </div>
       <div class="agent-metric" style="--metric-accent:#a855f7;--metric-bg:#f5f3ff;">
         <div class="agent-metric__icon"><i class="bi bi-people"></i></div>
-        <div class="agent-metric__label">Total Commissions</div>
+        <div class="agent-metric__label">Total Commissions (5%)</div>
         <div class="agent-metric__value">₹<%= Number(totals.total_agent_price||0).toLocaleString('en-IN') %></div>
+        <div class="agent-metric__hint">5% of team revenue</div>
       </div>
     </div>
     <% } %>

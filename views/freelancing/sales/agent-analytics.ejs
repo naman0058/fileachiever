@@ -37,8 +37,9 @@
         <div class="agent-metric__value">₹<%= Number(totals.total_advance||0).toLocaleString('en-IN') %></div>
       </div>
       <div class="agent-metric" style="--metric-accent:#8b5cf6;--metric-bg:#f5f3ff;">
-        <div class="agent-metric__label">Commission Earned</div>
+        <div class="agent-metric__label">Commission Earned (5%)</div>
         <div class="agent-metric__value">₹<%= Number(totals.total_agent_price||0).toLocaleString('en-IN') %></div>
+        <div class="agent-metric__hint">5% of ₹<%= Number(totals.total_revenue||0).toLocaleString('en-IN') %> revenue</div>
       </div>
     </div>
 

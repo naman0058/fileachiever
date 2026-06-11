@@ -29,11 +29,11 @@
 
     <div class="agent-metrics mb-3">
       <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
-        <div class="agent-metric__label">Team Deals Closed</div>
+        <div class="agent-metric__label"><%= selectedAgentName ? 'Deals Closed' : 'Team Deals Closed' %></div>
         <div class="agent-metric__value"><%= totals.total_sales||0 %></div>
       </div>
       <div class="agent-metric" style="--metric-accent:#2563eb;--metric-bg:#eff6ff;">
-        <div class="agent-metric__label">Team Revenue</div>
+        <div class="agent-metric__label"><%= selectedAgentName ? 'Agent Revenue' : 'Team Revenue' %></div>
         <div class="agent-metric__value">₹<%= Number(totals.total_revenue||0).toLocaleString('en-IN') %></div>
       </div>
       <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
@@ -41,18 +41,25 @@
         <div class="agent-metric__value">₹<%= Number(totals.total_advance||0).toLocaleString('en-IN') %></div>
       </div>
       <div class="agent-metric" style="--metric-accent:#a855f7;--metric-bg:#f5f3ff;">
-        <div class="agent-metric__label">Total Commissions</div>
+        <div class="agent-metric__label">Total Commissions (5%)</div>
         <div class="agent-metric__value">₹<%= Number(totals.total_agent_price||0).toLocaleString('en-IN') %></div>
+        <div class="agent-metric__hint">5% of ₹<%= Number(totals.total_revenue||0).toLocaleString('en-IN') %> revenue</div>
       </div>
     </div>
 
     <div class="agent-grid-2 mb-3">
       <div class="agent-panel">
-        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Team Daily Revenue</h2><p class="agent-panel__sub">Closed-won revenue by day</p></div></div>
+        <div class="agent-panel__head"><div>
+          <h2 class="agent-panel__title"><%= selectedAgentName ? (selectedAgentName + ' — Daily Revenue') : 'Team Daily Revenue' %></h2>
+          <p class="agent-panel__sub"><%= selectedAgentName ? 'Closed-won revenue by day for this agent' : 'Closed-won revenue by day across all agents' %></p>
+        </div></div>
         <div class="agent-panel__body"><div class="agent-chart-wrap agent-chart-wrap--sm"><canvas id="revChart"></canvas></div></div>
       </div>
       <div class="agent-panel">
-        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Revenue by Agent</h2><p class="agent-panel__sub">Horizontal comparison</p></div></div>
+        <div class="agent-panel__head"><div>
+          <h2 class="agent-panel__title"><%= selectedAgentName ? 'Agent Summary' : 'Revenue by Agent' %></h2>
+          <p class="agent-panel__sub"><%= selectedAgentName ? 'Total revenue for selected period' : 'Horizontal comparison across team' %></p>
+        </div></div>
         <div class="agent-panel__body"><div class="agent-chart-wrap"><canvas id="agentChart"></canvas></div></div>
       </div>
     </div>
@@ -134,13 +141,16 @@
       data: { labels: cd.dailyLabels, datasets: [{ data: cd.dailyRevenue, backgroundColor: g, borderRadius: 8, maxBarThickness: 48 }] },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => '₹'+Number(c.parsed.y).toLocaleString('en-IN') } } },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => '₹'+Number(c.parsed.y).toLocaleString('en-IN') + (cd.dailyDeals ? ' · ' + (cd.dailyDeals[c.dataIndex]||0) + ' deals' : '') } } },
         scales: {
           y: { beginAtZero: true, border: { display: false }, ticks: { ...axisTicks, callback: formatINR }, grid: { color: '#eef2f7' } },
           x: { border: { display: false }, ticks: { ...axisTicks, maxRotation: 0, maxTicksLimit: 7 }, grid: { display: false } }
         }
       }
     });
+  } else {
+    const wrap = document.getElementById('revChart');
+    if (wrap) wrap.parentElement.innerHTML = '<div class="agent-empty"><i class="bi bi-bar-chart"></i>No daily revenue for this filter</div>';
   }
   const agentCtx = document.getElementById('agentChart');
   if (agentCtx && cd.agentNames && cd.agentNames.length) {

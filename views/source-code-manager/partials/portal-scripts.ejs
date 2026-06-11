@@ -1,0 +1,15 @@
+<script>
+(function(){
+  var btn = document.getElementById('scmPortalMenuBtn');
+  var sidebar = document.getElementById('scmPortalSidebar');
+  var backdrop = document.getElementById('scmPortalBackdrop');
+  if (!btn || !sidebar) return;
+  function toggle(open) {
+    var on = open !== undefined ? open : !sidebar.classList.contains('is-open');
+    sidebar.classList.toggle('is-open', on);
+    if (backdrop) backdrop.classList.toggle('is-visible', on);
+  }
+  btn.addEventListener('click', function(){ toggle(); });
+  if (backdrop) backdrop.addEventListener('click', function(){ toggle(false); });
+})();
+</script>

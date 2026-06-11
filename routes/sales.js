@@ -8,6 +8,15 @@ const getConnAsync = util.promisify(pool.getConnection).bind(pool);
 
 const dataService = require('./verify'); // you already use this for getCurrentDate()
 const { createSocketAuthToken } = require('../utils/socketAuth');
+const {
+  parseScmFilters,
+  fetchScmDashboard,
+  fetchSourceCodeScreenshotList
+} = require('../utils/scmHelpers');
+const {
+  parsePrmFilters,
+  fetchPrmDashboard
+} = require('../utils/prmHelpers');
 
 // ---------------------------
 // Helpers
@@ -20,8 +29,32 @@ const STAGES = [
 
 const STAGE_SET = new Set(STAGES.map(s => s.key));
 
+/** Agent incentive = 5% of closed-won deal value (lead_price / revenue). */
+const AGENT_COMMISSION_RATE = 0.05;
+
+function commissionFromRevenue(revenue) {
+  const n = Number(revenue) || 0;
+  return Math.round(n * AGENT_COMMISSION_RATE * 100) / 100;
+}
+
+function withCommissionTotals(totals) {
+  const t = totals || {};
+  return { ...t, total_agent_price: commissionFromRevenue(t.total_revenue) };
+}
+
+function withCommissionAgentRow(row) {
+  const rev = Number(row.total_revenue ?? row.revenue ?? 0);
+  const commission = commissionFromRevenue(rev);
+  return { ...row, total_agent_price: commission, commission };
+}
+
+function withCommissionDealRows(rows) {
+  return (rows || []).map((r) => ({ ...r, agent_price: commissionFromRevenue(r.lead_price) }));
+}
+
+/** Total UI screenshots — SQL COUNT on gallery; legacy cover only when table is empty */
 async function fetchAgentAnalytics(userName, start, end) {
-  const [dailySales, advanceAgg] = await Promise.all([
+  const [dailySales, revenueAgg] = await Promise.all([
     queryAsync(
       `SELECT DATE(created_at) AS day, COUNT(*) AS deals, COALESCE(SUM(lead_price),0) AS revenue
        FROM leads
@@ -31,16 +64,18 @@ async function fetchAgentAnalytics(userName, start, end) {
       [userName, start + ' 00:00:00', end + ' 00:00:00']
     ),
     queryAsync(
-      `SELECT COALESCE(SUM(advance_amount),0) AS total_advance, COALESCE(SUM(agent_price),0) AS total_agent
+      `SELECT COALESCE(SUM(lead_price),0) AS total_revenue,
+              COALESCE(SUM(advance_amount),0) AS total_advance
        FROM leads
        WHERE sales_person_assign = ? AND created_at >= ? AND created_at < ?`,
       [userName, start + ' 00:00:00', end + ' 00:00:00']
     )
   ]);
+  const rev = revenueAgg?.[0]?.total_revenue || 0;
   return {
     dailySales: dailySales || [],
-    advanceTotal: advanceAgg?.[0]?.total_advance || 0,
-    agentTotal: advanceAgg?.[0]?.total_agent || 0
+    advanceTotal: revenueAgg?.[0]?.total_advance || 0,
+    agentTotal: commissionFromRevenue(rev)
   };
 }
 
@@ -136,6 +171,15 @@ function buildDailyChartSeries(dailySales) {
   };
 }
 
+async function fetchDailySalesForLeads(where, params) {
+  return queryAsync(
+    `SELECT DATE(created_at) AS day, COUNT(*) AS deals, COALESCE(SUM(lead_price),0) AS revenue
+     FROM leads WHERE ${where.join(' AND ')}
+     GROUP BY DATE(created_at) ORDER BY day ASC`,
+    params
+  );
+}
+
 async function fetchAdminAnalytics(start, end) {
   const startDt = `${start} 00:00:00`;
   const endDt = `${end} 00:00:00`;
@@ -170,10 +214,19 @@ async function fetchAdminAnalytics(start, end) {
     )
   ]);
 
+  const totalsRaw = dealTotals?.[0] || {};
+  const agentPerformanceMapped = (agentPerformance || []).map((r) => ({
+    ...r,
+    commission: commissionFromRevenue(r.revenue)
+  }));
+
   return {
     dailySales: dailySales || [],
-    agentPerformance: agentPerformance || [],
-    totals: dealTotals?.[0] || {},
+    agentPerformance: agentPerformanceMapped,
+    totals: {
+      ...totalsRaw,
+      commission: commissionFromRevenue(totalsRaw.revenue)
+    },
     activeAgents: activeAgents?.[0]?.c || 0
   };
 }
@@ -773,23 +826,25 @@ async function salesAdminSalesReport(req, res) {
       params
     );
 
-    const totals = byAgent.reduce(
+    const byAgentMapped = byAgent.map(withCommissionAgentRow);
+
+    const totals = byAgentMapped.reduce(
       (acc, r) => {
         acc.total_sales += Number(r.total_sales || 0);
         acc.total_revenue += Number(r.total_revenue || 0);
         acc.total_advance += Number(r.total_advance || 0);
-        acc.total_agent_price += Number(r.total_agent_price || 0);
         return acc;
       },
       { total_sales: 0, total_revenue: 0, total_advance: 0, total_agent_price: 0 }
     );
+    totals.total_agent_price = commissionFromRevenue(totals.total_revenue);
 
     // Drill-down: list rows (when agent selected OR search used)
     let rows = [];
     if (agentNameFilter || q) {
       rows = await queryAsync(
         `
-        SELECT id, name, number, enquiry, lead_price, advance_amount, agent_price, status, assign, created_at
+        SELECT id, name, number, enquiry, lead_price, advance_amount, agent_price, status, assign, created_at, sales_person_assign
         FROM leads
         WHERE ${where.join(' AND ')}
         ORDER BY created_at DESC
@@ -799,8 +854,10 @@ async function salesAdminSalesReport(req, res) {
       );
     }
 
-    const analytics = await fetchAdminAnalytics(start, end);
-    const dailyChart = buildDailyChartSeries(analytics.dailySales);
+    const dailySalesRows = (agentNameFilter || q)
+      ? await fetchDailySalesForLeads(where, params)
+      : (await fetchAdminAnalytics(start, end)).dailySales;
+    const dailyChart = buildDailyChartSeries(dailySalesRows);
 
     if (!agentNameFilter && !q) {
       rows = await queryAsync(
@@ -810,6 +867,8 @@ async function salesAdminSalesReport(req, res) {
       );
     }
 
+    rows = withCommissionDealRows(rows);
+
     return res.render('freelancing/sales/admin-analytics', {
       pageTitle: 'Agent Performance Analytics',
       active: 'salesReport',
@@ -818,14 +877,16 @@ async function salesAdminSalesReport(req, res) {
       filters: { selectedMonth, monthOptions: monthsList(12), agent: agentRaw, q },
       agents,
       totals,
-      byAgent,
+      byAgent: byAgentMapped,
       rows,
+      commissionRate: AGENT_COMMISSION_RATE,
+      selectedAgentName: agentNameFilter || '',
       chartData: {
         ...dailyChart,
-        agentNames: byAgent.map((a) => a.agent_name),
-        agentRevenue: byAgent.map((a) => Number(a.total_revenue)),
-        agentDeals: byAgent.map((a) => Number(a.total_sales)),
-        agentCommission: byAgent.map((a) => Number(a.total_agent_price))
+        agentNames: byAgentMapped.map((a) => a.agent_name),
+        agentRevenue: byAgentMapped.map((a) => Number(a.total_revenue)),
+        agentDeals: byAgentMapped.map((a) => Number(a.total_sales)),
+        agentCommission: byAgentMapped.map((a) => Number(a.total_agent_price))
       }
     });
   } catch (e) {
@@ -1122,7 +1183,8 @@ router.get('/admin/overview', requireLogin, requireAdmin, async (req, res) => {
         conversionRate,
         activeAgents: analytics.activeAgents,
         advanceTotal: analytics.totals.advance || 0,
-        commissionTotal: analytics.totals.commission || 0
+        commissionTotal: analytics.totals.commission || 0,
+        commissionRate: AGENT_COMMISSION_RATE
       },
       stageCounts,
       funnel,
@@ -1299,7 +1361,8 @@ router.get('/my/overview', requireLogin, async (req, res) => {
         closedTotal,
         conversionRate,
         advanceTotal: analytics.advanceTotal,
-        agentIncentive: analytics.agentTotal
+        agentIncentive: analytics.agentTotal,
+        commissionRate: AGENT_COMMISSION_RATE
       },
       stageCounts,
       funnel,
@@ -1384,10 +1447,8 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
       });
     }
 
-    // Optional values
-    const agent_price = (req.body.agent_price !== '' && req.body.agent_price != null)
-      ? asMoneyReq(req.body.agent_price)
-      : null;
+    // Optional values — commission is always 5% of deal value
+    const agent_price = commissionFromRevenue(lead_price);
 
     const result = await queryAsync(`
       INSERT INTO leads
@@ -1469,9 +1530,10 @@ router.get('/admin/sales', requireLogin, requireAdmin, async (req, res) => {
       active: 'sales',
       user: req._user,
       mode: 'admin',
-      totals: totals || {},
+      totals: withCommissionTotals(totals || {}),
       filters: { selectedMonth, monthOptions: monthsList(12), q },
-      rows
+      rows: withCommissionDealRows(rows),
+      commissionRate: AGENT_COMMISSION_RATE
     });
   } catch (e) {
     console.error('Admin sales list error:', e);
@@ -1520,9 +1582,10 @@ router.get('/my/sales', requireLogin, async (req, res) => {
       active: 'sales',
       user: u,
       mode: 'agent',
-      totals: totals || {},
+      totals: withCommissionTotals(totals || {}),
       filters: { selectedMonth, monthOptions: monthsList(12), q },
-      rows
+      rows: withCommissionDealRows(rows),
+      commissionRate: AGENT_COMMISSION_RATE
     });
   } catch (e) {
     console.error('Agent sales list error:', e);
@@ -1574,12 +1637,12 @@ router.get('/my/report', requireLogin, async (req, res) => {
       params
     );
 
-    const rows = await queryAsync(
+    const rows = withCommissionDealRows(await queryAsync(
       `SELECT id, name, number, enquiry, lead_price, advance_amount, agent_price, status, assign, created_at
        FROM leads WHERE ${where.join(' AND ')}
        ORDER BY created_at DESC LIMIT 2000`,
       params
-    );
+    ));
 
     const analytics = await fetchAgentAnalytics(u.name, start, end);
 
@@ -1589,9 +1652,10 @@ router.get('/my/report', requireLogin, async (req, res) => {
       user: u,
       mode: 'agent',
       filters: { selectedMonth, monthOptions: monthsList(12), q },
-      totals: totals || {},
+      totals: withCommissionTotals(totals || {}),
       byStatus: byStatus || [],
       rows,
+      commissionRate: AGENT_COMMISSION_RATE,
       chartData: {
         ...buildDailyChartSeries(analytics.dailySales),
         statusLabels: (byStatus || []).map(s => s.status_label),
@@ -1870,9 +1934,8 @@ router.post('/api/assignment/convert', requireLogin, async (req, res) => {
     if (!Number.isFinite(assignmentId)) return res.status(400).json({ ok: false, message: "Invalid assignment_id" });
 
     const lead_price = asMoney(req.body.lead_price);
-    const agent_price = asMoney(req.body.agent_price);
     if (lead_price === null) return res.status(400).json({ ok: false, message: "lead_price required (>=0)" });
-    if (agent_price === null) return res.status(400).json({ ok: false, message: "agent_price required (>=0)" });
+    const agent_price = commissionFromRevenue(lead_price);
 
     const deadline = req.body.deadline ? String(req.body.deadline) : null;
     const assign = req.body.assign ? String(req.body.assign) : null;
@@ -2197,102 +2260,19 @@ router.post('/api/admin/setup-support/:id/status', requireLogin, requireAdmin, a
 // ---------------------------
 router.get('/admin/source-code-manager', requireLogin, requireAdmin, async (req, res) => {
   try {
-    const tab = (req.query.tab || 'all').toString();
-    const q = (req.query.q || '').toString().trim();
-    let where = ['1=1'];
-    const params = [];
-
-    if (tab === 'pending') {
-      where.push(`(sc.image IS NULL OR sc.image = '' OR sc.demo_url IS NULL OR sc.demo_url = '')`);
-    } else if (tab === 'complete') {
-      where.push(`sc.image IS NOT NULL AND sc.image != '' AND sc.demo_url IS NOT NULL AND sc.demo_url != ''`);
-    }
-    if (q) {
-      where.push(`(sc.name LIKE ? OR sc.seo_name LIKE ?)`);
-      const like = `%${q.replace(/%/g, '\\%')}%`;
-      params.push(like, like);
-    }
-
-    const rows = await queryAsync(`
-      SELECT sc.id, sc.name, sc.seo_name, sc.category, sc.image, sc.demo_url,
-        sc.scm_screenshot_verified, sc.scm_demo_verified,
-        (SELECT COUNT(*) FROM screenshots WHERE source_code_id = sc.id) AS screenshot_count,
-        (SELECT COUNT(*) FROM source_code_diagrams WHERE source_code_id = sc.id) AS diagram_count,
-        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id) AS db_screenshot_count,
-        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id AND data_table IS NOT NULL AND TRIM(data_table) != '') AS db_with_datatable_count,
-        (SELECT GROUP_CONCAT(url ORDER BY id SEPARATOR '|||') FROM screenshots WHERE source_code_id = sc.id) AS all_screenshot_urls,
-        (SELECT GROUP_CONCAT(COALESCE(type,'input_design') ORDER BY id SEPARATOR '|||') FROM screenshots WHERE source_code_id = sc.id) AS all_screenshot_types,
-        (SELECT GROUP_CONCAT(COALESCE(name,'') ORDER BY id SEPARATOR '|||') FROM screenshots WHERE source_code_id = sc.id) AS all_screenshot_names
-      FROM source_code sc
-      WHERE ${where.join(' AND ')}
-      ORDER BY sc.id DESC
-      LIMIT 500
-    `, params);
-
-    const SEP = '|||';
-    const enriched = rows.map(r => {
-      const hasImage = !!(r.image && String(r.image).trim());
-      const hasScreenshots = (r.screenshot_count || 0) > 0;
-      const hasScreenshot = hasImage || hasScreenshots;
-      const hasDemo = !!(r.demo_url && String(r.demo_url).trim());
-      const mainImg = (r.image && String(r.image).trim()) || null;
-      const urls = (r.all_screenshot_urls && String(r.all_screenshot_urls).split(SEP).map(u => (u || '').trim()).filter(Boolean)) || [];
-      const types = (r.all_screenshot_types && String(r.all_screenshot_types).split(SEP)) || [];
-      const names = (r.all_screenshot_names && String(r.all_screenshot_names).split(SEP)) || [];
-      const extraScreenshots = urls.map((url, i) => ({
-        url,
-        type: types[i] || 'input_design',
-        name: names[i] || ''
-      }));
-      const viewableScreenshots = [];
-      if (mainImg) viewableScreenshots.push({ url: mainImg, type: 'input_design', name: 'Main' });
-      viewableScreenshots.push(...extraScreenshots);
-      const viewableScreenshotUrl = viewableScreenshots[0]?.url || null;
-      const diagramCount = parseInt(r.diagram_count || 0, 10);
-      const hasAllDiagrams = diagramCount >= 10;
-      const dbScreenshotCount = parseInt(r.db_screenshot_count || 0, 10);
-      const dbWithDatatableCount = parseInt(r.db_with_datatable_count || 0, 10);
-      const hasDbScreenshots = dbScreenshotCount > 0;
-      const hasAllDatatables = dbScreenshotCount > 0 && dbWithDatatableCount >= dbScreenshotCount;
-      return {
-        ...r,
-        hasScreenshot,
-        hasDemo,
-        diagramCount,
-        hasAllDiagrams,
-        dbScreenshotCount,
-        dbWithDatatableCount,
-        hasDbScreenshots,
-        hasAllDatatables,
-        viewableScreenshotUrl,
-        viewableScreenshots,
-        needsScreenshot: !hasScreenshot,
-        needsDemo: !hasDemo
-      };
-    });
-
-    const [[pendingCount], [completeCount], [totalCount]] = await Promise.all([
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code WHERE (image IS NULL OR image = '' OR demo_url IS NULL OR demo_url = '')`),
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code WHERE image IS NOT NULL AND image != '' AND demo_url IS NOT NULL AND demo_url != ''`),
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code`)
-    ]);
-
-    const filters = { tab, q };
-    const buildQuery = (t) => {
-      const p = new URLSearchParams();
-      if (t !== 'all') p.set('tab', t);
-      if (q) p.set('q', q);
-      return p.toString();
-    };
+    const filters = parseScmFilters(req.query);
+    const dashboard = await fetchScmDashboard(queryAsync, filters);
 
     return res.render('freelancing/sales/scm-overview', {
       pageTitle: 'Source Code Manager',
       active: 'sourceCodeManagerOverview',
       user: req._user,
-      rows: enriched,
-      stats: { total: totalCount?.c || 0, pending: pendingCount?.c || 0, complete: completeCount?.c || 0 },
-      filters,
-      buildQuery,
+      rows: dashboard.rows,
+      stats: dashboard.stats,
+      chartData: dashboard.chartData,
+      categoryList: dashboard.categoryList,
+      filters: dashboard.filters,
+      buildQuery: dashboard.buildQuery,
       error: req.query.error || '',
       success: req.query.success || ''
     });
@@ -2347,6 +2327,23 @@ router.post('/admin/source-code-manager/employees', requireLogin, requireAdmin, 
   }
 });
 
+// API: List all screenshots for a source code (avoids GROUP_CONCAT truncation in list view)
+router.get('/api/admin/source-code-manager/:id/screenshots', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+
+    const rows = await queryAsync(`SELECT id, name, image FROM source_code WHERE id = ? LIMIT 1`, [id]);
+    if (!rows.length) return res.status(404).json({ ok: false, message: 'Not found' });
+
+    const screenshots = await fetchSourceCodeScreenshotList(queryAsync, id, rows[0].image);
+    return res.json({ ok: true, screenshots, count: screenshots.length });
+  } catch (e) {
+    console.error('SCM list screenshots error:', e);
+    return res.status(500).json({ ok: false, message: 'Failed to load screenshots' });
+  }
+});
+
 // API: Admin verify source code (screenshot, demo, or all)
 router.post('/api/admin/source-code-manager/:id/verify', requireLogin, requireAdmin, async (req, res) => {
   try {
@@ -2372,67 +2369,22 @@ router.post('/api/admin/source-code-manager/:id/verify', requireLogin, requireAd
 // ---------------------------
 // Project Report Manager Admin (employees + overview)
 // ---------------------------
-const MIN_PRM_HEADINGS = 10;
-
 router.get('/admin/project-report-manager', requireLogin, requireAdmin, async (req, res) => {
   try {
-    const tab = (req.query.tab || 'all').toString();
-    const q = (req.query.q || '').toString().trim();
-    let where = ['1=1'];
-    const params = [];
-
-    if (tab === 'pending') {
-      where.push(`(SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) < ?`);
-      params.push(MIN_PRM_HEADINGS);
-    } else if (tab === 'complete') {
-      where.push(`(SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) >= ?`);
-      params.push(MIN_PRM_HEADINGS);
-    }
-    if (q) {
-      where.push(`(sc.name LIKE ? OR sc.seo_name LIKE ?)`);
-      const like = `%${q.replace(/%/g, '\\%')}%`;
-      params.push(like, like);
-    }
-
-    const rows = await queryAsync(`
-      SELECT sc.id, sc.name, sc.seo_name, sc.category, sc.prm_report_verified,
-        (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) AS report_section_count
-      FROM source_code sc
-      WHERE ${where.join(' AND ')}
-      ORDER BY sc.id DESC
-      LIMIT 500
-    `, params);
-
-    const enriched = rows.map(r => ({
-      ...r,
-      reportSectionCount: parseInt(r.report_section_count || 0, 10),
-      hasEnoughHeadings: parseInt(r.report_section_count || 0, 10) >= MIN_PRM_HEADINGS,
-      missingCount: Math.max(0, MIN_PRM_HEADINGS - parseInt(r.report_section_count || 0, 10))
-    }));
-
-    const [[pendingCount], [completeCount], [totalCount]] = await Promise.all([
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code sc WHERE (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) < ?`, [MIN_PRM_HEADINGS]),
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code sc WHERE (SELECT COUNT(*) FROM source_code_report_sections WHERE source_code_id = sc.id) >= ?`, [MIN_PRM_HEADINGS]),
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code`)
-    ]);
-
-    const filters = { tab, q };
-    const buildQuery = (t) => {
-      const p = new URLSearchParams();
-      if (t !== 'all') p.set('tab', t);
-      if (q) p.set('q', q);
-      return p.toString();
-    };
+    const filters = parsePrmFilters(req.query);
+    const dashboard = await fetchPrmDashboard(queryAsync, filters);
 
     return res.render('freelancing/sales/prm-overview', {
       pageTitle: 'Project Report Manager',
       active: 'projectReportManagerOverview',
       user: req._user,
-      rows: enriched,
-      stats: { total: totalCount?.c || 0, pending: pendingCount?.c || 0, complete: completeCount?.c || 0 },
-      filters,
-      buildQuery,
-      minHeadings: MIN_PRM_HEADINGS,
+      rows: dashboard.rows,
+      stats: dashboard.stats,
+      chartData: dashboard.chartData,
+      categoryList: dashboard.categoryList,
+      filters: dashboard.filters,
+      buildQuery: dashboard.buildQuery,
+      minHeadings: dashboard.minHeadings,
       error: req.query.error || '',
       success: req.query.success || ''
     });

@@ -8,6 +8,7 @@ const path = require('path');
 const router = express.Router();
 const pool = require('./pool');
 const upload = require('./multer');
+const { parseScmFilters, fetchScmDashboard, fetchScmStats, fetchSourceCodeScreenshotList, enrichSourceCodeRow, resolveScmActiveNav } = require('../utils/scmHelpers');
 
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 const util = require('util');
@@ -103,98 +104,38 @@ router.get('/logout', (req, res) => {
 // Dashboard - list all source_code with has_screenshot, has_demo, actions
 router.get('/', requireSourceCodeManagerOrAdmin, async (req, res) => {
   try {
-    const tab = (req.query.tab || 'all').toString();
-    const q = (req.query.q || '').toString().trim();
-    let where = ['1=1'];
-    const params = [];
-
-    if (tab === 'pending') {
-      where.push(`(sc.image IS NULL OR sc.image = '' OR sc.demo_url IS NULL OR sc.demo_url = '')`);
-    } else if (tab === 'complete') {
-      where.push(`sc.image IS NOT NULL AND sc.image != '' AND sc.demo_url IS NOT NULL AND sc.demo_url != ''`);
-    }
-
-    if (q) {
-      where.push(`(sc.name LIKE ? OR sc.seo_name LIKE ? OR sc.description LIKE ?)`);
-      const like = `%${q.replace(/%/g, '\\%')}%`;
-      params.push(like, like, like);
-    }
-
-    const rows = await queryAsync(`
-      SELECT sc.id, sc.name, sc.seo_name, sc.category, sc.image, sc.demo_url,
-        sc.scm_screenshot_verified, sc.scm_demo_verified,
-        (SELECT COUNT(*) FROM screenshots WHERE source_code_id = sc.id) AS screenshot_count,
-        (SELECT COUNT(*) FROM source_code_diagrams WHERE source_code_id = sc.id) AS diagram_count,
-        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id) AS db_screenshot_count,
-        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id AND data_table IS NOT NULL AND data_table != '') AS db_with_datatable_count
-      FROM source_code sc
-      WHERE ${where.join(' AND ')}
-      ORDER BY sc.id DESC
-      LIMIT 500
-    `, params);
-
-    const TOTAL_DIAGRAMS = 10;
-    // Compute has_screenshot, has_demo, diagrams status for each row
-    const enriched = rows.map(r => {
-      const hasImage = !!(r.image && String(r.image).trim());
-      const hasScreenshots = (r.screenshot_count || 0) > 0;
-      const hasScreenshot = hasImage || hasScreenshots;
-      const hasDemo = !!(r.demo_url && String(r.demo_url).trim());
-      const diagramCount = parseInt(r.diagram_count || 0, 10);
-      const hasAllDiagrams = diagramCount >= TOTAL_DIAGRAMS;
-      const dbScreenshotCount = parseInt(r.db_screenshot_count || 0, 10);
-      const dbWithDatatableCount = parseInt(r.db_with_datatable_count || 0, 10);
-      const hasDbScreenshots = dbScreenshotCount > 0;
-      const hasAllDatatables = dbScreenshotCount > 0 && dbWithDatatableCount >= dbScreenshotCount;
-      return {
-        ...r,
-        hasScreenshot,
-        hasDemo,
-        diagramCount,
-        hasAllDiagrams,
-        dbScreenshotCount,
-        dbWithDatatableCount,
-        hasDbScreenshots,
-        hasAllDatatables,
-        needsScreenshot: !hasScreenshot,
-        needsDemo: !hasDemo,
-        needsDiagrams: diagramCount < TOTAL_DIAGRAMS,
-        needsDbScreenshots: !hasDbScreenshots
-      };
-    });
-
-    const [pendingResult, completeResult, totalResult] = await Promise.all([
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code WHERE (image IS NULL OR image = '' OR demo_url IS NULL OR demo_url = '')`),
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code WHERE image IS NOT NULL AND image != '' AND demo_url IS NOT NULL AND demo_url != ''`),
-      queryAsync(`SELECT COUNT(*) AS c FROM source_code`)
-    ]);
-
-    const stats = {
-      total: totalResult[0]?.c || 0,
-      pending: pendingResult[0]?.c || 0,
-      complete: completeResult[0]?.c || 0
-    };
-
-    const filters = { tab, q };
-    const buildQuery = (t) => {
-      const p = new URLSearchParams();
-      if (t !== 'all') p.set('tab', t);
-      if (q) p.set('q', q);
-      return p.toString();
-    };
+    const filters = parseScmFilters(req.query);
+    const dashboard = await fetchScmDashboard(queryAsync, filters);
 
     return res.render('source-code-manager/dashboard', {
       pageTitle: 'Source Code Manager',
-      active: tab,
+      activeNav: resolveScmActiveNav(dashboard.filters),
       user: req._user,
-      rows: enriched,
-      stats,
-      filters,
-      buildQuery
+      rows: dashboard.rows,
+      stats: dashboard.stats,
+      chartData: dashboard.chartData,
+      categoryList: dashboard.categoryList,
+      filters: dashboard.filters,
+      buildQuery: dashboard.buildQuery
     });
   } catch (e) {
     console.error('Source code manager dashboard error:', e);
     res.status(500).send('Failed to load dashboard.');
+  }
+});
+
+// API: List screenshots for gallery modal
+router.get('/api/:id/screenshots', requireSourceCodeManagerOrAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+    const rows = await queryAsync(`SELECT id, name, image FROM source_code WHERE id = ? LIMIT 1`, [id]);
+    if (!rows.length) return res.status(404).json({ ok: false, message: 'Not found' });
+    const screenshots = await fetchSourceCodeScreenshotList(queryAsync, id, rows[0].image);
+    return res.json({ ok: true, screenshots, count: screenshots.length });
+  } catch (e) {
+    console.error('SCM portal screenshots error:', e);
+    return res.status(500).json({ ok: false, message: 'Failed to load screenshots' });
   }
 });
 
@@ -204,7 +145,11 @@ router.get('/edit/:id', requireSourceCodeManagerOrAdmin, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id)) return res.redirect('/source-code-manager?error=Invalid id');
     const rows = await queryAsync(`
-      SELECT sc.*, (SELECT COUNT(*) FROM screenshots WHERE source_code_id = sc.id) AS screenshot_count
+      SELECT sc.*,
+        (SELECT COUNT(*) FROM screenshots WHERE source_code_id = sc.id) AS screenshot_count,
+        (SELECT COUNT(*) FROM source_code_diagrams WHERE source_code_id = sc.id) AS diagram_count,
+        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id) AS db_screenshot_count,
+        (SELECT COUNT(*) FROM source_code_database_screenshots WHERE source_code_id = sc.id AND data_table IS NOT NULL AND TRIM(data_table) != '') AS db_with_datatable_count
       FROM source_code sc WHERE sc.id = ? LIMIT 1
     `, [id]);
     if (!rows.length) return res.redirect('/source-code-manager?error=Not found');
@@ -219,8 +164,15 @@ router.get('/edit/:id', requireSourceCodeManagerOrAdmin, async (req, res) => {
     ]);
     const diagramsMap = {};
     (diagrams || []).forEach(d => { diagramsMap[d.diagram_type] = d.url; });
+    const stats = await fetchScmStats(queryAsync);
+    const product = enrichSourceCodeRow(sc);
+    const diagramPresent = (diagrams || []).length;
     return res.render('source-code-manager/edit', {
       pageTitle: 'Edit Source Code',
+      activeNav: 'edit',
+      stats,
+      product,
+      diagramPresent,
       user: req._user,
       sc,
       hasScreenshot: hasImage || hasScreenshots,

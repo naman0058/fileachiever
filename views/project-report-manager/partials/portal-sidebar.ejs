@@ -1,0 +1,75 @@
+<% var s = stats || { total: 0, pending: 0, complete: 0, verified: 0, unverified: 0, completionRate: 0, minHeadings: 10, gaps: { empty: 0, partial: 0, incomplete: 0 } }; %>
+<% var nav = typeof activeNav !== 'undefined' ? activeNav : 'overview'; %>
+<% var mh = s.minHeadings || minHeadings || 10; %>
+<% function navClass(key) { return nav === key ? 'scm-portal-nav__link is-active' : 'scm-portal-nav__link'; } %>
+
+<aside class="scm-portal-sidebar" id="scmPortalSidebar">
+  <div class="scm-portal-sidebar__brand">
+    <a href="/project-report-manager" class="scm-portal-logo">
+      <div class="scm-portal-logo__mark"><i class="bi bi-file-earmark-text"></i></div>
+      <div class="scm-portal-logo__text">
+        <strong>FileMakr PRM</strong>
+        <span>Report Operations</span>
+      </div>
+    </a>
+  </div>
+  <nav class="scm-portal-nav">
+    <div class="scm-portal-nav__section">
+      <div class="scm-portal-nav__label">Overview</div>
+      <a class="<%= navClass('overview') %>" href="/project-report-manager">
+        <i class="bi bi-speedometer2"></i> Report Dashboard
+        <span class="scm-portal-nav__badge"><%= s.total %></span>
+      </a>
+      <a class="<%= navClass('analytics') %>" href="/project-report-manager#prm-analytics">
+        <i class="bi bi-pie-chart"></i> Analytics
+      </a>
+    </div>
+    <div class="scm-portal-nav__section">
+      <div class="scm-portal-nav__label">Work Queue</div>
+      <a class="<%= navClass('gaps') %>" href="/project-report-manager?tab=pending">
+        <i class="bi bi-exclamation-triangle"></i> Incomplete
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--warn"><%= s.pending %></span>
+      </a>
+      <a class="<%= navClass('missing-empty') %>" href="/project-report-manager?missing=empty">
+        <i class="bi bi-file-earmark-x"></i> Zero Headings
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--danger"><%= s.gaps.empty %></span>
+      </a>
+      <a class="<%= navClass('missing-partial') %>" href="/project-report-manager?missing=partial">
+        <i class="bi bi-file-earmark-diff"></i> Partial (1–<%= mh - 1 %>)
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--warn"><%= s.gaps.partial %></span>
+      </a>
+    </div>
+    <div class="scm-portal-nav__section">
+      <div class="scm-portal-nav__label">Quality</div>
+      <a class="<%= navClass('complete') %>" href="/project-report-manager?tab=complete">
+        <i class="bi bi-check2-circle"></i> Complete (<%= mh %>+)
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--ok"><%= s.complete %></span>
+      </a>
+      <a class="<%= navClass('unverified') %>" href="/project-report-manager?tab=unverified">
+        <i class="bi bi-hourglass-split"></i> Pending Review
+        <span class="scm-portal-nav__badge"><%= s.unverified %></span>
+      </a>
+      <a class="<%= navClass('verified') %>" href="/project-report-manager?tab=verified">
+        <i class="bi bi-patch-check"></i> Admin Verified
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--ok"><%= s.verified %></span>
+      </a>
+    </div>
+    <% if (nav === 'edit') { %>
+    <div class="scm-portal-nav__section">
+      <div class="scm-portal-nav__label">Current</div>
+      <span class="scm-portal-nav__link is-active" style="cursor:default;"><i class="bi bi-pencil-square"></i> Editing Report</span>
+    </div>
+    <% } %>
+  </nav>
+  <div class="scm-portal-sidebar__foot">
+    <div class="scm-portal-user-card">
+      <div class="scm-portal-user-card__avatar"><i class="bi bi-person-fill"></i></div>
+      <div>
+        <div class="scm-portal-user-card__name"><%= user.name %></div>
+        <div class="scm-portal-user-card__role">Project Report Manager</div>
+      </div>
+    </div>
+    <a href="/project-report-manager/logout" class="scm-portal-signout"><i class="bi bi-box-arrow-right"></i> Sign out</a>
+  </div>
+</aside>
+<div class="scm-portal-sidebar-backdrop" id="scmPortalBackdrop"></div>

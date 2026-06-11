@@ -1,0 +1,95 @@
+<% var s = stats || { total: 0, pending: 0, complete: 0, verified: 0, unverified: 0, completionRate: 0, gaps: { screenshot: 0, demo: 0, diagrams: 0, db: 0, onlyDemo: 0 } }; %>
+<% var nav = typeof activeNav !== 'undefined' ? activeNav : 'overview'; %>
+<% function navClass(key) { return nav === key ? 'scm-portal-nav__link is-active' : 'scm-portal-nav__link'; } %>
+
+<aside class="scm-portal-sidebar" id="scmPortalSidebar">
+  <div class="scm-portal-sidebar__brand">
+    <a href="/source-code-manager" class="scm-portal-logo">
+      <div class="scm-portal-logo__mark"><i class="bi bi-code-square"></i></div>
+      <div class="scm-portal-logo__text">
+        <strong>FileMakr SCM</strong>
+        <span>Asset Operations Center</span>
+      </div>
+    </a>
+  </div>
+
+  <nav class="scm-portal-nav">
+    <div class="scm-portal-nav__section">
+      <div class="scm-portal-nav__label">Overview</div>
+      <a class="<%= navClass('overview') %>" href="/source-code-manager">
+        <i class="bi bi-speedometer2"></i> Catalog Dashboard
+        <span class="scm-portal-nav__badge"><%= s.total %></span>
+      </a>
+      <a class="<%= navClass('analytics') %>" href="/source-code-manager#scm-analytics">
+        <i class="bi bi-pie-chart"></i> Analytics & Charts
+      </a>
+    </div>
+
+    <div class="scm-portal-nav__section">
+      <div class="scm-portal-nav__label">Work Queue</div>
+      <a class="<%= navClass('gaps') %>" href="/source-code-manager?tab=pending">
+        <i class="bi bi-exclamation-triangle"></i> Has Gaps
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--warn"><%= s.pending %></span>
+      </a>
+      <a class="<%= navClass('missing-screenshot') %>" href="/source-code-manager?missing=screenshot">
+        <i class="bi bi-image"></i> Missing Screenshots
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--danger"><%= s.gaps.screenshot %></span>
+      </a>
+      <a class="<%= navClass('missing-demo') %>" href="/source-code-manager?missing=demo">
+        <i class="bi bi-link-45deg"></i> Missing Demo Links
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--danger"><%= s.gaps.demo %></span>
+      </a>
+      <a class="<%= navClass('only-demo') %>" href="/source-code-manager?missing=only-demo">
+        <i class="bi bi-link"></i> Demo Only — Rest Incomplete
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--warn"><%= s.gaps.onlyDemo %></span>
+      </a>
+      <a class="<%= navClass('missing-diagrams') %>" href="/source-code-manager?missing=diagrams">
+        <i class="bi bi-diagram-3"></i> Incomplete Diagrams
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--warn"><%= s.gaps.diagrams %></span>
+      </a>
+      <a class="<%= navClass('missing-db') %>" href="/source-code-manager?missing=db">
+        <i class="bi bi-database"></i> Missing DB Screenshots
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--danger"><%= s.gaps.db %></span>
+      </a>
+    </div>
+
+    <div class="scm-portal-nav__section">
+      <div class="scm-portal-nav__label">Quality</div>
+      <a class="<%= navClass('complete') %>" href="/source-code-manager?tab=complete">
+        <i class="bi bi-check2-circle"></i> Fully Complete
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--ok"><%= s.complete %></span>
+      </a>
+      <a class="<%= navClass('unverified') %>" href="/source-code-manager?tab=unverified">
+        <i class="bi bi-hourglass-split"></i> Pending Review
+        <span class="scm-portal-nav__badge"><%= s.unverified %></span>
+      </a>
+      <a class="<%= navClass('verified') %>" href="/source-code-manager?tab=verified">
+        <i class="bi bi-patch-check"></i> Admin Verified
+        <span class="scm-portal-nav__badge scm-portal-nav__badge--ok"><%= s.verified %></span>
+      </a>
+    </div>
+
+    <% if (nav === 'edit') { %>
+    <div class="scm-portal-nav__section">
+      <div class="scm-portal-nav__label">Current</div>
+      <span class="scm-portal-nav__link is-active" style="cursor:default;">
+        <i class="bi bi-pencil-square"></i> Editing Product
+      </span>
+    </div>
+    <% } %>
+  </nav>
+
+  <div class="scm-portal-sidebar__foot">
+    <div class="scm-portal-user-card">
+      <div class="scm-portal-user-card__avatar"><i class="bi bi-person-fill"></i></div>
+      <div>
+        <div class="scm-portal-user-card__name"><%= user.name %></div>
+        <div class="scm-portal-user-card__role">Source Code Manager</div>
+      </div>
+    </div>
+    <a href="/source-code-manager/logout" class="scm-portal-signout">
+      <i class="bi bi-box-arrow-right"></i> Sign out
+    </a>
+  </div>
+</aside>
+<div class="scm-portal-sidebar-backdrop" id="scmPortalBackdrop"></div>
