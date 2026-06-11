@@ -71,25 +71,14 @@ a { color: inherit; text-decoration: none; }
 .mc-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 800;
-  font-size: 17px;
-  letter-spacing: -0.02em;
+  flex-shrink: 0;
 }
-.mc-logo__mark {
+.mc-logo__img {
+  display: block;
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--mc-primary), var(--mc-accent));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 900;
 }
-.mc-logo span { color: var(--mc-primary); }
-.mc-logo__text span { color: var(--mc-primary); }
 
 .mc-mobile-only { display: none !important; }
 .mc-desktop-only { display: block; }
@@ -2209,13 +2198,7 @@ a { color: inherit; text-decoration: none; }
     box-shadow: none;
   }
   .mc-nav__inner { gap: 12px; }
-  .mc-logo { font-size: 15px; gap: 8px; min-width: 0; }
-  .mc-logo__mark { width: 32px; height: 32px; font-size: 13px; border-radius: 9px; flex-shrink: 0; }
-  .mc-logo__text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  .mc-logo__img { width: 32px; height: 32px; border-radius: 9px; }
 
   /* Bottom tab bar */
   .mc-tabbar {
