@@ -1,15 +1,37 @@
 <% if (typeof slides === 'undefined' || !slides || !slides.length) return; %>
-<div class="mc-app-slider-block mc-app-slider-block--<%= typeof theme !== 'undefined' ? theme : 'indigo' %>">
-  <div class="mc-app-slider-head">
-    <h3 class="mc-app-slider-head__title"><%= title %></h3>
-    <a href="<%= link %>" class="mc-app-slider-head__link">See all <i class="bi bi-chevron-right"></i></a>
-  </div>
-  <div class="mc-app-slider">
-    <% for (var si = 0; si < slides.length; si++) { %>
-    <a href="<%= link %>" class="mc-app-slide">
-      <img src="<%= slides[si] %>" alt="<%= title %> — <%= si + 1 %>" loading="<%= si < 2 ? 'eager' : 'lazy' %>">
-      <span class="mc-app-slide__shine"></span>
-    </a>
-    <% } %>
+<% var slideIcon = typeof icon !== 'undefined' ? icon : 'bi-collection'; %>
+<% var slideSubtitle = typeof subtitle !== 'undefined' ? subtitle : 'Curated portfolio'; %>
+<div class="mc-showcase mc-showcase--<%= typeof theme !== 'undefined' ? theme : 'indigo' %>">
+  <div class="mc-showcase__card">
+    <div class="mc-showcase__accent" aria-hidden="true"></div>
+    <div class="mc-showcase__header">
+      <div class="mc-showcase__header-main">
+        <span class="mc-showcase__icon"><i class="bi <%= slideIcon %>"></i></span>
+        <div class="mc-showcase__header-text">
+          <h3 class="mc-showcase__title"><%= title %></h3>
+          <p class="mc-showcase__meta"><%= slides.length %> projects · <%= slideSubtitle %></p>
+        </div>
+      </div>
+      <a href="<%= link %>" class="mc-showcase__cta">
+        View all <i class="bi bi-arrow-up-right"></i>
+      </a>
+    </div>
+
+    <div class="mc-showcase__viewport">
+      <div class="mc-showcase__slider">
+        <% for (var si = 0; si < slides.length; si++) {
+          var num = si + 1;
+          var numStr = num < 10 ? '0' + num : '' + num;
+        %>
+        <a href="<%= link %>" class="mc-showcase__slide">
+          <img src="<%= slides[si] %>" alt="<%= title %> — <%= num %>" loading="<%= si < 2 ? 'eager' : 'lazy' %>" draggable="false">
+          <span class="mc-showcase__slide-overlay"></span>
+          <span class="mc-showcase__slide-index"><%= numStr %></span>
+          <span class="mc-showcase__slide-action"><i class="bi bi-arrow-up-right"></i></span>
+        </a>
+        <% } %>
+      </div>
+      <span class="mc-showcase__edge mc-showcase__edge--right" aria-hidden="true"></span>
+    </div>
   </div>
 </div>

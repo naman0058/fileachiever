@@ -46,30 +46,25 @@ var homeWorkCategories = [
   { folder: 'T-SHIRT DESIGN', label: 'T-Shirt Design', icon: 'bi-handbag', theme: 'cyan' },
   { folder: 'Catalog', label: 'Catalog', icon: 'bi-journal-richtext', theme: 'amber' },
   { folder: 'PRODUCT AND PACKAGING', label: 'Packaging Design', icon: 'bi-box-seam', theme: 'emerald' },
-  { folder: 'LABEL DESIGN', label: 'Label Design', icon: 'bi-tag', theme: 'indigo' }
+  { folder: 'LABEL DESIGN', label: 'Label Design', icon: 'bi-tag', theme: 'indigo' },
+  { folder: 'Content Writing', label: 'Content Writing', icon: 'bi-pencil-square', theme: 'violet' },
+  { folder: 'MOTION GRPAHICS', label: 'Reels', icon: 'bi-phone', theme: 'rose' },
+  { folder: 'PROMOTIONAL VIDEO', label: 'Promotional Video', icon: 'bi-camera-video', theme: 'cyan' },
+  { folder: 'EXPLAINER VIDEO', label: 'Explainer Video', icon: 'bi-play-circle', theme: 'amber' }
 ];
 var homePortfolioSections = [
-  { folder: 'LOGO', title: 'Logo Design', theme: 'violet' },
-  { folder: 'BANNERS', title: 'Banner Design', theme: 'rose' },
-  { folder: 'PRODUCT AND PACKAGING', title: 'Packaging Design', theme: 'emerald' },
-  { folder: 'LABEL DESIGN', title: 'Label Design', theme: 'indigo' }
+  { folder: 'LOGO', title: 'Logo Design', theme: 'violet', icon: 'bi-palette', subtitle: 'Brand identity' },
+  { folder: 'BANNERS', title: 'Banner Design', theme: 'rose', icon: 'bi-images', subtitle: 'Digital campaigns' },
+  { folder: 'PRODUCT AND PACKAGING', title: 'Packaging Design', theme: 'emerald', icon: 'bi-box-seam', subtitle: 'Retail & product' },
+  { folder: 'LABEL DESIGN', title: 'Label Design', theme: 'indigo', icon: 'bi-tag', subtitle: 'Print-ready labels' }
 ];
 %>
 
 <!-- ═══ MOBILE APP HOME ═══ -->
 <div class="mc-app-home mc-mobile-only">
 
-  <!-- Hero: brand tiles + featured carousel -->
+  <!-- Hero: featured carousel -->
   <section class="mc-app-hero">
-    <div class="mc-container">
-      <div class="mc-app-brand-tiles">
-        <span class="mc-app-brand-tile mc-app-brand-tile--gold"><i class="bi bi-award"></i> Production Ready</span>
-        <span class="mc-app-brand-tile"><i class="bi bi-building"></i> Big Brand Style</span>
-        <span class="mc-app-brand-tile"><i class="bi bi-gem"></i> Premium Quality</span>
-        <span class="mc-app-brand-tile"><i class="bi bi-globe2"></i> Global Clients</span>
-      </div>
-    </div>
-
     <% include ./partials/app-hero-carousel.ejs %>
   </section>
 
@@ -119,14 +114,16 @@ var homePortfolioSections = [
   </section>
   <% } %>
 
-  <!-- Every category — horizontal portfolio sliders -->
+  <!-- Portfolio by category — production showcase -->
   <section class="mc-app-feed">
     <div class="mc-container">
-      <div class="mc-app-section-head mc-app-section-head--feed">
-        <h2 class="mc-app-section-head__title">Portfolio by category</h2>
-        <p class="mc-app-section-head__sub">Swipe through our latest work</p>
+      <div class="mc-app-feed__head">
+        <span class="mc-app-feed__eyebrow">Showcase</span>
+        <h2 class="mc-app-feed__title">Portfolio by category</h2>
+        <p class="mc-app-feed__sub">Swipe through curated work — production quality for global brands</p>
       </div>
     </div>
+    <div class="mc-app-feed__list">
     <% for (var fi = 0; fi < homePortfolioSections.length; fi++) {
       var portSection = homePortfolioSections[fi];
       var folderName = portSection.folder;
@@ -136,9 +133,12 @@ var homePortfolioSections = [
       title = portSection.title;
       link = '/works/' + encodeURIComponent(folderName);
       theme = portSection.theme;
+      icon = portSection.icon;
+      subtitle = portSection.subtitle;
     %>
     <% include ./partials/app-slider.ejs %>
     <% } %>
+    </div>
   </section>
 
   <!-- Mobile CTA -->
