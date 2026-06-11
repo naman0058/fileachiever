@@ -1,378 +1,261 @@
-<%include ./header.ejs %>  
+<% include ./header.ejs %>
+<%
+function portfolioIcon(name) {
+  var n = (name || '').toLowerCase();
+  if (n.indexOf('banner') >= 0) return 'bi-images';
+  if (n.indexOf('logo') >= 0) return 'bi-palette';
+  if (n.indexOf('thumbnail') >= 0) return 'bi-youtube';
+  if (n.indexOf('t-shirt') >= 0 || n.indexOf('shirt') >= 0) return 'bi-handbag';
+  if (n.indexOf('packaging') >= 0 || n.indexOf('product') >= 0) return 'bi-box-seam';
+  if (n.indexOf('video') >= 0 || n.indexOf('animation') >= 0) return 'bi-camera-video';
+  if (n.indexOf('motion') >= 0) return 'bi-play-circle';
+  if (n.indexOf('character') >= 0) return 'bi-person-bounding-box';
+  if (n.indexOf('brand') >= 0) return 'bi-stars';
+  if (n.indexOf('invitation') >= 0 || n.indexOf('pamph') >= 0) return 'bi-file-earmark-text';
+  if (n.indexOf('gif') >= 0) return 'bi-filetype-gif';
+  if (n.indexOf('ppt') >= 0) return 'bi-easel';
+  return 'bi-collection';
+}
+function formatFolderTitle(name) {
+  if (!name) return 'Work';
+  return name.split(' ').map(function(part) {
+    if (/^\d/.test(part)) return part;
+    return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+  }).join(' ');
+}
+function formatFolderShort(name) {
+  var t = formatFolderTitle(name);
+  if (t.length <= 10) return t;
+  return t.split(' ')[0];
+}
+var allFolders = typeof folders !== 'undefined' && folders ? folders : [];
+var byFolder = typeof portfolioByFolder !== 'undefined' ? portfolioByFolder : {};
+var mix = typeof featuredMix !== 'undefined' ? featuredMix : [];
+var catThemes = ['indigo', 'violet', 'rose', 'cyan', 'amber', 'emerald', 'indigo', 'violet'];
+var heroCarousel = [
+  { url: 'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240514/Thumbnail/xoeojgmutaavc53ao0hw.jpg', title: 'Kids Brand Logo', cat: 'Logo Design', link: '/works/LOGO' },
+  { url: 'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238934/BANNERS/ykqjk24ustrjnklz6cty.jpg', title: 'World Cup Campaign', cat: 'Digital Ads', link: '/works/BANNERS' },
+  { url: 'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238926/BANNERS/tfx3nfmjuh1ei2lsfpng.jpg', title: 'Festive Branding', cat: 'Banner Design', link: '/works/BANNERS' },
+  { url: 'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238908/BANNERS/jxkiikjazual5tkozs5w.jpg', title: 'Cinematic Promo', cat: 'Banner Design', link: '/works/BANNERS' },
+  { url: 'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238725/BANNERS/h2d2gyjjbgh9cwh2yye4.jpg', title: 'Product Launch', cat: 'Banner Design', link: '/works/BANNERS' }
+];
+var homeWorkCategories = [
+  { folder: 'BANNERS', label: 'Banners', icon: 'bi-images', theme: 'indigo' },
+  { folder: 'LOGO', label: 'Logo', icon: 'bi-palette', theme: 'violet' },
+  { folder: 'Thumbnail', label: 'Thumbnail', icon: 'bi-youtube', theme: 'rose' },
+  { folder: 'T-SHIRT DESIGN', label: 'T-Shirt Design', icon: 'bi-handbag', theme: 'cyan' },
+  { folder: 'Catalog', label: 'Catalog', icon: 'bi-journal-richtext', theme: 'amber' },
+  { folder: 'PRODUCT AND PACKAGING', label: 'Packaging Design', icon: 'bi-box-seam', theme: 'emerald' },
+  { folder: 'LABEL DESIGN', label: 'Label Design', icon: 'bi-tag', theme: 'indigo' }
+];
+var homePortfolioSections = [
+  { folder: 'LOGO', title: 'Logo Design', theme: 'violet' },
+  { folder: 'BANNERS', title: 'Banner Design', theme: 'rose' },
+  { folder: 'PRODUCT AND PACKAGING', title: 'Packaging Design', theme: 'emerald' },
+  { folder: 'LABEL DESIGN', title: 'Label Design', theme: 'indigo' }
+];
+%>
 
-  
-    <!-- main area part start -->
-    <main>
-      <section class="home-area">
-        <div class="container">
-          <div class="row g-4">
-            <%include ./profilecard.ejs %>  
+<!-- ═══ MOBILE APP HOME ═══ -->
+<div class="mc-app-home mc-mobile-only">
 
-            <div class="col-xl-4">
-              <div class="row g-4">
-                <div class="col-lg-12">
-                  <div class="card">
-                    <div class="card-body work-experiance-card">
-                      <h3 class="card-title">Work Experience</h3>
-                      <div class="work-experiance-main">
-                        <ul class="work-experiance-slider list-unstyled">
-                       
-                         
-                          <li>
-                            <div class="date">
-                              <p>2022-2025</p>
-                            </div>
-                            <div class="info">
-                             
-                              <div class="text">
-                                <h4 class="title">Freelancing
-                                </h4>
-                                <h6 class="subtitle">Full-Time Freelancer
-  
-                                </h6>
-                              </div>
-                            </div>
-                          </li>
-                          <li>
-                            <div class="date">
-                              <p>2020-2021</p>
-                            </div>
-                            <div class="info">
-                             
-                              <div class="text">
-                                <h4 class="title">Axes Geeks
-                                </h4>
-                                <h6 class="subtitle">Senior Graphic Designer 
-                                </h6>
-                              </div>
-                            </div>
-                          </li>
-                          <li>
-                            <div class="date">
-                              <p>2019-2020</p>
-                            </div>
-                            <div class="info">
-                            
-                              <div class="text">
-                                <h4 class="title">Skillvi</h4>
-                                <h6 class="subtitle">Graphic Designer</h6>
-                              </div>
-                            </div>
-                          </li>
-                        </ul>
-                        <ul class="work-experiance-slider list-unstyled">
-                       
-                         
-                          <li>
-                            <div class="date">
-                              <p>2022-2025</p>
-                            </div>
-                            <div class="info">
-                             
-                              <div class="text">
-                                <h4 class="title">Freelancing
-                                </h4>
-                                <h6 class="subtitle">Full-Time Freelancer
-  
-                                </h6>
-                              </div>
-                            </div>
-                          </li>
-                          <li>
-                            <div class="date">
-                              <p>2020-2021</p>
-                            </div>
-                            <div class="info">
-                             
-                              <div class="text">
-                                <h4 class="title">Axes Geeks
-                                </h4>
-                                <h6 class="subtitle">Senior Graphic Designer 
-                                </h6>
-                              </div>
-                            </div>
-                          </li>
-                          <li>
-                            <div class="date">
-                              <p>2019-2020</p>
-                            </div>
-                            <div class="info">
-                            
-                              <div class="text">
-                                <h4 class="title">Skillvi</h4>
-                                <h6 class="subtitle">Graphic Designer</h6>
-                              </div>
-                            </div>
-                          </li>
-                        </ul>
+  <!-- Hero: brand tiles + featured carousel -->
+  <section class="mc-app-hero">
+    <div class="mc-container">
+      <div class="mc-app-brand-tiles">
+        <span class="mc-app-brand-tile mc-app-brand-tile--gold"><i class="bi bi-award"></i> Production Ready</span>
+        <span class="mc-app-brand-tile"><i class="bi bi-building"></i> Big Brand Style</span>
+        <span class="mc-app-brand-tile"><i class="bi bi-gem"></i> Premium Quality</span>
+        <span class="mc-app-brand-tile"><i class="bi bi-globe2"></i> Global Clients</span>
+      </div>
+    </div>
 
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-12">
-                  <div class="card expertise-card">
-                    <div class="card-body">
-                      <h3 class="card-title">My Expert Area
-                      </h3>
-                      <div class="expertise-main mt-24">
-                        <div class="row g-3">
-                          <div class="col-xl-4 col-md-4 col-sm-6 col-6">
-                            <div class="expertise-item">
-                              <div class="image text-center">
-                                <img src="/subdomain_manisha/assets/img/icons/illustrator.svg" style="width: 40px;height: 40px;" alt="Illustrator">
-                              </div>
-                              <div class="text">
-                                <h4 class="title">Illustrator</h4>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-xl-4 col-md-4 col-sm-6 col-6">
-                            <div class="expertise-item">
-                              <div class="image text-center">
-                                <img src="/subdomain_manisha/assets/img/icons/coreldraw.svg" style="width: 40px;height: 40px;" alt="CorelDRAW">
-                              </div>
-                              <div class="text">
-                                <h4 class="title">CorelDRAW</h4>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-xl-4 col-md-4 col-sm-6 col-6">
-                            <div class="expertise-item">
-                              <div class="image text-center">
-                                <img src="/subdomain_manisha/assets/img/icons/primierpro.svg" style="width: 40px;height: 40px;" alt="Premiere Pro">
-                              </div>
-                              <div class="text">
-                                <h4 class="title">Premiere Pro</h4>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-xl-4 col-md-4 col-sm-6 col-6">
-                            <div class="expertise-item">
-                              <div class="image text-center">
-                                <img src="/subdomain_manisha/assets/img/icons/afterEffect.svg" style="width: 40px;height: 40px;" alt="After Effect">
-                              </div>
-                              <div class="text">
-                                <h4 class="title">After Effect</h4>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-xl-4 col-md-4 col-sm-6 col-6">
-                            <div class="expertise-item">
-                              <div class="image text-center">
-                                <img src="/subdomain_manisha/assets/img/icons/lightroom.svg" style="width: 40px;height: 40px;" alt="webflow">
-                              </div>
-                              <div class="text">
-                                <h4 class="title">Lightroom </h4>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-xl-4 col-md-4 col-sm-6 col-6">
-                            <div class="expertise-item">
-                              <div class="image text-center">
-                                <img src="/subdomain_manisha/assets/img/icons/figma1.svg" style="width: 40px;height: 40px;" alt="zeplin">
-                              </div>
-                              <div class="text">
-                                <h4 class="title">Figma</h4>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-4">
-              <div class="card card-projects">
-                <div class="card-body">
-  
-                  <h3 class="card-title">Recent Projects <a class="link-btn" href="/works">All Projects
-                      <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4.16699 10H15.8337" stroke="#4770FF" stroke-width="1.5" stroke-linecap="round"
-                          stroke-linejoin="round" />
-                        <path d="M10.833 15L15.833 10" stroke="#4770FF" stroke-width="1.5" stroke-linecap="round"
-                          stroke-linejoin="round" />
-                        <path d="M10.833 5L15.833 10" stroke="#4770FF" stroke-width="1.5" stroke-linecap="round"
-                          stroke-linejoin="round" />
-                      </svg>
-  
-                    </a></h3>
-                  <div class="projects-main mt-24">
-                    <div class="row g-4 parent-container">
-                      <div class="col-lg-12">
-                        <div class="project-item">
-                          <div class="image">
-                            <img src="https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240514/Thumbnail/xoeojgmutaavc53ao0hw.jpg" alt="project-1" class="img-fluid w-100">
-                            <a href="https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240514/Thumbnail/xoeojgmutaavc53ao0hw.jpg"
-                              class="gallery-popup full-image-preview parent-container">
-                              <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"
-                                stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-                                <path d="M10 4.167v11.666M4.167 10h11.666"></path>
-                              </svg>
-                            </a>
-                            <div class="info">
-                              <span class="category">Logo Design</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-lg-12">
-                        <div class="project-item">
-                          <div class="image">
-                            <img src="https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238934/BANNERS/ykqjk24ustrjnklz6cty.jpg" alt="project-2" class="img-fluid w-100">
-                            <a href="https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238934/BANNERS/ykqjk24ustrjnklz6cty.jpg"
-                              class="gallery-popup full-image-preview parent-container">
-                              <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"
-                                stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-                                <path d="M10 4.167v11.666M4.167 10h11.666"></path>
-                              </svg>
-                            </a>
-                            <div class="info">
-                              <span class="category">Banners Design</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="services-area mt-24">
-            <div class="row g-4">
-              <div class="col-xl-8">
-                <div class="card services-card">
-                  <div class="card-body">
-                    <h3 class="card-title">Services I Offered
-                      <a class="link-btn" href="/services"> See All Services
-                        <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                          xmlns="http://www.w3.org/2000/svg">
-                          <path d="M4.16699 10H15.8337" stroke="#4770FF" stroke-width="1.5" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                          <path d="M10.833 15L15.833 10" stroke="#4770FF" stroke-width="1.5" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                          <path d="M10.833 5L15.833 10" stroke="#4770FF" stroke-width="1.5" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        </svg>
-  
-                      </a></h3>
-                    <div class="services-main mt-24">
-                      <div class="row g-4">
-                        <div class="col-md-3 col-sm-6 col-6">
-                          <div class="services-item text-center">
-                            <div class="image">
-                              <img src="/subdomain_manisha/assets/img/icons/graphics.png" style="width: 80px;height: 80px;" alt="ui-ux">
-                            </div>
-                          <a href="/works">
+    <% include ./partials/app-hero-carousel.ejs %>
+  </section>
 
-                            <div class="text">
-                              <h3 class="title">Graphic Design</h3>
-                            </div>
-                            </a>
-                          </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-6">
-                          <div class="services-item text-center">
-                            <div class="image">
-                              <img src="/subdomain_manisha/assets/img/icons/videoEditing.png" style="width: 80px;height: 80px;" alt="app">
-                            </div>
-                          <a href="/works">
+  <!-- All work — curated category grid -->
+  <section class="mc-app-section mc-app-section--grid">
+    <div class="mc-container">
+    <div class="mc-app-section-head">
+      <h2 class="mc-app-section-head__title">All work</h2>
+    </div>
+    <div class="mc-app-cat-grid">
+      <% for (var ci = 0; ci < homeWorkCategories.length; ci++) {
+        var cat = homeWorkCategories[ci];
+      %>
+      <a href="/works/<%= encodeURIComponent(cat.folder) %>" class="mc-app-cat-item mc-app-cat-item--<%= cat.theme %>">
+        <span class="mc-app-cat-item__icon"><i class="bi <%= cat.icon %>"></i></span>
+        <span class="mc-app-cat-item__label"><%= cat.label %></span>
+      </a>
+      <% } %>
+      <a href="/works" class="mc-app-cat-item mc-app-cat-item--all">
+        <span class="mc-app-cat-item__icon"><i class="bi bi-grid"></i></span>
+        <span class="mc-app-cat-item__label">View All Work</span>
+      </a>
+    </div>
+    </div>
+  </section>
 
-                            <div class="text">
-                              <h3 class="title">Video Editing</h3>
-                            </div>
-                            </a>
-                          </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-6">
-                          <div class="services-item text-center">
-                            <div class="image">
-                              <img src="/subdomain_manisha/assets/img/icons/prdocut.png" style="width: 80px;height: 80px;" alt="prd-design">
-                            </div>
-                          <a href="/works">
+  <!-- Featured designs mix -->
+  <% if (mix.length) { %>
+  <section class="mc-app-section mc-app-section--spotlight">
+    <div class="mc-container">
+    <div class="mc-app-section-head">
+      <h2 class="mc-app-section-head__title">Featured designs</h2>
+      <a href="/works" class="mc-app-section-head__link">View all</a>
+    </div>
+    <div class="mc-app-spotlight-grid">
+      <% for (var mi = 0; mi < mix.length; mi++) {
+        var m = mix[mi];
+        var mTitle = formatFolderTitle(m.folder);
+      %>
+      <a href="/works/<%= encodeURIComponent(m.folder) %>" class="mc-app-spotlight">
+        <img src="<%= m.url %>" alt="<%= mTitle %>" loading="lazy">
+        <span class="mc-app-spotlight__label"><%= mTitle %></span>
+      </a>
+      <% } %>
+    </div>
+    </div>
+  </section>
+  <% } %>
 
-                            <div class="text">
-                              <h3 class="title">Packaging Design </h3>
-                            </div>
-                          </a>
-                          </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-6">
-                          <div class="services-item text-center">
-                            <div class="image">
-                              <img src="/subdomain_manisha/assets/img/icons/2d.png" style="width: 80px;height: 80px;" alt="branding">
-                            </div>
-                          <a href="/works">
+  <!-- Every category — horizontal portfolio sliders -->
+  <section class="mc-app-feed">
+    <div class="mc-container">
+      <div class="mc-app-section-head mc-app-section-head--feed">
+        <h2 class="mc-app-section-head__title">Portfolio by category</h2>
+        <p class="mc-app-section-head__sub">Swipe through our latest work</p>
+      </div>
+    </div>
+    <% for (var fi = 0; fi < homePortfolioSections.length; fi++) {
+      var portSection = homePortfolioSections[fi];
+      var folderName = portSection.folder;
+      var folderSlides = byFolder[folderName] || [];
+      if (!folderSlides.length) continue;
+      slides = folderSlides.slice(0, 5);
+      title = portSection.title;
+      link = '/works/' + encodeURIComponent(folderName);
+      theme = portSection.theme;
+    %>
+    <% include ./partials/app-slider.ejs %>
+    <% } %>
+  </section>
 
-                            <div class="text">
-                              <h3 class="title">2D & 3D Animation</h3>
-                            </div>
-                          </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-4">
-                <div class="card lets-talk-together-card">
-                  <div class="card-body">
-                    <div class="scrolling-info">
-                      <div class="slider-item">
-                        <p>🚀 Available for Hire | Transforming Ideas into Stunning Visuals 🎨 | Let's Create Something Amazing! 🚀</p>
+  <!-- Mobile CTA -->
+  <section class="mc-app-cta">
+    <div class="mc-container">
+    <div class="mc-app-cta__card">
+      <span class="mc-app-cta__eyebrow">Start your project</span>
+      <h2 class="mc-app-cta__title">Get production-ready creative for your brand</h2>
+      <p class="mc-app-cta__sub">1,200+ clients · Fast turnaround · WhatsApp quotes</p>
+      <a href="https://wa.me/918877152035" class="mc-btn mc-btn--whatsapp mc-btn--lg mc-btn--block" target="_blank" rel="noopener">
+        <i class="bi bi-whatsapp"></i> Get a free quote
+      </a>
+    </div>
+    </div>
+  </section>
+</div>
 
-                      </div>
-                    </div>
-                    <h3 class="card-title">Let's👋
-                      <span class="d-block">Work Together</span>
-                    </h3>
-                    <a class="link-btn" href="tel:8877152035"> Let's Talk
-                      <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17.5 11.6665V6.6665H12.5" stroke-width="1.5" stroke-linecap="round"
-                          stroke-linejoin="round" />
-                        <path d="M17.5 6.6665L10 14.1665L2.5 6.6665" stroke-width="1.5" stroke-linecap="round"
-                          stroke-linejoin="round" />
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+<!-- ═══ DESKTOP HOME ═══ -->
+<div class="mc-home-desktop mc-desktop-only">
+
+<section class="mc-home-hero">
+  <div class="mc-container">
+    <div class="mc-home-desktop-hero">
+      <div class="mc-home-desktop-hero__copy">
+        <div class="mc-badge"><span class="mc-badge__dot"></span> Available for new projects</div>
+        <h1 class="mc-hero__title">Creative that <em>grows your brand</em> — not just looks good</h1>
+        <p class="mc-hero__lead">Brand design, video content, social creatives, and campaign-ready assets that drive enquiries.</p>
+        <div class="mc-hero__stats">
+          <div><div class="mc-stat__val">6+</div><div class="mc-stat__lbl">Years</div></div>
+          <div><div class="mc-stat__val">1200+</div><div class="mc-stat__lbl">Clients</div></div>
+          <div><div class="mc-stat__val">5+</div><div class="mc-stat__lbl">Countries</div></div>
         </div>
-      </section>
-      <!-- background shape area start -->
-      <div class="background-shapes">
-        <div class="shape-1 common-shape">
-          <img src="/subdomain_manisha/assets/img/bg/banner-shape-1.png" alt="banner-shape-1">
-        </div>
-        <div class="shape-2 common-shape">
-          <img src="/subdomain_manisha/assets/img/bg/banner-shape-1.png" alt="banner-shape-1">
-        </div>
-        <div class="threed-shape-1 move-with-cursor" data-value="1">
-          <img src="/subdomain_manisha/assets/img/bg/object-3d-1.png" alt="object-3d-1">
-        </div>
-        <div class="threed-shape-2 move-with-cursor" data-value="1">
-          <img src="/subdomain_manisha/assets/img/bg/object-3d-2.png" alt="object-3d-2">
+        <div class="mc-hero__ctas">
+          <a href="https://wa.me/918877152035" class="mc-btn mc-btn--whatsapp mc-btn--lg" target="_blank" rel="noopener">
+            <i class="bi bi-whatsapp"></i> Get a free quote
+          </a>
+          <a href="/works" class="mc-btn mc-btn--outline mc-btn--lg">View portfolio</a>
         </div>
       </div>
-      <!-- background shape area end -->
-    </main>
-    <!-- main area part end -->
-  
-    <!-- footer part start -->
-  
-    <!-- footer part end -->
+      <div class="mc-hero-card">
+        <img src="/subdomain_manisha/assets/profile.jpeg" alt="Manisha Jain" class="mc-hero-card__avatar" width="88" height="88">
+        <h2 class="mc-hero-card__name">Manisha Jain</h2>
+        <p class="mc-hero-card__role">Founder · Creative & Digital Marketing</p>
+        <div class="mc-hero-card__links">
+          <a href="tel:8877152035" class="mc-hero-card__link"><i class="bi bi-telephone"></i> +91 88771 52035</a>
+          <a href="mailto:manishajain8877@gmail.com" class="mc-hero-card__link"><i class="bi bi-envelope"></i> Email</a>
+        </div>
+      </div>
+    </div>
   </div>
+</section>
 
-  <%include ./footer.ejs %>  
+<section class="mc-home-block">
+  <div class="mc-container">
+    <div class="mc-section-bar">
+      <div>
+        <span class="mc-section-bar__eyebrow">What we do</span>
+        <h2 class="mc-section-bar__title">Our services</h2>
+      </div>
+      <a href="/services" class="mc-section-bar__link">See all <i class="bi bi-chevron-right"></i></a>
+    </div>
+    <% var serviceLimit = 4; var serviceLink = '/services'; %>
+    <% include ./partials/services-grid.ejs %>
+  </div>
+</section>
 
+<section class="mc-home-block mc-home-block--alt">
+  <div class="mc-container">
+    <div class="mc-section-bar">
+      <div>
+        <span class="mc-section-bar__eyebrow">Portfolio</span>
+        <h2 class="mc-section-bar__title">Recent work</h2>
+      </div>
+      <a href="/works" class="mc-section-bar__link">View all <i class="bi bi-chevron-right"></i></a>
+    </div>
+    <div class="mc-home-works">
+      <a href="/works/LOGO" class="mc-home-work">
+        <img src="https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240514/Thumbnail/xoeojgmutaavc53ao0hw.jpg" alt="Logo design">
+        <div class="mc-home-work__overlay">
+          <span class="mc-home-work__cat">Branding</span>
+          <span class="mc-home-work__title">Logo Design</span>
+        </div>
+      </a>
+      <a href="/works/BANNERS" class="mc-home-work">
+        <img src="https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238934/BANNERS/ykqjk24ustrjnklz6cty.jpg" alt="Banner design">
+        <div class="mc-home-work__overlay">
+          <span class="mc-home-work__cat">Digital ads</span>
+          <span class="mc-home-work__title">Banners</span>
+        </div>
+      </a>
+      <% for (var di = 0; di < Math.min(allFolders.length, 2); di++) {
+        var dfn = allFolders[di].folder_name;
+        if (dfn === 'LOGO' || dfn === 'BANNERS') continue;
+      %>
+      <a href="/works/<%= encodeURIComponent(dfn) %>" class="mc-home-work mc-home-work--folder mc-home-work--<%= catThemes[di % catThemes.length] %>">
+        <div class="mc-home-work__folder-inner">
+          <i class="bi bi-folder2-open"></i>
+          <span class="mc-home-work__title"><%= formatFolderTitle(dfn) %></span>
+        </div>
+      </a>
+      <% } %>
+    </div>
+  </div>
+</section>
 
-<!-- Mirrored from marveltheme.com/tf/html/bentofolio-html/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 22 Feb 2025 12:55:38 GMT -->
-</html>
+<section class="mc-home-block mc-home-block--cta">
+  <div class="mc-container">
+    <div class="mc-home-final-cta">
+      <h2>Ready to start?</h2>
+      <p>Most clients hear back within a few hours on WhatsApp.</p>
+      <a href="https://wa.me/918877152035" class="mc-btn mc-btn--whatsapp mc-btn--lg mc-btn--block" target="_blank" rel="noopener">
+        <i class="bi bi-whatsapp"></i> Message on WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<% include ./footer.ejs %>

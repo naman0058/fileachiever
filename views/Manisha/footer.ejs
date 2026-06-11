@@ -1,27 +1,53 @@
+</main>
 
-  <!-- JS here -->
-  <script src="/subdomain_manisha/assets/js/vendor/jquery-3.6.0.min.js"></script>
-  <script src="/subdomain_manisha/assets/js/bootstrap.bundle.min.js"></script>
-  <script src="/subdomain_manisha/assets/js/jquery.magnific-popup.min.js"></script>
-  <script src="/subdomain_manisha/assets/js/ajax-form.js"></script>
-  <script src="/subdomain_manisha/assets/js/clipboard.min.js"></script>
-  <script src="/subdomain_manisha/assets/js/slick.min.js"></script>
-  <script src="/subdomain_manisha/assets/js/script.js"></script>
+<footer class="mc-footer">
+  <div class="mc-container">
+    <div class="mc-footer__grid mc-desktop-only">
+      <div>
+        <div class="mc-footer__brand">Manisha Creations</div>
+        <p class="mc-footer__tagline">Digital marketing & creative studio — we help brands grow with design, video, and content that converts.</p>
+      </div>
+      <div>
+        <div class="mc-footer__heading">Navigate</div>
+        <ul class="mc-footer__links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/works">Portfolio</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="mc-footer__heading">Contact</div>
+        <ul class="mc-footer__links">
+          <li><a href="tel:8877152035">+91 88771 52035</a></li>
+          <li><a href="mailto:manishajain8877@gmail.com">manishajain8877@gmail.com</a></li>
+          <li><a href="https://wa.me/918877152035" target="_blank" rel="noopener">WhatsApp</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mc-footer__mobile mc-mobile-only">
+      <div class="mc-footer__mobile-brand">Manisha Creations</div>
+      <p class="mc-footer__mobile-tag">Trusted creative studio · Design · Video · Digital</p>
+      <div class="mc-footer__mobile-links">
+        <a href="mailto:manishajain8877@gmail.com"><i class="bi bi-envelope"></i></a>
+        <a href="https://wa.me/918877152035" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+        <a href="tel:8877152035"><i class="bi bi-telephone"></i></a>
+      </div>
+    </div>
+    <div class="mc-footer__bottom">
+      <span>&copy; <%= new Date().getFullYear() %> Manisha Creations</span>
+      <span class="mc-desktop-only">Available for freelance & agency projects worldwide</span>
+    </div>
+  </div>
+</footer>
 
-  <script>
-    // Theme color control js
-    $(document).ready(function () {
-    
-        // Force dark mode
-        $('body').addClass('dark-theme');
-        localStorage.setItem('darkMode', 'true'); // Ensure dark mode is always saved
-    
-        $('#page-content').fadeIn(0);
-    
-        // Remove theme toggle functionality
-        // $('.theme-control-btn').remove();
-    });
+<% include ./partials/mobile-tabbar.ejs %>
+
+<script>
+(function(){
+  document.querySelectorAll('.mc-tabbar__item').forEach(function(el){
+    el.addEventListener('touchstart', function(){}, { passive: true });
+  });
+})();
 </script>
-
-
 </body>
+</html>

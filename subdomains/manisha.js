@@ -10,10 +10,52 @@ const queryAsync = util.promisify(pool.query).bind(pool);
 
 
 
-router.get('/',async(req,res)=>{
-    res.render('Manisha/index',{page:'Home'})
-    // res.send('fo')
-})
+router.get('/', async (req, res) => {
+  try {
+    const folders = await queryAsync(
+      'SELECT DISTINCT folder_name FROM freelance_works ORDER BY folder_name ASC'
+    );
+    const rows = await queryAsync(
+      'SELECT folder_name, image_url, type FROM freelance_works ORDER BY folder_name ASC, id ASC'
+    );
+
+    const portfolioByFolder = {};
+    const featuredMix = [];
+    const featuredFoldersSeen = new Set();
+
+    for (const row of rows) {
+      const fn = row.folder_name;
+      const url = row.image_url;
+      if (row.type === 'drive') continue;
+      const ext = (url || '').split('.').pop().toLowerCase().split('?')[0];
+      const isVideo = ext === 'mp4' || ext === 'webm' || ext === 'mov';
+
+      if (!portfolioByFolder[fn]) portfolioByFolder[fn] = [];
+      if (portfolioByFolder[fn].length < 5 && !isVideo) {
+        portfolioByFolder[fn].push(url);
+      }
+      if (featuredMix.length < 12 && !isVideo && !featuredFoldersSeen.has(fn)) {
+        featuredMix.push({ folder: fn, url });
+        featuredFoldersSeen.add(fn);
+      }
+    }
+
+    res.render('Manisha/index', {
+      page: 'Home',
+      folders,
+      portfolioByFolder,
+      featuredMix,
+    });
+  } catch (err) {
+    console.error('[manisha] home:', err);
+    res.render('Manisha/index', {
+      page: 'Home',
+      folders: [],
+      portfolioByFolder: {},
+      featuredMix: [],
+    });
+  }
+});
 
 
 router.get('/done',async(req,res)=>{
@@ -40,20 +82,53 @@ router.get('/works',async(req,res)=>{
 
 
 router.get('/works/:folderName',async(req,res)=>{
-  pool.query(`SELECT * FROM freelance_works where folder_name = '${req.params.folderName}'`,(err,result)=>{
-    if(err) throw err;
-    else {
-      if(result[0].type=='drive'){
-        res.redirect(result[0].image_url)
-      }
-      else{
-        res.render('Manisha/worksDetails',{result,folderName:req.params.folderName,page:'Works'})
-      }
+  const folderName = req.params.folderName;
+  pool.query(`SELECT * FROM freelance_works WHERE folder_name = ?`, [folderName], (err, result) => {
+    if (err) throw err;
+    if (!result || !result.length) {
+      return pool.query(
+        `SELECT DISTINCT folder_name FROM freelance_works WHERE folder_name != ? ORDER BY folder_name ASC LIMIT 6`,
+        [folderName],
+        (err2, relatedFolders) => {
+          if (err2) throw err2;
+          res.render('Manisha/worksDetails', {
+            result: [],
+            folderName,
+            page: 'Works',
+            pageTitle: formatPageTitle(folderName),
+            relatedFolders: relatedFolders || []
+          });
+        }
+      );
     }
-  })
-  
-  // res.send('fo')
-})
+    if (result[0].type === 'drive') {
+      return res.redirect(result[0].image_url);
+    }
+    pool.query(
+      `SELECT DISTINCT folder_name FROM freelance_works WHERE folder_name != ? ORDER BY folder_name ASC LIMIT 6`,
+      [folderName],
+      (err2, relatedFolders) => {
+        if (err2) throw err2;
+        res.render('Manisha/worksDetails', {
+          result,
+          folderName,
+          page: 'Works',
+          pageTitle: formatPageTitle(folderName),
+          relatedFolders: relatedFolders || []
+        });
+      }
+    );
+  });
+});
+
+function formatPageTitle(folderName) {
+  if (!folderName) return 'Portfolio | Manisha Creations';
+  const title = folderName.split(' ').map((part) => {
+    if (/^\d/.test(part)) return part;
+    return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+  }).join(' ');
+  return `${title} Portfolio | Manisha Creations`;
+}
 
 
 

@@ -1,0 +1,21 @@
+<nav class="mc-tabbar" aria-label="Main navigation">
+  <a href="/" class="mc-tabbar__item <%= page === 'Home' ? 'is-active' : '' %>">
+    <i class="bi bi-house<%= page === 'Home' ? '-fill' : '' %>"></i>
+    <span>Home</span>
+  </a>
+  <a href="/services" class="mc-tabbar__item <%= page === 'Services' ? 'is-active' : '' %>">
+    <i class="bi bi-grid<%= page === 'Services' ? '-fill' : '' %>"></i>
+    <span>Services</span>
+  </a>
+  <a href="https://wa.me/918877152035" class="mc-tabbar__fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <i class="bi bi-whatsapp"></i>
+  </a>
+  <a href="/works" class="mc-tabbar__item <%= page === 'Works' ? 'is-active' : '' %>">
+    <i class="bi bi-collection<%= page === 'Works' ? '-fill' : '' %>"></i>
+    <span>Work</span>
+  </a>
+  <a href="tel:8877152035" class="mc-tabbar__item">
+    <i class="bi bi-telephone"></i>
+    <span>Call</span>
+  </a>
+</nav>

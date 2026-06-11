@@ -1,0 +1,15 @@
+<% if (typeof slides === 'undefined' || !slides || !slides.length) return; %>
+<div class="mc-app-slider-block mc-app-slider-block--<%= typeof theme !== 'undefined' ? theme : 'indigo' %>">
+  <div class="mc-app-slider-head">
+    <h3 class="mc-app-slider-head__title"><%= title %></h3>
+    <a href="<%= link %>" class="mc-app-slider-head__link">See all <i class="bi bi-chevron-right"></i></a>
+  </div>
+  <div class="mc-app-slider">
+    <% for (var si = 0; si < slides.length; si++) { %>
+    <a href="<%= link %>" class="mc-app-slide">
+      <img src="<%= slides[si] %>" alt="<%= title %> — <%= si + 1 %>" loading="<%= si < 2 ? 'eager' : 'lazy' %>">
+      <span class="mc-app-slide__shine"></span>
+    </a>
+    <% } %>
+  </div>
+</div>

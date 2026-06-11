@@ -1,0 +1,143 @@
+<%
+var heroSlides = typeof heroCarousel !== 'undefined' ? heroCarousel : [];
+if (!heroSlides.length) return;
+%>
+<div class="mc-hero-carousel" id="mcHeroCarousel" aria-label="Featured work showcase">
+  <div class="mc-hero-carousel__frame">
+    <div class="mc-hero-carousel__progress" aria-hidden="true">
+      <span class="mc-hero-carousel__progress-bar" id="mcHeroProgress"></span>
+    </div>
+    <div class="mc-hero-carousel__viewport">
+      <div class="mc-hero-carousel__track" id="mcHeroTrack">
+        <% for (var hi = 0; hi < heroSlides.length; hi++) {
+          var hs = heroSlides[hi];
+        %>
+        <article class="mc-hero-carousel__slide<%= hi === 0 ? ' is-active' : '' %>" data-index="<%= hi %>">
+          <a href="<%= hs.link %>" class="mc-hero-carousel__link">
+            <img src="<%= hs.url %>" alt="<%= hs.title %>" loading="<%= hi === 0 ? 'eager' : 'lazy' %>" draggable="false">
+            <div class="mc-hero-carousel__overlay"></div>
+            <div class="mc-hero-carousel__caption">
+              <span class="mc-hero-carousel__badge"><%= hs.cat %></span>
+              <h2 class="mc-hero-carousel__title"><%= hs.title %></h2>
+            </div>
+          </a>
+        </article>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="mc-hero-carousel__controls">
+    <div class="mc-hero-carousel__dots" id="mcHeroDots" role="tablist">
+      <% for (var di = 0; di < heroSlides.length; di++) { %>
+      <button type="button" class="mc-hero-carousel__dot<%= di === 0 ? ' is-active' : '' %>" data-go="<%= di %>" aria-label="Slide <%= di + 1 %>" role="tab"></button>
+      <% } %>
+    </div>
+    <span class="mc-hero-carousel__counter" id="mcHeroCounter">1 / <%= heroSlides.length %></span>
+  </div>
+</div>
+
+<script>
+(function(){
+  var root = document.getElementById('mcHeroCarousel');
+  if (!root) return;
+  var track = document.getElementById('mcHeroTrack');
+  var dots = root.querySelectorAll('.mc-hero-carousel__dot');
+  var slides = root.querySelectorAll('.mc-hero-carousel__slide');
+  var progress = document.getElementById('mcHeroProgress');
+  var counter = document.getElementById('mcHeroCounter');
+  var total = slides.length;
+  if (total < 2) return;
+
+  var index = 0;
+  var timer = null;
+  var touchStartX = 0;
+  var touchDelta = 0;
+  var isDragging = false;
+  var AUTO_MS = 4500;
+
+  function goTo(i, animate) {
+    index = ((i % total) + total) % total;
+    track.style.transition = animate === false ? 'none' : '';
+    track.style.transform = 'translate3d(-' + (index * 100) + '%, 0, 0)';
+    slides.forEach(function(s, si) {
+      s.classList.toggle('is-active', si === index);
+    });
+    dots.forEach(function(d, di) {
+      d.classList.toggle('is-active', di === index);
+    });
+    if (counter) counter.textContent = (index + 1) + ' / ' + total;
+    restartProgress();
+  }
+
+  function next() { goTo(index + 1, true); }
+  function prev() { goTo(index - 1, true); }
+
+  function restartProgress() {
+    if (!progress) return;
+    progress.style.transition = 'none';
+    progress.style.width = '0%';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        progress.style.transition = 'width ' + AUTO_MS + 'ms linear';
+        progress.style.width = '100%';
+      });
+    });
+  }
+
+  function startAuto() {
+    clearInterval(timer);
+    timer = setInterval(next, AUTO_MS);
+    restartProgress();
+  }
+  function stopAuto() {
+    clearInterval(timer);
+    timer = null;
+    if (progress) {
+      progress.style.transition = 'none';
+      progress.style.width = '0%';
+    }
+  }
+
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      goTo(parseInt(dot.getAttribute('data-go'), 10), true);
+      startAuto();
+    });
+  });
+
+  var frame = root.querySelector('.mc-hero-carousel__frame');
+
+  frame.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchDelta = 0;
+    isDragging = true;
+    stopAuto();
+    track.style.transition = 'none';
+  }, { passive: true });
+
+  frame.addEventListener('touchmove', function(e) {
+    if (!isDragging) return;
+    touchDelta = e.touches[0].clientX - touchStartX;
+    var offset = -(index * 100) + (touchDelta / frame.offsetWidth) * 100;
+    track.style.transform = 'translate3d(' + offset + '%, 0, 0)';
+  }, { passive: true });
+
+  frame.addEventListener('touchend', function() {
+    if (!isDragging) return;
+    isDragging = false;
+    if (Math.abs(touchDelta) > 50) {
+      if (touchDelta < 0) next(); else prev();
+    } else {
+      goTo(index, true);
+    }
+    startAuto();
+  });
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) stopAuto(); else startAuto();
+  });
+
+  startAuto();
+})();
+</script>

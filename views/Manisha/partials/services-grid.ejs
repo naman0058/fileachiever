@@ -1,0 +1,33 @@
+<%
+var cardThemes = ['indigo', 'violet', 'rose', 'cyan', 'amber', 'emerald', 'indigo', 'violet', 'rose'];
+var allServices = [
+  { title: 'Graphic Design', meta: 'Social, ads & print', icon: 'bi-palette' },
+  { title: 'Video Editing', meta: 'Reels & YouTube', icon: 'bi-camera-video' },
+  { title: 'Packaging Design', meta: 'Retail-ready labels', icon: 'bi-box-seam' },
+  { title: '2D & 3D Animation', meta: 'Explainers & demos', icon: 'bi-film' },
+  { title: 'Motion Graphics', meta: 'Ads & intros', icon: 'bi-play-circle' },
+  { title: 'Character Design', meta: 'Brand mascots', icon: 'bi-person-bounding-box' },
+  { title: 'Explainer Videos', meta: 'Whiteboard & 2D', icon: 'bi-easel' },
+  { title: 'Branding', meta: 'Logo & identity', icon: 'bi-stars' },
+  { title: 'Social Media Creatives', meta: 'Campaign assets', icon: 'bi-phone' }
+];
+var serviceList = typeof serviceLimit !== 'undefined' ? allServices.slice(0, serviceLimit) : allServices;
+var linkHref = typeof serviceLink !== 'undefined' ? serviceLink : '/works';
+%>
+<div class="mc-portfolio-grid mc-services-grid">
+  <% for (var i = 0; i < serviceList.length; i++) {
+    var s = serviceList[i];
+    var theme = cardThemes[i % cardThemes.length];
+  %>
+  <div class="mc-portfolio-grid__item">
+    <a href="<%= linkHref %>" class="mc-portfolio-card mc-portfolio-card--<%= theme %>">
+      <span class="mc-portfolio-card__arrow"><i class="bi bi-arrow-up-right"></i></span>
+      <div class="mc-portfolio-card__icon"><i class="bi <%= s.icon %>"></i></div>
+      <div class="mc-portfolio-card__body">
+        <h3 class="mc-portfolio-card__title"><%= s.title %></h3>
+        <span class="mc-portfolio-card__meta"><%= s.meta %></span>
+      </div>
+    </a>
+  </div>
+  <% } %>
+</div>
