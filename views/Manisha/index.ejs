@@ -53,9 +53,34 @@ var homeWorkCategories = [
   { folder: 'EXPLAINER VIDEO', label: 'Explainer Video', icon: 'bi-play-circle', theme: 'amber' }
 ];
 var homePortfolioSections = [
-  { folder: 'LOGO', title: 'Logo Design', theme: 'violet', icon: 'bi-palette', subtitle: 'Brand identity' },
-  { folder: 'BANNERS', title: 'Banner Design', theme: 'rose', icon: 'bi-images', subtitle: 'Digital campaigns' },
-  { folder: 'PRODUCT AND PACKAGING', title: 'Packaging Design', theme: 'emerald', icon: 'bi-box-seam', subtitle: 'Retail & product' },
+  {
+    folder: 'LOGO',
+    title: 'Logo Design',
+    theme: 'violet',
+    icon: 'bi-palette',
+    subtitle: 'Brand identity',
+    curatedSlides: [
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240132/LOGO/wkvyv5yakvu8byphrsrb.png',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240234/LOGO/cli4dcce1es1ojdzt13h.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240245/LOGO/fynicmagllqlmezml8bd.png',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240177/LOGO/cjpuhgd7w5m59nm19i1s.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240179/LOGO/exdyhdjkrnjxckmv8phr.jpg'
+    ]
+  },
+  { folder: 'BANNERS', title: 'Banner Design', theme: 'rose', icon: 'bi-images', subtitle: 'Digital campaigns', curatedSlides: [
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238529/BANNERS/jlmumeamblvgxrbdrxcs.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238535/BANNERS/yeioeuhfbqgaxwkxenmg.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238604/BANNERS/kp1z7helgeoxe8vblqej.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238657/BANNERS/vinxm6sqmcljiqvqmhf4.png',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238827/BANNERS/zgvse4qgg7gwfnotwx8t.jpg'
+    ] },
+  { folder: 'PRODUCT AND PACKAGING', title: 'Packaging Design', theme: 'emerald', icon: 'bi-box-seam', subtitle: 'Retail & product', curatedSlides: [
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743244154/PRODUCT%20AND%20PACKAGING/c1m4wh9vtear3cezpn06.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743244229/PRODUCT%20AND%20PACKAGING/rbn2johh4vkl2psfgzpp.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743244240/PRODUCT%20AND%20PACKAGING/adigtis7vqlcihmraev8.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743244278/PRODUCT%20AND%20PACKAGING/krfi5ilpym0djn6xugvx.jpg',
+      'https://res.cloudinary.com/dr5dofa3x/image/upload/v1743244178/PRODUCT%20AND%20PACKAGING/rz0rfcghdmc2xdddicf8.jpg'
+    ] },
   { folder: 'LABEL DESIGN', title: 'Label Design', theme: 'indigo', icon: 'bi-tag', subtitle: 'Print-ready labels' }
 ];
 %>
@@ -127,7 +152,9 @@ var homePortfolioSections = [
     <% for (var fi = 0; fi < homePortfolioSections.length; fi++) {
       var portSection = homePortfolioSections[fi];
       var folderName = portSection.folder;
-      var folderSlides = byFolder[folderName] || [];
+      var folderSlides = portSection.curatedSlides && portSection.curatedSlides.length
+        ? portSection.curatedSlides
+        : (byFolder[folderName] || []);
       if (!folderSlides.length) continue;
       slides = folderSlides.slice(0, 5);
       title = portSection.title;
@@ -138,20 +165,6 @@ var homePortfolioSections = [
     %>
     <% include ./partials/app-slider.ejs %>
     <% } %>
-    </div>
-  </section>
-
-  <!-- Mobile CTA -->
-  <section class="mc-app-cta">
-    <div class="mc-container">
-    <div class="mc-app-cta__card">
-      <span class="mc-app-cta__eyebrow">Start your project</span>
-      <h2 class="mc-app-cta__title">Get production-ready creative for your brand</h2>
-      <p class="mc-app-cta__sub">1,200+ clients · Fast turnaround · WhatsApp quotes</p>
-      <a href="https://wa.me/918877152035" class="mc-btn mc-btn--whatsapp mc-btn--lg mc-btn--block" target="_blank" rel="noopener">
-        <i class="bi bi-whatsapp"></i> Get a free quote
-      </a>
-    </div>
     </div>
   </section>
 </div>

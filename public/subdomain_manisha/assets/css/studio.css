@@ -2514,19 +2514,13 @@ a { color: inherit; text-decoration: none; }
   .mc-lightbox__nav--prev { left: 8px; }
   .mc-lightbox__nav--next { right: 8px; }
 
-  /* Compact mobile footer */
+  /* Hide footer on mobile — bottom tab bar handles navigation */
   .mc-footer {
-    margin-top: 32px;
-    padding: 28px 0 calc(16px + var(--mc-safe-bottom));
-    background: #0f172a;
+    display: none;
   }
-  .mc-footer__bottom {
-    border-top: none;
-    padding-top: 12px;
-    justify-content: center;
-    text-align: center;
-    font-size: 11px;
-    color: #64748b;
+
+  .mc-app-feed {
+    padding-bottom: 8px;
   }
 
   .mc-btn:hover { transform: none; }
