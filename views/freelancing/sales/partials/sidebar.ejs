@@ -1,4 +1,5 @@
 <aside class="crm-sidebar">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <div class="crm-sidebar__brand">
     <div class="crm-brand">Sales CRM</div>
     <div class="crm-sub">Team pipeline management</div>
@@ -67,14 +68,21 @@
       </a>
     <% } %>
     <% if (user.role === 'agent') { %>
+      <span class="crm-nav__label">My Workspace</span>
       <a class="crm-link <%= active === 'overview' ? 'active' : '' %>" href="/sales/my/overview">
-        Overview
+        <i class="bi bi-speedometer2 crm-link-ico"></i> Overview
       </a>
       <a class="crm-link <%= active === 'assignments' ? 'active' : '' %>" href="/sales/my">
-        My Leads
+        <i class="bi bi-kanban crm-link-ico"></i> My Leads
       </a>
       <a class="crm-link <%= active === 'sales' ? 'active' : '' %>" href="/sales/my/sales">
-        My Sales
+        <i class="bi bi-receipt crm-link-ico"></i> My Sales
+      </a>
+      <a class="crm-link <%= active === 'agentReport' ? 'active' : '' %>" href="/sales/my/report">
+        <i class="bi bi-graph-up-arrow crm-link-ico"></i> Performance Report
+      </a>
+      <a class="crm-link <%= active === 'rejectedLeads' ? 'active' : '' %>" href="/sales/my/rejected-leads">
+        <i class="bi bi-x-circle crm-link-ico"></i> Rejected Leads
       </a>
     <% } %>
 

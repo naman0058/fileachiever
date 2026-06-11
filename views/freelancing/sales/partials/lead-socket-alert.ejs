@@ -1,3 +1,4 @@
+<% if (typeof user !== 'undefined' && user && typeof socketAuthToken !== 'undefined' && socketAuthToken) { %>
 <script src="/socket.io/socket.io.js"></script>
 
 <audio id="leadSiren" preload="auto">
@@ -17,8 +18,6 @@
 
 <script>
 (function () {
-  console.log('[lead-alert] script loaded');
-
   if (typeof io === 'undefined') {
     console.warn('[lead-alert] socket.io client not loaded');
     return;
@@ -30,8 +29,13 @@
   const toast = document.getElementById('leadToast');
   const toastText = document.getElementById('leadToastText');
 
-  function showToast(msg) {
+  let connected = false;
+  let errorToastTimer = null;
+
+  function showToast(msg, title) {
     if (!toast || !toastText) return;
+    const titleEl = toast.querySelector('div');
+    if (titleEl && title) titleEl.textContent = title;
     toastText.textContent = msg || '';
     toast.style.display = 'block';
     clearTimeout(window.__leadToastTimer);
@@ -53,14 +57,14 @@
   async function unlockSound() {
     const ok = await playSiren();
     if (!ok) {
-      showToast('Browser blocked sound. Try again.');
+      showToast('Browser blocked sound. Try again.', 'Sound');
       if (unlockWrap) unlockWrap.style.display = 'block';
       return;
     }
     try { siren.pause(); siren.currentTime = 0; } catch (e) {}
     localStorage.setItem('leadSoundUnlocked', '1');
     if (unlockWrap) unlockWrap.style.display = 'none';
-    showToast('New lead sound enabled.');
+    showToast('New lead sound enabled.', 'Sound');
   }
 
   const unlockedAlready = localStorage.getItem('leadSoundUnlocked') === '1';
@@ -70,28 +74,51 @@
 
   const socket = io({
     withCredentials: true,
-    transports: ['websocket', 'polling']
+    auth: { token: '<%- socketAuthToken %>' },
+    transports: ['polling', 'websocket'],
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 8000,
+    timeout: 20000
   });
 
+  function markConnected() {
+    connected = true;
+    clearTimeout(errorToastTimer);
+  }
+
   socket.on('connect', () => {
-    console.log('[lead-alert] connected:', socket.id);
-    showToast('Realtime alerts connected.');
+    console.log('[lead-alert] transport connected:', socket.id);
+  });
+
+  socket.on('socket:ready', () => {
+    console.log('[lead-alert] socket ready');
+    markConnected();
+    showToast('Realtime alerts connected.', 'Connected');
   });
 
   socket.on('connect_error', (err) => {
-    console.error('[lead-alert] connect_error:', err && err.message);
-    showToast('Realtime alerts NOT connected. Refresh.');
+    console.warn('[lead-alert] connect_error:', err && err.message);
+    if (connected) return;
+    clearTimeout(errorToastTimer);
+    errorToastTimer = setTimeout(() => {
+      if (!connected && !socket.connected) {
+        showToast('Realtime alerts reconnecting…', 'Connection');
+      }
+    }, 4000);
   });
 
-  socket.on('socket:ready', (data) => {
-    console.log('[lead-alert] socket:ready:', data);
+  socket.on('disconnect', (reason) => {
+    console.warn('[lead-alert] disconnected:', reason);
+    connected = false;
   });
 
   socket.on('lead:new', async (lead) => {
     console.log('[lead-alert] lead:new received:', lead);
 
     const msg = `tempid=${lead?.tempid || '-'} • ${lead?.name || 'Unnamed'} • ${lead?.phone || '-'}`;
-    showToast(msg);
+    showToast(msg, 'New Lead');
 
     if (localStorage.getItem('leadSoundUnlocked') === '1') {
       const ok = await playSiren();
@@ -102,3 +129,4 @@
   });
 })();
 </script>
+<% } %>

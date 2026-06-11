@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/agent-head', { pageTitle }) %></head>
+<body class="agent-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap">
+    <%- include('partials/agent-sidebar', { user, active }) %>
+  </div>
+  <main class="agent-main">
+    <%- include('partials/lead-socket-alert') %>
+
+    <header class="agent-page-header">
+      <div>
+        <h1>Sales Dashboard</h1>
+        <p>Hello <strong><%= user.name %></strong> — your pipeline health, revenue trends, and priority follow-ups for <strong><%= filters.selectedMonth %></strong>.</p>
+      </div>
+      <div class="agent-page-header__actions">
+        <form method="GET" action="/sales/my/overview">
+          <select name="month" class="agent-month-select" onchange="this.form.submit()">
+            <% filters.monthOptions.forEach(function(m){ %>
+              <option value="<%= m %>" <%= m===filters.selectedMonth?'selected':'' %>><%= m %></option>
+            <% }) %>
+          </select>
+        </form>
+        <a href="/sales/my/pipeline?month=<%= filters.selectedMonth %>" class="agent-btn agent-btn--primary">
+          <i class="bi bi-columns-gap"></i> Open Pipeline Board
+        </a>
+      </div>
+    </header>
+
+    <div class="agent-metrics">
+      <div class="agent-metric" style="--metric-accent:#6366f1;--metric-bg:#eef2ff;">
+        <div class="agent-metric__icon"><i class="bi bi-funnel"></i></div>
+        <div class="agent-metric__label">Active Pipeline</div>
+        <div class="agent-metric__value"><%= kpis.openAssignments %></div>
+        <div class="agent-metric__hint">Open leads in your queue</div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
+        <div class="agent-metric__icon"><i class="bi bi-trophy"></i></div>
+        <div class="agent-metric__label">Closed Won</div>
+        <div class="agent-metric__value"><%= kpis.totalSales %></div>
+        <div class="agent-metric__hint">Deals converted this month</div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#2563eb;--metric-bg:#eff6ff;">
+        <div class="agent-metric__icon"><i class="bi bi-currency-rupee"></i></div>
+        <div class="agent-metric__label">Revenue Booked</div>
+        <div class="agent-metric__value">₹<%= Number(kpis.totalRevenue||0).toLocaleString('en-IN') %></div>
+        <div class="agent-metric__hint">Total lead price value</div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
+        <div class="agent-metric__icon"><i class="bi bi-percent"></i></div>
+        <div class="agent-metric__label">Win Rate</div>
+        <div class="agent-metric__value"><%= kpis.conversionRate %>%</div>
+        <div class="agent-metric__hint">Conversions vs total assigned</div>
+      </div>
+    </div>
+
+    <div class="agent-grid-2">
+      <div class="agent-panel">
+        <div class="agent-panel__head">
+          <div>
+            <h2 class="agent-panel__title">Revenue Trend</h2>
+            <p class="agent-panel__sub">Daily closed-won revenue this month</p>
+          </div>
+        </div>
+        <div class="agent-panel__body">
+          <div class="agent-chart-wrap">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="agent-panel">
+        <div class="agent-panel__head">
+          <div>
+            <h2 class="agent-panel__title">Pipeline Distribution</h2>
+            <p class="agent-panel__sub">Open leads by sales stage</p>
+          </div>
+        </div>
+        <div class="agent-panel__body">
+          <div class="agent-chart-wrap agent-chart-wrap--sm">
+            <canvas id="stageChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-grid-2">
+      <div class="agent-panel">
+        <div class="agent-panel__head">
+          <div>
+            <h2 class="agent-panel__title">Sales Funnel</h2>
+            <p class="agent-panel__sub">From first inquiry to closed won or disqualified</p>
+          </div>
+        </div>
+        <div class="agent-panel__body">
+          <%
+            const funnelMax = Math.max(funnel.newInquiry, funnel.inFollowup, funnel.highIntent, funnel.closedWon, funnel.disqualified, 1);
+            const funnelItems = [
+              { label: 'New Inquiry', val: funnel.newInquiry, color: '#6366f1' },
+              { label: 'In Follow-up', val: funnel.inFollowup, color: '#0ea5e9' },
+              { label: 'High Intent', val: funnel.highIntent, color: '#f59e0b' },
+              { label: 'Closed Won', val: funnel.closedWon, color: '#16a34a' },
+              { label: 'Disqualified', val: funnel.disqualified, color: '#ef4444' }
+            ];
+          %>
+          <div class="agent-funnel">
+            <% funnelItems.forEach(function(item){ %>
+              <div class="agent-funnel__row">
+                <div class="agent-funnel__label"><%= item.label %></div>
+                <div class="agent-funnel__bar-wrap">
+                  <div class="agent-funnel__bar" style="width:<%= Math.round((item.val/funnelMax)*100) %>%;background:<%= item.color %>;"></div>
+                </div>
+                <div class="agent-funnel__count"><%= item.val %></div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+      <div class="agent-panel">
+        <div class="agent-panel__head">
+          <div>
+            <h2 class="agent-panel__title">Deals Closed Over Time</h2>
+            <p class="agent-panel__sub">Number of won deals per day</p>
+          </div>
+        </div>
+        <div class="agent-panel__body">
+          <div class="agent-chart-wrap agent-chart-wrap--sm">
+            <canvas id="dealsChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-panel">
+      <div class="agent-panel__head">
+        <div>
+          <h2 class="agent-panel__title">Priority Follow-ups</h2>
+          <p class="agent-panel__sub">Leads with a scheduled callback date on or before today</p>
+        </div>
+        <% if (due.length) { %>
+          <span class="agent-tag agent-tag--due"><i class="bi bi-alarm"></i> <%= due.length %> action needed</span>
+        <% } %>
+      </div>
+      <div class="agent-panel__body agent-panel__body--flush">
+        <% if (!due.length) { %>
+          <div class="agent-empty"><i class="bi bi-check2-circle"></i>No overdue follow-ups. You're on track!</div>
+        <% } else { %>
+          <div class="crm-table-wrap table-responsive">
+            <table class="crm-table">
+              <thead>
+                <tr>
+                  <th>Contact</th>
+                  <th>Phone</th>
+                  <th>Project Need</th>
+                  <th>Callback Date</th>
+                  <th>Last Conversation</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% due.forEach(function(r){ %>
+                  <tr>
+                    <td>
+                      <div class="crm-lead-name"><%= r.name || 'Unnamed' %></div>
+                      <span class="agent-tag agent-tag--id">Lead #<%= r.lead_id %></span>
+                    </td>
+                    <td><span class="crm-linktext" onclick="copyText('<%= r.phone %>')"><%= r.phone || '—' %></span></td>
+                    <td><div class="crm-clamp2"><%= r.enquiry_title || '—' %></div></td>
+                    <td><strong class="text-danger"><%= r.next_followup_date %></strong></td>
+                    <td><div class="crm-clamp2 crm-small"><%= r.note || '—' %></div></td>
+                    <td class="text-end">
+                      <a href="/sales/my/pipeline?month=<%= filters.selectedMonth %>" class="agent-btn agent-btn--ghost agent-btn--sm">View in Pipeline</a>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  window.copyText = async function(t){
+    try { await navigator.clipboard.writeText(t||''); } catch(e){}
+  };
+</script>
+<%- include('partials/agent-dashboard-charts') %>
+</body>
+</html>

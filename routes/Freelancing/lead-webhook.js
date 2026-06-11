@@ -6,7 +6,7 @@ const SECRET =
   process.env.LEAD_WEBHOOK_KEY ||
   "MyStrongSecret123";
 
-router.post("/api/internal/lead-new", (req, res) => {
+router.post("/api/internal/lead-new", async (req, res) => {
   try {
     const incoming = String(req.headers["x-webhook-secret"] || "");
 
@@ -21,10 +21,15 @@ router.post("/api/internal/lead-new", (req, res) => {
       return res.status(500).json({ ok: false, message: "Socket not ready" });
     }
 
-    console.log("📣 lead-webhook OK. Emitting lead:new:", payload?.tempid || payload?.lead_id || "");
+    const sockets = await io.in("sales").fetchSockets();
+    console.log(
+      "📣 lead-webhook OK. Emitting lead:new:",
+      payload?.tempid || payload?.lead_id || "",
+      `(sales room: ${sockets.length} socket(s))`
+    );
 
     io.to("sales").emit("lead:new", payload);
-    return res.json({ ok: true });
+    return res.json({ ok: true, listeners: sockets.length });
   } catch (e) {
     console.error("lead-webhook error:", e);
     return res.status(500).json({ ok: false, message: "Server error" });

@@ -868,6 +868,23 @@ router.post('/add-project/insert',upload.single('zip'),(req,res)=> {
 
 router.get('/dashboard/project/report/:status', async (req, res) => {
   try {
+    if (req.params.status === 'success') {
+      const listLimit = projectReportShared.SUCCESS_DASHBOARD_LIMIT;
+      const projectDetails = await projectReportShared.fetchProjectReportsByStatus('success', {
+        limit: listLimit,
+        balanced: true,
+      });
+      const enriched = await projectReportShared.enrichProjectReportsForDashboard(projectDetails);
+      const stats = projectReportShared.buildReportStats(enriched);
+      return res.render(`${folder}/projectReportSuccess`, {
+        projectDetails: enriched,
+        status: req.params.status,
+        stats,
+        listLimit,
+        degreeTables: projectReportShared.PROJECT_REPORT_TABLES,
+        degreeLabels: projectReportShared.SOURCE_TABLE_DEGREE_LABEL,
+      });
+    }
     const projectDetails = await projectReportShared.fetchProjectReportsByStatus(req.params.status);
     res.render(`${folder}/projectReport`, { projectDetails, status: req.params.status });
   } catch (err) {

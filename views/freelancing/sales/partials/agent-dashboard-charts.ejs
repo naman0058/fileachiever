@@ -1,0 +1,219 @@
+<script>
+(function () {
+  const cd = <%- JSON.stringify(chartData) %>;
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+  Chart.defaults.color = '#64748b';
+  Chart.defaults.plugins.tooltip.backgroundColor = '#0f172a';
+  Chart.defaults.plugins.tooltip.padding = 12;
+  Chart.defaults.plugins.tooltip.cornerRadius = 10;
+  Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: '600' };
+  Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+
+  function formatINR(n) {
+    const v = Number(n) || 0;
+    if (v >= 100000) return '₹' + (v / 100000).toFixed(1) + 'L';
+    if (v >= 1000) return '₹' + (v / 1000).toFixed(1) + 'K';
+    return '₹' + v.toLocaleString('en-IN');
+  }
+
+  function formatINRFull(n) {
+    return '₹' + Number(n || 0).toLocaleString('en-IN');
+  }
+
+  function tooltipDate(index) {
+    const iso = cd.dailyLabelsIso && cd.dailyLabelsIso[index];
+    if (!iso) return cd.dailyLabelsFull?.[index] || cd.dailyLabels?.[index] || '';
+    const [y, m, d] = iso.split('-').map(Number);
+    if (!y || !m || !d) return iso;
+    return `${d} ${MONTHS[m - 1]} ${y}`;
+  }
+
+  const axisTicks = {
+    color: '#64748b',
+    font: { size: 11, weight: '500' },
+    padding: 6
+  };
+
+  const gridY = {
+    color: '#eef2f7',
+    drawBorder: false
+  };
+
+  function showEmptyChart(id, message) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.parentElement.innerHTML =
+      '<div class="agent-chart-empty"><i class="bi bi-graph-up"></i><span>' + message + '</span></div>';
+  }
+
+  if (!cd.dailyLabels || !cd.dailyLabels.length) {
+    showEmptyChart('revenueChart', 'No revenue recorded this month yet');
+    showEmptyChart('dealsChart', 'No closed deals this month yet');
+  } else {
+    const revCtx = document.getElementById('revenueChart');
+    if (revCtx) {
+      const gradient = revCtx.getContext('2d').createLinearGradient(0, 0, 0, 260);
+      gradient.addColorStop(0, 'rgba(37, 99, 235, 0.22)');
+      gradient.addColorStop(1, 'rgba(37, 99, 235, 0.01)');
+
+      new Chart(revCtx, {
+        type: 'line',
+        data: {
+          labels: cd.dailyLabels,
+          datasets: [{
+            label: 'Revenue',
+            data: cd.dailyRevenue,
+            borderColor: '#2563eb',
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.42,
+            borderWidth: 2.5,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#2563eb',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 12, right: 12, bottom: 0, left: 4 } },
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => tooltipDate(items[0]?.dataIndex),
+                label: (ctx) => 'Revenue: ' + formatINRFull(ctx.parsed.y)
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              border: { display: false },
+              ticks: {
+                ...axisTicks,
+                maxTicksLimit: 6,
+                callback: (v) => formatINR(v)
+              },
+              grid: gridY
+            },
+            x: {
+              border: { display: false },
+              ticks: {
+                ...axisTicks,
+                maxRotation: 0,
+                minRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 7
+              },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    const dealsCtx = document.getElementById('dealsChart');
+    if (dealsCtx) {
+      const dCtx = dealsCtx.getContext('2d');
+      const barGrad = dCtx.createLinearGradient(0, 0, 0, 220);
+      barGrad.addColorStop(0, '#22c55e');
+      barGrad.addColorStop(1, '#16a34a');
+
+      const maxDeals = Math.max(...cd.dailyDeals, 1);
+
+      new Chart(dealsCtx, {
+        type: 'bar',
+        data: {
+          labels: cd.dailyLabels,
+          datasets: [{
+            label: 'Deals Won',
+            data: cd.dailyDeals,
+            backgroundColor: barGrad,
+            hoverBackgroundColor: '#15803d',
+            borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 2, bottomRight: 2 },
+            borderSkipped: false,
+            maxBarThickness: 48
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 12, right: 12, bottom: 0, left: 4 } },
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => tooltipDate(items[0]?.dataIndex),
+                label: (ctx) => {
+                  const n = ctx.parsed.y;
+                  return n === 1 ? '1 deal closed' : n + ' deals closed';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              suggestedMax: Math.max(maxDeals + 1, 3),
+              border: { display: false },
+              ticks: {
+                ...axisTicks,
+                stepSize: 1,
+                precision: 0,
+                maxTicksLimit: 6
+              },
+              grid: gridY
+            },
+            x: {
+              border: { display: false },
+              ticks: {
+                ...axisTicks,
+                maxRotation: 0,
+                minRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 7
+              },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  const stageEl = document.getElementById('stageChart');
+  if (stageEl) {
+    new Chart(stageEl, {
+      type: 'doughnut',
+      data: {
+        labels: cd.stageLabels,
+        datasets: [{
+          data: cd.stageOpen,
+          backgroundColor: ['#6366f1', '#0ea5e9', '#f59e0b'],
+          borderWidth: 0,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12, weight: '600' } }
+          }
+        }
+      }
+    });
+  }
+})();
+</script>

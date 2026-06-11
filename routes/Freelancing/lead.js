@@ -1,11 +1,10 @@
 // lead.js (STRICT MODE + unlock + ad removal + safe skip)
-// npm i puppeteer mysql2 nodemailer node-notifier
+// npm i puppeteer mysql2 node-notifier
 
 require('dotenv').config();
 const puppeteer = require("puppeteer");
 const notifier = require("node-notifier");
 const mysql = require("mysql2/promise");
-const nodemailer = require("nodemailer");
 
 
 // ===================== CONFIG =====================
@@ -21,9 +20,6 @@ const DESC_SELECTOR = ".mb-15.hideshow2 .need-txt";
 
 const SINGLE_RUN = process.argv.includes("--single");
 
-// Email recipient
-const ALERT_TO_EMAIL = "manishacreation.work@gmail.com";
-
 // MySQL env
 const DB_HOST = process.env.DB_HOST || "localhost";
 const DB_PORT = Number(process.env.DB_PORT || 3306);
@@ -31,27 +27,15 @@ const DB_USER = process.env.DB_USER || "root";
 const DB_PASS = process.env.DB_PASSWORD || "";
 const DB_NAME = process.env.DB_NAME || "rockerstop";
 
-// SMTP (GoDaddy) - from .env (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS)
-const SMTP_HOST = process.env.SMTP_HOST || "smtpout.secureserver.net";
-const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
-
-if (!SMTP_USER || !SMTP_PASS) {
-  console.warn('[lead.js] SMTP_USER and SMTP_PASS must be set in .env for lead alert emails.');
-}
-
-const WEBHOOK_URL = process.env.LEAD_WEBHOOK_URL || "https://www.filemakr.com/salesalert/api/internal/lead-new";
+const SITE_BASE = (process.env.SITE_BASE_URL || process.env.APP_URL || "https://www.filemakr.com").replace(/\/$/, "");
+const WEBHOOK_URL = process.env.LEAD_WEBHOOK_URL || `${SITE_BASE}/salesalert/api/internal/lead-new`;
 const WEBHOOK_SECRET =
   process.env.LEAD_WEBHOOK_SECRET ||
   process.env.LEAD_WEBHOOK_KEY ||
   "MyStrongSecret123";
 
-
-
-
- async function notifyServerNewLead(payload) {
- const resp = await fetch(WEBHOOK_URL, {
+async function notifyServerNewLead(payload) {
+  const resp = await fetch(WEBHOOK_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -137,15 +121,14 @@ async function upsertLeadByTempid(lead) {
   const pool = await getDb();
 
   const [existing] = await pool.execute(
-    "SELECT id, email_sent FROM rockerstop_leads WHERE tempid=? LIMIT 1",
+    "SELECT id FROM rockerstop_leads WHERE tempid=? LIMIT 1",
     [lead.TempID]
   );
 
   if (existing.length) {
     return {
       inserted: false,
-      leadId: existing[0].id,
-      emailSent: !!existing[0].email_sent
+      leadId: existing[0].id
     };
   }
 
@@ -167,67 +150,7 @@ async function upsertLeadByTempid(lead) {
   ];
 
   const [result] = await pool.execute(sql, params);
-  return { inserted: true, leadId: result.insertId, emailSent: false };
-}
-
-async function markEmailStatus(leadId, { sent, error }) {
-  const pool = await getDb();
-  if (sent) {
-    await pool.execute(
-      "UPDATE rockerstop_leads SET email_sent=1, email_error=NULL, emailed_at_utc=? WHERE id=?",
-      [nowUTCDateTimeString(), leadId]
-    );
-  } else {
-    await pool.execute(
-      "UPDATE rockerstop_leads SET email_sent=0, email_error=?, emailed_at_utc=NULL WHERE id=?",
-      [error ? String(error).slice(0, 4000) : "Unknown error", leadId]
-    );
-  }
-}
-
-
-
-
-// ===================== EMAIL =====================
-let mailer = null;
-
-function getMailer() {
-  if (mailer) return mailer;
-
-  mailer = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_PORT === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-    requireTLS: SMTP_PORT === 587,
-    tls: { minVersion: "TLSv1.2" }
-  });
-
-  return mailer;
-}
-
-async function sendLeadEmail(lead) {
-  const transporter = getMailer();
-
-  const subject = `New Rockerstop Lead (tempid=${lead.TempID})`;
-  const text = [
-    `New lead saved to MySQL.`,
-    ``,
-    `TempID: ${lead.TempID}`,
-    `Name: ${lead.Name || ""}`,
-    `Phone: ${lead.Phone || ""}`,
-    `Enquiry: ${lead.Title || ""}`,
-    `Description: ${lead.Description || ""}`,
-    `URL: ${lead.LeadURL || ""}`,
-    `Detected (UTC): ${lead.DetectedAtUTC}`
-  ].join("\n");
-
-  await transporter.sendMail({
-    from: `"Rockerstop Lead Bot" <${SMTP_USER}>`,
-    to: ALERT_TO_EMAIL,
-    subject,
-    text
-  });
+  return { inserted: true, leadId: result.insertId };
 }
 
 // ===================== PAGE HELPERS =====================
@@ -546,33 +469,34 @@ async function processCurrentTempid(page) {
     DetectedAtUTC: nowUTCDateTimeString()
   };
 
-  // 6) Insert into DB
+  // 6) Insert into DB + realtime alert
   let leadId;
-  let emailSentAlready = false;
 
   try {
     const r = await upsertLeadByTempid(lead);
     leadId = r.leadId;
-    emailSentAlready = r.emailSent;
 
     if (!r.inserted) {
       console.warn(
         `⚠️ Duplicate tempid=${tempid} already exists in DB (id=${leadId}).`
       );
     } else {
+      try {
         await notifyServerNewLead({
-    lead_id: leadId,
-    tempid: lead.TempID,
-    name: lead.Name,
-    phone: lead.Phone,
-    enquiry_title: lead.Title,
-    created_at: new Date().toISOString()
-  });
-      console.log(`✅ Inserted into MySQL (id=${leadId}).`);
+          lead_id: leadId,
+          tempid: lead.TempID,
+          name: lead.Name,
+          phone: lead.Phone,
+          enquiry_title: lead.Title,
+          created_at: new Date().toISOString()
+        });
+        console.log(`✅ Inserted into MySQL (id=${leadId}) and realtime alert sent.`);
+      } catch (notifyErr) {
+        console.error("⚠️ Realtime alert failed (lead saved):", notifyErr.message);
+      }
     }
   } catch (e) {
     console.error("❌ DB insert failed:", e.message);
-    // do not advance; retry after DB is fixed
     return { advanced: false, hasEnquiry: true };
   }
 
@@ -581,41 +505,12 @@ async function processCurrentTempid(page) {
   await updateTempid(nextTempid);
   console.log(`➡️ Advanced tempid in DB: ${tempid} -> ${nextTempid}`);
 
-  // 8) Send email (non-blocking for tempid progression)
-  if (emailSentAlready) {
-     await notifyServerNewLead({
-    lead_id: leadId,
-    tempid: lead.TempID,
-    name: lead.Name,
-    phone: lead.Phone,
-    enquiry_title: lead.Title,
-    created_at: new Date().toISOString()
-  });
-    console.log(
-      `📧 Email already sent earlier for tempid=${tempid}. Skipping email.`
-    );
-    return { advanced: true, hasEnquiry: true };
-  }
-
-  try {
-    // await sendLeadEmail(lead);
-    await markEmailStatus(leadId, { sent: true });
-    console.log(`✅ Email sent to ${ALERT_TO_EMAIL}.`);
-  } catch (e) {
-    await markEmailStatus(leadId, { sent: false, error: e.message });
-    console.error(
-      "⚠️ Email failed, but tempid already advanced:",
-      e.message
-    );
-  }
-
   return { advanced: true, hasEnquiry: true };
 }
 
 // ===================== MAIN =====================
 (async () => {
   await getDb();
-  getMailer();
 
   const settings = await getSettings();
 

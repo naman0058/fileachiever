@@ -41,7 +41,8 @@ function configureEjsEngine(appInstance) {
   });
 }
 
-const { leadWatcher } = require('./routes/Freelancing/lead-watcher');
+const { startLeadWatcher } = require('./routes/Freelancing/lead-watcher');
+const { verifySocketAuthToken } = require('./utils/socketAuth');
 // require('./routes/leaderboardCron'); // disabled
 
 const manishaRouter = require('./subdomains/manisha');
@@ -105,7 +106,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000,
   httpOnly: true,
   sameSite: 'lax',
-  secure: false
+  // Secure cookies only work over HTTPS. Localhost uses HTTP even with NODE_ENV=production.
+  secure: process.env.COOKIE_SECURE === 'true' || process.env.COOKIE_SECURE === '1'
 }));
 
 // ======================================================
@@ -346,6 +348,12 @@ function verifyCookieSession(parsedCookies) {
 
 io.use((socket, next) => {
   try {
+    const tokenUser = verifySocketAuthToken(socket.handshake.auth?.token);
+    if (tokenUser) {
+      socket.user = tokenUser;
+      return next();
+    }
+
     const raw = socket.request.headers.cookie || '';
     const parsed = cookie.parse(raw);
 
@@ -447,8 +455,12 @@ app.use(require('./routes'));
 // CRONS / WATCHERS
 // ======================================================
 try {
-  if (typeof leadWatcher === 'function') {
-    leadWatcher();
+  const disabled =
+    process.env.LEAD_WATCHER_ENABLED === '0' ||
+    process.env.LEAD_WATCHER_ENABLED === 'false';
+  const instanceId = String(process.env.NODE_APP_INSTANCE ?? process.env.pm_id ?? '0');
+  if (!disabled && instanceId === '0') {
+    startLeadWatcher();
   }
 } catch (e) {
   console.error('leadWatcher failed:', e);

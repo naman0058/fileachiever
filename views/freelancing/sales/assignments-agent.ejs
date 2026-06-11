@@ -1,0 +1,167 @@
+<%
+  function buildUrl(params){
+    const url = new URL('http://x/sales/my');
+    Object.entries(params).forEach(([k,v]) => {
+      if (v === undefined || v === null || v === '') url.searchParams.delete(k);
+      else url.searchParams.set(k, String(v));
+    });
+    return url.pathname + url.search;
+  }
+  function escAttr(s){
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/agent-head', { pageTitle }) %></head>
+<body class="agent-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap">
+    <%- include('partials/agent-sidebar', { user, active }) %>
+  </div>
+  <main class="agent-main">
+    <%- include('partials/lead-socket-alert') %>
+
+    <header class="agent-page-header">
+      <div>
+        <h1>Lead Directory</h1>
+        <p>Searchable list of all assigned contacts — filter by stage, status, or month and take action on each row.</p>
+      </div>
+      <div class="agent-page-header__actions">
+        <div class="agent-view-tabs">
+          <a href="/sales/my/pipeline?month=<%= filters.selectedMonth %>"><i class="bi bi-columns-gap"></i> Board</a>
+          <a href="/sales/my?month=<%= filters.selectedMonth %>" class="is-active"><i class="bi bi-list-ul"></i> List</a>
+        </div>
+      </div>
+    </header>
+
+    <% if (stats) { %>
+    <div class="agent-metrics" style="margin-bottom:20px;">
+      <div class="agent-metric" style="--metric-accent:#6366f1;--metric-bg:#eef2ff;padding:14px 18px;">
+        <div class="agent-metric__label">Showing</div>
+        <div class="agent-metric__value" style="font-size:22px;"><%= stats.total %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#0ea5e9;--metric-bg:#e0f2fe;padding:14px 18px;">
+        <div class="agent-metric__label">New Inquiry</div>
+        <div class="agent-metric__value" style="font-size:22px;"><%= stats.newOpen %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;padding:14px 18px;">
+        <div class="agent-metric__label">High Intent</div>
+        <div class="agent-metric__value" style="font-size:22px;"><%= stats.interestedOpen %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;padding:14px 18px;">
+        <div class="agent-metric__label">Won This Month</div>
+        <div class="agent-metric__value" style="font-size:22px;"><%= stats.salesCount %></div>
+      </div>
+    </div>
+    <% } %>
+
+    <div class="agent-table-card">
+      <div class="crm-filters" style="grid-template-columns:repeat(4,1fr);">
+        <div class="crm-field">
+          <label>Reporting Month</label>
+          <select class="form-select" onchange="location.href=this.value">
+            <% filters.monthOptions.forEach(function(mm){ %>
+              <option value="<%= buildUrl({ month: mm, stage: filters.stage, status: filters.status, q: filters.q }) %>" <%= mm===filters.selectedMonth?'selected':'' %>><%= mm %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="crm-field">
+          <label>Assignment Status</label>
+          <select class="form-select" onchange="location.href=this.value">
+            <% [{k:'open',l:'Active'},{k:'rejected',l:'Disqualified'},{k:'closed',l:'Closed'}].forEach(function(st){ %>
+              <option value="<%= buildUrl({ status: st.k, month: filters.selectedMonth, stage: filters.stage, q: filters.q }) %>" <%= st.k===filters.status?'selected':'' %>><%= st.l %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="crm-field">
+          <label>Sales Stage</label>
+          <select class="form-select" onchange="location.href=this.value">
+            <option value="<%= buildUrl({ stage:'', month: filters.selectedMonth, status: filters.status, q: filters.q }) %>" <%= !filters.stage?'selected':'' %>>All Stages</option>
+            <% stages.forEach(function(s){ %>
+              <option value="<%= buildUrl({ stage: s.key, month: filters.selectedMonth, status: filters.status, q: filters.q }) %>" <%= s.key===filters.stage?'selected':'' %>><%= s.label %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="crm-field">
+          <label>Search Contacts</label>
+          <form method="GET" action="/sales/my" class="d-flex gap-2">
+            <input type="hidden" name="month" value="<%= filters.selectedMonth %>"/>
+            <input type="hidden" name="status" value="<%= filters.status %>"/>
+            <input type="hidden" name="stage" value="<%= filters.stage %>"/>
+            <input class="form-control" name="q" value="<%= filters.q||'' %>" placeholder="Name, phone, project…"/>
+            <button class="agent-btn agent-btn--primary" type="submit"><i class="bi bi-search"></i></button>
+          </form>
+        </div>
+      </div>
+
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>Contact</th>
+              <th>Project Need</th>
+              <th>Sales Stage</th>
+              <th>Next Callback</th>
+              <th>Last Note</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="6" class="agent-empty"><i class="bi bi-inbox"></i>No leads match your filters.</td></tr>
+            <% } %>
+            <% rows.forEach(function(r){ %>
+              <tr class="crm-row"
+                data-assignment-id="<%= r.assignment_id %>"
+                data-lead-name="<%= escAttr(r.name||'') %>"
+                data-lead-phone="<%= escAttr(r.phone||'') %>"
+                data-lead-enquiry="<%= escAttr(r.enquiry_title||'') %>">
+                <td>
+                  <div class="crm-lead-name"><%= r.name||'Unnamed' %> <span class="crm-chip">#<%= r.tempid %></span></div>
+                  <div class="crm-small mt-1">
+                    <span class="crm-linktext" onclick="copyText('<%= (r.phone||'').replace(/'/g,"\\'") %>')"><%= r.phone||'—' %></span>
+                    · <%= new Date(r.detected_at_utc).toLocaleDateString() %>
+                  </div>
+                </td>
+                <td>
+                  <div style="font-weight:800;"><%= r.enquiry_title||'—' %></div>
+                  <div class="crm-small crm-clamp2"><%= r.enquiry_description||'' %></div>
+                </td>
+                <td>
+                  <div class="crm-pills">
+                    <% stages.forEach(function(s){ %>
+                      <button type="button" class="crm-pill <%= r.assignment_stage===s.key?'on':'' %>" onclick="setStage(<%= r.assignment_id %>,'<%= s.key %>')"><%= s.short %></button>
+                    <% }) %>
+                  </div>
+                  <% if (r.assignment_status!=='open') { %>
+                    <span class="agent-badge agent-badge--<%= r.assignment_status==='rejected'?'danger':'muted' %> mt-2"><%= r.assignment_status==='rejected'?'Disqualified':r.assignment_status %></span>
+                    <% if (r.assignment_reject_reason) { %><div class="crm-small mt-1"><%= r.assignment_reject_reason %></div><% } %>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (r.last_next_followup_date) { %>
+                    <strong><%= r.last_next_followup_date %></strong>
+                  <% } else { %>—<% } %>
+                </td>
+                <td><div class="crm-clamp2 crm-small"><%= r.last_note||'No notes yet' %></div></td>
+                <td class="text-end">
+                  <div class="crm-actions">
+                    <button class="agent-btn agent-btn--ghost agent-btn--sm" onclick="openLogs(<%= r.assignment_id %>,'<%= (r.name||'').replace(/'/g,"\\'") %>')"><i class="bi bi-journal-text"></i></button>
+                    <% if (r.assignment_status==='open' && r.lead_status==='open') { %>
+                      <button class="agent-btn agent-btn--danger agent-btn--sm" onclick="openReject(<%= r.assignment_id %>,'<%= (r.name||'').replace(/'/g,"\\'") %>')">Disqualify</button>
+                      <button class="agent-btn agent-btn--success agent-btn--sm" onclick="openConvert(<%= r.assignment_id %>,'<%= (r.name||'').replace(/'/g,"\\'") %>')"><i class="bi bi-trophy"></i> Won</button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<%- include('partials/agent-lead-modals') %>
+</body>
+</html>

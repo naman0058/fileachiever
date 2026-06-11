@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title><%= pageTitle %></title>
-
-  <!-- Bootstrap first -->
+  <title><%= pageTitle %> · Sales CRM</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Your CRM UI last -->
-  <link rel="stylesheet" href="/sales/sales.css?v=4">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/sales/sales.css?v=5">
 </head>
 <body>
 
 <%
   const basePath = (mode === 'admin') ? '/sales/admin/sales' : '/sales/my/sales';
+  const month = filters.selectedMonth;
+  const t = totals || {};
 %>
 
 <div class="crm-layout">
@@ -24,131 +23,134 @@
 
   <main class="crm-main">
 
-    <!-- Topbar -->
-    <div class="topbar d-flex align-items-start justify-content-between gap-3 flex-wrap">
+    <div class="crm-topbar d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
       <div>
-        <div class="h1 mb-1"><%= pageTitle %></div>
-        <div class="mutedSmall">Month filter and search across sales records.</div>
+        <div class="crm-title d-flex align-items-center gap-2">
+          <i class="bi bi-receipt"></i>
+          <span><%= pageTitle %></span>
+        </div>
+        <div class="crm-subtitle">
+          <% if (mode === 'agent') { %>
+            Your converted sales for <strong><%= month %></strong> — track revenue and delivery status.
+          <% } else { %>
+            Month filter and search across all sales records.
+          <% } %>
+        </div>
       </div>
 
       <form method="GET" action="<%= basePath %>" class="d-flex align-items-end gap-2 flex-wrap">
-        <div class="field" style="min-width:180px;">
+        <div class="crm-field" style="min-width:160px;margin:0;">
           <label>Month</label>
-          <select name="month" onchange="this.form.submit()">
+          <select name="month" class="form-select" onchange="this.form.submit()">
             <% filters.monthOptions.forEach(function(m){ %>
-              <option value="<%= m %>" <%= m===filters.selectedMonth ? 'selected' : '' %>><%= m %></option>
+              <option value="<%= m %>" <%= m===month ? 'selected' : '' %>><%= m %></option>
             <% }) %>
           </select>
         </div>
-
-        <div class="field" style="min-width:260px;">
+        <div class="crm-field" style="min-width:220px;margin:0;">
           <label>Search</label>
-          <input name="q" value="<%= filters.q || '' %>" placeholder="name / phone / enquiry / assign"/>
+          <input class="form-control" name="q" value="<%= filters.q || '' %>" placeholder="Name / phone / enquiry"/>
         </div>
-
-        <button class="btn btn-primary" type="submit">Search</button>
-
+        <button class="btn btn-primary btn-soft" type="submit"><i class="bi bi-search"></i> Search</button>
         <% if (mode === 'admin') { %>
-          <a class="btn btn-outline-primary" href="/sales/admin/new-sale">Direct Sale Entry</a>
+          <a class="btn btn-outline-primary btn-soft" href="/sales/admin/new-sale">Direct Sale Entry</a>
+        <% } else { %>
+          <a class="btn btn-light btn-soft-outline" href="/sales/my/report?month=<%= month %>">
+            <i class="bi bi-graph-up-arrow"></i> Full Report
+          </a>
         <% } %>
       </form>
     </div>
 
-    <!-- Sales Table Card -->
+    <% if (mode === 'agent' && t.total_sales != null) { %>
+    <div class="crm-kpis mb-3">
+      <div class="crm-kpi">
+        <div class="crm-kpi-label">Total Sales</div>
+        <div class="crm-kpi-val"><%= t.total_sales || 0 %></div>
+      </div>
+      <div class="crm-kpi">
+        <div class="crm-kpi-label">Revenue</div>
+        <div class="crm-kpi-val">₹<%= Number(t.total_revenue || 0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="crm-kpi">
+        <div class="crm-kpi-label">Advance</div>
+        <div class="crm-kpi-val">₹<%= Number(t.total_advance || 0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="crm-kpi">
+        <div class="crm-kpi-label">Agent Price</div>
+        <div class="crm-kpi-val">₹<%= Number(t.total_agent_price || 0).toLocaleString('en-IN') %></div>
+      </div>
+    </div>
+    <% } %>
+
     <div class="crm-card">
-      <div class="p-3 border-bottom" style="border-color: var(--line) !important;">
-        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-          <div>
-            <div class="fw-bold">Sales Records</div>
-            <div class="mutedSmall">Total: <%= rows.length %></div>
-          </div>
+      <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2" style="border-color:var(--line)!important;">
+        <div>
+          <div class="fw-bold">Sales Records</div>
+          <div class="crm-small"><%= rows.length %> record(s) · <%= month %></div>
         </div>
+        <% if (mode === 'agent') { %>
+          <a href="/sales/my" class="btn btn-sm btn-light btn-soft-outline"><i class="bi bi-kanban"></i> Work on Leads</a>
+        <% } %>
       </div>
 
-      <div class="p-3">
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead>
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Client</th>
+              <th>Enquiry</th>
+              <th class="text-end">Lead Price</th>
+              <% if (mode === 'agent') { %><th class="text-end">Advance</th><% } %>
+              <th>Status</th>
+              <% if (mode === 'admin') { %><th>Sales Person</th><% } %>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="<%= mode==='admin' ? 7 : 7 %>" class="crm-small p-4 text-center">
+                No sales found. Convert leads from <a href="/sales/my">My Leads</a> to see them here.
+              </td></tr>
+            <% } %>
+            <% rows.forEach(function(r){ %>
               <tr>
-                <th style="width:90px;">ID</th>
-                <th>Name</th>
-                <th>Number</th>
-                <th style="min-width:260px;">Enquiry</th>
-                <th class="text-end" style="width:140px;">Lead Price</th>
-                <th style="width:140px;">Status</th>
-                <th style="width:160px;">Sales Person</th>
-                <th style="width:200px;">Created</th>
+                <td><span class="crm-chip">#<%= r.id %></span></td>
+                <td>
+                  <div class="crm-lead-name"><%= r.name || '-' %></div>
+                  <% if (r.number) { %>
+                    <span class="crm-linktext crm-small" onclick="copyText('<%= r.number %>')"><%= r.number %></span>
+                  <% } %>
+                </td>
+                <td><div class="crm-clamp2" style="max-width:320px;"><%= r.enquiry || '-' %></div></td>
+                <td class="text-end fw-bold">₹<%= Number(r.lead_price || 0).toLocaleString('en-IN') %></td>
+                <% if (mode === 'agent') { %>
+                  <td class="text-end">₹<%= Number(r.advance_amount || 0).toLocaleString('en-IN') %></td>
+                <% } %>
+                <td>
+                  <span class="agent-badge <%= (r.status||'').toLowerCase()==='closed' ? 'agent-badge--success' : 'agent-badge--muted' %>">
+                    <%= r.status || '-' %>
+                  </span>
+                </td>
+                <% if (mode === 'admin') { %>
+                  <td><%= r.sales_person_assign || '-' %></td>
+                <% } %>
+                <td class="crm-small"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '-' %></td>
               </tr>
-            </thead>
-
-            <tbody>
-              <% if (!rows.length) { %>
-                <tr>
-                  <td colspan="8" class="mutedSmall py-4">
-                    No sales found for this month.
-                  </td>
-                </tr>
-              <% } %>
-
-              <% rows.forEach(function(r){ %>
-                <tr>
-                  <td class="fw-semibold">#<%= r.id %></td>
-
-                  <td>
-                    <div class="fw-semibold"><%= r.name || '-' %></div>
-                  </td>
-
-                  <td>
-                    <% if (r.number) { %>
-                      <span class="link" onclick="copyText('<%= r.number %>')"><%= r.number %></span>
-                      <div class="mutedSmall">Click to copy</div>
-                    <% } else { %>
-                      <span class="mutedSmall">-</span>
-                    <% } %>
-                  </td>
-
-                  <td class="clamp2" style="max-width:520px;">
-                    <%= (r.enquiry || '-').slice(0, 220) %>
-                  </td>
-
-                  <td class="text-end fw-bold">
-                    ₹<%= Number(r.lead_price || 0).toFixed(0) %>
-                  </td>
-
-                  <td>
-                    <span class="badge rounded-pill
-                      <%= (r.status || '').toLowerCase() === 'open' ? 'text-primary border border-primary-subtle bg-primary-subtle' :
-                          (r.status || '').toLowerCase() === 'closed' ? 'text-success border border-success-subtle bg-success-subtle' :
-                          'text-secondary border border-secondary-subtle bg-secondary-subtle' %>
-                      px-3 py-2">
-                      <%= r.status || '-' %>
-                    </span>
-                  </td>
-
-                  <td>
-                    <%= r.sales_person_assign || '-' %>
-                  </td>
-
-                  <td class="mutedSmall">
-                    <%= r.created_at ? new Date(r.created_at).toLocaleString() : '-' %>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
+            <% }) %>
+          </tbody>
+        </table>
       </div>
     </div>
 
   </main>
 </div>
 
-<!-- helper -->
 <script>
   window.copyText = async function(text){
-    try{
-      await navigator.clipboard.writeText(text || '');
-    }catch(e){
+    try { await navigator.clipboard.writeText(text || ''); }
+    catch(e) {
       const ta = document.createElement('textarea');
       ta.value = text || '';
       document.body.appendChild(ta);
@@ -158,6 +160,5 @@
     }
   };
 </script>
-
 </body>
 </html>

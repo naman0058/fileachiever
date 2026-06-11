@@ -1,0 +1,57 @@
+<aside class="agent-sidebar">
+  <div class="agent-sidebar__brand">
+    <div class="agent-logo">
+      <span class="agent-logo__mark"><i class="bi bi-lightning-charge-fill"></i></span>
+      <div>
+        <div class="agent-logo__title">FileMakr</div>
+        <div class="agent-logo__sub">Sales Hub</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="agent-nav">
+    <span class="agent-nav__section">Main</span>
+    <a class="agent-nav__link <%= active === 'overview' ? 'is-active' : '' %>" href="/sales/my/overview">
+      <i class="bi bi-grid-1x2-fill"></i>
+      <span>Sales Dashboard</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'pipeline' ? 'is-active' : '' %>" href="/sales/my/pipeline">
+      <i class="bi bi-columns-gap"></i>
+      <span>Pipeline Board</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'assignments' ? 'is-active' : '' %>" href="/sales/my">
+      <i class="bi bi-people-fill"></i>
+      <span>Lead Directory</span>
+    </a>
+
+    <span class="agent-nav__section">Outcomes</span>
+    <a class="agent-nav__link <%= active === 'sales' ? 'is-active' : '' %>" href="/sales/my/sales">
+      <i class="bi bi-trophy-fill"></i>
+      <span>Closed Won Deals</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'rejectedLeads' ? 'is-active' : '' %>" href="/sales/my/rejected-leads">
+      <i class="bi bi-slash-circle"></i>
+      <span>Disqualified Leads</span>
+    </a>
+
+    <span class="agent-nav__section">Insights</span>
+    <a class="agent-nav__link <%= active === 'agentReport' ? 'is-active' : '' %>" href="/sales/my/report">
+      <i class="bi bi-bar-chart-line-fill"></i>
+      <span>Performance Analytics</span>
+    </a>
+  </nav>
+
+  <div class="agent-sidebar__footer">
+    <div class="agent-user-card">
+      <div class="agent-user-card__avatar"><%= (user.name || 'A').charAt(0).toUpperCase() %></div>
+      <div class="agent-user-card__info">
+        <div class="agent-user-card__name"><%= user.name %></div>
+        <div class="agent-user-card__role">Sales Executive</div>
+      </div>
+    </div>
+    <a class="agent-nav__link agent-nav__link--logout" href="/auth/logout">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Sign Out</span>
+    </a>
+  </div>
+</aside>

@@ -52,7 +52,7 @@ router.post('/login', (req, res) => {
       }
 
       if (result.length > 0) {
-          req.session.freelancing = result[0].id;
+          req.session.affiliation = result[0].id;
           return res.redirect('/freelancing/dashboard');
       } 
 

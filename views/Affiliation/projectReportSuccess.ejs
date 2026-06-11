@@ -1,0 +1,482 @@
+<% include ./header.ejs %>
+
+<style>
+  .pr-success-page { --pr-blue: #2A47FF; --pr-orange: #F17F23; --pr-ink: #0f172a; --pr-muted: #64748b; --pr-bg: #f4f6fb; --pr-card: #fff; }
+  .pr-success-hero {
+    background: linear-gradient(135deg, #2A47FF 0%, #1e3a8a 55%, #0f172a 100%);
+    border-radius: 16px;
+    padding: 22px 24px;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .pr-success-hero h1 { margin: 0 0 6px; font-size: 22px; font-weight: 800; }
+  .pr-success-hero p { margin: 0; opacity: .9; font-size: 14px; }
+  .pr-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .pr-stat-card {
+    background: var(--pr-card);
+    border: 1px solid rgba(14,18,32,.08);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 8px rgba(14,18,32,.04);
+  }
+  .pr-stat-card strong { display: block; font-size: 24px; font-weight: 800; color: var(--pr-blue); line-height: 1.1; }
+  .pr-stat-card span { font-size: 12px; font-weight: 600; color: var(--pr-muted); text-transform: uppercase; letter-spacing: .03em; }
+  .pr-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .pr-search {
+    flex: 1;
+    min-width: 220px;
+    max-width: 420px;
+    position: relative;
+  }
+  .pr-search input {
+    width: 100%;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid rgba(14,18,32,.12);
+    padding: 0 14px 0 38px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .pr-search i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--pr-muted);
+    font-size: 16px;
+  }
+  .pr-degree-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .pr-degree-pill {
+    border: 1px solid rgba(14,18,32,.1);
+    background: #fff;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pr-muted);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .pr-degree-pill.active, .pr-degree-pill:hover {
+    background: rgba(42,71,255,.1);
+    border-color: var(--pr-blue);
+    color: var(--pr-blue);
+  }
+  .pr-card {
+    background: var(--pr-card);
+    border: 1px solid rgba(14,18,32,.08);
+    border-radius: 16px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(14,18,32,.05);
+  }
+  .pr-card.is-hidden { display: none; }
+  .pr-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(14,18,32,.06);
+    cursor: pointer;
+  }
+  .pr-card__head:hover { background: rgba(42,71,255,.03); }
+  .pr-card__title { margin: 0 0 4px; font-size: 16px; font-weight: 800; color: var(--pr-ink); }
+  .pr-card__sub { margin: 0; font-size: 13px; color: var(--pr-muted); font-weight: 600; }
+  .pr-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .pr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+  .pr-badge--degree { background: rgba(42,71,255,.1); color: var(--pr-blue); }
+  .pr-badge--ok { background: rgba(22,163,74,.1); color: #15803d; }
+  .pr-badge--muted { background: rgba(14,18,32,.06); color: var(--pr-muted); }
+  .pr-card__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pr-card__body { padding: 0 18px 18px; display: none; }
+  .pr-card.is-open .pr-card__body { display: block; }
+  .pr-card.is-open .pr-chevron { transform: rotate(180deg); }
+  .pr-chevron { transition: transform .2s; color: var(--pr-muted); }
+  .pr-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .pr-detail-block {
+    background: var(--pr-bg);
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid rgba(14,18,32,.05);
+  }
+  .pr-detail-block h4 {
+    margin: 0 0 10px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--pr-blue);
+  }
+  .pr-detail-row {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(14,18,32,.05);
+    font-size: 13px;
+  }
+  .pr-detail-row:last-child { border-bottom: none; }
+  .pr-detail-row dt {
+    flex: 0 0 42%;
+    margin: 0;
+    font-weight: 700;
+    color: var(--pr-muted);
+  }
+  .pr-detail-row dd {
+    flex: 1;
+    margin: 0;
+    font-weight: 600;
+    color: var(--pr-ink);
+    word-break: break-word;
+  }
+  .pr-detail-row dd a { color: var(--pr-blue); font-weight: 700; }
+  .pr-stack-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pr-stack-tag {
+    background: #fff;
+    border: 1px solid rgba(42,71,255,.2);
+    color: var(--pr-blue);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .pr-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--pr-muted);
+    font-weight: 600;
+  }
+  #loader-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,.5); display: none; justify-content: center; align-items: center; z-index: 9999;
+  }
+  #loader {
+    border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%;
+    width: 50px; height: 50px; animation: pr-spin 1s linear infinite;
+  }
+  @keyframes pr-spin { to { transform: rotate(360deg); } }
+  .pr-export-table { display: none; }
+  @media (max-width: 767px) {
+    .pr-card__head { flex-direction: column; }
+    .pr-card__actions { width: 100%; }
+  }
+</style>
+
+<div class="content-body pr-success-page">
+  <div class="container-fluid">
+    <div class="pr-success-hero">
+      <h1>Completed project reports</h1>
+      <p>Latest <%= typeof listLimit !== 'undefined' ? listLimit : 10 %> completed orders — one recent entry from each degree table (B.Tech, BCA, MCA, BE, ME, M.Tech, BSc, MSc) where available. Expand a card for full details.</p>
+    </div>
+
+    <div class="pr-stat-grid">
+      <div class="pr-stat-card">
+        <strong><%= stats.total %></strong>
+        <span>Total completed</span>
+      </div>
+      <div class="pr-stat-card">
+        <strong><%= stats.pendingFeedback %></strong>
+        <span>Pending feedback</span>
+      </div>
+      <div class="pr-stat-card">
+        <strong><%= stats.feedbackSent %></strong>
+        <span>Feedback sent</span>
+      </div>
+      <div class="pr-stat-card">
+        <strong><%= Object.keys(stats.byDegree).length %></strong>
+        <span>Degree programs</span>
+      </div>
+    </div>
+
+    <% if (stats.byDegree && Object.keys(stats.byDegree).length) { %>
+    <div class="pr-degree-pills" id="DegreeFilters">
+      <button type="button" class="pr-degree-pill active" data-degree-filter="all">All (<%= stats.total %>)</button>
+      <% Object.keys(stats.byDegree).sort().forEach(function(deg) { %>
+        <button type="button" class="pr-degree-pill" data-degree-filter="<%= deg %>"><%= deg %> (<%= stats.byDegree[deg] %>)</button>
+      <% }); %>
+    </div>
+    <% } %>
+
+    <div class="pr-toolbar">
+      <div class="pr-search">
+        <i class="fa fa-search"></i>
+        <input type="search" id="PrSearch" placeholder="Search name, roll, email, college, project…" autocomplete="off" />
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-primary btn-sm" onclick="mergeData('btech_project')">Merge duplicates</button>
+        <button type="button" class="btn btn-dark btn-sm" onclick="exportTableToCSV('completed-project-reports.csv')">Download CSV</button>
+      </div>
+    </div>
+
+    <div id="PrCardList">
+      <% if (!projectDetails.length) { %>
+        <div class="pr-empty">No completed project reports yet.</div>
+      <% } %>
+
+      <% for (let i = 0; i < projectDetails.length; i++) {
+        const row = projectDetails[i];
+        const src = row.source_table || 'btech_project';
+        const title = (row.seo_name || '').replace(/-/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+        const searchBlob = [
+          row.name, row.email, row.number, row.roll_number, row.college_name,
+          row.affilated_college_name, title, row.project_name, row.degree_label,
+          row.report_type, row.department, src
+        ].join(' ').toLowerCase();
+      %>
+      <article class="pr-card<%= i === 0 ? ' is-open' : '' %>"
+               data-degree="<%= row.degree_label || row.report_type || '' %>"
+               data-search="<%= searchBlob %>">
+        <div class="pr-card__head" role="button" tabindex="0" aria-expanded="<%= i === 0 ? 'true' : 'false' %>">
+          <div>
+            <h3 class="pr-card__title"><%= row.name %></h3>
+            <p class="pr-card__sub">
+              <%= row.roll_number %> · <%= row.email || '—' %> · <%= row.number || '—' %>
+            </p>
+            <div class="pr-badges">
+              <span class="pr-badge pr-badge--degree"><%= row.degree_label || row.report_type %></span>
+              <span class="pr-badge pr-badge--ok"><%= row.status %></span>
+              <span class="pr-badge pr-badge--muted"><%= src %></span>
+              <% if (row.date) { %><span class="pr-badge pr-badge--muted"><%= row.date %></span><% } %>
+            </div>
+          </div>
+          <div class="pr-card__actions" onclick="event.stopPropagation()">
+            <a href="/view-user-report?roll_number=<%= encodeURIComponent(row.roll_number) %>&amp;source_table=<%= encodeURIComponent(src) %>"
+               target="_blank" class="btn btn-primary btn-sm light">View report</a>
+            <% if (row.israting === 'send') { %>
+              <span class="badge badge-secondary light">Feedback sent</span>
+            <% } else { %>
+              <button type="button" class="btn btn-success btn-sm light pr-act-cross"
+                data-id="<%= row.id %>"
+                data-name="<%= row.name %>"
+                data-email="<%= row.email %>"
+                data-roll="<%= row.roll_number %>"
+                data-project="<%= title %>"
+                data-number="<%= row.number %>"
+                data-src="<%= src %>">Cross sales</button>
+              <button type="button" class="btn btn-warning btn-sm light pr-act-rating"
+                data-id="<%= row.id %>"
+                data-name="<%= row.name %>"
+                data-number="<%= row.number %>"
+                data-roll="<%= row.roll_number %>"
+                data-project="<%= title %>"
+                data-src="<%= src %>">Request feedback</button>
+            <% } %>
+            <i class="fa fa-chevron-down pr-chevron" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <div class="pr-card__body">
+          <div class="pr-detail-grid">
+            <% (row.detail_sections || []).forEach(function(section) { %>
+              <div class="pr-detail-block">
+                <h4><%= section.title %></h4>
+                <% if (section.title === 'Technology stack') { %>
+                  <div class="pr-stack-tags">
+                    <% const fe = (row.frontend_names || '').split(',').map(function(s){ return s.trim(); }).filter(Boolean); %>
+                    <% const be = (row.backend_names || '').split(',').map(function(s){ return s.trim(); }).filter(Boolean); %>
+                    <% fe.forEach(function(t) { %><span class="pr-stack-tag"><%= t %> (FE)</span><% }); %>
+                    <% be.forEach(function(t) { %><span class="pr-stack-tag"><%= t %> (BE)</span><% }); %>
+                    <% if (!fe.length && !be.length) { %><span class="pr-stack-tag">—</span><% } %>
+                  </div>
+                <% } else { %>
+                  <% section.fields.forEach(function(field) { %>
+                    <dl class="pr-detail-row">
+                      <dt><%= field.label %></dt>
+                      <dd>
+                        <% if (field.isFile && field.value) { %>
+                          <a href="/images/<%= field.value %>" target="_blank" rel="noopener"><%= field.value %></a>
+                        <% } else { %>
+                          <%= field.value %>
+                        <% } %>
+                      </dd>
+                    </dl>
+                  <% }); %>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </article>
+      <% } %>
+    </div>
+
+    <!-- Hidden table for CSV export (footer helper) -->
+    <table id="empoloyees-tblwrapper" class="pr-export-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Source Table</th><th>Degree</th><th>Name</th><th>Email</th><th>Phone</th>
+          <th>Date</th><th>Roll</th><th>Project Title</th><th>Catalog Project</th><th>Category</th>
+          <th>College</th><th>Affiliated College</th><th>Department</th><th>Semester</th>
+          <th>Frontend</th><th>Backend</th><th>Status</th><th>Feedback</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% projectDetails.forEach(function(row) {
+          const title = (row.seo_name || '').replace(/-/g, ' ');
+        %>
+        <tr>
+          <td><%= row.id %></td>
+          <td><%= row.source_table %></td>
+          <td><%= row.degree_label || row.report_type %></td>
+          <td><%= row.name %></td>
+          <td><%= row.email %></td>
+          <td><%= row.number %></td>
+          <td><%= row.date %></td>
+          <td><%= row.roll_number %></td>
+          <td><%= title %></td>
+          <td><%= row.project_name %></td>
+          <td><%= row.project_type %></td>
+          <td><%= row.college_name %></td>
+          <td><%= row.affilated_college_name %></td>
+          <td><%= row.department %></td>
+          <td><%= row.semester %></td>
+          <td><%= row.frontend_names %></td>
+          <td><%= row.backend_names %></td>
+          <td><%= row.status %></td>
+          <td><%= row.israting %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="loader-overlay"><div id="loader"></div></div>
+
+<% include ./footer.ejs %>
+
+<script>
+(function(){
+  const search = document.getElementById('PrSearch');
+  const cards = Array.from(document.querySelectorAll('.pr-card'));
+  const pills = document.querySelectorAll('[data-degree-filter]');
+  let activeDegree = 'all';
+
+  function applyFilters(){
+    const q = (search && search.value || '').trim().toLowerCase();
+    let visible = 0;
+    cards.forEach(function(card){
+      const deg = card.getAttribute('data-degree') || '';
+      const blob = card.getAttribute('data-search') || '';
+      const matchDeg = activeDegree === 'all' || deg === activeDegree;
+      const matchQ = !q || blob.indexOf(q) !== -1;
+      const show = matchDeg && matchQ;
+      card.classList.toggle('is-hidden', !show);
+      if (show) visible++;
+    });
+    let empty = document.getElementById('PrEmptyFilter');
+    if (!empty) {
+      empty = document.createElement('div');
+      empty.id = 'PrEmptyFilter';
+      empty.className = 'pr-empty';
+      document.getElementById('PrCardList').appendChild(empty);
+    }
+    empty.textContent = 'No records match your filters.';
+    empty.style.display = visible ? 'none' : 'block';
+  }
+
+  pills.forEach(function(pill){
+    pill.addEventListener('click', function(){
+      pills.forEach(function(p){ p.classList.remove('active'); });
+      pill.classList.add('active');
+      activeDegree = pill.getAttribute('data-degree-filter');
+      applyFilters();
+    });
+  });
+
+  if (search) {
+    let t;
+    search.addEventListener('input', function(){
+      clearTimeout(t);
+      t = setTimeout(applyFilters, 120);
+    });
+  }
+
+  document.querySelectorAll('.pr-card__head').forEach(function(head){
+    function toggle(){
+      const card = head.closest('.pr-card');
+      const open = card.classList.toggle('is-open');
+      head.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+
+  document.querySelectorAll('.pr-act-cross').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      sendcrossSalesWhatsapp(
+        btn.dataset.id, btn.dataset.name, btn.dataset.email,
+        btn.dataset.roll, btn.dataset.project, btn.dataset.number, btn.dataset.src
+      );
+    });
+  });
+
+  document.querySelectorAll('.pr-act-rating').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      sendRating(
+        btn.dataset.id, btn.dataset.name, btn.dataset.number,
+        btn.dataset.roll, btn.dataset.project, btn.dataset.src
+      );
+    });
+  });
+
+  applyFilters();
+})();
+
+function sendRating(id, name, number, roll_number, project_name, sourceTable) {
+  const loaderOverlay = document.getElementById('loader-overlay');
+  loaderOverlay.style.display = 'flex';
+  const url = '/affiliate/dashboard/project/report/send/rating?id=' + encodeURIComponent(id)
+    + '&name=' + encodeURIComponent(name) + '&number=' + encodeURIComponent(number)
+    + '&roll_number=' + encodeURIComponent(roll_number)
+    + '&project_name=' + encodeURIComponent(project_name)
+    + '&source_table=' + encodeURIComponent(sourceTable || 'btech_project');
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(){
+      loaderOverlay.style.display = 'none';
+      alert('Sent successfully');
+      window.location.reload();
+    })
+    .catch(function(){
+      loaderOverlay.style.display = 'none';
+      alert('Error occurred');
+    });
+}
+
+function sendcrossSalesWhatsapp(id, name, email, rollNumber, sourceCode, number, sourceTable) {
+  var message = 'Hello ' + name + ',%0A%0AWe hope you\'re doing well! Since you\'ve already purchased the project report for '
+    + sourceCode + ', we wanted to let you know that the source code is also available.%0A%0AWould you like to get the complete source code for your project? Let us know if you\'re interested!';
+  window.open('https://wa.me/91' + number + '?text=' + message, '_blank');
+}
+</script>

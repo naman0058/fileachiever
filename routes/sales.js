@@ -7,17 +7,134 @@ const queryAsync = util.promisify(pool.query).bind(pool);
 const getConnAsync = util.promisify(pool.getConnection).bind(pool);
 
 const dataService = require('./verify'); // you already use this for getCurrentDate()
+const { createSocketAuthToken } = require('../utils/socketAuth');
 
 // ---------------------------
 // Helpers
 // ---------------------------
 const STAGES = [
-  { key: "new", label: "New" },
-  { key: "followup", label: "Follow-up" },
-  { key: "interested", label: "More Interested" },
+  { key: "new", label: "New Inquiry", short: "New", color: "#6366f1", icon: "bi-inbox" },
+  { key: "followup", label: "In Follow-up", short: "Follow-up", color: "#0ea5e9", icon: "bi-telephone-outbound" },
+  { key: "interested", label: "High Intent", short: "Hot Lead", color: "#f59e0b", icon: "bi-fire" },
 ];
 
 const STAGE_SET = new Set(STAGES.map(s => s.key));
+
+async function fetchAgentAnalytics(userName, start, end) {
+  const [dailySales, advanceAgg] = await Promise.all([
+    queryAsync(
+      `SELECT DATE(created_at) AS day, COUNT(*) AS deals, COALESCE(SUM(lead_price),0) AS revenue
+       FROM leads
+       WHERE sales_person_assign = ? AND created_at >= ? AND created_at < ?
+       GROUP BY DATE(created_at)
+       ORDER BY day ASC`,
+      [userName, start + ' 00:00:00', end + ' 00:00:00']
+    ),
+    queryAsync(
+      `SELECT COALESCE(SUM(advance_amount),0) AS total_advance, COALESCE(SUM(agent_price),0) AS total_agent
+       FROM leads
+       WHERE sales_person_assign = ? AND created_at >= ? AND created_at < ?`,
+      [userName, start + ' 00:00:00', end + ' 00:00:00']
+    )
+  ]);
+  return {
+    dailySales: dailySales || [],
+    advanceTotal: advanceAgg?.[0]?.total_advance || 0,
+    agentTotal: advanceAgg?.[0]?.total_agent || 0
+  };
+}
+
+async function fetchAgentPipelineRows(userId, start, end) {
+  return queryAsync(`
+    SELECT
+      la.id AS assignment_id,
+      la.stage AS assignment_stage,
+      la.status AS assignment_status,
+      la.reject_reason AS assignment_reject_reason,
+      la.updated_at AS assignment_updated_at,
+      l.id AS lead_id,
+      l.tempid,
+      l.name,
+      l.phone,
+      l.enquiry_title,
+      l.enquiry_description,
+      l.detected_at_utc,
+      l.crm_status AS lead_status,
+      lg.next_followup_date AS last_next_followup_date,
+      lg.note AS last_note,
+      lg.created_at AS last_call_at
+    FROM lead_assignments la
+    JOIN rockerstop_leads l ON l.id = la.lead_id
+    LEFT JOIN lead_assignment_logs lg
+      ON lg.id = (
+        SELECT x.id FROM lead_assignment_logs x
+        WHERE x.assignment_id = la.id
+        ORDER BY x.created_at DESC LIMIT 1
+      )
+    WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
+      AND l.crm_status = 'open'
+      AND la.user_id = ?
+      AND la.status = 'open'
+    ORDER BY la.updated_at DESC
+    LIMIT 500
+  `, [start, end, userId]);
+}
+
+function groupPipelineByStage(rows) {
+  const board = { new: [], followup: [], interested: [] };
+  for (const r of rows || []) {
+    const k = r.assignment_stage;
+    if (board[k]) board[k].push(r);
+  }
+  return board;
+}
+
+function parseChartDay(day) {
+  if (!day) return null;
+  if (day instanceof Date && !Number.isNaN(day.getTime())) return day;
+  const s = String(day).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const d = new Date(`${s.slice(0, 10)}T12:00:00`);
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatChartDayLabel(day, style = 'short') {
+  const d = parseChartDay(day);
+  if (!d) return String(day || '').slice(0, 10);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  if (style === 'iso') {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  }
+  if (style === 'long') {
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function buildDailyChartSeries(dailySales) {
+  const rows = (dailySales || [])
+    .map((r) => ({
+      iso: formatChartDayLabel(r.day, 'iso'),
+      label: formatChartDayLabel(r.day, 'short'),
+      deals: Number(r.deals) || 0,
+      revenue: Number(r.revenue) || 0
+    }))
+    .filter((r) => r.iso);
+
+  return {
+    dailyLabels: rows.map((r) => r.label),
+    dailyLabelsFull: rows.map((r) => r.label),
+    dailyLabelsIso: rows.map((r) => r.iso),
+    dailyDeals: rows.map((r) => r.deals),
+    dailyRevenue: rows.map((r) => r.revenue)
+  };
+}
 
 function ymNow() {
   const d = new Date();
@@ -75,8 +192,15 @@ function requireLogin(req, res, next) {
   const u = getUser(req);
   if (!u) return res.redirect('/auth/login');
   req._user = u;
+  res.locals.socketAuthToken = createSocketAuthToken(u);
   next();
 }
+
+router.use((req, res, next) => {
+  const u = getUser(req);
+  if (u) res.locals.socketAuthToken = createSocketAuthToken(u);
+  next();
+});
 
 
 const ADMIN_ROLES = new Set(['admin', 'administrator', 'superadmin']);
@@ -305,20 +429,100 @@ await cleanupOldAssignmentsForAgent(u.id);
       LIMIT 3000
     `, params);
 
-    return res.render('freelancing/sales/assignments', {
-      pageTitle: 'My Leads • Sales Dashboard',
+    const stageRows = await queryAsync(
+      `SELECT la.stage, la.status, COUNT(*) AS c
+       FROM lead_assignments la
+       JOIN rockerstop_leads l ON l.id = la.lead_id
+       WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
+         AND l.crm_status = 'open'
+         AND la.user_id = ?
+       GROUP BY la.stage, la.status`,
+      [start, end, u.id]
+    );
+
+    const stageCounts = {};
+    for (const r of stageRows) stageCounts[`${r.stage}:${r.status}`] = Number(r.c);
+
+    const [salesMonth] = await queryAsync(
+      `SELECT COUNT(*) AS total_sales, COALESCE(SUM(lead_price),0) AS total_revenue
+       FROM leads
+       WHERE sales_person_assign = ? AND created_at >= ? AND created_at < ?`,
+      [u.name, start + ' 00:00:00', end + ' 00:00:00']
+    );
+
+    return res.render('freelancing/sales/assignments-agent', {
+      pageTitle: 'Lead Directory',
       mode: 'agent',
       user: u,
       stages: STAGES,
       rows,
       agents: [],
       active: 'assignments',
+      stats: {
+        total: rows.length,
+        newOpen: stageCounts['new:open'] || 0,
+        followupOpen: stageCounts['followup:open'] || 0,
+        interestedOpen: stageCounts['interested:open'] || 0,
+        rejected: (stageCounts['new:rejected'] || 0) + (stageCounts['followup:rejected'] || 0) + (stageCounts['interested:rejected'] || 0),
+        closed: (stageCounts['new:closed'] || 0) + (stageCounts['followup:closed'] || 0) + (stageCounts['interested:closed'] || 0),
+        salesCount: salesMonth?.total_sales || 0,
+        revenue: salesMonth?.total_revenue || 0
+      },
       filters: { selectedMonth, monthOptions: monthsList(12), stage, status, agent: 0, q}
     });
 
   } catch (e) {
     console.error("Agent dashboard error:", e);
     return res.status(500).send("Failed to load dashboard.");
+  }
+});
+
+
+// ---------------------------
+// Agent Pipeline Board (Kanban)
+// GET /sales/my/pipeline?month=YYYY-MM
+// ---------------------------
+router.get('/my/pipeline', requireLogin, async (req, res) => {
+  try {
+    const u = req._user;
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
+    const { start, end } = monthRange(selectedMonth);
+
+    await cleanupOldAssignmentsForAgent(u.id);
+
+    const rows = await fetchAgentPipelineRows(u.id, start, end);
+    const pipelineBoard = groupPipelineByStage(rows);
+
+    const stageRows = await queryAsync(
+      `SELECT la.stage, la.status, COUNT(*) AS c
+       FROM lead_assignments la
+       JOIN rockerstop_leads l ON l.id = la.lead_id
+       WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
+         AND l.crm_status = 'open' AND la.user_id = ?
+       GROUP BY la.stage, la.status`,
+      [start, end, u.id]
+    );
+    const stageCounts = {};
+    for (const r of stageRows) stageCounts[`${r.stage}:${r.status}`] = Number(r.c);
+
+    return res.render('freelancing/sales/agent-pipeline', {
+      pageTitle: 'Sales Pipeline',
+      active: 'pipeline',
+      user: u,
+      stages: STAGES,
+      pipelineBoard,
+      rows,
+      filters: { selectedMonth, monthOptions: monthsList(12) },
+      stats: {
+        newOpen: stageCounts['new:open'] || 0,
+        followupOpen: stageCounts['followup:open'] || 0,
+        interestedOpen: stageCounts['interested:open'] || 0,
+        totalOpen: rows.length
+      }
+    });
+  } catch (e) {
+    console.error('Agent pipeline error:', e);
+    return res.status(500).send('Failed to load pipeline.');
   }
 });
 
@@ -877,20 +1081,62 @@ router.get('/my/overview', requireLogin, async (req, res) => {
 
     const openAssignments = stageRows.reduce((a, r) => a + (r.status === 'open' ? Number(r.c) : 0), 0);
 
-    return res.render('freelancing/sales/overview', {
-      pageTitle: 'My • Overview',
+    const rejectedTotal =
+      (stageCounts['new:rejected'] || 0) +
+      (stageCounts['followup:rejected'] || 0) +
+      (stageCounts['interested:rejected'] || 0);
+
+    const closedTotal =
+      (stageCounts['new:closed'] || 0) +
+      (stageCounts['followup:closed'] || 0) +
+      (stageCounts['interested:closed'] || 0);
+
+    const totalAssigned = openAssignments + rejectedTotal + closedTotal;
+    const conversionRate = totalAssigned > 0
+      ? Math.round((Number(salesAgg?.total_sales || 0) / totalAssigned) * 100)
+      : 0;
+
+    const analytics = await fetchAgentAnalytics(u.name, start, end);
+    const pipelineRows = await fetchAgentPipelineRows(u.id, start, end);
+    const pipelineBoard = groupPipelineByStage(pipelineRows);
+
+    const funnel = {
+      newInquiry: stageCounts['new:open'] || 0,
+      inFollowup: stageCounts['followup:open'] || 0,
+      highIntent: stageCounts['interested:open'] || 0,
+      closedWon: salesAgg?.total_sales || 0,
+      disqualified: rejectedTotal
+    };
+
+    return res.render('freelancing/sales/agent-dashboard', {
+      pageTitle: 'Sales Dashboard',
       active: 'overview',
       user: u,
       mode: 'agent',
+      stages: STAGES,
       filters: { selectedMonth, monthOptions: monthsList(12) },
       kpis: {
         totalLeads: openAssignments,
         totalSales: salesAgg?.total_sales || 0,
         totalRevenue: salesAgg?.total_revenue || 0,
-        openAssignments
+        openAssignments,
+        rejectedTotal,
+        closedTotal,
+        conversionRate,
+        advanceTotal: analytics.advanceTotal,
+        agentIncentive: analytics.agentTotal
       },
       stageCounts,
-      due
+      funnel,
+      pipelineBoard,
+      due,
+      chartData: {
+        ...buildDailyChartSeries(analytics.dailySales),
+        funnelLabels: ['New Inquiry', 'In Follow-up', 'High Intent', 'Closed Won', 'Disqualified'],
+        funnelValues: [funnel.newInquiry, funnel.inFollowup, funnel.highIntent, funnel.closedWon, funnel.disqualified],
+        stageLabels: ['New Inquiry', 'In Follow-up', 'High Intent'],
+        stageOpen: [funnel.newInquiry, funnel.inFollowup, funnel.highIntent]
+      }
     });
   } catch (e) {
     console.error('Agent overview error:', e);
@@ -1076,11 +1322,22 @@ router.get('/my/sales', requireLogin, async (req, res) => {
       LIMIT 2000
     `, params);
 
-    return res.render('freelancing/sales/sales-list', {
-      pageTitle: 'My • Sales',
+    const [totals] = await queryAsync(
+      `SELECT COUNT(*) AS total_sales,
+              COALESCE(SUM(lead_price),0) AS total_revenue,
+              COALESCE(SUM(advance_amount),0) AS total_advance,
+              COALESCE(SUM(agent_price),0) AS total_agent_price
+       FROM leads
+       WHERE created_at >= ? AND created_at < ? AND sales_person_assign = ?`,
+      [start + ' 00:00:00', end + ' 00:00:00', u.name]
+    );
+
+    return res.render('freelancing/sales/agent-deals', {
+      pageTitle: 'Closed Won Deals',
       active: 'sales',
       user: u,
       mode: 'agent',
+      totals: totals || {},
       filters: { selectedMonth, monthOptions: monthsList(12), q },
       rows
     });
@@ -1091,6 +1348,125 @@ router.get('/my/sales', requireLogin, async (req, res) => {
 });
 
 
+// ---------------------------
+// Agent Sales Report
+// GET /sales/my/report?month=YYYY-MM&q=...
+// ---------------------------
+router.get('/my/report', requireLogin, async (req, res) => {
+  try {
+    const u = req._user;
+    if (String(u.role || '').trim().toLowerCase() === 'admin') {
+      return res.redirect('/sales/admin/sales-report');
+    }
+
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
+    const { start, end } = monthRange(selectedMonth);
+    const q = (req.query.q || '').toString().trim();
+
+    const where = [`created_at >= ? AND created_at < ?`, `sales_person_assign = ?`];
+    const params = [start + ' 00:00:00', end + ' 00:00:00', u.name];
+
+    if (q) {
+      where.push(`(name LIKE ? OR number LIKE ? OR enquiry LIKE ? OR assign LIKE ?)`);
+      const like = `%${q}%`;
+      params.push(like, like, like, like);
+    }
+
+    const [totals] = await queryAsync(
+      `SELECT COUNT(*) AS total_sales,
+              COALESCE(SUM(lead_price),0) AS total_revenue,
+              COALESCE(SUM(advance_amount),0) AS total_advance,
+              COALESCE(SUM(agent_price),0) AS total_agent_price
+       FROM leads WHERE ${where.join(' AND ')}`,
+      params
+    );
+
+    const byStatus = await queryAsync(
+      `SELECT COALESCE(NULLIF(TRIM(status), ''), 'unknown') AS status_label,
+              COUNT(*) AS total_sales,
+              COALESCE(SUM(lead_price),0) AS total_revenue
+       FROM leads WHERE ${where.join(' AND ')}
+       GROUP BY COALESCE(NULLIF(TRIM(status), ''), 'unknown')
+       ORDER BY total_revenue DESC`,
+      params
+    );
+
+    const rows = await queryAsync(
+      `SELECT id, name, number, enquiry, lead_price, advance_amount, agent_price, status, assign, created_at
+       FROM leads WHERE ${where.join(' AND ')}
+       ORDER BY created_at DESC LIMIT 2000`,
+      params
+    );
+
+    const analytics = await fetchAgentAnalytics(u.name, start, end);
+
+    return res.render('freelancing/sales/agent-analytics', {
+      pageTitle: 'Performance Analytics',
+      active: 'agentReport',
+      user: u,
+      mode: 'agent',
+      filters: { selectedMonth, monthOptions: monthsList(12), q },
+      totals: totals || {},
+      byStatus: byStatus || [],
+      rows,
+      chartData: {
+        ...buildDailyChartSeries(analytics.dailySales),
+        statusLabels: (byStatus || []).map(s => s.status_label),
+        statusRevenue: (byStatus || []).map(s => Number(s.total_revenue))
+      }
+    });
+  } catch (e) {
+    console.error('Agent sales report error:', e);
+    return res.status(500).send('Failed to load report.');
+  }
+});
+
+
+// ---------------------------
+// Agent Rejected Leads (assignment-level)
+// GET /sales/my/rejected-leads?month=YYYY-MM
+// ---------------------------
+router.get('/my/rejected-leads', requireLogin, async (req, res) => {
+  try {
+    const u = req._user;
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
+    const { start, end } = monthRange(selectedMonth);
+
+    const rows = await queryAsync(`
+      SELECT
+        la.id AS assignment_id,
+        la.reject_reason,
+        la.updated_at AS rejected_at,
+        la.stage AS assignment_stage,
+        l.id AS lead_id,
+        l.tempid,
+        l.name,
+        l.phone,
+        l.enquiry_title,
+        l.enquiry_description,
+        l.detected_at_utc
+      FROM lead_assignments la
+      JOIN rockerstop_leads l ON l.id = la.lead_id
+      WHERE la.user_id = ?
+        AND la.status = 'rejected'
+        AND l.detected_at_utc >= ? AND l.detected_at_utc < ?
+      ORDER BY la.updated_at DESC
+      LIMIT 2000
+    `, [u.id, start, end]);
+
+    return res.render('freelancing/sales/agent-disqualified', {
+      pageTitle: 'Disqualified Leads',
+      active: 'rejectedLeads',
+      user: u,
+      mode: 'agent',
+      rows,
+      filters: { selectedMonth, monthOptions: monthsList(12) }
+    });
+  } catch (e) {
+    console.error('Agent rejected leads error:', e);
+    return res.status(500).send('Failed to load rejected leads.');
+  }
+});
 
 
 

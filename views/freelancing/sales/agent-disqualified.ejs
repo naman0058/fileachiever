@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/agent-head', { pageTitle }) %></head>
+<body class="agent-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap">
+    <%- include('partials/agent-sidebar', { user, active }) %>
+  </div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Disqualified Leads</h1>
+        <p>Leads you marked as not a fit — review reasons to improve qualification and avoid repeat mistakes.</p>
+      </div>
+      <div class="agent-page-header__actions">
+        <select class="agent-month-select" onchange="location.href='/sales/my/rejected-leads?month='+encodeURIComponent(this.value)">
+          <% filters.monthOptions.forEach(function(mm){ %>
+            <option value="<%= mm %>" <%= mm===filters.selectedMonth?'selected':'' %>><%= mm %></option>
+          <% }) %>
+        </select>
+        <a href="/sales/my/pipeline?month=<%= filters.selectedMonth %>" class="agent-btn agent-btn--primary"><i class="bi bi-kanban"></i> Back to Pipeline</a>
+      </div>
+    </header>
+
+    <div class="agent-metric mb-3" style="--metric-accent:#ef4444;--metric-bg:#fef2f2;max-width:280px;padding:16px 20px;">
+      <div class="agent-metric__label">Disqualified This Month</div>
+      <div class="agent-metric__value"><%= rows.length %></div>
+    </div>
+
+    <div class="agent-table-card">
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>Contact</th>
+              <th>Project Need</th>
+              <th>Stage When Disqualified</th>
+              <th>Reason</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="5" class="agent-empty"><i class="bi bi-check2-circle"></i>No disqualified leads this month — great qualification!</td></tr>
+            <% } %>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td>
+                  <div class="crm-lead-name"><%= r.name||'Unnamed' %> <span class="crm-chip">#<%= r.tempid %></span></div>
+                  <div class="crm-small"><%= r.phone||'—' %></div>
+                </td>
+                <td>
+                  <div style="font-weight:800;"><%= r.enquiry_title||'—' %></div>
+                  <div class="crm-small crm-clamp2"><%= r.enquiry_description||'' %></div>
+                </td>
+                <td>
+                  <% const stageLabel = { new:'New Inquiry', followup:'In Follow-up', interested:'High Intent' }; %>
+                  <span class="agent-badge agent-badge--warn"><%= stageLabel[r.assignment_stage]||r.assignment_stage %></span>
+                </td>
+                <td><div class="crm-clamp2"><%= r.reject_reason||'No reason recorded' %></div></td>
+                <td class="crm-small"><%= r.rejected_at?new Date(r.rejected_at).toLocaleString():'—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

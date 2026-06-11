@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/agent-head', { pageTitle }) %></head>
+<body class="agent-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap">
+    <%- include('partials/agent-sidebar', { user, active }) %>
+  </div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Performance Analytics</h1>
+        <p>Deep dive into your sales performance — revenue trends, deal breakdown, and incentive tracking for <strong><%= filters.selectedMonth %></strong>.</p>
+      </div>
+      <form method="GET" action="/sales/my/report" class="agent-page-header__actions">
+        <select name="month" class="agent-month-select" onchange="this.form.submit()">
+          <% filters.monthOptions.forEach(function(m){ %>
+            <option value="<%= m %>" <%= m===filters.selectedMonth?'selected':'' %>><%= m %></option>
+          <% }) %>
+        </select>
+        <input class="form-control" name="q" value="<%= filters.q||'' %>" placeholder="Filter deals…" style="max-width:200px;border-radius:12px;"/>
+        <button class="agent-btn agent-btn--primary" type="submit">Apply</button>
+      </form>
+    </header>
+
+    <div class="agent-metrics mb-3">
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
+        <div class="agent-metric__label">Deals Closed</div>
+        <div class="agent-metric__value"><%= totals.total_sales||0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#2563eb;--metric-bg:#eff6ff;">
+        <div class="agent-metric__label">Revenue Booked</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_revenue||0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
+        <div class="agent-metric__label">Advance Collected</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_advance||0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#8b5cf6;--metric-bg:#f5f3ff;">
+        <div class="agent-metric__label">Commission Earned</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_agent_price||0).toLocaleString('en-IN') %></div>
+      </div>
+    </div>
+
+    <div class="agent-grid-2 mb-3">
+      <div class="agent-panel">
+        <div class="agent-panel__head"><h2 class="agent-panel__title">Daily Revenue</h2></div>
+        <div class="agent-panel__body"><div class="agent-chart-wrap agent-chart-wrap--sm"><canvas id="revChart"></canvas></div></div>
+      </div>
+      <div class="agent-panel">
+        <div class="agent-panel__head"><h2 class="agent-panel__title">Revenue by Status</h2></div>
+        <div class="agent-panel__body"><div class="agent-chart-wrap agent-chart-wrap--sm"><canvas id="statusChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <div class="agent-table-card">
+      <div class="p-3 border-bottom"><div class="fw-bold">Deal Ledger</div><div class="crm-small"><%= rows.length %> records</div></div>
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr><th>ID</th><th>Client</th><th>Project</th><th>Deal Value</th><th>Advance</th><th>Commission</th><th>Status</th><th>Date</th></tr>
+          </thead>
+          <tbody>
+            <% if (!rows.length) { %><tr><td colspan="8" class="agent-empty">No data for this period.</td></tr><% } %>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td><span class="crm-chip">#<%= r.id %></span></td>
+                <td><div class="crm-lead-name"><%= r.name %></div><div class="crm-small"><%= r.number %></div></td>
+                <td><div class="crm-clamp2"><%= r.enquiry %></div></td>
+                <td class="fw-bold">₹<%= Number(r.lead_price||0).toLocaleString('en-IN') %></td>
+                <td>₹<%= Number(r.advance_amount||0).toLocaleString('en-IN') %></td>
+                <td>₹<%= Number(r.agent_price||0).toLocaleString('en-IN') %></td>
+                <td><span class="agent-badge agent-badge--muted"><%= r.status %></span></td>
+                <td class="crm-small"><%= new Date(r.created_at).toLocaleDateString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  const cd = <%- JSON.stringify(chartData) %>;
+  Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+  const axisTicks = { color: '#64748b', font: { size: 11, weight: '500' }, padding: 6 };
+  function formatINR(n) {
+    const v = Number(n)||0;
+    if (v >= 100000) return '₹'+(v/100000).toFixed(1)+'L';
+    if (v >= 1000) return '₹'+(v/1000).toFixed(1)+'K';
+    return '₹'+v.toLocaleString('en-IN');
+  }
+  if (cd.dailyLabels && cd.dailyLabels.length) {
+    const ctx = document.getElementById('revChart');
+    const g = ctx.getContext('2d').createLinearGradient(0,0,0,220);
+    g.addColorStop(0,'rgba(99,102,241,.25)'); g.addColorStop(1,'rgba(99,102,241,.02)');
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: cd.dailyLabels, datasets: [{ data: cd.dailyRevenue, backgroundColor: g, borderRadius: 8, maxBarThickness: 48 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => '₹'+Number(c.parsed.y).toLocaleString('en-IN') } } },
+        scales: {
+          y: { beginAtZero: true, border: { display: false }, ticks: { ...axisTicks, callback: formatINR }, grid: { color: '#eef2f7' } },
+          x: { border: { display: false }, ticks: { ...axisTicks, maxRotation: 0, maxTicksLimit: 7 }, grid: { display: false } }
+        }
+      }
+    });
+  }
+  if (cd.statusLabels && cd.statusLabels.length) {
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: { labels: cd.statusLabels, datasets: [{ data: cd.statusRevenue, backgroundColor: ['#6366f1','#16a34a','#f59e0b','#ef4444','#0ea5e9'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } } }
+    });
+  }
+})();
+</script>
+</body>
+</html>

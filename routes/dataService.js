@@ -276,7 +276,7 @@ pool.query(`select * from affiliate where email ='${body.email}' and password = 
 
 function freelanceAuthenticationToken(req,res,next){
  
-  if(req.body.email){
+  if (req.path === '/login' && req.method === 'POST') {
    let body = req.body;
    console.log("body",body)
   

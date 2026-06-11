@@ -391,3 +391,125 @@ body{
 .crm-row-click:hover{
   background: rgba(99,102,241,.06);
 }
+
+/* ===== Agent workspace ===== */
+.crm-link-ico{
+  margin-right: 8px;
+  opacity: .75;
+  font-size: 15px;
+}
+.crm-link.active .crm-link-ico{ opacity: 1; }
+
+.agent-stat-chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.agent-stat-chip--danger{
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+.agent-stat-chip--success{
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.agent-badge{
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: capitalize;
+  border: 1px solid var(--line);
+  background: #f1f5f9;
+  color: #475569;
+}
+.agent-badge--warn{
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+.agent-badge--danger{
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+.agent-badge--success{
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+.agent-badge--muted{
+  background: #f8fafc;
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.agent-quick-actions{
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 1100px){
+  .agent-quick-actions{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 560px){
+  .agent-quick-actions{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.agent-quick-card{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: var(--text);
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.agent-quick-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(15,23,42,.08);
+  border-color: #bfdbfe;
+  color: var(--blue);
+}
+.agent-quick-card--danger:hover{ border-color: #fecaca; color: var(--danger); }
+.agent-quick-card--success:hover{ border-color: #bbf7d0; color: var(--success); }
+.agent-quick-card__ico{
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--blueSoft);
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.agent-quick-card--danger .agent-quick-card__ico{ background: #fef2f2; color: var(--danger); }
+.agent-quick-card--success .agent-quick-card__ico{ background: #f0fdf4; color: var(--success); }
+.agent-quick-card__label{
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.agent-quick-card__val{
+  font-size: 24px;
+  font-weight: 950;
+  line-height: 1;
+}

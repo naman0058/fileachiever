@@ -131,7 +131,11 @@ async function checkLead() {
   }
 }
 
-(async () => {
-  await getDb();
-  checkLead();
-})();
+function startLeadWatcher() {
+  console.log('[lead-watcher] Starting Rockerstop lead watcher…');
+  getDb()
+    .then(() => checkLead())
+    .catch((err) => console.error('[lead-watcher] Failed to start:', err.message));
+}
+
+module.exports = { startLeadWatcher };
