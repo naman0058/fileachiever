@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <%- include('partials/lead-socket-alert') %>
+
+    <header class="agent-page-header">
+      <div>
+        <h1>Command Center</h1>
+        <p>Team-wide sales intelligence for <strong><%= filters.selectedMonth %></strong> — pipeline health, revenue trends, and agent performance at a glance.</p>
+      </div>
+      <div class="agent-page-header__actions">
+        <form method="GET" action="/sales/admin/overview">
+          <select name="month" class="agent-month-select" onchange="this.form.submit()">
+            <% filters.monthOptions.forEach(function(m){ %>
+              <option value="<%= m %>" <%= m===filters.selectedMonth?'selected':'' %>><%= m %></option>
+            <% }) %>
+          </select>
+        </form>
+        <a href="/sales/admin/pipeline?month=<%= filters.selectedMonth %>" class="agent-btn agent-btn--primary"><i class="bi bi-columns-gap"></i> Team Pipeline</a>
+        <a href="/sales/admin/sales-report?month=<%= filters.selectedMonth %>" class="agent-btn agent-btn--ghost"><i class="bi bi-bar-chart-line"></i> Agent Analytics</a>
+      </div>
+    </header>
+
+    <div class="agent-metrics">
+      <div class="agent-metric" style="--metric-accent:#6366f1;--metric-bg:#eef2ff;">
+        <div class="agent-metric__icon"><i class="bi bi-inbox"></i></div>
+        <div class="agent-metric__label">Open Leads</div>
+        <div class="agent-metric__value"><%= kpis.totalLeads %></div>
+        <div class="agent-metric__hint"><%= kpis.openAssignments %> active assignments</div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
+        <div class="agent-metric__icon"><i class="bi bi-trophy"></i></div>
+        <div class="agent-metric__label">Deals Closed</div>
+        <div class="agent-metric__value"><%= kpis.totalSales %></div>
+        <div class="agent-metric__hint">Team conversions this month</div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#2563eb;--metric-bg:#eff6ff;">
+        <div class="agent-metric__icon"><i class="bi bi-currency-rupee"></i></div>
+        <div class="agent-metric__label">Team Revenue</div>
+        <div class="agent-metric__value">₹<%= Number(kpis.totalRevenue||0).toLocaleString('en-IN') %></div>
+        <div class="agent-metric__hint">Advance: ₹<%= Number(kpis.advanceTotal||0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#a855f7;--metric-bg:#f5f3ff;">
+        <div class="agent-metric__icon"><i class="bi bi-people"></i></div>
+        <div class="agent-metric__label">Active Agents</div>
+        <div class="agent-metric__value"><%= kpis.activeAgents %></div>
+        <div class="agent-metric__hint">Win rate: <%= kpis.conversionRate %>%</div>
+      </div>
+    </div>
+
+    <div class="agent-grid-2">
+      <div class="agent-panel">
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Team Revenue Trend</h2><p class="agent-panel__sub">Daily closed-won revenue across all agents</p></div></div>
+        <div class="agent-panel__body"><div class="agent-chart-wrap"><canvas id="revenueChart"></canvas></div></div>
+      </div>
+      <div class="agent-panel">
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Pipeline by Stage</h2><p class="agent-panel__sub">Open assignments across the team</p></div></div>
+        <div class="agent-panel__body"><div class="agent-chart-wrap agent-chart-wrap--sm"><canvas id="stageChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <div class="agent-grid-2">
+      <div class="agent-panel">
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Deals Closed Daily</h2><p class="agent-panel__sub">Team conversion volume over time</p></div></div>
+        <div class="agent-panel__body"><div class="agent-chart-wrap agent-chart-wrap--sm"><canvas id="dealsChart"></canvas></div></div>
+      </div>
+      <div class="agent-panel">
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Agent Revenue Ranking</h2><p class="agent-panel__sub">Top performers by booked revenue</p></div></div>
+        <div class="agent-panel__body"><div class="agent-chart-wrap"><canvas id="agentChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <div class="agent-grid-2">
+      <div class="agent-panel">
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Team Sales Funnel</h2><p class="agent-panel__sub">End-to-end pipeline conversion</p></div></div>
+        <div class="agent-panel__body">
+          <% const funnelMax = Math.max(funnel.newInquiry, funnel.inFollowup, funnel.highIntent, funnel.closedWon, funnel.disqualified, 1);
+             const funnelItems = [
+               { label: 'New Inquiry', val: funnel.newInquiry, color: '#6366f1' },
+               { label: 'In Follow-up', val: funnel.inFollowup, color: '#0ea5e9' },
+               { label: 'High Intent', val: funnel.highIntent, color: '#f59e0b' },
+               { label: 'Closed Won', val: funnel.closedWon, color: '#16a34a' },
+               { label: 'Disqualified', val: funnel.disqualified, color: '#ef4444' }
+             ]; %>
+          <div class="agent-funnel">
+            <% funnelItems.forEach(function(item){ %>
+              <div class="agent-funnel__row">
+                <div class="agent-funnel__label"><%= item.label %></div>
+                <div class="agent-funnel__bar-wrap"><div class="agent-funnel__bar" style="width:<%= Math.round((item.val/funnelMax)*100) %>%;background:<%= item.color %>;"></div></div>
+                <div class="agent-funnel__count"><%= item.val %></div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+      <div class="agent-panel">
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Agent Leaderboard</h2><p class="agent-panel__sub">Revenue & deals by sales executive</p></div></div>
+        <div class="agent-panel__body agent-panel__body--flush" style="max-height:340px;overflow-y:auto;">
+          <% if (!agentPerformance.length) { %>
+            <div class="agent-empty"><i class="bi bi-people"></i>No performance data this month</div>
+          <% } else { %>
+            <% const maxRev = Math.max(...agentPerformance.map(a => Number(a.revenue)), 1); %>
+            <table class="admin-leaderboard">
+              <thead><tr><th>#</th><th>Agent</th><th>Deals</th><th>Revenue</th><th>Performance</th></tr></thead>
+              <tbody>
+                <% agentPerformance.forEach(function(a, idx){ %>
+                  <tr>
+                    <td><span class="admin-rank <%= idx < 3 ? 'admin-rank--'+(idx+1) : '' %>"><%= idx+1 %></span></td>
+                    <td><strong><%= a.agent_name %></strong></td>
+                    <td><%= a.deals %></td>
+                    <td class="fw-bold">₹<%= Number(a.revenue||0).toLocaleString('en-IN') %></td>
+                    <td style="min-width:120px;">
+                      <div class="admin-agent-bar">
+                        <div class="admin-agent-bar__track"><div class="admin-agent-bar__fill" style="width:<%= Math.round((Number(a.revenue)/maxRev)*100) %>%"></div></div>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-panel">
+      <div class="agent-panel__head">
+        <div><h2 class="agent-panel__title">Overdue Follow-ups (All Agents)</h2><p class="agent-panel__sub">Callbacks scheduled on or before today</p></div>
+        <% if (due.length) { %><span class="agent-tag agent-tag--due"><%= due.length %> need action</span><% } %>
+      </div>
+      <div class="agent-panel__body agent-panel__body--flush">
+        <% if (!due.length) { %>
+          <div class="agent-empty"><i class="bi bi-check2-circle"></i>Team is up to date on follow-ups</div>
+        <% } else { %>
+          <div class="crm-table-wrap table-responsive">
+            <table class="crm-table">
+              <thead><tr><th>Agent</th><th>Contact</th><th>Phone</th><th>Project</th><th>Due Date</th><th>Last Note</th></tr></thead>
+              <tbody>
+                <% due.forEach(function(r){ %>
+                  <tr>
+                    <td><strong><%= r.user_name %></strong></td>
+                    <td><%= r.name || 'Unnamed' %><span class="agent-tag agent-tag--id">#<%= r.lead_id %></span></td>
+                    <td><%= r.phone || '—' %></td>
+                    <td><div class="crm-clamp2"><%= r.enquiry_title || '—' %></div></td>
+                    <td class="text-danger fw-bold"><%= r.next_followup_date %></td>
+                    <td><div class="crm-clamp2 crm-small"><%= r.note || '—' %></div></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<%- include('partials/admin-dashboard-charts') %>
+</body>
+</html>

@@ -1,137 +1,139 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title><%= pageTitle %></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/sales/sales.css?v=4">
-</head>
-<body>
-
-<div class="crm-layout">
-  <aside class="crm-sidebar-wrap">
-    <%- include('partials/sidebar', { user, active }) %>
-  </aside>
-
-  <main class="crm-main">
-
-    <div class="topbar">
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: isEdit ? 'Edit Live Demo' : 'Add Live Demo' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
       <div>
-        <div class="topTitle"><%= pageTitle %></div>
-        <div class="topSub"><%= isEdit ? 'Update live demo details' : 'Add a new live demo with SEO fields' %></div>
+        <h1><%= isEdit ? 'Edit Live Demo' : 'Add Live Demo' %></h1>
+        <p><%= isEdit ? 'Update demo content, SEO fields, and visibility.' : 'Create a new SEO-optimized live demo page for the public site.' %></p>
       </div>
-      <a class="btn btn-outline-secondary" href="/sales/admin/live-demo">← Back to list</a>
-    </div>
+      <div class="agent-page-header__actions">
+        <a href="/sales/admin/live-demo" class="agent-btn agent-btn--ghost"><i class="bi bi-arrow-left"></i> Back to List</a>
+      </div>
+    </header>
 
-    <% if (error) { %>
-      <div class="alert alert-danger"><%= error %></div>
-    <% } %>
+    <%- include('partials/admin-module-tabs', { module: 'liveDemo', activeTab: isEdit ? 'list' : 'add' }) %>
 
-    <form method="POST" action="<%= isEdit ? '/sales/admin/live-demo/edit/' + demo.id : '/sales/admin/live-demo/add' %>" class="crm-card">
-      <div class="p-4">
-        <input type="hidden" name="_method" value="<%= isEdit ? 'PUT' : 'POST' %>">
-        <% if (isEdit) { %><input type="hidden" name="id" value="<%= demo.id %>"><% } %>
+    <% if (error) { %><div class="admin-alert admin-alert--danger"><%= error %></div><% } %>
 
-        <h5 class="mb-3">Content</h5>
-        <div class="row g-3 mb-4">
-          <div class="col-md-12">
-            <label class="form-label">Title <span class="text-danger">*</span></label>
-            <input type="text" name="title" class="form-control" value="<%= (demo && demo.title) || '' %>" required maxlength="255" placeholder="e.g. ERP College Management System">
+    <form method="POST" action="<%= isEdit ? '/sales/admin/live-demo/edit/' + demo.id : '/sales/admin/live-demo/add' %>">
+      <% if (isEdit) { %><input type="hidden" name="id" value="<%= demo.id %>"><% } %>
+
+      <div class="agent-grid-2" style="align-items:start;">
+        <div class="admin-form-card">
+          <div class="admin-form-card__head">
+            <div class="admin-form-card__title">Demo Content</div>
+            <div class="admin-form-card__sub">What visitors see on the demo page</div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Demo Link <span class="text-danger">*</span></label>
-            <input type="url" name="demo_link" class="form-control" value="<%= (demo && demo.demo_link) || '' %>" required placeholder="https://demo.example.com">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Tech Stack (comma-separated)</label>
-            <input type="text" name="tech_stack" class="form-control" value="<%= (demo && demo.tech_stack) || '' %>" placeholder="PHP, MySQL, Laravel, Bootstrap">
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">Description</label>
-            <textarea name="description" class="form-control" rows="4" placeholder="Short summary of the project"><%= (demo && demo.description) || '' %></textarea>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">Project Details</label>
-            <textarea name="project_details" class="form-control" rows="4" placeholder="Extended project overview"><%= (demo && demo.project_details) || '' %></textarea>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Admin Features</label>
-            <textarea name="admin_features" class="form-control" rows="3" placeholder="One feature per line"><%= (demo && demo.admin_features) || '' %></textarea>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">User Features</label>
-            <textarea name="user_features" class="form-control" rows="3" placeholder="One feature per line"><%= (demo && demo.user_features) || '' %></textarea>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">
-              <input type="checkbox" name="is_active" value="1" <%= (demo && demo.is_active !== 0) || !isEdit ? 'checked' : '' %>> Active (show on site)
-            </label>
+          <div class="admin-form-card__body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" name="title" class="form-control" value="<%= (demo && demo.title) || '' %>" required maxlength="255" placeholder="ERP College Management System">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Demo Link <span class="text-danger">*</span></label>
+                <input type="url" name="demo_link" class="form-control" value="<%= (demo && demo.demo_link) || '' %>" required placeholder="https://demo.example.com">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Tech Stack</label>
+                <input type="text" name="tech_stack" class="form-control" value="<%= (demo && demo.tech_stack) || '' %>" placeholder="PHP, MySQL, Laravel, Bootstrap">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Short Description</label>
+                <textarea name="description" class="form-control" rows="3" placeholder="Brief summary"><%= (demo && demo.description) || '' %></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Project Details</label>
+                <textarea name="project_details" class="form-control" rows="4" placeholder="Extended overview"><%= (demo && demo.project_details) || '' %></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Admin Features</label>
+                <textarea name="admin_features" class="form-control" rows="3" placeholder="One per line"><%= (demo && demo.admin_features) || '' %></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">User Features</label>
+                <textarea name="user_features" class="form-control" rows="3" placeholder="One per line"><%= (demo && demo.user_features) || '' %></textarea>
+              </div>
+              <div class="col-12">
+                <label class="admin-check-item d-inline-flex">
+                  <input type="checkbox" name="is_active" value="1" <%= (demo && demo.is_active !== 0) || !isEdit ? 'checked' : '' %>>
+                  <span>Active — visible on public site</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
-        <hr class="my-4">
-        <h5 class="mb-3">SEO-Friendly URL</h5>
-        <div class="row g-3 mb-4">
-          <div class="col-md-12">
-            <label class="form-label">SEO Slug <span class="text-danger">*</span></label>
-            <input type="text" name="seo_slug" class="form-control" value="<%= (demo && demo.seo_slug) || '' %>" required pattern="[a-z0-9\-]+" title="Lowercase letters, numbers, hyphens only" placeholder="erp-college-management-system">
-            <small class="text-muted">URL: /demo/<span id="slugPreview">your-slug</span> — use lowercase, hyphens, no spaces</small>
+        <div>
+          <div class="admin-form-card mb-3">
+            <div class="admin-form-card__head">
+              <div class="admin-form-card__title">SEO URL</div>
+              <div class="admin-form-card__sub">Public URL: /demo/<span id="slugPreview"><%= (demo && demo.seo_slug) || 'your-slug' %></span></div>
+            </div>
+            <div class="admin-form-card__body">
+              <label class="form-label">SEO Slug <span class="text-danger">*</span></label>
+              <input type="text" name="seo_slug" class="form-control" value="<%= (demo && demo.seo_slug) || '' %>" required pattern="[a-z0-9\-]+" placeholder="erp-college-management-system">
+              <div class="crm-small mt-2">Lowercase letters, numbers, and hyphens only</div>
+            </div>
           </div>
-        </div>
 
-        <hr class="my-4">
-        <h5 class="mb-3">On-Page SEO</h5>
-        <div class="row g-3 mb-4">
-          <div class="col-md-12">
-            <label class="form-label">Meta Title</label>
-            <input type="text" name="meta_title" class="form-control" value="<%= (demo && demo.meta_title) || '' %>" maxlength="70" placeholder="Optimized for search (50–60 chars ideal)">
+          <div class="admin-form-card mb-3">
+            <div class="admin-form-card__head">
+              <div class="admin-form-card__title">On-Page SEO</div>
+            </div>
+            <div class="admin-form-card__body">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Meta Title</label>
+                  <input type="text" name="meta_title" class="form-control" value="<%= (demo && demo.meta_title) || '' %>" maxlength="70">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Meta Description</label>
+                  <textarea name="meta_description" class="form-control" rows="2" maxlength="160"><%= (demo && demo.meta_description) || '' %></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Meta Keywords</label>
+                  <input type="text" name="meta_keywords" class="form-control" value="<%= (demo && demo.meta_keywords) || '' %>">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">OG Image URL</label>
+                  <input type="url" name="og_image" class="form-control" value="<%= (demo && demo.og_image) || '' %>">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Meta Tags / Open Graph</label>
+                  <textarea name="meta_tags" class="form-control" rows="2" placeholder='{"og:type":"website"}'><%= (demo && demo.meta_tags) || '' %></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">JSON-LD Schema</label>
+                  <textarea name="schema" class="form-control font-monospace" rows="5" placeholder='{"@context":"https://schema.org",...}'><%= (demo && demo.schema) || '' %></textarea>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="col-md-12">
-            <label class="form-label">Meta Description</label>
-            <textarea name="meta_description" class="form-control" rows="2" maxlength="160" placeholder="155–160 chars ideal for search snippets"><%= (demo && demo.meta_description) || '' %></textarea>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">Meta Keywords</label>
-            <input type="text" name="meta_keywords" class="form-control" value="<%= (demo && demo.meta_keywords) || '' %>" placeholder="keyword1, keyword2, keyword3">
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">OG Image URL</label>
-            <input type="url" name="og_image" class="form-control" value="<%= (demo && demo.og_image) || '' %>" placeholder="https://example.com/image.jpg">
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">Meta Tags / Open Graph (JSON or text)</label>
-            <textarea name="meta_tags" class="form-control" rows="3" placeholder='{"og:type":"website","og:site_name":"FileMakr"}'><%= (demo && demo.meta_tags) || '' %></textarea>
-            <small class="text-muted">Optional JSON for custom og: tags</small>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">JSON-LD Schema</label>
-            <textarea name="schema" class="form-control font-monospace" rows="8" placeholder='{"@context":"https://schema.org","@type":"SoftwareApplication","name":"..."}'><%= (demo && demo.schema) || '' %></textarea>
-            <small class="text-muted">Optional structured data for search engines</small>
-          </div>
-        </div>
 
-        <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary"><%= isEdit ? 'Update' : 'Add' %> Live Demo</button>
-          <a class="btn btn-outline-secondary" href="/sales/admin/live-demo">Cancel</a>
+          <div class="d-flex justify-content-end gap-2">
+            <a class="agent-btn agent-btn--ghost" href="/sales/admin/live-demo">Cancel</a>
+            <button type="submit" class="agent-btn agent-btn--primary"><i class="bi bi-check2-circle"></i> <%= isEdit ? 'Update Demo' : 'Publish Demo' %></button>
+          </div>
         </div>
       </div>
     </form>
   </main>
 </div>
-
 <script>
-  document.querySelector('[name="seo_slug"]')?.addEventListener('input', function() {
-    const v = this.value || 'your-slug';
+  document.querySelector('[name="seo_slug"]')?.addEventListener('input', function(){
     const el = document.getElementById('slugPreview');
-    if (el) el.textContent = v || 'your-slug';
+    if (el) el.textContent = this.value || 'your-slug';
   });
-  document.querySelector('[name="title"]')?.addEventListener('blur', function() {
+  document.querySelector('[name="title"]')?.addEventListener('blur', function(){
     const slug = document.querySelector('[name="seo_slug"]');
     if (slug && !slug.value && this.value) {
-      slug.value = this.value.toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9\-]/g, '');
+      slug.value = this.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+      document.getElementById('slugPreview').textContent = slug.value;
     }
   });
 </script>

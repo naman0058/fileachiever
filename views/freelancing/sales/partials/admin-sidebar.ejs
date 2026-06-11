@@ -1,0 +1,73 @@
+<aside class="agent-sidebar admin-sidebar">
+  <div class="agent-sidebar__brand">
+    <div class="agent-logo">
+      <span class="agent-logo__mark admin-logo__mark"><i class="bi bi-shield-check"></i></span>
+      <div>
+        <div class="agent-logo__title">FileMakr</div>
+        <div class="agent-logo__sub">Admin Command</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="agent-nav">
+    <span class="agent-nav__section">Command</span>
+    <a class="agent-nav__link <%= active === 'overview' ? 'is-active' : '' %>" href="/sales/admin/overview">
+      <i class="bi bi-grid-1x2-fill"></i><span>Command Center</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'pipeline' ? 'is-active' : '' %>" href="/sales/admin/pipeline">
+      <i class="bi bi-columns-gap"></i><span>Team Pipeline Board</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'assignments' ? 'is-active' : '' %>" href="/sales/admin">
+      <i class="bi bi-people-fill"></i><span>Lead Assignments</span>
+    </a>
+
+    <span class="agent-nav__section">Revenue</span>
+    <a class="agent-nav__link <%= active === 'sales' ? 'is-active' : '' %>" href="/sales/admin/sales">
+      <i class="bi bi-trophy-fill"></i><span>Closed Won Deals</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'salesReport' ? 'is-active' : '' %>" href="/sales/admin/sales-report">
+      <i class="bi bi-bar-chart-line-fill"></i><span>Agent Performance</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'newSale' ? 'is-active' : '' %>" href="/sales/admin/new-sale">
+      <i class="bi bi-plus-circle-fill"></i><span>Record Direct Sale</span>
+    </a>
+
+    <span class="agent-nav__section">Operations</span>
+    <a class="agent-nav__link <%= active === 'logs' ? 'is-active' : '' %>" href="/sales/logs">
+      <i class="bi bi-chat-square-text-fill"></i><span>Team Activity Logs</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'rejectedLeads' ? 'is-active' : '' %>" href="/sales/rejected-leads">
+      <i class="bi bi-slash-circle"></i><span>Disqualified Leads</span>
+    </a>
+
+    <span class="agent-nav__section">Modules</span>
+    <a class="agent-nav__link <%= active === 'setupSupportOverview' || active === 'setupSupportEmployees' ? 'is-active' : '' %>" href="/sales/admin/setup-support">
+      <i class="bi bi-headset"></i><span>Setup Support</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'sourceCodeManagerOverview' || active === 'sourceCodeManagerEmployees' ? 'is-active' : '' %>" href="/sales/admin/source-code-manager">
+      <i class="bi bi-code-slash"></i><span>Source Code Manager</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'projectReportManagerOverview' || active === 'projectReportManagerEmployees' ? 'is-active' : '' %>" href="/sales/admin/project-report-manager">
+      <i class="bi bi-file-earmark-text"></i><span>Project Reports</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'projectReportCreatorOverview' || active === 'projectReportCreatorEmployees' ? 'is-active' : '' %>" href="/sales/admin/project-report-creator">
+      <i class="bi bi-journal-plus"></i><span>Report Creator</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'liveDemo' ? 'is-active' : '' %>" href="/sales/admin/live-demo">
+      <i class="bi bi-play-circle"></i><span>Live Demo Manager</span>
+    </a>
+  </nav>
+
+  <div class="agent-sidebar__footer">
+    <div class="agent-user-card">
+      <div class="agent-user-card__avatar admin-avatar"><%= (user.name || 'A').charAt(0).toUpperCase() %></div>
+      <div class="agent-user-card__info">
+        <div class="agent-user-card__name"><%= user.name %></div>
+        <div class="agent-user-card__role">Sales Administrator</div>
+      </div>
+    </div>
+    <a class="agent-nav__link agent-nav__link--logout" href="/auth/logout">
+      <i class="bi bi-box-arrow-right"></i><span>Sign Out</span>
+    </a>
+  </div>
+</aside>

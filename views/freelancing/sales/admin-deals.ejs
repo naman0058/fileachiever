@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>All Closed Won Deals</h1>
+        <p>Complete team revenue ledger — every converted deal across all agents for <strong><%= filters.selectedMonth %></strong>.</p>
+      </div>
+      <form method="GET" action="/sales/admin/sales" class="agent-page-header__actions">
+        <select name="month" class="agent-month-select" onchange="this.form.submit()">
+          <% filters.monthOptions.forEach(function(m){ %>
+            <option value="<%= m %>" <%= m===filters.selectedMonth?'selected':'' %>><%= m %></option>
+          <% }) %>
+        </select>
+        <input class="form-control" name="q" value="<%= filters.q||'' %>" placeholder="Search deals…" style="max-width:220px;border-radius:12px;"/>
+        <button class="agent-btn agent-btn--primary" type="submit"><i class="bi bi-search"></i></button>
+        <a href="/sales/admin/sales-report?month=<%= filters.selectedMonth %>" class="agent-btn agent-btn--ghost"><i class="bi bi-bar-chart-line"></i> Agent Analytics</a>
+      </form>
+    </header>
+
+    <% if (totals && totals.total_sales != null) { %>
+    <div class="agent-metrics mb-3">
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
+        <div class="agent-metric__icon"><i class="bi bi-trophy"></i></div>
+        <div class="agent-metric__label">Team Deals Won</div>
+        <div class="agent-metric__value"><%= totals.total_sales||0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#2563eb;--metric-bg:#eff6ff;">
+        <div class="agent-metric__icon"><i class="bi bi-currency-rupee"></i></div>
+        <div class="agent-metric__label">Total Deal Value</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_revenue||0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
+        <div class="agent-metric__icon"><i class="bi bi-wallet2"></i></div>
+        <div class="agent-metric__label">Advance Collected</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_advance||0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#a855f7;--metric-bg:#f5f3ff;">
+        <div class="agent-metric__icon"><i class="bi bi-people"></i></div>
+        <div class="agent-metric__label">Total Commissions</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_agent_price||0).toLocaleString('en-IN') %></div>
+      </div>
+    </div>
+    <% } %>
+
+    <div class="agent-table-card">
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>Deal ID</th>
+              <th>Sales Agent</th>
+              <th>Client</th>
+              <th>Project</th>
+              <th class="text-end">Deal Value</th>
+              <th class="text-end">Advance</th>
+              <th class="text-end">Commission</th>
+              <th>Delivery</th>
+              <th>Closed On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="9" class="agent-empty"><i class="bi bi-trophy"></i>No closed deals this month.</td></tr>
+            <% } %>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td><span class="crm-chip">#<%= r.id %></span></td>
+                <td><strong><%= r.sales_person_assign || '—' %></strong></td>
+                <td>
+                  <div class="crm-lead-name"><%= r.name||'—' %></div>
+                  <% if (r.number) { %><span class="crm-linktext crm-small" onclick="copyText('<%= r.number %>')"><%= r.number %></span><% } %>
+                </td>
+                <td><div class="crm-clamp2" style="max-width:260px;"><%= r.enquiry||'—' %></div></td>
+                <td class="text-end fw-bold">₹<%= Number(r.lead_price||0).toLocaleString('en-IN') %></td>
+                <td class="text-end">₹<%= Number(r.advance_amount||0).toLocaleString('en-IN') %></td>
+                <td class="text-end">₹<%= Number(r.agent_price||0).toLocaleString('en-IN') %></td>
+                <td><span class="agent-badge agent-badge--<%= (r.status||'').toLowerCase()==='closed'?'success':'muted' %>"><%= r.status||'In Progress' %></span></td>
+                <td class="crm-small"><%= r.created_at?new Date(r.created_at).toLocaleString():'—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<script>window.copyText = async function(t){ try{ await navigator.clipboard.writeText(t||''); }catch(e){} };</script>
+</body>
+</html>

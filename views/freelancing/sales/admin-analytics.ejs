@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Agent Performance Analytics</h1>
+        <p>Compare sales executives — revenue, commissions, deal volume, and daily trends for <strong><%= filters.selectedMonth %></strong>.</p>
+      </div>
+      <form method="GET" action="/sales/admin/sales-report" class="agent-page-header__actions">
+        <select name="month" class="agent-month-select" onchange="this.form.submit()">
+          <% filters.monthOptions.forEach(function(m){ %>
+            <option value="<%= m %>" <%= m===filters.selectedMonth?'selected':'' %>><%= m %></option>
+          <% }) %>
+        </select>
+        <select name="agent" class="agent-month-select" style="min-width:160px;">
+          <option value="">All Agents</option>
+          <% agents.forEach(function(a){ %>
+            <option value="<%= a.id %>" <%= String(filters.agent)===String(a.id)?'selected':'' %>><%= a.name %></option>
+          <% }) %>
+        </select>
+        <input class="form-control" name="q" value="<%= filters.q||'' %>" placeholder="Filter deals…" style="max-width:180px;border-radius:12px;"/>
+        <button class="agent-btn agent-btn--primary" type="submit">Apply</button>
+      </form>
+    </header>
+
+    <div class="agent-metrics mb-3">
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
+        <div class="agent-metric__label">Team Deals Closed</div>
+        <div class="agent-metric__value"><%= totals.total_sales||0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#2563eb;--metric-bg:#eff6ff;">
+        <div class="agent-metric__label">Team Revenue</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_revenue||0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
+        <div class="agent-metric__label">Advance Collected</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_advance||0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#a855f7;--metric-bg:#f5f3ff;">
+        <div class="agent-metric__label">Total Commissions</div>
+        <div class="agent-metric__value">₹<%= Number(totals.total_agent_price||0).toLocaleString('en-IN') %></div>
+      </div>
+    </div>
+
+    <div class="agent-grid-2 mb-3">
+      <div class="agent-panel">
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Team Daily Revenue</h2><p class="agent-panel__sub">Closed-won revenue by day</p></div></div>
+        <div class="agent-panel__body"><div class="agent-chart-wrap agent-chart-wrap--sm"><canvas id="revChart"></canvas></div></div>
+      </div>
+      <div class="agent-panel">
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Revenue by Agent</h2><p class="agent-panel__sub">Horizontal comparison</p></div></div>
+        <div class="agent-panel__body"><div class="agent-chart-wrap"><canvas id="agentChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><div><h2 class="agent-panel__title">Agent Leaderboard</h2><p class="agent-panel__sub"><%= byAgent.length %> sales executives ranked by revenue</p></div></div>
+      <div class="agent-panel__body agent-panel__body--flush">
+        <% if (!byAgent.length) { %>
+          <div class="agent-empty"><i class="bi bi-bar-chart"></i>No performance data for this period</div>
+        <% } else { %>
+          <% const maxRev = Math.max(...byAgent.map(a => Number(a.total_revenue)), 1); %>
+          <table class="admin-leaderboard">
+            <thead><tr><th>#</th><th>Agent</th><th>Deals</th><th>Revenue</th><th>Advance</th><th>Commission</th><th>Share</th></tr></thead>
+            <tbody>
+              <% byAgent.forEach(function(a, idx){ %>
+                <tr>
+                  <td><span class="admin-rank <%= idx < 3 ? 'admin-rank--'+(idx+1) : '' %>"><%= idx+1 %></span></td>
+                  <td><strong><%= a.agent_name %></strong></td>
+                  <td><%= a.total_sales %></td>
+                  <td class="fw-bold">₹<%= Number(a.total_revenue||0).toLocaleString('en-IN') %></td>
+                  <td>₹<%= Number(a.total_advance||0).toLocaleString('en-IN') %></td>
+                  <td>₹<%= Number(a.total_agent_price||0).toLocaleString('en-IN') %></td>
+                  <td style="min-width:100px;">
+                    <div class="admin-agent-bar"><div class="admin-agent-bar__track"><div class="admin-agent-bar__fill" style="width:<%= Math.round((Number(a.total_revenue)/maxRev)*100) %>%"></div></div></div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </div>
+
+    <% if (rows.length) { %>
+    <div class="agent-table-card">
+      <div class="p-3 border-bottom"><div class="fw-bold">Deal Drill-down</div><div class="crm-small"><%= rows.length %> records</div></div>
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead><tr><th>ID</th><th>Agent</th><th>Client</th><th>Project</th><th>Deal Value</th><th>Advance</th><th>Commission</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td><span class="crm-chip">#<%= r.id %></span></td>
+                <td><%= r.sales_person_assign || r.assign || '—' %></td>
+                <td><div class="crm-lead-name"><%= r.name %></div><div class="crm-small"><%= r.number %></div></td>
+                <td><div class="crm-clamp2"><%= r.enquiry %></div></td>
+                <td class="fw-bold">₹<%= Number(r.lead_price||0).toLocaleString('en-IN') %></td>
+                <td>₹<%= Number(r.advance_amount||0).toLocaleString('en-IN') %></td>
+                <td>₹<%= Number(r.agent_price||0).toLocaleString('en-IN') %></td>
+                <td><span class="agent-badge agent-badge--muted"><%= r.status %></span></td>
+                <td class="crm-small"><%= new Date(r.created_at).toLocaleDateString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <% } %>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  const cd = <%- JSON.stringify(chartData) %>;
+  Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+  const axisTicks = { color: '#64748b', font: { size: 11, weight: '500' }, padding: 6 };
+  function formatINR(n) {
+    const v = Number(n)||0;
+    if (v >= 100000) return '₹'+(v/100000).toFixed(1)+'L';
+    if (v >= 1000) return '₹'+(v/1000).toFixed(1)+'K';
+    return '₹'+v.toLocaleString('en-IN');
+  }
+  if (cd.dailyLabels && cd.dailyLabels.length) {
+    const ctx = document.getElementById('revChart');
+    const g = ctx.getContext('2d').createLinearGradient(0,0,0,220);
+    g.addColorStop(0,'rgba(99,102,241,.25)'); g.addColorStop(1,'rgba(99,102,241,.02)');
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: cd.dailyLabels, datasets: [{ data: cd.dailyRevenue, backgroundColor: g, borderRadius: 8, maxBarThickness: 48 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => '₹'+Number(c.parsed.y).toLocaleString('en-IN') } } },
+        scales: {
+          y: { beginAtZero: true, border: { display: false }, ticks: { ...axisTicks, callback: formatINR }, grid: { color: '#eef2f7' } },
+          x: { border: { display: false }, ticks: { ...axisTicks, maxRotation: 0, maxTicksLimit: 7 }, grid: { display: false } }
+        }
+      }
+    });
+  }
+  const agentCtx = document.getElementById('agentChart');
+  if (agentCtx && cd.agentNames && cd.agentNames.length) {
+    new Chart(agentCtx, {
+      type: 'bar',
+      data: { labels: cd.agentNames, datasets: [{ data: cd.agentRevenue, backgroundColor: 'rgba(168,85,247,.75)', borderRadius: 8, maxBarThickness: 36 }] },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => '₹'+Number(c.parsed.x).toLocaleString('en-IN')+' · '+(cd.agentDeals[c.dataIndex]||0)+' deals' } } },
+        scales: { x: { beginAtZero: true, ticks: { callback: formatINR }, grid: { color: '#eef2f7' }, border: { display: false } }, y: { grid: { display: false }, border: { display: false }, ticks: axisTicks } }
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

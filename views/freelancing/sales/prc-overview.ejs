@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: 'Report Creator' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Project Report Creator</h1>
+        <p>Overview of topics available for customized report generation — sections, DB screenshots, and product assets.</p>
+      </div>
+    </header>
+
+    <%- include('partials/admin-module-tabs', { module: 'prc', activeTab: 'overview' }) %>
+
+    <div class="admin-filter-bar">
+      <form method="GET" action="/sales/admin/project-report-creator" class="d-flex gap-2 flex-grow-1">
+        <input type="search" name="q" class="form-control" style="max-width:320px;border-radius:12px;" value="<%= filters.q || '' %>" placeholder="Search by name, slug, description…">
+        <button type="submit" class="agent-btn agent-btn--primary"><i class="bi bi-search"></i> Search</button>
+      </form>
+    </div>
+
+    <div class="agent-table-card">
+      <div class="p-3 border-bottom"><div class="fw-bold">Available Topics</div><div class="crm-small"><%= rows.length %> source codes</div></div>
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr><th>ID</th><th>Product</th><th>Category</th><th>Sections</th><th>DB Screenshots</th><th>Screenshots</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <% if (!rows.length) { %><tr><td colspan="7" class="agent-empty"><i class="bi bi-journal-plus"></i>No topics found.</td></tr><% } %>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td><span class="crm-chip">#<%= r.id %></span></td>
+                <td><strong><%= r.name || '—' %></strong></td>
+                <td><span class="agent-badge agent-badge--muted"><%= r.category || '—' %></span></td>
+                <td><%= r.section_count || 0 %></td>
+                <td><%= r.db_screenshot_count || 0 %></td>
+                <td><%= r.screenshot_count || 0 %></td>
+                <td>
+                  <a href="/project-report-creator/create/<%= r.id %>" class="agent-btn agent-btn--ghost agent-btn--sm" target="_blank">
+                    <i class="bi bi-file-earmark-plus"></i> Create Report
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -136,6 +136,73 @@ function buildDailyChartSeries(dailySales) {
   };
 }
 
+async function fetchAdminAnalytics(start, end) {
+  const startDt = `${start} 00:00:00`;
+  const endDt = `${end} 00:00:00`;
+
+  const [dailySales, agentPerformance, dealTotals, activeAgents] = await Promise.all([
+    queryAsync(
+      `SELECT DATE(created_at) AS day, COUNT(*) AS deals, COALESCE(SUM(lead_price),0) AS revenue
+       FROM leads WHERE created_at >= ? AND created_at < ?
+       GROUP BY DATE(created_at) ORDER BY day ASC`,
+      [startDt, endDt]
+    ),
+    queryAsync(
+      `SELECT COALESCE(NULLIF(TRIM(sales_person_assign), ''), 'Unassigned') AS agent_name,
+              COUNT(*) AS deals,
+              COALESCE(SUM(lead_price),0) AS revenue,
+              COALESCE(SUM(advance_amount),0) AS advance,
+              COALESCE(SUM(agent_price),0) AS commission
+       FROM leads WHERE created_at >= ? AND created_at < ?
+       GROUP BY COALESCE(NULLIF(TRIM(sales_person_assign), ''), 'Unassigned')
+       ORDER BY revenue DESC, deals DESC LIMIT 25`,
+      [startDt, endDt]
+    ),
+    queryAsync(
+      `SELECT COUNT(*) AS deals, COALESCE(SUM(lead_price),0) AS revenue,
+              COALESCE(SUM(advance_amount),0) AS advance,
+              COALESCE(SUM(agent_price),0) AS commission
+       FROM leads WHERE created_at >= ? AND created_at < ?`,
+      [startDt, endDt]
+    ),
+    queryAsync(
+      `SELECT COUNT(*) AS c FROM crm_users WHERE is_active=1 AND role='agent'`
+    )
+  ]);
+
+  return {
+    dailySales: dailySales || [],
+    agentPerformance: agentPerformance || [],
+    totals: dealTotals?.[0] || {},
+    activeAgents: activeAgents?.[0]?.c || 0
+  };
+}
+
+async function fetchAdminPipelineRows(start, end, agentId = 0) {
+  const params = [start, end];
+  let agentSql = '';
+  if (agentId && Number.isFinite(agentId)) {
+    agentSql = ' AND la.user_id = ? ';
+    params.push(agentId);
+  }
+  return queryAsync(`
+    SELECT la.id AS assignment_id, la.stage AS assignment_stage, la.status AS assignment_status,
+           la.updated_at AS assignment_updated_at, u.id AS user_id, u.name AS user_name,
+           l.id AS lead_id, l.tempid, l.name, l.phone, l.enquiry_title, l.enquiry_description,
+           lg.next_followup_date AS last_next_followup_date, lg.note AS last_note
+    FROM lead_assignments la
+    JOIN rockerstop_leads l ON l.id = la.lead_id
+    JOIN crm_users u ON u.id = la.user_id
+    LEFT JOIN lead_assignment_logs lg ON lg.id = (
+      SELECT x.id FROM lead_assignment_logs x WHERE x.assignment_id = la.id
+      ORDER BY x.created_at DESC LIMIT 1
+    )
+    WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
+      AND l.crm_status = 'open' AND la.status = 'open' ${agentSql}
+    ORDER BY la.updated_at DESC LIMIT 800
+  `, params);
+}
+
 function ymNow() {
   const d = new Date();
   const y = d.getFullYear();
@@ -221,7 +288,7 @@ router.get('/', async (req, res) => {
     return res.render('freelancing/sales/login', { error: '' });
   }
   const role = String(u.role || '').trim().toLowerCase();
-  if (['admin', 'administrator', 'superadmin'].includes(role)) return res.redirect('/sales/admin');
+  if (['admin', 'administrator', 'superadmin'].includes(role)) return res.redirect('/sales/admin/overview');
   if (role === 'setup_support') return res.redirect('/setup-support');
   if (role === 'source_code_manager') return res.redirect('/source-code-manager');
   if (role === 'project_report_manager') return res.redirect('/project-report-manager');
@@ -326,8 +393,8 @@ router.get('/admin', requireLogin, requireAdmin, async (req, res) => {
       LIMIT 4000
     `, params);
 
-    return res.render('freelancing/sales/assignments', {
-      pageTitle: 'Admin • Sales Assignments',
+    return res.render('freelancing/sales/assignments-admin', {
+      pageTitle: 'Team Lead Assignments',
       mode: 'admin',
       user: req._user,
       stages: STAGES,
@@ -732,8 +799,19 @@ async function salesAdminSalesReport(req, res) {
       );
     }
 
-    return res.render('freelancing/sales/admin_sales_report', {
-      pageTitle: 'Admin • Sales Report',
+    const analytics = await fetchAdminAnalytics(start, end);
+    const dailyChart = buildDailyChartSeries(analytics.dailySales);
+
+    if (!agentNameFilter && !q) {
+      rows = await queryAsync(
+        `SELECT id, name, number, enquiry, lead_price, advance_amount, agent_price, status, sales_person_assign, created_at
+         FROM leads WHERE ${where.join(' AND ')} ORDER BY created_at DESC LIMIT 100`,
+        params
+      );
+    }
+
+    return res.render('freelancing/sales/admin-analytics', {
+      pageTitle: 'Agent Performance Analytics',
       active: 'salesReport',
       user: req._user,
       mode: 'admin',
@@ -741,7 +819,14 @@ async function salesAdminSalesReport(req, res) {
       agents,
       totals,
       byAgent,
-      rows
+      rows,
+      chartData: {
+        ...dailyChart,
+        agentNames: byAgent.map((a) => a.agent_name),
+        agentRevenue: byAgent.map((a) => Number(a.total_revenue)),
+        agentDeals: byAgent.map((a) => Number(a.total_sales)),
+        agentCommission: byAgent.map((a) => Number(a.total_agent_price))
+      }
     });
   } catch (e) {
     console.error('Admin sales report error:', e);
@@ -816,7 +901,7 @@ router.get('/logs', requireLogin, requireAdmin, async (req, res) => {
     `, params);
 
     return res.render('freelancing/sales/logs', {
-      pageTitle: 'Team Logs',
+      pageTitle: 'Team Activity Logs',
       mode: 'admin',
       user: req._user,
       active: 'logs',
@@ -993,23 +1078,66 @@ router.get('/admin/overview', requireLogin, requireAdmin, async (req, res) => {
     const stageCounts = {};
     for (const r of stageRows) {
       const key = `${r.stage}:${r.status}`;
-      stageCounts[key] = r.c;
+      stageCounts[key] = Number(r.c);
     }
 
-    return res.render('freelancing/sales/overview', {
-      pageTitle: 'Admin • Overview',
+    const analytics = await fetchAdminAnalytics(start, end);
+
+    const rejectedTotal =
+      (stageCounts['new:rejected'] || 0) +
+      (stageCounts['followup:rejected'] || 0) +
+      (stageCounts['interested:rejected'] || 0);
+
+    const openAssignments = stageRows.reduce((a, r) => a + (r.status === 'open' ? Number(r.c) : 0), 0);
+    const totalLeads = Number(k1?.c || 0);
+    const totalSales = Number(salesAgg?.total_sales || 0);
+    const conversionRate = totalLeads > 0 ? Math.round((totalSales / totalLeads) * 100) : 0;
+
+    const funnel = {
+      newInquiry: stageCounts['new:open'] || 0,
+      inFollowup: stageCounts['followup:open'] || 0,
+      highIntent: stageCounts['interested:open'] || 0,
+      closedWon: totalSales,
+      disqualified: rejectedTotal
+    };
+
+    const dailyChart = buildDailyChartSeries(analytics.dailySales);
+    const agentNames = analytics.agentPerformance.map((a) => a.agent_name);
+    const agentRevenue = analytics.agentPerformance.map((a) => Number(a.revenue));
+    const agentDeals = analytics.agentPerformance.map((a) => Number(a.deals));
+
+    return res.render('freelancing/sales/admin-dashboard', {
+      pageTitle: 'Command Center',
       active: 'overview',
       user: req._user,
       mode: 'admin',
+      stages: STAGES,
       filters: { selectedMonth, monthOptions: monthsList(12) },
       kpis: {
-        totalLeads: k1?.c || 0,
-        totalSales: salesAgg?.total_sales || 0,
+        totalLeads,
+        totalSales,
         totalRevenue: salesAgg?.total_revenue || 0,
-        openAssignments: stageRows.reduce((a, r) => a + (r.status === 'open' ? Number(r.c) : 0), 0)
+        openAssignments,
+        rejectedTotal,
+        conversionRate,
+        activeAgents: analytics.activeAgents,
+        advanceTotal: analytics.totals.advance || 0,
+        commissionTotal: analytics.totals.commission || 0
       },
       stageCounts,
-      due
+      funnel,
+      agentPerformance: analytics.agentPerformance,
+      due,
+      chartData: {
+        ...dailyChart,
+        agentNames,
+        agentRevenue,
+        agentDeals,
+        funnelLabels: ['New Inquiry', 'In Follow-up', 'High Intent', 'Closed Won', 'Disqualified'],
+        funnelValues: [funnel.newInquiry, funnel.inFollowup, funnel.highIntent, funnel.closedWon, funnel.disqualified],
+        stageLabels: ['New Inquiry', 'In Follow-up', 'High Intent'],
+        stageOpen: [funnel.newInquiry, funnel.inFollowup, funnel.highIntent]
+      }
     });
   } catch (e) {
     console.error('Admin overview error:', e);
@@ -1018,6 +1146,53 @@ router.get('/admin/overview', requireLogin, requireAdmin, async (req, res) => {
 });
 
 
+router.get('/admin/pipeline', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
+    const { start, end } = monthRange(selectedMonth);
+    const agent = req.query.agent ? Number(req.query.agent) : 0;
+
+    await ensureAssignmentsForMonth(start, end, agent && Number.isFinite(agent) ? agent : 0);
+
+    const agents = await queryAsync(
+      `SELECT id, name FROM crm_users WHERE is_active=1 AND role='agent' ORDER BY name ASC`
+    );
+
+    const rows = await fetchAdminPipelineRows(start, end, agent);
+    const pipelineBoard = groupPipelineByStage(rows);
+
+    const stageRows = await queryAsync(
+      `SELECT la.stage, la.status, COUNT(*) AS c
+       FROM lead_assignments la JOIN rockerstop_leads l ON l.id=la.lead_id
+       WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ? AND l.crm_status='open'
+       ${agent && Number.isFinite(agent) ? 'AND la.user_id=?' : ''}
+       GROUP BY la.stage, la.status`,
+      agent && Number.isFinite(agent) ? [start, end, agent] : [start, end]
+    );
+    const stageCounts = {};
+    for (const r of stageRows) stageCounts[`${r.stage}:${r.status}`] = Number(r.c);
+
+    return res.render('freelancing/sales/admin-pipeline', {
+      pageTitle: 'Team Pipeline Board',
+      active: 'pipeline',
+      user: req._user,
+      stages: STAGES,
+      agents,
+      pipelineBoard,
+      rows,
+      filters: { selectedMonth, monthOptions: monthsList(12), agent },
+      stats: {
+        newOpen: stageCounts['new:open'] || 0,
+        followupOpen: stageCounts['followup:open'] || 0,
+        interestedOpen: stageCounts['interested:open'] || 0,
+        totalOpen: rows.length
+      }
+    });
+  } catch (e) {
+    console.error('Admin pipeline error:', e);
+    return res.status(500).send('Failed to load pipeline.');
+  }
+});
 
 
 router.get('/my/overview', requireLogin, async (req, res) => {
@@ -1152,7 +1327,7 @@ router.get('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
       queryAsync(`SELECT id, name FROM crm_users WHERE is_active=1 AND role='setup_support' ORDER BY name ASC`)
     ]);
     res.render('freelancing/sales/new-sale', {
-      pageTitle: 'Admin • Direct Sale Entry',
+      pageTitle: 'Record Direct Sale',
       active: 'newSale',
       user: req._user,
       agents,
@@ -1199,7 +1374,7 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
         queryAsync(`SELECT id, name FROM crm_users WHERE is_active=1 AND role='setup_support' ORDER BY name ASC`)
       ]);
       return res.render('freelancing/sales/new-sale', {
-        pageTitle: 'Admin • Direct Sale Entry',
+        pageTitle: 'Record Direct Sale',
         active: 'newSale',
         user: req._user,
         agents,
@@ -1282,11 +1457,19 @@ router.get('/admin/sales', requireLogin, requireAdmin, async (req, res) => {
       LIMIT 4000
     `, params);
 
-    return res.render('freelancing/sales/sales-list', {
-      pageTitle: 'Admin • Sales',
+    const [totals] = await queryAsync(
+      `SELECT COUNT(*) AS total_sales, COALESCE(SUM(lead_price),0) AS total_revenue,
+              COALESCE(SUM(advance_amount),0) AS total_advance, COALESCE(SUM(agent_price),0) AS total_agent_price
+       FROM leads WHERE ${where.join(' AND ')}`,
+      params
+    );
+
+    return res.render('freelancing/sales/admin-deals', {
+      pageTitle: 'All Closed Won Deals',
       active: 'sales',
       user: req._user,
       mode: 'admin',
+      totals: totals || {},
       filters: { selectedMonth, monthOptions: monthsList(12), q },
       rows
     });
@@ -1490,9 +1673,11 @@ router.get('/rejected-leads', requireLogin, requireAdmin, async (req, res) => {
       LIMIT 5000
     `, [start, end]);
 
-    return res.render('freelancing/sales/rejected-leads', {
-      pageTitle: 'Admin • Globally Rejected Leads',
+    return res.render('freelancing/sales/admin-disqualified', {
+      pageTitle: 'Disqualified Leads',
+      active: 'rejectedLeads',
       user: req._user,
+      mode: 'admin',
       rows,
       filters: { selectedMonth, monthOptions: monthsList(12) }
     });
@@ -1903,7 +2088,7 @@ router.get('/admin/setup-support', requireLogin, requireAdmin, async (req, res) 
     const [doneCount] = await queryAsync(`SELECT COUNT(*) AS c FROM setup_support WHERE status = 'done'`);
 
     return res.render('freelancing/sales/setup-support-admin', {
-      pageTitle: 'Admin • Setup Support',
+      pageTitle: 'Setup Support',
       active: 'setupSupportOverview',
       user: req._user,
       rows,
@@ -1928,7 +2113,7 @@ router.get('/admin/setup-support/employees', requireLogin, requireAdmin, async (
       ORDER BY name
     `);
     return res.render('freelancing/sales/setup-support-employees', {
-      pageTitle: 'Admin • Setup Support Employees',
+      pageTitle: 'Setup Support Team',
       active: 'setupSupportEmployees',
       user: req._user,
       employees,
@@ -2101,7 +2286,7 @@ router.get('/admin/source-code-manager', requireLogin, requireAdmin, async (req,
     };
 
     return res.render('freelancing/sales/scm-overview', {
-      pageTitle: 'Admin • Source Code Manager Overview',
+      pageTitle: 'Source Code Manager',
       active: 'sourceCodeManagerOverview',
       user: req._user,
       rows: enriched,
@@ -2126,7 +2311,7 @@ router.get('/admin/source-code-manager/employees', requireLogin, requireAdmin, a
       ORDER BY name
     `);
     return res.render('freelancing/sales/scm-employees', {
-      pageTitle: 'Admin • Source Code Manager Employees',
+      pageTitle: 'SCM Team',
       active: 'sourceCodeManagerEmployees',
       user: req._user,
       employees,
@@ -2240,7 +2425,7 @@ router.get('/admin/project-report-manager', requireLogin, requireAdmin, async (r
     };
 
     return res.render('freelancing/sales/prm-overview', {
-      pageTitle: 'Admin • Project Report Manager Overview',
+      pageTitle: 'Project Report Manager',
       active: 'projectReportManagerOverview',
       user: req._user,
       rows: enriched,
@@ -2266,7 +2451,7 @@ router.get('/admin/project-report-manager/employees', requireLogin, requireAdmin
       ORDER BY name
     `);
     return res.render('freelancing/sales/prm-employees', {
-      pageTitle: 'Admin • Project Report Manager Employees',
+      pageTitle: 'PRM Team',
       active: 'projectReportManagerEmployees',
       user: req._user,
       employees,
@@ -2338,8 +2523,9 @@ router.get('/admin/project-report-creator', requireLogin, requireAdmin, async (r
       ORDER BY sc.id DESC
       LIMIT 500
     `, params);
-    return res.render('project-report-creator/dashboard', {
-      pageTitle: 'Project Report Creator Overview',
+    return res.render('freelancing/sales/prc-overview', {
+      pageTitle: 'Project Report Creator',
+      active: 'projectReportCreatorOverview',
       user: req._user,
       rows: rows || [],
       filters: { q }
@@ -2359,7 +2545,7 @@ router.get('/admin/project-report-creator/employees', requireLogin, requireAdmin
       ORDER BY name
     `);
     return res.render('freelancing/sales/prc-employees', {
-      pageTitle: 'Admin • Project Report Creator Employees',
+      pageTitle: 'Report Creator Team',
       active: 'projectReportCreatorEmployees',
       user: req._user,
       employees,
@@ -2410,12 +2596,12 @@ function slugify(text) {
 router.get('/admin/live-demo', requireLogin, requireAdmin, async (req, res) => {
   try {
     const rows = await queryAsync(`
-      SELECT id, title, seo_slug, demo_link, tech_stack, is_active, created_at
+      SELECT id, title, seo_slug, demo_link, tech_stack, is_active, created_at, updated_at
       FROM live_demo
       ORDER BY created_at DESC
     `);
     return res.render('freelancing/sales/live-demo-list', {
-      pageTitle: 'Admin • Live Demo',
+      pageTitle: 'Live Demo Manager',
       active: 'liveDemo',
       user: req._user,
       rows,
@@ -2430,7 +2616,7 @@ router.get('/admin/live-demo', requireLogin, requireAdmin, async (req, res) => {
 
 router.get('/admin/live-demo/add', requireLogin, requireAdmin, async (req, res) => {
   return res.render('freelancing/sales/live-demo-form', {
-    pageTitle: 'Admin • Add Live Demo',
+    pageTitle: 'Add Live Demo',
     active: 'liveDemo',
     user: req._user,
     demo: null,
@@ -2488,7 +2674,7 @@ router.get('/admin/live-demo/edit/:id', requireLogin, requireAdmin, async (req, 
     const rows = await queryAsync(`SELECT * FROM live_demo WHERE id = ? LIMIT 1`, [id]);
     if (!rows.length) return res.redirect('/sales/admin/live-demo?error=Live demo not found.');
     return res.render('freelancing/sales/live-demo-form', {
-      pageTitle: 'Admin • Edit Live Demo',
+      pageTitle: 'Edit Live Demo',
       active: 'liveDemo',
       user: req._user,
       demo: rows[0],

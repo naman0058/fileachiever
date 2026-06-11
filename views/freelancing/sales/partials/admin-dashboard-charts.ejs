@@ -1,0 +1,91 @@
+<script>
+(function () {
+  const cd = <%- JSON.stringify(chartData) %>;
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+  Chart.defaults.color = '#64748b';
+
+  function formatINR(n) {
+    const v = Number(n) || 0;
+    if (v >= 100000) return '₹' + (v / 100000).toFixed(1) + 'L';
+    if (v >= 1000) return '₹' + (v / 1000).toFixed(1) + 'K';
+    return '₹' + v.toLocaleString('en-IN');
+  }
+  function formatINRFull(n) { return '₹' + Number(n || 0).toLocaleString('en-IN'); }
+  function tooltipDate(i) {
+    const iso = cd.dailyLabelsIso?.[i];
+    if (!iso) return cd.dailyLabels?.[i] || '';
+    const [y, m, d] = iso.split('-').map(Number);
+    return `${d} ${MONTHS[m - 1]} ${y}`;
+  }
+  const axisTicks = { color: '#64748b', font: { size: 11, weight: '500' }, padding: 6 };
+  const gridY = { color: '#eef2f7', drawBorder: false };
+
+  function empty(id, msg) {
+    const el = document.getElementById(id);
+    if (el) el.parentElement.innerHTML = '<div class="agent-chart-empty"><i class="bi bi-graph-up"></i><span>' + msg + '</span></div>';
+  }
+
+  if (cd.dailyLabels?.length) {
+    const revCtx = document.getElementById('revenueChart');
+    if (revCtx) {
+      const g = revCtx.getContext('2d').createLinearGradient(0, 0, 0, 280);
+      g.addColorStop(0, 'rgba(99, 102, 241, 0.25)'); g.addColorStop(1, 'rgba(99, 102, 241, 0.02)');
+      new Chart(revCtx, {
+        type: 'line',
+        data: { labels: cd.dailyLabels, datasets: [{ data: cd.dailyRevenue, borderColor: '#6366f1', backgroundColor: g, fill: true, tension: 0.42, borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#6366f1', pointBorderColor: '#fff', pointBorderWidth: 2 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          layout: { padding: { top: 12, right: 12, left: 4 } },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { title: (i) => tooltipDate(i[0]?.dataIndex), label: (c) => 'Team Revenue: ' + formatINRFull(c.parsed.y) } } },
+          scales: { y: { beginAtZero: true, border: { display: false }, ticks: { ...axisTicks, callback: formatINR }, grid: gridY }, x: { border: { display: false }, ticks: { ...axisTicks, maxRotation: 0, maxTicksLimit: 7 }, grid: { display: false } } }
+        }
+      });
+    }
+    const dealsCtx = document.getElementById('dealsChart');
+    if (dealsCtx) {
+      const maxD = Math.max(...cd.dailyDeals, 1);
+      new Chart(dealsCtx, {
+        type: 'bar',
+        data: { labels: cd.dailyLabels, datasets: [{ data: cd.dailyDeals, backgroundColor: 'rgba(22,163,74,.8)', borderRadius: 8, maxBarThickness: 48 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { title: (i) => tooltipDate(i[0]?.dataIndex), label: (c) => c.parsed.y + ' deals closed' } } },
+          scales: { y: { beginAtZero: true, suggestedMax: maxD + 1, ticks: { ...axisTicks, stepSize: 1, precision: 0 }, grid: gridY, border: { display: false } }, x: { ticks: { ...axisTicks, maxRotation: 0, maxTicksLimit: 7 }, grid: { display: false }, border: { display: false } } }
+        }
+      });
+    }
+  } else {
+    empty('revenueChart', 'No team revenue this month');
+    empty('dealsChart', 'No deals closed this month');
+  }
+
+  const agentCtx = document.getElementById('agentChart');
+  if (agentCtx && cd.agentNames?.length) {
+    new Chart(agentCtx, {
+      type: 'bar',
+      data: {
+        labels: cd.agentNames,
+        datasets: [{ label: 'Revenue', data: cd.agentRevenue, backgroundColor: 'rgba(168,85,247,.75)', borderRadius: 8, maxBarThickness: 40 }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => formatINRFull(c.parsed.x) + ' · ' + (cd.agentDeals[c.dataIndex] || 0) + ' deals' } } },
+        scales: { x: { beginAtZero: true, ticks: { callback: formatINR }, grid: gridY, border: { display: false } }, y: { grid: { display: false }, border: { display: false }, ticks: axisTicks } }
+      }
+    });
+  } else if (agentCtx) {
+    empty('agentChart', 'No agent performance data yet');
+  }
+
+  const stageEl = document.getElementById('stageChart');
+  if (stageEl) {
+    new Chart(stageEl, {
+      type: 'doughnut',
+      data: { labels: cd.stageLabels, datasets: [{ data: cd.stageOpen, backgroundColor: ['#6366f1', '#0ea5e9', '#f59e0b'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14 } } } }
+    });
+  }
+})();
+</script>

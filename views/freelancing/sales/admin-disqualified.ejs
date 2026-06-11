@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Disqualified Leads</h1>
+        <p>Team-wide view of leads marked not a fit — review reasons and patterns to improve qualification for <strong><%= filters.selectedMonth %></strong>.</p>
+      </div>
+      <div class="agent-page-header__actions">
+        <select class="agent-month-select" onchange="location.href='/sales/rejected-leads?month='+encodeURIComponent(this.value)">
+          <% filters.monthOptions.forEach(function(mm){ %>
+            <option value="<%= mm %>" <%= mm===filters.selectedMonth?'selected':'' %>><%= mm %></option>
+          <% }) %>
+        </select>
+        <a href="/sales/admin/pipeline?month=<%= filters.selectedMonth %>" class="agent-btn agent-btn--primary"><i class="bi bi-columns-gap"></i> Team Pipeline</a>
+      </div>
+    </header>
+
+    <div class="agent-metrics mb-3" style="grid-template-columns:repeat(3,1fr);max-width:720px;">
+      <div class="agent-metric" style="--metric-accent:#ef4444;--metric-bg:#fef2f2;">
+        <div class="agent-metric__label">Disqualified This Month</div>
+        <div class="agent-metric__value"><%= rows.length %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#6366f1;--metric-bg:#eef2ff;">
+        <div class="agent-metric__label">Period</div>
+        <div class="agent-metric__value" style="font-size:20px;"><%= filters.selectedMonth %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#64748b;--metric-bg:#f8fafc;">
+        <div class="agent-metric__label">Status</div>
+        <div class="agent-metric__value" style="font-size:18px;">Global Reject</div>
+      </div>
+    </div>
+
+    <div class="agent-table-card">
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>Contact</th>
+              <th>Project Need</th>
+              <th>Disqualification Reason</th>
+              <th>Last Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="4" class="agent-empty"><i class="bi bi-check2-circle"></i>No disqualified leads this month.</td></tr>
+            <% } %>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td>
+                  <div class="crm-lead-name"><%= r.name||'Unnamed' %> <span class="crm-chip">#<%= r.tempid %></span></div>
+                  <div class="crm-small"><%= r.phone||'—' %></div>
+                </td>
+                <td>
+                  <div style="font-weight:800;"><%= r.enquiry_title||'—' %></div>
+                  <div class="crm-small crm-clamp2"><%= r.enquiry_description||'' %></div>
+                </td>
+                <td><div class="crm-clamp2"><%= r.crm_reject_reason||'No reason recorded' %></div></td>
+                <td class="crm-small"><%= r.crm_updated_at?new Date(r.crm_updated_at).toLocaleString():'—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

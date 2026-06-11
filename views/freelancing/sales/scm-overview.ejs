@@ -1,152 +1,116 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title><%= pageTitle %></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="/sales/sales.css?v=4">
-  <style>.scm-tick { color: #10b981; } .scm-cross { color: #ef4444; } .scm-thumb { max-width:80px; max-height:60px; object-fit:cover; border-radius:6px; margin:4px; }</style>
-</head>
-<body>
-
-<div class="crm-layout">
-  <aside class="crm-sidebar-wrap">
-    <%- include('partials/sidebar', { user, active }) %>
-  </aside>
-
-  <main class="crm-main">
-
-    <div class="topbar">
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: 'Source Code Manager' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
       <div>
-        <div class="topTitle"><%= pageTitle %></div>
-        <div class="topSub">View screenshots, demo links, and diagrams. Click Edit to add/update/delete.</div>
+        <h1>Source Code Manager</h1>
+        <p>Audit screenshots, demo links, diagrams, and database assets across the product catalog. Verify completed work before publishing.</p>
+      </div>
+    </header>
+
+    <%- include('partials/admin-module-tabs', { module: 'scm', activeTab: 'overview' }) %>
+
+    <% if (error) { %><div class="admin-alert admin-alert--danger"><%= error %></div><% } %>
+    <% if (success) { %><div class="admin-alert admin-alert--success"><%= success %></div><% } %>
+
+    <div class="agent-metrics mb-3" style="grid-template-columns:repeat(3,1fr);max-width:720px;">
+      <div class="agent-metric" style="--metric-accent:#6366f1;--metric-bg:#eef2ff;">
+        <div class="agent-metric__label">Total Products</div>
+        <div class="agent-metric__value"><%= stats.total %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
+        <div class="agent-metric__label">Incomplete</div>
+        <div class="agent-metric__value"><%= stats.pending %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
+        <div class="agent-metric__label">Complete</div>
+        <div class="agent-metric__value"><%= stats.complete %></div>
       </div>
     </div>
 
-    <% if (error) { %>
-      <div class="alert alert-danger mb-3"><%= error %></div>
-    <% } %>
-    <% if (success) { %>
-      <div class="alert alert-success mb-3"><%= success %></div>
-    <% } %>
-
-    <div class="crm-card mb-3">
-      <div class="p-3 d-flex flex-wrap gap-3 align-items-center">
-        <a class="btn btn-sm <%= filters.tab === 'all' ? 'btn-primary' : 'btn-outline-secondary' %>" href="/sales/admin/source-code-manager<%= filters.q ? '?q=' + encodeURIComponent(filters.q) : '' %>">All</a>
-        <a class="btn btn-sm <%= filters.tab === 'pending' ? 'btn-warning' : 'btn-outline-secondary' %>" href="/sales/admin/source-code-manager?tab=pending<%= filters.q ? '&q=' + encodeURIComponent(filters.q) : '' %>">
-          Pending (<%= stats.pending %>)
-        </a>
-        <a class="btn btn-sm <%= filters.tab === 'complete' ? 'btn-success' : 'btn-outline-secondary' %>" href="/sales/admin/source-code-manager?tab=complete<%= filters.q ? '&q=' + encodeURIComponent(filters.q) : '' %>">
-          Complete (<%= stats.complete %>)
-        </a>
-        <form method="GET" action="/sales/admin/source-code-manager" class="d-flex align-items-center gap-2">
-          <input type="hidden" name="tab" value="<%= filters.tab %>">
-          <input type="search" name="q" class="form-control form-control-sm" style="width:200px;" value="<%= filters.q || '' %>" placeholder="Search name…">
-          <button type="submit" class="btn btn-sm btn-outline-secondary">Search</button>
-        </form>
-      </div>
+    <div class="admin-filter-bar">
+      <a class="admin-filter-pill <%= filters.tab === 'all' ? 'is-active' : '' %>" href="/sales/admin/source-code-manager<%= filters.q ? '?q=' + encodeURIComponent(filters.q) : '' %>">All</a>
+      <a class="admin-filter-pill <%= filters.tab === 'pending' ? 'is-active is-active--warn' : '' %>" href="/sales/admin/source-code-manager?tab=pending<%= filters.q ? '&q=' + encodeURIComponent(filters.q) : '' %>">
+        Pending <span class="admin-filter-pill__count">(<%= stats.pending %>)</span>
+      </a>
+      <a class="admin-filter-pill <%= filters.tab === 'complete' ? 'is-active is-active--ok' : '' %>" href="/sales/admin/source-code-manager?tab=complete<%= filters.q ? '&q=' + encodeURIComponent(filters.q) : '' %>">
+        Complete <span class="admin-filter-pill__count">(<%= stats.complete %>)</span>
+      </a>
+      <form method="GET" action="/sales/admin/source-code-manager" class="ms-auto d-flex gap-2">
+        <input type="hidden" name="tab" value="<%= filters.tab %>">
+        <input type="search" name="q" class="form-control" style="max-width:220px;border-radius:12px;" value="<%= filters.q || '' %>" placeholder="Search products…">
+        <button type="submit" class="agent-btn agent-btn--primary agent-btn--sm"><i class="bi bi-search"></i></button>
+      </form>
     </div>
 
-    <div class="crm-card">
-      <div class="p-3 border-bottom" style="border-color: var(--line) !important;">
-        <div class="fw-bold">Source Code List</div>
-        <div class="mutedSmall">✓ = present, ✗ = missing. Click "View all" to see screenshots. Click "Edit" to add/update/delete screenshots, demo link, and diagrams.</div>
-      </div>
-
-      <div class="p-3">
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead>
+    <div class="agent-table-card">
+      <div class="p-3 border-bottom"><div class="fw-bold">Product Catalog</div><div class="crm-small"><%= rows.length %> items · ✓ present · ✗ missing</div></div>
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Product</th><th>Category</th><th>Screenshots</th><th>Demo</th>
+              <th>Diagrams</th><th>DB SS</th><th>Verified</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="9" class="agent-empty"><i class="bi bi-code-square"></i>No source codes found.</td></tr>
+            <% } %>
+            <% (rows || []).forEach(function(r){ %>
               <tr>
-                <th style="width:50px;">ID</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th style="width:140px;">Screenshots</th>
-                <th style="width:120px;">Demo</th>
-                <th style="width:90px;">Diagrams</th>
-                <th style="width:70px;">DB SS</th>
-                <th>Admin Verified</th>
-                <th style="width:260px;">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (!rows.length) { %>
-                <tr><td colspan="9" class="py-4 mutedSmall">No source codes found.</td></tr>
-              <% } %>
-              <% (rows || []).forEach(function(r){ %>
-                <tr>
-                  <td class="fw-semibold">#<%= r.id %></td>
-                  <td><%= r.name || '-' %></td>
-                  <td><span class="badge bg-secondary"><%= r.category || '-' %></span></td>
-                  <td>
-                    <% if (r.hasScreenshot) { %>
-                    <i class="bi bi-check-circle-fill scm-tick" title="Present">✓</i>
+                <td><span class="crm-chip">#<%= r.id %></span></td>
+                <td><strong><%= r.name || '—' %></strong></td>
+                <td><span class="agent-badge agent-badge--muted"><%= r.category || '—' %></span></td>
+                <td class="crm-small">
+                  <% if (r.hasScreenshot) { %>
+                    <span class="admin-tick">✓</span>
                     <% var ssList = r.viewableScreenshots || []; %>
-                    <% if (ssList.length > 0) { %>
-                    <a href="#" class="ms-1 small view-screenshots-btn" data-screenshots="<%= encodeURIComponent(JSON.stringify(ssList)) %>" data-name="<%= (r.name || '').replace(/"/g, '&quot;') %>">View all (<%= ssList.length %>)</a>
+                    <% if (ssList.length) { %>
+                      <a href="#" class="crm-linktext view-screenshots-btn ms-1" data-screenshots="<%= encodeURIComponent(JSON.stringify(ssList)) %>" data-name="<%= (r.name || '').replace(/"/g, '&quot;') %>">(<%= ssList.length %>)</a>
                     <% } %>
-                    <% } else { %><i class="bi bi-x-circle-fill scm-cross" title="Missing">✗</i><% } %>
-                  </td>
-                  <td>
-                    <% if (r.hasDemo) { %>
-                    <i class="bi bi-check-circle-fill scm-tick" title="Present">✓</i>
-                    <a href="<%= r.demo_url %>" target="_blank" rel="noopener" class="ms-1 small">View Demo</a>
-                    <% } else { %><i class="bi bi-x-circle-fill scm-cross" title="Missing">✗</i><% } %>
-                  </td>
-                  <td class="small">
-                    <% if (r.hasAllDiagrams) { %><i class="bi bi-check-circle-fill scm-tick" title="All 10 diagrams">✓</i>
-                    <% } else { %><span title="<%= r.diagramCount || 0 %>/10"><i class="bi bi-diagram-3 scm-cross"></i> <%= r.diagramCount || 0 %>/10</span><% } %>
-                  </td>
-                  <td class="small">
-                    <% if (r.hasDbScreenshots) { %>
-                    <i class="bi bi-check-circle-fill scm-tick" title="<%= r.dbScreenshotCount || 0 %> database screenshots"></i> <%= r.dbScreenshotCount || 0 %>
-                    <% if (r.hasAllDatatables) { %><span class="text-success" title="All have datatable">✓</span><% } else if (r.dbWithDatatableCount !== undefined) { %><span class="text-warning" title="<%= r.dbWithDatatableCount %>/<%= r.dbScreenshotCount %> have datatable">(<%= r.dbWithDatatableCount %>/<%= r.dbScreenshotCount %>)</span><% } %>
-                    <% } else { %><i class="bi bi-x-circle-fill scm-cross" title="Missing"></i><% } %>
-                  </td>
-                  <td class="small">
-                    <% if (r.scm_screenshot_verified && r.scm_demo_verified) { %>
-                    <span class="text-success">✓ Verified</span>
-                    <% } else { %>
-                    <span class="text-muted">—</span>
-                    <% } %>
-                  </td>
-                  <td>
-                    <a class="btn btn-sm btn-primary me-1" href="/source-code-manager/edit/<%= r.id %>">Edit Screenshots, Demo & Diagrams</a>
-                    <% var canVerifyAll = r.hasScreenshot && r.hasDemo && (!r.scm_screenshot_verified || !r.scm_demo_verified); %>
-                    <% if (canVerifyAll) { %>
-                    <button type="button" class="btn btn-sm btn-success verify-btn me-1" data-id="<%= r.id %>" data-field="all">Verify All</button>
-                    <% } %>
-                    <% if (r.hasScreenshot && !r.scm_screenshot_verified && !canVerifyAll) { %>
-                    <button type="button" class="btn btn-sm btn-success verify-btn me-1" data-id="<%= r.id %>" data-field="screenshot">Verify SS</button>
-                    <% } %>
-                    <% if (r.hasDemo && !r.scm_demo_verified && !canVerifyAll) { %>
-                    <button type="button" class="btn btn-sm btn-success verify-btn" data-id="<%= r.id %>" data-field="demo">Verify Demo</button>
-                    <% } %>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
+                  <% } else { %><span class="admin-cross">✗</span><% } %>
+                </td>
+                <td class="crm-small">
+                  <% if (r.hasDemo) { %><span class="admin-tick">✓</span> <a href="<%= r.demo_url %>" target="_blank" rel="noopener" class="crm-linktext">Open</a>
+                  <% } else { %><span class="admin-cross">✗</span><% } %>
+                </td>
+                <td class="crm-small">
+                  <% if (r.hasAllDiagrams) { %><span class="admin-tick">✓</span><% } else { %><%= r.diagramCount || 0 %>/10<% } %>
+                </td>
+                <td class="crm-small">
+                  <% if (r.hasDbScreenshots) { %><%= r.dbScreenshotCount %><% } else { %><span class="admin-cross">✗</span><% } %>
+                </td>
+                <td>
+                  <% if (r.scm_screenshot_verified && r.scm_demo_verified) { %>
+                    <span class="admin-status admin-status--done">Verified</span>
+                  <% } else { %><span class="crm-small">—</span><% } %>
+                </td>
+                <td>
+                  <a class="agent-btn agent-btn--ghost agent-btn--sm" href="/source-code-manager/edit/<%= r.id %>"><i class="bi bi-pencil"></i> Edit</a>
+                  <% var canVerifyAll = r.hasScreenshot && r.hasDemo && (!r.scm_screenshot_verified || !r.scm_demo_verified); %>
+                  <% if (canVerifyAll) { %>
+                    <button type="button" class="agent-btn agent-btn--success agent-btn--sm verify-btn" data-id="<%= r.id %>" data-field="all">Verify</button>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
       </div>
     </div>
-
   </main>
 </div>
 
-<!-- Screenshots Modal -->
 <div class="modal fade" id="screenshotsModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="screenshotsModalTitle">Screenshots</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="screenshotsModalBody">
-        <div class="d-flex flex-wrap gap-2" id="screenshotsModalThumbs"></div>
-      </div>
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header border-0"><h5 class="modal-title fw-bold" id="screenshotsModalTitle">Screenshots</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><div class="d-flex flex-wrap gap-3" id="screenshotsModalThumbs"></div></div>
     </div>
   </div>
 </div>
@@ -155,60 +119,33 @@
 <script>
 document.querySelectorAll('.verify-btn').forEach(function(btn){
   btn.addEventListener('click', async function(){
-    const id = this.dataset.id;
-    const field = this.dataset.field;
-    const res = await fetch('/sales/api/admin/source-code-manager/' + id + '/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'field=' + encodeURIComponent(field)
+    const res = await fetch('/sales/api/admin/source-code-manager/' + this.dataset.id + '/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'field=' + encodeURIComponent(this.dataset.field)
     });
     const j = await res.json();
-    if (j.ok) { window.location.reload(); } else { alert(j.message || 'Failed'); }
+    if (j.ok) window.location.reload(); else alert(j.message || 'Failed');
   });
 });
-
 document.querySelectorAll('.view-screenshots-btn').forEach(function(btn){
   btn.addEventListener('click', function(e){
     e.preventDefault();
     let screenshots = [];
-    try {
-      screenshots = JSON.parse(decodeURIComponent(this.dataset.screenshots || '[]'));
-    } catch(_) { screenshots = []; }
-    const name = this.dataset.name || 'Screenshots';
-    document.getElementById('screenshotsModalTitle').textContent = name + ' - ' + screenshots.length + ' screenshot(s)';
+    try { screenshots = JSON.parse(decodeURIComponent(this.dataset.screenshots || '[]')); } catch(_) {}
+    document.getElementById('screenshotsModalTitle').textContent = (this.dataset.name || 'Product') + ' — ' + screenshots.length + ' screenshot(s)';
     const container = document.getElementById('screenshotsModalThumbs');
     container.innerHTML = '';
     screenshots.forEach(function(ss){
       const url = typeof ss === 'string' ? ss : (ss.url || '');
-      const type = typeof ss === 'object' ? (ss.type || '') : '';
-      const nm = typeof ss === 'object' ? (ss.name || '') : '';
-      const typeLabel = type === 'output_design' ? 'Output Design' : type === 'input_design' ? 'Input Design' : '';
-      const label = (typeLabel ? typeLabel + (nm ? ': ' + nm : '') : nm) || '';
       const wrap = document.createElement('div');
-      wrap.className = 'd-flex flex-column align-items-center';
-      const a = document.createElement('a');
-      a.href = url;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      const img = document.createElement('img');
-      img.src = url;
-      img.alt = nm || 'Screenshot';
-      img.className = 'scm-thumb';
-      img.onerror = function(){ this.parentElement.innerHTML = '<span class="small text-muted">Failed to load</span>'; };
-      a.appendChild(img);
-      wrap.appendChild(a);
-      if (label) {
-        const lbl = document.createElement('span');
-        lbl.className = 'small mt-1 text-muted';
-        lbl.textContent = label;
-        wrap.appendChild(lbl);
-      }
-      container.appendChild(wrap);
+      wrap.className = 'text-center';
+      const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener';
+      const img = document.createElement('img'); img.src = url; img.className = 'admin-thumb'; img.alt = 'Screenshot';
+      a.appendChild(img); wrap.appendChild(a); container.appendChild(wrap);
     });
     new bootstrap.Modal(document.getElementById('screenshotsModal')).show();
   });
 });
 </script>
-
 </body>
 </html>

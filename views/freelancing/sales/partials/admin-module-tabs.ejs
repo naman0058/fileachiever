@@ -1,0 +1,36 @@
+<%#
+  module: setupSupport | scm | prm | prc | liveDemo
+  activeTab: overview | employees | list | add
+%>
+<%
+  const tabs = {
+    setupSupport: {
+      overview: { href: '/sales/admin/setup-support', label: 'Requests', icon: 'bi-inbox' },
+      employees: { href: '/sales/admin/setup-support/employees', label: 'Team', icon: 'bi-people' }
+    },
+    scm: {
+      overview: { href: '/sales/admin/source-code-manager', label: 'Catalog', icon: 'bi-code-square' },
+      employees: { href: '/sales/admin/source-code-manager/employees', label: 'Team', icon: 'bi-people' }
+    },
+    prm: {
+      overview: { href: '/sales/admin/project-report-manager', label: 'Reports', icon: 'bi-file-earmark-text' },
+      employees: { href: '/sales/admin/project-report-manager/employees', label: 'Team', icon: 'bi-people' }
+    },
+    prc: {
+      overview: { href: '/sales/admin/project-report-creator', label: 'Topics', icon: 'bi-journal-plus' },
+      employees: { href: '/sales/admin/project-report-creator/employees', label: 'Team', icon: 'bi-people' }
+    },
+    liveDemo: {
+      list: { href: '/sales/admin/live-demo', label: 'All Demos', icon: 'bi-play-circle' },
+      add: { href: '/sales/admin/live-demo/add', label: 'Add New', icon: 'bi-plus-lg' }
+    }
+  };
+  const mod = tabs[module] || {};
+%>
+<nav class="admin-module-tabs">
+  <% Object.entries(mod).forEach(function([key, t]) { %>
+    <a href="<%= t.href %>" class="admin-module-tabs__link <%= activeTab === key ? 'is-active' : '' %>">
+      <i class="bi <%= t.icon %>"></i><%= t.label %>
+    </a>
+  <% }) %>
+</nav>

@@ -1,0 +1,836 @@
+<%
+  function buildUrl(params){
+    const url = new URL((mode === 'admin') ? 'http://x/sales/admin' : 'http://x/sales/my');
+    Object.entries(params).forEach(([k,v]) => {
+      if (v === undefined || v === null || v === '') url.searchParams.delete(k);
+      else url.searchParams.set(k, String(v));
+    });
+    return url.pathname + url.search;
+  }
+
+  // Safe attribute escape (for data-* attributes)
+  function escAttr(s){
+    return String(s ?? '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap">
+    <%- include('partials/admin-sidebar', { user, active }) %>
+  </div>
+  <main class="agent-main">
+    <%- include('partials/lead-socket-alert') %>
+
+    <header class="agent-page-header">
+      <div>
+        <h1>Team Lead Assignments</h1>
+        <p>Manage all agent assignments — filter by executive, stage, or status and take action on any lead.</p>
+      </div>
+      <div class="agent-page-header__actions">
+        <div class="agent-view-tabs">
+          <a href="/sales/admin/pipeline?month=<%= filters.selectedMonth %>"><i class="bi bi-columns-gap"></i> Pipeline Board</a>
+          <a href="/sales/admin?month=<%= filters.selectedMonth %>" class="is-active"><i class="bi bi-list-ul"></i> List View</a>
+        </div>
+        <a href="/sales/admin/new-sale" class="agent-btn agent-btn--primary"><i class="bi bi-plus-lg"></i> Record Sale</a>
+      </div>
+    </header>
+
+    <div class="agent-table-card">
+      <!-- Filters -->
+      <div class="crm-filters">
+        <div class="crm-field">
+          <label>Month</label>
+          <select class="form-select" onchange="location.href=this.value">
+            <% filters.monthOptions.forEach(function(mm){ %>
+              <option value="<%= buildUrl({ month: mm, stage: filters.stage, status: filters.status, agent: filters.agent, q: filters.q }) %>"
+                <%= mm === filters.selectedMonth ? 'selected' : '' %>>
+                <%= mm %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="crm-field">
+          <label>Status</label>
+          <select class="form-select" onchange="location.href=this.value">
+            <% ['open','rejected','closed'].forEach(function(st){ %>
+              <option value="<%= buildUrl({ status: st, month: filters.selectedMonth, stage: filters.stage, agent: filters.agent, q: filters.q }) %>"
+                <%= st === filters.status ? 'selected' : '' %>>
+                <%= st %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="crm-field">
+          <label>Stage</label>
+          <select class="form-select" onchange="location.href=this.value">
+            <option value="<%= buildUrl({ stage: '', month: filters.selectedMonth, status: filters.status, agent: filters.agent, q: filters.q }) %>"
+              <%= filters.stage===''?'selected':'' %>>
+              All
+            </option>
+            <% stages.forEach(function(s){ %>
+              <option value="<%= buildUrl({ stage: s.key, month: filters.selectedMonth, status: filters.status, agent: filters.agent, q: filters.q }) %>"
+                <%= s.key === filters.stage ? 'selected' : '' %>>
+                <%= s.label %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <% if (mode === 'admin') { %>
+          <div class="crm-field">
+            <label>Agent</label>
+            <select class="form-select" onchange="location.href=this.value">
+              <option value="<%= buildUrl({ agent: '', month: filters.selectedMonth, status: filters.status, stage: filters.stage, q: filters.q }) %>"
+                <%= !filters.agent?'selected':'' %>>
+                All
+              </option>
+              <% agents.forEach(function(a){ %>
+                <option value="<%= buildUrl({ agent: a.id, month: filters.selectedMonth, status: filters.status, stage: filters.stage, q: filters.q }) %>"
+                  <%= Number(filters.agent) === Number(a.id) ? 'selected' : '' %>>
+                  <%= a.name %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+        <% } %>
+
+        <div class="crm-field">
+          <label>Search</label>
+          <form method="GET" action="<%= mode==='admin'?'/sales/admin':'/sales/my' %>" class="d-flex gap-2">
+            <input name="month" type="hidden" value="<%= filters.selectedMonth %>"/>
+            <input name="status" type="hidden" value="<%= filters.status %>"/>
+            <input name="stage" type="hidden" value="<%= filters.stage %>"/>
+            <% if (mode === 'admin') { %><input name="agent" type="hidden" value="<%= filters.agent %>"/><% } %>
+
+            <input class="form-control" name="q" value="<%= filters.q || '' %>" placeholder="Name / phone / enquiry / tempid"/>
+            <button class="btn btn-primary btn-soft" type="submit">Go</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>Lead</th>
+              <th>Enquiry</th>
+              <% if (mode === 'admin') { %><th>Agent</th><% } %>
+              <th>Stage</th>
+              <th>Follow-up</th>
+              <th>Last Note</th>
+              <th>Updated</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% if (!rows.length) { %>
+              <tr>
+                <td colspan="<%= mode==='admin'?8:7 %>" class="crm-small" style="padding:18px;">No records.</td>
+              </tr>
+            <% } %>
+
+            <% rows.forEach(function(r){ %>
+              <tr
+                class="crm-row"
+                data-assignment-id="<%= r.assignment_id %>"
+                data-lead-id="<%= r.lead_id %>"
+                data-lead-name="<%= escAttr(r.name || '') %>"
+                data-lead-phone="<%= escAttr(r.phone || '') %>"
+                data-lead-enquiry="<%= escAttr(r.enquiry_title || '') %>"
+                data-stage="<%= escAttr(r.assignment_stage || '') %>"
+                data-status="<%= escAttr(r.assignment_status || '') %>"
+              >
+                <td>
+                  <div class="crm-lead-name">
+                    <%= r.name || 'Unnamed' %>
+                    <span class="crm-chip">#<%= r.tempid %></span>
+                  </div>
+                  <div class="crm-small mt-1">
+                    <span class="crm-linktext" onclick="copyText('<%= (r.phone||'').replace(/'/g,"\\'") %>')"><%= r.phone || '-' %></span>
+                    <span class="mx-2">•</span>
+                    <%= new Date(r.detected_at_utc).toLocaleString() %>
+                  </div>
+                </td>
+
+                <td>
+                  <div style="font-weight:900;"><%= (r.enquiry_title || '-') %></div>
+                  <div class="crm-small crm-clamp2"><%= (r.enquiry_description || '') %></div>
+                </td>
+
+                <% if (mode === 'admin') { %>
+                  <td>
+                    <div style="font-weight:900;"><%= r.user_name %></div>
+                    <button type="button" class="btn btn-light btn-soft-outline mt-2"
+                      onclick="openAssignMore(<%= r.lead_id %>)">
+                      Assign More
+                    </button>
+                  </td>
+                <% } %>
+
+                <td>
+                  <div class="crm-pills">
+                    <button type="button" class="crm-pill <%= r.assignment_stage==='new'?'on':'' %>"
+                      onclick="setStage(<%= r.assignment_id %>,'new')">New</button>
+
+                    <button type="button" class="crm-pill <%= r.assignment_stage==='followup'?'on':'' %>"
+                      onclick="followUpNow(<%= r.assignment_id %>,'<%= (r.name||'Lead').replace(/'/g,"\\'") %>')">Follow-up</button>
+
+                    <button type="button" class="crm-pill <%= r.assignment_stage==='interested'?'on':'' %>"
+                      onclick="setStage(<%= r.assignment_id %>,'interested')">More Interested</button>
+                  </div>
+
+                  <% if (r.assignment_status !== 'open') { %>
+                    <div class="mt-2">
+                      <span class="agent-badge <%= r.assignment_status === 'rejected' ? 'agent-badge--danger' : 'agent-badge--muted' %>">
+                        <%= r.assignment_status %>
+                      </span>
+                      <% if (r.assignment_reject_reason) { %>
+                        <div class="crm-small mt-1 crm-clamp2"><%= r.assignment_reject_reason %></div>
+                      <% } %>
+                    </div>
+                  <% } %>
+                </td>
+
+                <td>
+                  <% if (r.last_next_followup_date) { %>
+                    <div style="font-weight:900;"><%= r.last_next_followup_date %></div>
+                  <% } else { %>
+                    <div class="crm-small">—</div>
+                  <% } %>
+                </td>
+
+                <td>
+                  <% if (r.last_note) { %>
+                    <div class="crm-clamp2"><%= r.last_note %></div>
+                    <div class="crm-small mt-1">
+                      <%= r.last_day_label || '' %>
+                      <span class="mx-2">•</span>
+                      <%= r.last_call_at ? new Date(r.last_call_at).toLocaleString() : '' %>
+                    </div>
+                  <% } else { %>
+                    <div class="crm-small">No logs</div>
+                  <% } %>
+                </td>
+
+                <td>
+                  <div class="crm-small">
+                    <%= r.assignment_updated_at ? new Date(r.assignment_updated_at).toLocaleString() : '' %>
+                  </div>
+                </td>
+
+                <td class="text-end">
+                  <div class="crm-actions">
+                    <button type="button" class="btn btn-light btn-soft-outline btn-sm"
+                      onclick="openLogs(<%= r.assignment_id %>,'<%= (r.name||'Lead').replace(/'/g,"\\'") %>')">
+                      <i class="bi bi-journal-text"></i> Logs
+                    </button>
+
+                    <% if (mode === 'admin') { %>
+                      <button type="button" class="btn btn-light btn-soft-outline btn-sm"
+                        onclick="openEditLead(<%= r.lead_id %>)">Edit</button>
+                    <% } %>
+
+                    <% if (r.assignment_status === 'open' && r.lead_status === 'open') { %>
+                      <button type="button" class="btn btn-outline-danger btn-soft btn-sm"
+                        onclick="openReject(<%= r.assignment_id %>,'<%= (r.name||'Lead').replace(/'/g,"\\'") %>')">
+                        <i class="bi bi-x-lg"></i> Reject
+                      </button>
+                      <button type="button" class="btn btn-success btn-soft btn-sm"
+                        onclick="openConvert(<%= r.assignment_id %>,'<%= (r.name||'Lead').replace(/'/g,"\\'") %>')">
+                        <i class="bi bi-check-lg"></i> Convert
+                      </button>
+                    <% } else if (r.assignment_status === 'rejected') { %>
+                      <a class="btn btn-light btn-soft-outline btn-sm" href="/sales/rejected-leads?month=<%= filters.selectedMonth %>">
+                        View Rejected
+                      </a>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ========== MODALS ========== -->
+
+<!-- Logs Modal -->
+<div class="modal fade" id="logsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logsTitle">Call Logs</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="logsAssignmentId" />
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Next Follow-up Date (optional)</label>
+            <input id="logsNextDate" type="date" class="form-control"/>
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label fw-bold">Note</label>
+            <textarea id="logsNote" class="form-control" rows="3"
+              placeholder="Not picked, sent proposal, asked to call tomorrow, etc."></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button class="btn btn-primary btn-soft" type="button" onclick="addLog()">Add Entry</button>
+        </div>
+
+        <div class="mt-3" id="logsTimeline"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rejectTitle"><i class="bi bi-x-circle text-danger"></i> Reject Lead</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="rejectAssignmentId"/>
+        <p class="crm-small mb-3">This lead will be marked rejected on your assignment. You can review it later under Rejected Leads.</p>
+        <label class="form-label fw-bold">Reason (optional)</label>
+        <textarea id="rejectReason" class="form-control" rows="3" placeholder="Not interested, wrong number, budget too low…"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light btn-soft-outline" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger btn-soft" onclick="doReject()">Confirm Reject</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Convert Modal -->
+<div class="modal fade" id="convertModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="convertTitle">Convert</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="convertAssignmentId" />
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Name (Required)</label>
+            <input id="convertName" class="form-control" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Number (Required)</label>
+            <input id="convertNumber" class="form-control" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Enquiry (Required)</label>
+            <input id="convertEnquiry" class="form-control" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Lead Price (Required)</label>
+            <input id="convertLeadPrice" type="number" min="0" step="0.01" class="form-control" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Agent Price</label>
+            <input id="convertAgentPrice" type="number" min="0" step="0.01" class="form-control" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Deadline</label>
+            <input id="convertDeadline" type="date" class="form-control"/>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Advance Amount</label>
+            <input id="convertAdvance" type="number" min="0" step="0.01" class="form-control"/>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Assign</label>
+            <input id="convertAssign" class="form-control" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Pakistani Price</label>
+            <input id="convertPakPrice" type="number" min="0" step="0.01" class="form-control"/>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Sheet UID</label>
+            <input id="convertSheetUid" class="form-control" />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-bold">Remarks</label>
+            <textarea id="convertRemarks" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3 gap-2">
+          <button class="btn btn-light btn-soft-outline" type="button" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-success btn-soft" type="button" onclick="doConvert()">
+            <i class="bi bi-check-circle"></i> Convert to Sale
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin-only Modals -->
+<% if (mode === 'admin') { %>
+<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Assign Lead to More Agents</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="assignLeadId"/>
+        <label class="form-label fw-bold">Select Agents</label>
+        <select id="assignUsers" multiple size="10" class="form-select">
+          <% agents.forEach(function(a){ %>
+            <option value="<%= a.id %>"><%= a.name %></option>
+          <% }) %>
+        </select>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button class="btn btn-primary btn-soft" type="button" onclick="saveAssign()">Assign</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Lead</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="editLeadId"/>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Name</label>
+            <input id="editName" class="form-control"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Phone</label>
+            <input id="editPhone" class="form-control"/>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-bold">Enquiry Title</label>
+            <input id="editTitleField" class="form-control"/>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-bold">Enquiry Description</label>
+            <textarea id="editDesc" class="form-control" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button class="btn btn-success btn-soft" type="button" onclick="saveLead()">Save</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Tiny toast (no extra HTML needed elsewhere) -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+  <div id="copyToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="copyToastBody">Copied</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function apiPost(url, payload){
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify(payload || {})
+    });
+    const data = await resp.json().catch(() => ({}));
+    if(!resp.ok || !data.ok) throw new Error(data.message || ('HTTP ' + resp.status));
+    return data;
+  }
+
+  function showModal(id){
+    const el = document.getElementById(id);
+    const m = bootstrap.Modal.getOrCreateInstance(el);
+    m.show();
+    return m;
+  }
+
+  function toast(msg){
+    const el = document.getElementById('copyToast');
+    const body = document.getElementById('copyToastBody');
+    body.textContent = msg;
+    bootstrap.Toast.getOrCreateInstance(el, { delay: 1800 }).show();
+  }
+
+  function normalizePhone(s){
+    const digits = String(s || '').replace(/\D/g,'');
+    // Accept 10–15 digits, ignore others
+    if(digits.length < 10 || digits.length > 15) return '';
+    return digits;
+  }
+
+  // ====== COPY NUMBERS FEATURE ======
+  // mode:
+  // - 'visible'  => copy all numbers currently visible in table (after month/status/stage/agent/search filtering)
+  // - 'new' | 'followup' | 'interested' => copy numbers for that stage from visible rows
+  // - 'rejected' => copy numbers where assignment_status='rejected' (visible rows)
+  window.copyNumbers = async function(mode){
+    const rows = Array.from(document.querySelectorAll('tbody tr.crm-row'));
+    if(!rows.length){
+      toast('No rows to copy.');
+      return;
+    }
+
+    const phones = [];
+    for(const tr of rows){
+      const stage = (tr.getAttribute('data-stage') || '').toLowerCase();
+      const status = (tr.getAttribute('data-status') || '').toLowerCase();
+      const phoneRaw = tr.getAttribute('data-lead-phone') || '';
+      const phone = normalizePhone(phoneRaw);
+      if(!phone) continue;
+
+      if(mode === 'visible'){
+        phones.push(phone);
+        continue;
+      }
+
+      if(mode === 'rejected'){
+        if(status === 'rejected') phones.push(phone);
+        continue;
+      }
+
+      // stage-specific
+      if(stage === mode) phones.push(phone);
+    }
+
+    // Deduplicate
+    const unique = Array.from(new Set(phones));
+    if(!unique.length){
+      const label = (mode === 'visible') ? 'visible rows' : mode;
+      toast('No numbers found for: ' + label);
+      return;
+    }
+
+    const text = unique.join('\n');
+
+    // copy
+    try{
+      await navigator.clipboard.writeText(text);
+      toast(`Copied ${unique.length} numbers`);
+    }catch(e){
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      toast(`Copied ${unique.length} numbers`);
+    }
+  };
+
+  // Copy single cell phone (existing)
+  window.copyText = async function(text){
+    try { await navigator.clipboard.writeText(text || ''); toast('Copied'); }
+    catch(e){
+      const ta = document.createElement('textarea');
+      ta.value = text || '';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      toast('Copied');
+    }
+  };
+
+  window.setStage = async function(assignmentId, stage){
+    try{
+      await apiPost('/sales/api/assignment/stage', { assignment_id: Number(assignmentId), stage });
+      location.reload();
+    }catch(e){
+      alert('Stage update failed: ' + e.message);
+    }
+  };
+
+  window.rejectAssignment = async function(assignmentId, reason){
+    try{
+      await apiPost('/sales/api/assignment/status', {
+        assignment_id: Number(assignmentId),
+        status: 'rejected',
+        reason: reason || ''
+      });
+      location.reload();
+    }catch(e){
+      alert('Reject failed: ' + e.message);
+    }
+  };
+
+  window.openReject = function(assignmentId, name){
+    document.getElementById('rejectAssignmentId').value = Number(assignmentId);
+    document.getElementById('rejectTitle').innerHTML = '<i class="bi bi-x-circle text-danger"></i> Reject • ' + (name || 'Lead');
+    document.getElementById('rejectReason').value = '';
+    showModal('rejectModal');
+  };
+
+  window.doReject = async function(){
+    const assignment_id = Number(document.getElementById('rejectAssignmentId').value);
+    const reason = (document.getElementById('rejectReason').value || '').trim();
+    try{
+      await window.rejectAssignment(assignment_id, reason);
+    }catch(e){
+      alert('Reject failed: ' + e.message);
+    }
+  };
+
+  // Logs
+  window.openLogs = async function(assignmentId, name){
+    document.getElementById('logsAssignmentId').value = Number(assignmentId);
+    document.getElementById('logsTitle').innerText = 'Call Logs • ' + (name || 'Lead');
+    document.getElementById('logsNote').value = '';
+    document.getElementById('logsNextDate').value = '';
+    document.getElementById('logsTimeline').innerHTML = '';
+
+    showModal('logsModal');
+    await loadLogs(assignmentId);
+  };
+
+  async function loadLogs(assignmentId){
+    const box = document.getElementById('logsTimeline');
+    try{
+      const resp = await fetch('/sales/api/assignment/logs/' + Number(assignmentId));
+      const data = await resp.json();
+      if(!data.ok) throw new Error(data.message || 'Failed');
+
+      if(!data.rows || !data.rows.length){
+        box.innerHTML = '<div class="crm-small">No call logs yet.</div>';
+        return;
+      }
+
+      box.innerHTML = data.rows.map(r => {
+        const dt = new Date(r.created_at).toLocaleString();
+        const next = r.next_followup_date ? (' • Next: ' + r.next_followup_date) : '';
+        return `
+          <div class="log-row">
+            <div class="log-top">
+              <div class="log-day">${String(r.day_label || '')}</div>
+              <div class="crm-small">${dt + next}</div>
+            </div>
+            <div class="log-note">${String(r.note || '')}</div>
+          </div>
+        `;
+      }).join('');
+    }catch(e){
+      box.innerHTML = '<div class="text-danger small">Failed to load logs: ' + e.message + '</div>';
+    }
+  }
+
+  window.addLog = async function(){
+    const assignment_id = Number(document.getElementById('logsAssignmentId').value);
+    const note = (document.getElementById('logsNote').value || '').trim();
+    const next_followup_date = document.getElementById('logsNextDate').value || null;
+    if(!note) return alert('Note is required');
+
+    try{
+      await apiPost('/sales/api/assignment/logs', { assignment_id, note, next_followup_date });
+      document.getElementById('logsNote').value = '';
+      document.getElementById('logsNextDate').value = '';
+      await loadLogs(assignment_id);
+      setTimeout(()=> location.reload(), 150);
+    }catch(e){
+      alert('Add log failed: ' + e.message);
+    }
+  };
+
+  window.followUpNow = async function(assignmentId, leadName){
+    try{
+      await apiPost('/sales/api/assignment/stage', { assignment_id: Number(assignmentId), stage: 'followup' });
+      await window.openLogs(Number(assignmentId), leadName || 'Lead');
+    }catch(e){
+      alert('Follow-up failed: ' + e.message);
+    }
+  };
+
+  // Convert (Bootstrap modal + Prefill)
+  window.openConvert = function(assignmentId, name){
+    const aId = Number(assignmentId);
+    document.getElementById('convertAssignmentId').value = aId;
+    document.getElementById('convertTitle').innerText = 'Convert • ' + (name || 'Lead');
+
+    // reset
+    ['convertName','convertNumber','convertEnquiry','convertLeadPrice','convertAgentPrice','convertDeadline','convertAdvance','convertAssign','convertPakPrice','convertSheetUid','convertRemarks']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+
+    const row = document.querySelector(`tr[data-assignment-id="${aId}"]`);
+    if(row){
+      const leadName = row.getAttribute('data-lead-name') || '';
+      const leadPhone = (row.getAttribute('data-lead-phone') || '').replace(/\D/g,'');
+      const leadEnq = row.getAttribute('data-lead-enquiry') || '';
+
+      document.getElementById('convertName').value = leadName;
+      document.getElementById('convertNumber').value = leadPhone;
+      document.getElementById('convertEnquiry').value = leadEnq;
+    }
+
+    showModal('convertModal');
+  };
+
+  window.doConvert = async function(){
+    const assignment_id = Number(document.getElementById('convertAssignmentId').value);
+
+    const name = (document.getElementById('convertName').value || '').trim();
+    const number = (document.getElementById('convertNumber').value || '').trim();
+    const enquiry = (document.getElementById('convertEnquiry').value || '').trim();
+    const lead_price = document.getElementById('convertLeadPrice').value;
+
+    if(!name) return alert('Name is required');
+    if(!number || !/^\d{10,15}$/.test(number)) return alert('Valid number is required (10–15 digits)');
+    if(!enquiry) return alert('Enquiry is required');
+    if(lead_price === '' || Number(lead_price) < 0) return alert('Lead price is required (>=0)');
+
+    const payload = {
+      assignment_id,
+      name,
+      number,
+      enquiry,
+      lead_price: Number(lead_price),
+      agent_price: document.getElementById('convertAgentPrice').value ? Number(document.getElementById('convertAgentPrice').value) : 0,
+      deadline: document.getElementById('convertDeadline').value || null,
+      assign: (document.getElementById('convertAssign').value || '').trim() || null,
+      advance_amount: document.getElementById('convertAdvance').value ? Number(document.getElementById('convertAdvance').value) : null,
+      pakistani_price: document.getElementById('convertPakPrice').value ? Number(document.getElementById('convertPakPrice').value) : null,
+      sheet_uid: (document.getElementById('convertSheetUid').value || '').trim() || null,
+      remarks: (document.getElementById('convertRemarks').value || '').trim() || null
+    };
+
+    try{
+      await apiPost('/sales/api/assignment/convert', payload);
+      location.reload();
+    }catch(e){
+      alert('Convert failed: ' + e.message);
+    }
+  };
+
+  // Admin
+  window.openAssignMore = function(leadId){
+    const el = document.getElementById('assignLeadId');
+    if(!el) return;
+    el.value = Number(leadId);
+    showModal('assignModal');
+  };
+
+  window.saveAssign = async function(){
+    const lead_id = Number(document.getElementById('assignLeadId').value);
+    const sel = document.getElementById('assignUsers');
+    const user_ids = Array.from(sel.selectedOptions).map(o => Number(o.value)).filter(Boolean);
+    if(!user_ids.length) return alert('Select at least one agent');
+
+    try{
+      await apiPost('/sales/api/lead/assign-more', { lead_id, user_ids });
+      location.reload();
+    }catch(e){
+      alert('Assign failed: ' + e.message);
+    }
+  };
+
+  window.openEditLead = async function(leadId){
+    const id = Number(leadId);
+    document.getElementById('editLeadId').value = id;
+    showModal('editModal');
+
+    try{
+      const resp = await fetch('/sales/api/lead/' + id);
+      const data = await resp.json();
+      if(!data.ok) throw new Error(data.message || 'Failed');
+
+      const l = data.lead;
+      document.getElementById('editName').value = l.name || '';
+      document.getElementById('editPhone').value = l.phone || '';
+      document.getElementById('editTitleField').value = l.enquiry_title || '';
+      document.getElementById('editDesc').value = l.enquiry_description || '';
+    }catch(e){
+      alert('Load lead failed: ' + e.message);
+    }
+  };
+
+  window.saveLead = async function(){
+    const id = Number(document.getElementById('editLeadId').value);
+
+    const payload = {
+      id,
+      name: (document.getElementById('editName').value || '').trim(),
+      phone: (document.getElementById('editPhone').value || '').trim(),
+      enquiry_title: (document.getElementById('editTitleField').value || '').trim(),
+      enquiry_description: (document.getElementById('editDesc').value || '').trim()
+    };
+
+    if(payload.phone && !/^\d{10,15}$/.test(payload.phone)){
+      return alert('Phone must be 10–15 digits');
+    }
+
+    try{
+      await apiPost('/sales/api/lead/update', payload);
+      location.reload();
+    }catch(e){
+      alert('Save failed: ' + e.message);
+    }
+  };
+</script>
+</body>
+</html>

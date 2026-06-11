@@ -1,0 +1,130 @@
+/* Admin CRM accents — extends agent-crm.css */
+.admin-crm { background: #e9edf4; }
+.admin-sidebar { background: linear-gradient(180deg, #1a1033 0%, #2d1b4e 45%, #1a1033 100%); }
+.admin-logo__mark { background: linear-gradient(135deg, #a855f7, #6366f1) !important; box-shadow: 0 8px 24px rgba(168,85,247,.35) !important; }
+.admin-avatar { background: linear-gradient(135deg, #a855f7, #ec4899) !important; }
+.admin-crm .agent-nav__link.is-active { background: linear-gradient(90deg, rgba(168,85,247,.28), rgba(99,102,241,.14)); border-color: rgba(192,132,252,.4); }
+
+.admin-leaderboard { width: 100%; border-collapse: collapse; }
+.admin-leaderboard th {
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+  color: #64748b; padding: 10px 12px; border-bottom: 1px solid #e8edf5; text-align: left;
+}
+.admin-leaderboard td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+.admin-leaderboard tr:hover td { background: #f8fafc; }
+.admin-rank {
+  width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 12px; background: #f1f5f9; color: #475569;
+}
+.admin-rank--1 { background: #fef3c7; color: #b45309; }
+.admin-rank--2 { background: #e2e8f0; color: #475569; }
+.admin-rank--3 { background: #ffedd5; color: #c2410c; }
+
+.admin-agent-bar { display: flex; align-items: center; gap: 10px; }
+.admin-agent-bar__track { flex: 1; height: 8px; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
+.admin-agent-bar__fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #6366f1, #a855f7); }
+
+.agent-deal-card__agent {
+  font-size: 11px; font-weight: 700; color: #7c3aed; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* Module sub-navigation */
+.admin-module-tabs {
+  display: inline-flex; gap: 6px; padding: 4px; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15,23,42,.04);
+}
+.admin-module-tabs__link {
+  display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px;
+  border-radius: 10px; font-size: 13px; font-weight: 700; color: #64748b;
+  text-decoration: none; transition: background .15s, color .15s;
+}
+.admin-module-tabs__link:hover { color: #334155; background: #f8fafc; }
+.admin-module-tabs__link.is-active {
+  background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff;
+  box-shadow: 0 4px 14px rgba(99,102,241,.28);
+}
+
+/* Filter pills */
+.admin-filter-bar {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  padding: 16px 20px; background: #fff; border: 1px solid #e8edf5;
+  border-radius: 16px; margin-bottom: 20px;
+}
+.admin-filter-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+  border-radius: 999px; font-size: 12px; font-weight: 700; text-decoration: none;
+  border: 1px solid #e2e8f0; color: #475569; background: #fff;
+  transition: all .15s;
+}
+.admin-filter-pill:hover { border-color: #cbd5e1; color: #1e293b; }
+.admin-filter-pill.is-active { background: #6366f1; border-color: #6366f1; color: #fff; }
+.admin-filter-pill.is-active--warn { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+.admin-filter-pill.is-active--ok { background: #16a34a; border-color: #16a34a; color: #fff; }
+.admin-filter-pill__count { opacity: .85; font-weight: 800; }
+
+/* Forms */
+.admin-form-card {
+  background: #fff; border: 1px solid #e8edf5; border-radius: 18px;
+  box-shadow: 0 1px 3px rgba(15,23,42,.04); overflow: hidden;
+}
+.admin-form-card__head {
+  padding: 20px 24px; border-bottom: 1px solid #f1f5f9;
+}
+.admin-form-card__title { font-size: 17px; font-weight: 800; margin: 0; }
+.admin-form-card__sub { font-size: 13px; color: #64748b; margin-top: 4px; }
+.admin-form-card__body { padding: 24px; }
+.admin-form-section { margin-bottom: 28px; }
+.admin-form-section__title {
+  font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+  color: #6366f1; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #eef2ff;
+}
+.admin-crm .form-control, .admin-crm .form-select {
+  border-radius: 12px; border-color: #e2e8f0; font-size: 14px; padding: 10px 14px;
+}
+.admin-crm .form-control:focus, .admin-crm .form-select:focus {
+  border-color: #a855f7; box-shadow: 0 0 0 3px rgba(168,85,247,.12);
+}
+.admin-crm .form-label { font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px; }
+
+/* Alerts */
+.admin-alert {
+  padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.admin-alert--danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+.admin-alert--success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+/* Status badges */
+.admin-status {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px;
+  border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+}
+.admin-status--pending { background: #fffbeb; color: #b45309; }
+.admin-status--progress { background: #eff6ff; color: #1d4ed8; }
+.admin-status--done { background: #f0fdf4; color: #15803d; }
+.admin-status--cancel { background: #fef2f2; color: #b91c1c; }
+.admin-status--active { background: #f0fdf4; color: #15803d; }
+.admin-status--inactive { background: #f1f5f9; color: #64748b; }
+
+/* Inline table controls */
+.admin-inline-select {
+  border-radius: 10px !important; border-color: #e2e8f0 !important;
+  font-size: 12px !important; font-weight: 600 !important; padding: 6px 10px !important;
+  min-width: 120px;
+}
+.admin-inline-select.is-saved { border-color: #86efac !important; background: #f0fdf4 !important; }
+
+/* Check icons */
+.admin-tick { color: #16a34a; font-weight: 900; }
+.admin-cross { color: #ef4444; font-weight: 900; }
+.admin-thumb { max-width: 72px; max-height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; }
+
+/* Checkbox grid */
+.admin-check-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+.admin-check-item {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  border: 1px solid #e2e8f0; border-radius: 12px; background: #fafbfc; min-width: 160px;
+}
+.admin-check-item input { width: 18px; height: 18px; accent-color: #6366f1; }
