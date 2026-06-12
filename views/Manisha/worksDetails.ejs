@@ -9,14 +9,17 @@ function formatFolderTitle(name) {
 }
 function portfolioCategory(name) {
   var n = (name || '').toLowerCase();
-  if (n.indexOf('logo') >= 0) return 'Branding';
-  if (n.indexOf('banner') >= 0) return 'Digital ads';
-  if (n.indexOf('animation') >= 0 || n.indexOf('video') >= 0 || n.indexOf('motion') >= 0) return 'Video & motion';
-  if (n.indexOf('packaging') >= 0 || n.indexOf('product') >= 0 || n.indexOf('label') >= 0) return 'Packaging';
+  if (n.indexOf('logo') >= 0) return 'Brand Identity';
+  if (n.indexOf('banner') >= 0) return 'Digital Advertising';
+  if (n.indexOf('animation') >= 0 || n.indexOf('video') >= 0 || n.indexOf('motion') >= 0) return 'Video & Motion';
+  if (n.indexOf('packaging') >= 0 || n.indexOf('product') >= 0 || n.indexOf('label') >= 0) return 'Packaging Design';
   if (n.indexOf('thumbnail') >= 0) return 'Social & YouTube';
-  if (n.indexOf('character') >= 0 || n.indexOf('comic') >= 0) return 'Character design';
-  if (n.indexOf('invitation') >= 0 || n.indexOf('pamph') >= 0 || n.indexOf('broch') >= 0) return 'Print design';
-  return 'Creative work';
+  if (n.indexOf('character') >= 0 || n.indexOf('comic') >= 0) return 'Character Design';
+  if (n.indexOf('invitation') >= 0 || n.indexOf('pamph') >= 0 || n.indexOf('broch') >= 0) return 'Print Design';
+  if (n.indexOf('content') >= 0) return 'Content & Copy';
+  if (n.indexOf('catalog') >= 0) return 'Catalog Design';
+  if (n.indexOf('t-shirt') >= 0 || n.indexOf('shirt') >= 0) return 'Merchandise Design';
+  return 'Creative Studio';
 }
 function portfolioIcon(name) {
   var n = (name || '').toLowerCase();
@@ -27,7 +30,26 @@ function portfolioIcon(name) {
   if (n.indexOf('motion') >= 0) return 'bi-play-circle';
   if (n.indexOf('character') >= 0) return 'bi-person-bounding-box';
   if (n.indexOf('packaging') >= 0 || n.indexOf('product') >= 0) return 'bi-box-seam';
+  if (n.indexOf('content') >= 0) return 'bi-pencil-square';
   return 'bi-collection';
+}
+function portfolioScope(name) {
+  var n = (name || '').toLowerCase();
+  if (n.indexOf('logo') >= 0) return 'End-to-end brand identity systems for startups and established businesses.';
+  if (n.indexOf('banner') >= 0) return 'High-impact digital banners for ads, websites, and social campaigns.';
+  if (n.indexOf('video') >= 0 || n.indexOf('motion') >= 0) return 'Story-driven motion content built for engagement and conversion.';
+  if (n.indexOf('packaging') >= 0 || n.indexOf('product') >= 0) return 'Retail-ready packaging that elevates shelf presence and brand recall.';
+  if (n.indexOf('thumbnail') >= 0) return 'Click-worthy thumbnails engineered to boost views and watch time.';
+  return 'Strategic creative execution tailored to your brand goals and audience.';
+}
+function portfolioDeliverables(name) {
+  var n = (name || '').toLowerCase();
+  if (n.indexOf('logo') >= 0) return ['Logo suite', 'Color palette', 'Brand files'];
+  if (n.indexOf('banner') >= 0) return ['Ad creatives', 'Web banners', 'Social sizes'];
+  if (n.indexOf('video') >= 0 || n.indexOf('motion') >= 0) return ['Edited video', 'Motion graphics', 'Export formats'];
+  if (n.indexOf('packaging') >= 0) return ['Pack dielines', 'Print-ready art', 'Mockups'];
+  if (n.indexOf('thumbnail') >= 0) return ['YouTube thumbs', 'A/B variants', 'Source files'];
+  return ['Concept direction', 'Final deliverables', 'Revision rounds'];
 }
 function isVideoUrl(url) {
   var ext = (url || '').split('.').pop().toLowerCase().split('?')[0];
@@ -37,6 +59,8 @@ function isVideoUrl(url) {
 var displayName = formatFolderTitle(folderName);
 var category = portfolioCategory(folderName);
 var icon = portfolioIcon(folderName);
+var scope = portfolioScope(folderName);
+var deliverables = portfolioDeliverables(folderName);
 var itemCount = result ? result.length : 0;
 var imageCount = 0;
 var videoCount = 0;
@@ -48,189 +72,283 @@ if (result) {
 }
 var related = typeof relatedFolders !== 'undefined' && relatedFolders ? relatedFolders : [];
 var cardThemes = ['indigo', 'violet', 'rose', 'cyan', 'amber', 'emerald'];
+var coverItem = itemCount ? result[0] : null;
+var coverUrl = coverItem && !isVideoUrl(coverItem.image_url) ? coverItem.image_url : null;
+var coverIsVideo = coverItem && isVideoUrl(coverItem.image_url);
+var waSimilar = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20your%20' + encodeURIComponent(displayName) + '%20work%20and%20want%20something%20similar.';
+var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20your%20' + encodeURIComponent(displayName) + '%20portfolio%20and%20want%20to%20discuss%20a%20project.';
 %>
 
-<section class="mc-work-detail__hero">
-  <div class="mc-container">
-    <a href="/works" class="mc-back-link"><i class="bi bi-arrow-left"></i> Portfolio</a>
+<!-- ═══ COVER HERO ═══ -->
+<section class="mc-case-hero<%= coverUrl ? ' mc-case-hero--has-cover' : '' %><%= coverIsVideo ? ' mc-case-hero--video' : '' %>">
+  <% if (coverUrl) { %>
+  <div class="mc-case-hero__bg" style="background-image:url('<%= coverUrl %>')" aria-hidden="true"></div>
+  <% } %>
+  <div class="mc-case-hero__overlay" aria-hidden="true"></div>
 
-    <div class="mc-work-detail__head">
-      <div class="mc-work-detail__intro">
-        <div class="mc-work-detail__icon"><i class="bi <%= icon %>"></i></div>
-        <div>
-          <span class="mc-work-detail__cat"><%= category %></span>
-          <h1 class="mc-work-detail__title"><%= displayName %></h1>
-          <p class="mc-work-detail__sub">Premium <%= category.toLowerCase() %> crafted for brands that want to stand out and convert.</p>
-        </div>
-      </div>
+  <div class="mc-container mc-case-hero__inner">
+    <nav class="mc-case-crumb" aria-label="Breadcrumb">
+      <a href="/"><i class="bi bi-house"></i></a>
+      <span class="mc-case-crumb__sep"><i class="bi bi-chevron-right"></i></span>
+      <a href="/works">Portfolio</a>
+      <span class="mc-case-crumb__sep"><i class="bi bi-chevron-right"></i></span>
+      <span class="mc-case-crumb__current"><%= displayName %></span>
+    </nav>
 
-      <div class="mc-work-detail__stats">
-        <div class="mc-work-detail__stat">
-          <span class="mc-work-detail__stat-val"><%= itemCount %></span>
-          <span class="mc-work-detail__stat-lbl">Projects</span>
+    <div class="mc-case-hero__main">
+      <div class="mc-case-hero__badge"><i class="bi <%= icon %>"></i> <%= category %></div>
+      <h1 class="mc-case-hero__title"><%= displayName %></h1>
+      <p class="mc-case-hero__lead"><%= scope %></p>
+
+      <div class="mc-case-hero__metrics">
+        <div class="mc-case-metric">
+          <span class="mc-case-metric__val"><%= itemCount %></span>
+          <span class="mc-case-metric__lbl">Deliverables</span>
         </div>
         <% if (imageCount) { %>
-        <div class="mc-work-detail__stat">
-          <span class="mc-work-detail__stat-val"><%= imageCount %></span>
-          <span class="mc-work-detail__stat-lbl">Images</span>
+        <div class="mc-case-metric">
+          <span class="mc-case-metric__val"><%= imageCount %></span>
+          <span class="mc-case-metric__lbl">Designs</span>
         </div>
         <% } %>
         <% if (videoCount) { %>
-        <div class="mc-work-detail__stat">
-          <span class="mc-work-detail__stat-val"><%= videoCount %></span>
-          <span class="mc-work-detail__stat-lbl">Videos</span>
+        <div class="mc-case-metric">
+          <span class="mc-case-metric__val"><%= videoCount %></span>
+          <span class="mc-case-metric__lbl">Videos</span>
         </div>
         <% } %>
-      </div>
-
-      <div class="mc-page-hero__chips">
-        <span class="mc-chip"><i class="bi bi-lightning-charge"></i> Fast turnaround</span>
-        <span class="mc-chip"><i class="bi bi-shield-check"></i> 1,200+ clients</span>
-        <span class="mc-chip mc-desktop-only"><i class="bi bi-globe2"></i> Worldwide delivery</span>
-      </div>
-
-      <div class="mc-work-detail__actions mc-desktop-only">
-        <a href="https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20your%20<%= encodeURIComponent(displayName) %>%20work%20and%20want%20something%20similar." class="mc-btn mc-btn--whatsapp mc-btn--lg" target="_blank" rel="noopener">
-          <i class="bi bi-whatsapp"></i> Get similar work
-        </a>
-        <a href="tel:8877152035" class="mc-btn mc-btn--outline mc-btn--lg">
-          <i class="bi bi-telephone"></i> Call now
-        </a>
+        <div class="mc-case-metric mc-case-metric--accent">
+          <span class="mc-case-metric__val"><i class="bi bi-shield-check"></i></span>
+          <span class="mc-case-metric__lbl">Client-ready</span>
+        </div>
       </div>
     </div>
-
-    <aside class="mc-work-detail__quote mc-desktop-only">
-      <p class="mc-work-detail__quote-label">Start your project</p>
-      <h2 class="mc-work-detail__quote-title">Want <%= displayName.toLowerCase() %> like this?</h2>
-      <p class="mc-work-detail__quote-text">Share your brief on WhatsApp — most clients get a quote within a few hours.</p>
-      <ul class="mc-work-detail__quote-list">
-        <li><i class="bi bi-check-circle-fill"></i> Clear scope & pricing</li>
-        <li><i class="bi bi-check-circle-fill"></i> Revisions until you're happy</li>
-        <li><i class="bi bi-check-circle-fill"></i> Launch-ready deliverables</li>
-      </ul>
-      <a href="https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20your%20<%= encodeURIComponent(displayName) %>%20portfolio%20and%20want%20to%20discuss%20a%20project." class="mc-btn mc-btn--whatsapp mc-btn--block mc-btn--lg" target="_blank" rel="noopener">
-        <i class="bi bi-whatsapp"></i> Message on WhatsApp
-      </a>
-    </aside>
   </div>
 </section>
 
 <% if (itemCount) { %>
-<section class="mc-work-detail__gallery-wrap">
-  <div class="mc-container">
-    <div class="mc-section-bar">
-      <div>
-        <span class="mc-section-bar__eyebrow">Gallery</span>
-        <h2 class="mc-section-bar__title">Selected work</h2>
-      </div>
-      <span class="mc-work-detail__count"><%= itemCount %> item<%= itemCount === 1 ? '' : 's' %></span>
-    </div>
+<!-- ═══ MAIN CASE STUDY BODY ═══ -->
+<div class="mc-case-body">
+  <div class="mc-container mc-case-body__grid">
 
-    <% var featured = result[0]; var featuredUrl = featured.image_url; var featuredIsVideo = isVideoUrl(featuredUrl); %>
-    <div class="mc-work-detail__featured">
-      <% if (featuredIsVideo) { %>
-      <div class="mc-work-detail__tile mc-work-detail__tile--featured mc-work-detail__tile--video">
-        <video controls playsinline poster="">
-          <source src="<%= featuredUrl %>" type="video/<%= featuredUrl.split('.').pop().toLowerCase().split('?')[0] === 'mov' ? 'mp4' : featuredUrl.split('.').pop().toLowerCase().split('?')[0] %>">
-        </video>
-        <span class="mc-work-detail__badge"><i class="bi bi-play-fill"></i> Featured video</span>
-      </div>
-      <% } else { %>
-      <button type="button" class="mc-work-detail__tile mc-work-detail__tile--featured mc-work-detail__tile--img" data-lightbox="<%= featuredUrl %>" data-alt="<%= displayName %> — featured">
-        <img src="<%= featuredUrl %>" alt="<%= displayName %> — featured" loading="eager">
-        <span class="mc-work-detail__tile-overlay"><i class="bi bi-arrows-fullscreen"></i> Tap to expand</span>
-        <span class="mc-work-detail__badge"><i class="bi bi-star-fill"></i> Featured</span>
-      </button>
-      <% } %>
-    </div>
+    <main class="mc-case-main">
 
-    <% if (itemCount > 1) { %>
-    <div class="mc-work-detail__grid">
-      <% for (var i = 1; i < result.length; i++) {
-        var url = result[i].image_url;
-        var isVideo = isVideoUrl(url);
-        var ext = url.split('.').pop().toLowerCase().split('?')[0];
-      %>
-      <% if (isVideo) { %>
-      <div class="mc-work-detail__tile mc-work-detail__tile--video">
-        <video controls playsinline preload="metadata">
-          <source src="<%= url %>" type="video/<%= ext === 'mov' ? 'mp4' : ext %>">
-        </video>
-        <span class="mc-work-detail__badge mc-work-detail__badge--sm"><i class="bi bi-play-fill"></i> Video</span>
+      <!-- Overview -->
+      <section class="mc-case-panel">
+        <header class="mc-case-panel__head">
+          <span class="mc-case-panel__eyebrow">Case overview</span>
+          <h2 class="mc-case-panel__title">About this collection</h2>
+        </header>
+        <p class="mc-case-panel__text"><%= scope %> Each piece is crafted with attention to brand consistency, visual hierarchy, and commercial impact — the same standard we deliver for 1,200+ clients worldwide.</p>
+
+        <div class="mc-case-specs">
+          <div class="mc-case-spec">
+            <span class="mc-case-spec__label">Category</span>
+            <span class="mc-case-spec__value"><%= category %></span>
+          </div>
+          <div class="mc-case-spec">
+            <span class="mc-case-spec__label">Collection</span>
+            <span class="mc-case-spec__value"><%= displayName %></span>
+          </div>
+          <div class="mc-case-spec">
+            <span class="mc-case-spec__label">Format</span>
+            <span class="mc-case-spec__value"><%= videoCount && imageCount ? 'Mixed media' : (videoCount ? 'Video' : 'Static design') %></span>
+          </div>
+          <div class="mc-case-spec">
+            <span class="mc-case-spec__label">Turnaround</span>
+            <span class="mc-case-spec__value">Fast &amp; reliable</span>
+          </div>
+        </div>
+
+        <div class="mc-case-tags">
+          <% for (var di = 0; di < deliverables.length; di++) { %>
+          <span class="mc-case-tag"><i class="bi bi-check2"></i> <%= deliverables[di] %></span>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- Mobile inquiry card -->
+      <aside class="mc-case-sidebar mc-case-sidebar--inline mc-mobile-only">
+        <div class="mc-case-inquiry">
+          <div class="mc-case-inquiry__head">
+            <span class="mc-case-inquiry__eyebrow">Work with us</span>
+            <h3 class="mc-case-inquiry__title">Need <%= displayName.toLowerCase() %>?</h3>
+            <p class="mc-case-inquiry__text">Share your brief on WhatsApp — most clients receive a quote within hours.</p>
+          </div>
+          <ul class="mc-case-inquiry__list">
+            <li><i class="bi bi-check-circle-fill"></i> Clear scope &amp; pricing</li>
+            <li><i class="bi bi-check-circle-fill"></i> Revisions until approved</li>
+            <li><i class="bi bi-check-circle-fill"></i> Launch-ready files</li>
+          </ul>
+          <a href="<%= waDiscuss %>" class="mc-btn mc-btn--whatsapp mc-btn--block mc-btn--lg" target="_blank" rel="noopener">
+            <i class="bi bi-whatsapp"></i> Start on WhatsApp
+          </a>
+        </div>
+      </aside>
+
+      <!-- Gallery -->
+      <section class="mc-case-gallery-section">
+        <header class="mc-case-panel__head mc-case-panel__head--row">
+          <div>
+            <span class="mc-case-panel__eyebrow">Project gallery</span>
+            <h2 class="mc-case-panel__title">Selected work</h2>
+          </div>
+          <span class="mc-case-gallery__count"><%= itemCount %> piece<%= itemCount === 1 ? '' : 's' %></span>
+        </header>
+
+        <% if (coverIsVideo) { %>
+        <div class="mc-case-gallery__hero mc-case-gallery__hero--video">
+          <video controls playsinline preload="metadata">
+            <source src="<%= coverItem.image_url %>" type="video/<%= coverItem.image_url.split('.').pop().toLowerCase().split('?')[0] === 'mov' ? 'mp4' : coverItem.image_url.split('.').pop().toLowerCase().split('?')[0] %>">
+          </video>
+          <span class="mc-case-gallery__badge"><i class="bi bi-play-fill"></i> Featured video</span>
+        </div>
+        <% } else if (coverUrl) { %>
+        <button type="button" class="mc-case-gallery__hero mc-case-gallery__hero--img" data-lightbox="<%= coverUrl %>" data-alt="<%= displayName %> — featured">
+          <img src="<%= coverUrl %>" alt="<%= displayName %> — featured" loading="eager">
+          <span class="mc-case-gallery__hero-overlay">
+            <i class="bi bi-arrows-fullscreen"></i>
+            <span>View full size</span>
+          </span>
+          <span class="mc-case-gallery__badge"><i class="bi bi-star-fill"></i> Featured</span>
+        </button>
+        <% } %>
+
+        <% if (itemCount > 1) { %>
+        <div class="mc-case-gallery">
+          <% for (var i = (coverIsVideo || coverUrl ? 1 : 0); i < result.length; i++) {
+            var url = result[i].image_url;
+            var isVideo = isVideoUrl(url);
+            var ext = url.split('.').pop().toLowerCase().split('?')[0];
+            var spanClass = (i % 5 === 1) ? ' mc-case-gallery__item--wide' : ((i % 5 === 2) ? ' mc-case-gallery__item--tall' : '');
+          %>
+          <% if (isVideo) { %>
+          <div class="mc-case-gallery__item mc-case-gallery__item--video<%= spanClass %>">
+            <video controls playsinline preload="metadata">
+              <source src="<%= url %>" type="video/<%= ext === 'mov' ? 'mp4' : ext %>">
+            </video>
+            <span class="mc-case-gallery__badge mc-case-gallery__badge--sm"><i class="bi bi-play-fill"></i> Video</span>
+          </div>
+          <% } else { %>
+          <button type="button" class="mc-case-gallery__item mc-case-gallery__item--img<%= spanClass %>" data-lightbox="<%= url %>" data-alt="<%= displayName %> — <%= i + 1 %>">
+            <img src="<%= url %>" alt="<%= displayName %> — <%= i + 1 %>" loading="lazy">
+            <span class="mc-case-gallery__item-overlay"><i class="bi bi-zoom-in"></i></span>
+          </button>
+          <% } %>
+          <% } %>
+        </div>
+        <% } %>
+      </section>
+
+      <!-- Process -->
+      <section class="mc-case-process">
+        <header class="mc-case-panel__head">
+          <span class="mc-case-panel__eyebrow">How we work</span>
+          <h2 class="mc-case-panel__title">From brief to delivery</h2>
+        </header>
+        <div class="mc-case-process__track">
+          <div class="mc-case-process__step">
+            <div class="mc-case-process__icon"><i class="bi bi-chat-dots"></i></div>
+            <div class="mc-case-process__content">
+              <span class="mc-case-process__num">01</span>
+              <h3>Share your brief</h3>
+              <p>Tell us your goals, references, and timeline on WhatsApp.</p>
+            </div>
+          </div>
+          <div class="mc-case-process__step">
+            <div class="mc-case-process__icon"><i class="bi bi-receipt"></i></div>
+            <div class="mc-case-process__content">
+              <span class="mc-case-process__num">02</span>
+              <h3>Get a clear quote</h3>
+              <p>Transparent scope and pricing before any work begins.</p>
+            </div>
+          </div>
+          <div class="mc-case-process__step">
+            <div class="mc-case-process__icon"><i class="bi bi-rocket-takeoff"></i></div>
+            <div class="mc-case-process__content">
+              <span class="mc-case-process__num">03</span>
+              <h3>Receive final files</h3>
+              <p>Polished, launch-ready assets delivered on schedule.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Desktop sidebar -->
+    <aside class="mc-case-sidebar mc-desktop-only">
+      <div class="mc-case-inquiry mc-case-inquiry--sticky">
+        <div class="mc-case-inquiry__trust">
+          <i class="bi bi-star-fill"></i>
+          <span>Trusted by <strong>1,200+</strong> clients</span>
+        </div>
+        <div class="mc-case-inquiry__head">
+          <span class="mc-case-inquiry__eyebrow">Start your project</span>
+          <h3 class="mc-case-inquiry__title">Want <%= displayName.toLowerCase() %> like this?</h3>
+          <p class="mc-case-inquiry__text">Message us on WhatsApp with your requirements. We typically respond within a few hours.</p>
+        </div>
+        <ul class="mc-case-inquiry__list">
+          <li><i class="bi bi-check-circle-fill"></i> Dedicated creative direction</li>
+          <li><i class="bi bi-check-circle-fill"></i> Unlimited revision rounds</li>
+          <li><i class="bi bi-check-circle-fill"></i> Source &amp; export files included</li>
+          <li><i class="bi bi-check-circle-fill"></i> Worldwide delivery</li>
+        </ul>
+        <a href="<%= waDiscuss %>" class="mc-btn mc-btn--whatsapp mc-btn--block mc-btn--lg" target="_blank" rel="noopener">
+          <i class="bi bi-whatsapp"></i> Message on WhatsApp
+        </a>
+        <a href="tel:8877152035" class="mc-btn mc-btn--outline mc-btn--block mc-btn--lg mc-case-inquiry__call">
+          <i class="bi bi-telephone"></i> Call 8877152035
+        </a>
+        <div class="mc-case-inquiry__meta">
+          <span><i class="bi bi-clock"></i> Avg. response: 2–4 hrs</span>
+          <span><i class="bi bi-globe2"></i> 5+ countries served</span>
+        </div>
       </div>
-      <% } else { %>
-      <button type="button" class="mc-work-detail__tile mc-work-detail__tile--img" data-lightbox="<%= url %>" data-alt="<%= displayName %> work <%= i + 1 %>">
-        <img src="<%= url %>" alt="<%= displayName %> work <%= i + 1 %>" loading="lazy">
-        <span class="mc-work-detail__tile-overlay"><i class="bi bi-zoom-in"></i></span>
-      </button>
-      <% } %>
-      <% } %>
-    </div>
-    <% } %>
+    </aside>
   </div>
-</section>
+</div>
+
 <% } else { %>
-<section class="mc-work-detail__empty">
+<section class="mc-case-empty">
   <div class="mc-container">
-    <div class="mc-work-detail__empty-card">
-      <i class="bi bi-folder2-open"></i>
+    <div class="mc-case-empty__card">
+      <div class="mc-case-empty__icon"><i class="bi bi-folder2-open"></i></div>
       <h2>Projects coming soon</h2>
-      <p>We're updating this category. Meanwhile, browse other portfolio work or message us on WhatsApp.</p>
-      <a href="/works" class="mc-btn mc-btn--outline">Browse portfolio</a>
+      <p>We're updating this category with new work. Browse other portfolio categories or reach out on WhatsApp.</p>
+      <div class="mc-case-empty__actions">
+        <a href="/works" class="mc-btn mc-btn--primary mc-btn--lg">Browse portfolio</a>
+        <a href="<%= waDiscuss %>" class="mc-btn mc-btn--outline mc-btn--lg" target="_blank" rel="noopener">
+          <i class="bi bi-whatsapp"></i> Contact us
+        </a>
+      </div>
     </div>
   </div>
 </section>
 <% } %>
 
-<section class="mc-work-detail__convert">
-  <div class="mc-container">
-    <div class="mc-work-detail__steps">
-      <div class="mc-work-detail__step">
-        <span class="mc-work-detail__step-num">1</span>
-        <div>
-          <h3>Share your brief</h3>
-          <p>Goals, references & timeline on WhatsApp</p>
-        </div>
-      </div>
-      <div class="mc-work-detail__step">
-        <span class="mc-work-detail__step-num">2</span>
-        <div>
-          <h3>Get a clear quote</h3>
-          <p>Scope and pricing before we start</p>
-        </div>
-      </div>
-      <div class="mc-work-detail__step">
-        <span class="mc-work-detail__step-num">3</span>
-        <div>
-          <h3>Receive final files</h3>
-          <p>Polished assets ready to launch</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <% if (related.length) { %>
-<section class="mc-work-detail__related">
+<section class="mc-case-related">
   <div class="mc-container">
-    <div class="mc-section-bar">
+    <header class="mc-case-panel__head mc-case-panel__head--row">
       <div>
-        <span class="mc-section-bar__eyebrow">Explore more</span>
-        <h2 class="mc-section-bar__title">Other categories</h2>
+        <span class="mc-case-panel__eyebrow">Explore more</span>
+        <h2 class="mc-case-panel__title">More portfolio categories</h2>
       </div>
-      <a href="/works" class="mc-section-bar__link">View all <i class="bi bi-chevron-right"></i></a>
-    </div>
-    <div class="mc-work-detail__related-grid">
+      <a href="/works" class="mc-case-related__all">View all <i class="bi bi-arrow-right"></i></a>
+    </header>
+    <div class="mc-case-related__grid">
       <% for (var ri = 0; ri < related.length; ri++) {
         var rf = related[ri].folder_name;
         var rTheme = cardThemes[ri % cardThemes.length];
         var rIcon = portfolioIcon(rf);
         var rTitle = formatFolderTitle(rf);
+        var rCat = portfolioCategory(rf);
       %>
-      <a href="/works/<%= encodeURIComponent(rf) %>" class="mc-work-detail__related-card mc-work-detail__related-card--<%= rTheme %>">
-        <span class="mc-work-detail__related-icon"><i class="bi <%= rIcon %>"></i></span>
-        <span class="mc-work-detail__related-title"><%= rTitle %></span>
-        <i class="bi bi-arrow-up-right mc-work-detail__related-arrow"></i>
+      <a href="/works/<%= encodeURIComponent(rf) %>" class="mc-case-related__card mc-case-related__card--<%= rTheme %>">
+        <span class="mc-case-related__icon"><i class="bi <%= rIcon %>"></i></span>
+        <span class="mc-case-related__cat"><%= rCat %></span>
+        <span class="mc-case-related__name"><%= rTitle %></span>
+        <i class="bi bi-arrow-up-right mc-case-related__arrow"></i>
       </a>
       <% } %>
     </div>
@@ -238,29 +356,39 @@ var cardThemes = ['indigo', 'violet', 'rose', 'cyan', 'amber', 'emerald'];
 </section>
 <% } %>
 
-<section class="mc-home-block mc-home-block--cta">
-  <div class="mc-container">
-    <div class="mc-home-final-cta">
-      <h2>Ready for <%= displayName.toLowerCase() %> like this?</h2>
-      <p>Most clients hear back within a few hours on WhatsApp.</p>
-      <a href="https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20loved%20your%20<%= encodeURIComponent(displayName) %>%20work.%20Can%20we%20discuss%20my%20project%3F" class="mc-btn mc-btn--whatsapp mc-btn--lg mc-btn--block" target="_blank" rel="noopener">
-        <i class="bi bi-whatsapp"></i> Start on WhatsApp
+<!-- CTA band -->
+<section class="mc-case-cta">
+  <div class="mc-container mc-case-cta__inner">
+    <div class="mc-case-cta__copy">
+      <span class="mc-case-cta__eyebrow">Ready to start?</span>
+      <h2>Let's create <%= displayName.toLowerCase() %> that converts</h2>
+      <p>Join 1,200+ brands who trust us for design that drives results.</p>
+    </div>
+    <div class="mc-case-cta__actions">
+      <a href="<%= waSimilar %>" class="mc-btn mc-btn--whatsapp mc-btn--lg" target="_blank" rel="noopener">
+        <i class="bi bi-whatsapp"></i> Get similar work
       </a>
+      <a href="/works" class="mc-btn mc-btn--ghost mc-btn--lg mc-desktop-only">Browse portfolio</a>
     </div>
   </div>
 </section>
 
-<div class="mc-work-detail__sticky mc-mobile-only">
-  <a href="https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20your%20<%= encodeURIComponent(displayName) %>%20work%20and%20want%20something%20similar." class="mc-work-detail__sticky-btn" target="_blank" rel="noopener">
+<!-- Mobile sticky CTA -->
+<div class="mc-case-sticky mc-mobile-only">
+  <a href="<%= waSimilar %>" class="mc-case-sticky__btn" target="_blank" rel="noopener">
     <i class="bi bi-whatsapp"></i>
     <span>Get similar work</span>
   </a>
 </div>
 
+<!-- Lightbox -->
 <div class="mc-lightbox" id="mcLightbox" aria-hidden="true">
   <button type="button" class="mc-lightbox__close" id="mcLightboxClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
   <button type="button" class="mc-lightbox__nav mc-lightbox__nav--prev" id="mcLightboxPrev" aria-label="Previous"><i class="bi bi-chevron-left"></i></button>
-  <img class="mc-lightbox__img" id="mcLightboxImg" src="" alt="">
+  <div class="mc-lightbox__stage">
+    <img class="mc-lightbox__img" id="mcLightboxImg" src="" alt="">
+    <span class="mc-lightbox__counter" id="mcLightboxCounter"></span>
+  </div>
   <button type="button" class="mc-lightbox__nav mc-lightbox__nav--next" id="mcLightboxNext" aria-label="Next"><i class="bi bi-chevron-right"></i></button>
 </div>
 
@@ -271,16 +399,21 @@ var cardThemes = ['indigo', 'violet', 'rose', 'cyan', 'amber', 'emerald'];
 
   var box = document.getElementById('mcLightbox');
   var img = document.getElementById('mcLightboxImg');
+  var counter = document.getElementById('mcLightboxCounter');
   var closeBtn = document.getElementById('mcLightboxClose');
   var prevBtn = document.getElementById('mcLightboxPrev');
   var nextBtn = document.getElementById('mcLightboxNext');
   var urls = tiles.map(function(t){ return t.getAttribute('data-lightbox'); });
   var index = 0;
 
-  function openAt(i) {
-    index = i;
+  function updateView() {
     img.src = urls[index];
     img.alt = tiles[index].getAttribute('data-alt') || '';
+    if (counter) counter.textContent = (index + 1) + ' / ' + urls.length;
+  }
+  function openAt(i) {
+    index = i;
+    updateView();
     box.classList.add('is-open');
     box.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -293,8 +426,7 @@ var cardThemes = ['indigo', 'violet', 'rose', 'cyan', 'amber', 'emerald'];
   }
   function step(dir) {
     index = (index + dir + urls.length) % urls.length;
-    img.src = urls[index];
-    img.alt = tiles[index].getAttribute('data-alt') || '';
+    updateView();
   }
 
   tiles.forEach(function(tile, i) {
