@@ -84,12 +84,14 @@ var homePortfolioSections = [
 ];
 %>
 
-<!-- ═══ MOBILE APP HOME ═══ -->
-<div class="mc-app-home mc-mobile-only">
+<!-- ═══ APP HOME (mobile + laptop) ═══ -->
+<div class="mc-app-home">
 
   <!-- Hero: featured carousel -->
   <section class="mc-app-hero">
-    <% include ./partials/app-hero-carousel.ejs %>
+    <div class="mc-container">
+      <% include ./partials/app-hero-carousel.ejs %>
+    </div>
   </section>
 
   <!-- All work — curated category grid -->
@@ -166,108 +168,6 @@ var homePortfolioSections = [
     <% } %>
     </div>
   </section>
-</div>
-
-<!-- ═══ DESKTOP HOME ═══ -->
-<div class="mc-home-desktop mc-desktop-only">
-
-<section class="mc-home-hero">
-  <div class="mc-container">
-    <div class="mc-home-desktop-hero">
-      <div class="mc-home-desktop-hero__copy">
-        <div class="mc-badge"><span class="mc-badge__dot"></span> Available for new projects</div>
-        <h1 class="mc-hero__title">Creative that <em>grows your brand</em> — not just looks good</h1>
-        <p class="mc-hero__lead">Brand design, video content, social creatives, and campaign-ready assets that drive enquiries.</p>
-        <div class="mc-hero__stats">
-          <div><div class="mc-stat__val">6+</div><div class="mc-stat__lbl">Years</div></div>
-          <div><div class="mc-stat__val">1200+</div><div class="mc-stat__lbl">Clients</div></div>
-          <div><div class="mc-stat__val">5+</div><div class="mc-stat__lbl">Countries</div></div>
-        </div>
-        <div class="mc-hero__ctas">
-          <a href="https://wa.me/918877152035" class="mc-btn mc-btn--whatsapp mc-btn--lg" target="_blank" rel="noopener">
-            <i class="bi bi-whatsapp"></i> Get a free quote
-          </a>
-          <a href="/works" class="mc-btn mc-btn--outline mc-btn--lg">View portfolio</a>
-        </div>
-      </div>
-      <div class="mc-hero-card">
-        <img src="/subdomain_manisha/assets/profile.jpeg" alt="Manisha Jain" class="mc-hero-card__avatar" width="88" height="88">
-        <h2 class="mc-hero-card__name">Manisha Jain</h2>
-        <p class="mc-hero-card__role">Founder · Creative & Digital Marketing</p>
-        <div class="mc-hero-card__links">
-          <a href="tel:8877152035" class="mc-hero-card__link"><i class="bi bi-telephone"></i> +91 88771 52035</a>
-          <a href="mailto:manishajain8877@gmail.com" class="mc-hero-card__link"><i class="bi bi-envelope"></i> Email</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="mc-home-block">
-  <div class="mc-container">
-    <div class="mc-section-bar">
-      <div>
-        <span class="mc-section-bar__eyebrow">What we do</span>
-        <h2 class="mc-section-bar__title">Our services</h2>
-      </div>
-      <a href="/services" class="mc-section-bar__link">See all <i class="bi bi-chevron-right"></i></a>
-    </div>
-    <% var serviceLimit = 4; var serviceLink = '/services'; %>
-    <% include ./partials/services-grid.ejs %>
-  </div>
-</section>
-
-<section class="mc-home-block mc-home-block--alt">
-  <div class="mc-container">
-    <div class="mc-section-bar">
-      <div>
-        <span class="mc-section-bar__eyebrow">Portfolio</span>
-        <h2 class="mc-section-bar__title">Recent work</h2>
-      </div>
-      <a href="/works" class="mc-section-bar__link">View all <i class="bi bi-chevron-right"></i></a>
-    </div>
-    <div class="mc-home-works">
-      <a href="/works/LOGO" class="mc-home-work">
-        <img src="https://res.cloudinary.com/dr5dofa3x/image/upload/v1743240514/Thumbnail/xoeojgmutaavc53ao0hw.jpg" alt="Logo design">
-        <div class="mc-home-work__overlay">
-          <span class="mc-home-work__cat">Branding</span>
-          <span class="mc-home-work__title">Logo Design</span>
-        </div>
-      </a>
-      <a href="/works/BANNERS" class="mc-home-work">
-        <img src="https://res.cloudinary.com/dr5dofa3x/image/upload/v1743238934/BANNERS/ykqjk24ustrjnklz6cty.jpg" alt="Banner design">
-        <div class="mc-home-work__overlay">
-          <span class="mc-home-work__cat">Digital ads</span>
-          <span class="mc-home-work__title">Banners</span>
-        </div>
-      </a>
-      <% for (var di = 0; di < Math.min(allFolders.length, 2); di++) {
-        var dfn = allFolders[di].folder_name;
-        if (dfn === 'LOGO' || dfn === 'BANNERS') continue;
-      %>
-      <a href="/works/<%= encodeURIComponent(dfn) %>" class="mc-home-work mc-home-work--folder mc-home-work--<%= catThemes[di % catThemes.length] %>">
-        <div class="mc-home-work__folder-inner">
-          <i class="bi bi-folder2-open"></i>
-          <span class="mc-home-work__title"><%= formatFolderTitle(dfn) %></span>
-        </div>
-      </a>
-      <% } %>
-    </div>
-  </div>
-</section>
-
-<section class="mc-home-block mc-home-block--cta">
-  <div class="mc-container">
-    <div class="mc-home-final-cta">
-      <h2>Ready to start?</h2>
-      <p>Most clients hear back within a few hours on WhatsApp.</p>
-      <a href="https://wa.me/918877152035" class="mc-btn mc-btn--whatsapp mc-btn--lg mc-btn--block" target="_blank" rel="noopener">
-        <i class="bi bi-whatsapp"></i> Message on WhatsApp
-      </a>
-    </div>
-  </div>
-</section>
-
 </div>
 
 <% include ./footer.ejs %>

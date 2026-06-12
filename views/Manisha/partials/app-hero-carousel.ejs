@@ -56,10 +56,21 @@ if (!heroSlides.length) return;
   var isDragging = false;
   var AUTO_MS = 4500;
 
+  var frame = root.querySelector('.mc-hero-carousel__frame');
+  var viewport = root.querySelector('.mc-hero-carousel__viewport');
+
+  function slideWidth() {
+    return viewport ? viewport.offsetWidth : frame.offsetWidth;
+  }
+
+  function applyTransform(offsetPx, animate) {
+    track.style.transition = animate === false ? 'none' : '';
+    track.style.transform = 'translate3d(' + offsetPx + 'px, 0, 0)';
+  }
+
   function goTo(i, animate) {
     index = ((i % total) + total) % total;
-    track.style.transition = animate === false ? 'none' : '';
-    track.style.transform = 'translate3d(-' + (index * 100) + '%, 0, 0)';
+    applyTransform(-(index * slideWidth()), animate);
     slides.forEach(function(s, si) {
       s.classList.toggle('is-active', si === index);
     });
@@ -106,8 +117,6 @@ if (!heroSlides.length) return;
     });
   });
 
-  var frame = root.querySelector('.mc-hero-carousel__frame');
-
   frame.addEventListener('touchstart', function(e) {
     touchStartX = e.touches[0].clientX;
     touchDelta = 0;
@@ -119,8 +128,8 @@ if (!heroSlides.length) return;
   frame.addEventListener('touchmove', function(e) {
     if (!isDragging) return;
     touchDelta = e.touches[0].clientX - touchStartX;
-    var offset = -(index * 100) + (touchDelta / frame.offsetWidth) * 100;
-    track.style.transform = 'translate3d(' + offset + '%, 0, 0)';
+    var offset = -(index * slideWidth()) + touchDelta;
+    applyTransform(offset, false);
   }, { passive: true });
 
   frame.addEventListener('touchend', function() {
@@ -138,6 +147,11 @@ if (!heroSlides.length) return;
     if (document.hidden) stopAuto(); else startAuto();
   });
 
+  window.addEventListener('resize', function() {
+    goTo(index, false);
+  });
+
+  goTo(0, false);
   startAuto();
 })();
 </script>
