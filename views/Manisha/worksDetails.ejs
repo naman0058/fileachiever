@@ -134,13 +134,7 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
     <main class="mc-case-main">
 
       <!-- Overview -->
-      <section class="mc-case-panel">
-        <header class="mc-case-panel__head">
-          <span class="mc-case-panel__eyebrow">Case overview</span>
-          <h2 class="mc-case-panel__title">About this collection</h2>
-        </header>
-        <p class="mc-case-panel__text"><%= scope %> Each piece is crafted with attention to brand consistency, visual hierarchy, and commercial impact — the same standard we deliver for 1,200+ clients worldwide.</p>
-
+      <section class="mc-case-panel mc-case-panel--compact">
         <div class="mc-case-specs">
           <div class="mc-case-spec">
             <span class="mc-case-spec__label">Category</span>
@@ -166,25 +160,6 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
           <% } %>
         </div>
       </section>
-
-      <!-- Mobile inquiry card -->
-      <aside class="mc-case-sidebar mc-case-sidebar--inline mc-mobile-only">
-        <div class="mc-case-inquiry">
-          <div class="mc-case-inquiry__head">
-            <span class="mc-case-inquiry__eyebrow">Work with us</span>
-            <h3 class="mc-case-inquiry__title">Need <%= displayName.toLowerCase() %>?</h3>
-            <p class="mc-case-inquiry__text">Share your brief on WhatsApp — most clients receive a quote within hours.</p>
-          </div>
-          <ul class="mc-case-inquiry__list">
-            <li><i class="bi bi-check-circle-fill"></i> Clear scope &amp; pricing</li>
-            <li><i class="bi bi-check-circle-fill"></i> Revisions until approved</li>
-            <li><i class="bi bi-check-circle-fill"></i> Launch-ready files</li>
-          </ul>
-          <a href="<%= waDiscuss %>" class="mc-btn mc-btn--whatsapp mc-btn--block mc-btn--lg" target="_blank" rel="noopener">
-            <i class="bi bi-whatsapp"></i> Start on WhatsApp
-          </a>
-        </div>
-      </aside>
 
       <!-- Gallery -->
       <section class="mc-case-gallery-section">
@@ -220,17 +195,16 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
             var url = result[i].image_url;
             var isVideo = isVideoUrl(url);
             var ext = url.split('.').pop().toLowerCase().split('?')[0];
-            var spanClass = (i % 5 === 1) ? ' mc-case-gallery__item--wide' : ((i % 5 === 2) ? ' mc-case-gallery__item--tall' : '');
           %>
           <% if (isVideo) { %>
-          <div class="mc-case-gallery__item mc-case-gallery__item--video<%= spanClass %>">
+          <div class="mc-case-gallery__item mc-case-gallery__item--video">
             <video controls playsinline preload="metadata">
               <source src="<%= url %>" type="video/<%= ext === 'mov' ? 'mp4' : ext %>">
             </video>
             <span class="mc-case-gallery__badge mc-case-gallery__badge--sm"><i class="bi bi-play-fill"></i> Video</span>
           </div>
           <% } else { %>
-          <button type="button" class="mc-case-gallery__item mc-case-gallery__item--img<%= spanClass %>" data-lightbox="<%= url %>" data-alt="<%= displayName %> — <%= i + 1 %>">
+          <button type="button" class="mc-case-gallery__item mc-case-gallery__item--img" data-lightbox="<%= url %>" data-alt="<%= displayName %> — <%= i + 1 %>">
             <img src="<%= url %>" alt="<%= displayName %> — <%= i + 1 %>" loading="lazy">
             <span class="mc-case-gallery__item-overlay"><i class="bi bi-zoom-in"></i></span>
           </button>
@@ -383,6 +357,7 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
 
 <!-- Lightbox -->
 <div class="mc-lightbox" id="mcLightbox" aria-hidden="true">
+  <div class="mc-lightbox__backdrop"></div>
   <button type="button" class="mc-lightbox__close" id="mcLightboxClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
   <button type="button" class="mc-lightbox__nav mc-lightbox__nav--prev" id="mcLightboxPrev" aria-label="Previous"><i class="bi bi-chevron-left"></i></button>
   <div class="mc-lightbox__stage">
@@ -405,11 +380,15 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
   var nextBtn = document.getElementById('mcLightboxNext');
   var urls = tiles.map(function(t){ return t.getAttribute('data-lightbox'); });
   var index = 0;
+  var touchStartX = 0;
+  var touchStartY = 0;
 
   function updateView() {
     img.src = urls[index];
     img.alt = tiles[index].getAttribute('data-alt') || '';
     if (counter) counter.textContent = (index + 1) + ' / ' + urls.length;
+    if (prevBtn) prevBtn.style.visibility = urls.length > 1 ? 'visible' : 'hidden';
+    if (nextBtn) nextBtn.style.visibility = urls.length > 1 ? 'visible' : 'hidden';
   }
   function openAt(i) {
     index = i;
@@ -425,6 +404,7 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
     img.src = '';
   }
   function step(dir) {
+    if (urls.length < 2) return;
     index = (index + dir + urls.length) % urls.length;
     updateView();
   }
@@ -432,8 +412,10 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
   tiles.forEach(function(tile, i) {
     tile.addEventListener('click', function(){ openAt(i); });
   });
-  closeBtn.addEventListener('click', closeBox);
-  box.addEventListener('click', function(e){ if (e.target === box) closeBox(); });
+  closeBtn.addEventListener('click', function(e){ e.stopPropagation(); closeBox(); });
+  box.addEventListener('click', function(e){
+    if (e.target === box || e.target.classList.contains('mc-lightbox__backdrop')) closeBox();
+  });
   prevBtn.addEventListener('click', function(e){ e.stopPropagation(); step(-1); });
   nextBtn.addEventListener('click', function(e){ e.stopPropagation(); step(1); });
   document.addEventListener('keydown', function(e) {
@@ -442,6 +424,20 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
     if (e.key === 'ArrowLeft') step(-1);
     if (e.key === 'ArrowRight') step(1);
   });
+
+  box.addEventListener('touchstart', function(e) {
+    if (!box.classList.contains('is-open')) return;
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
+
+  box.addEventListener('touchend', function(e) {
+    if (!box.classList.contains('is-open')) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    step(dx > 0 ? -1 : 1);
+  }, { passive: true });
 })();
 </script>
 
