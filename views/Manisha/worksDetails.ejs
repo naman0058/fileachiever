@@ -100,28 +100,7 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
       <h1 class="mc-case-hero__title"><%= displayName %></h1>
       <p class="mc-case-hero__lead"><%= scope %></p>
 
-      <div class="mc-case-hero__metrics">
-        <div class="mc-case-metric">
-          <span class="mc-case-metric__val"><%= itemCount %></span>
-          <span class="mc-case-metric__lbl">Deliverables</span>
-        </div>
-        <% if (imageCount) { %>
-        <div class="mc-case-metric">
-          <span class="mc-case-metric__val"><%= imageCount %></span>
-          <span class="mc-case-metric__lbl">Designs</span>
-        </div>
-        <% } %>
-        <% if (videoCount) { %>
-        <div class="mc-case-metric">
-          <span class="mc-case-metric__val"><%= videoCount %></span>
-          <span class="mc-case-metric__lbl">Videos</span>
-        </div>
-        <% } %>
-        <div class="mc-case-metric mc-case-metric--accent">
-          <span class="mc-case-metric__val"><i class="bi bi-shield-check"></i></span>
-          <span class="mc-case-metric__lbl">Client-ready</span>
-        </div>
-      </div>
+    
     </div>
   </div>
 </section>
@@ -134,41 +113,14 @@ var waDiscuss = 'https://wa.me/918877152035?text=Hi%20Manisha%2C%20I%20saw%20you
     <main class="mc-case-main">
 
       <!-- Overview -->
-      <section class="mc-case-panel mc-case-panel--compact">
-        <div class="mc-case-specs">
-          <div class="mc-case-spec">
-            <span class="mc-case-spec__label">Category</span>
-            <span class="mc-case-spec__value"><%= category %></span>
-          </div>
-          <div class="mc-case-spec">
-            <span class="mc-case-spec__label">Collection</span>
-            <span class="mc-case-spec__value"><%= displayName %></span>
-          </div>
-          <div class="mc-case-spec">
-            <span class="mc-case-spec__label">Format</span>
-            <span class="mc-case-spec__value"><%= videoCount && imageCount ? 'Mixed media' : (videoCount ? 'Video' : 'Static design') %></span>
-          </div>
-          <div class="mc-case-spec">
-            <span class="mc-case-spec__label">Turnaround</span>
-            <span class="mc-case-spec__value">Fast &amp; reliable</span>
-          </div>
-        </div>
-
-        <div class="mc-case-tags">
-          <% for (var di = 0; di < deliverables.length; di++) { %>
-          <span class="mc-case-tag"><i class="bi bi-check2"></i> <%= deliverables[di] %></span>
-          <% } %>
-        </div>
-      </section>
+    
 
       <!-- Gallery -->
       <section class="mc-case-gallery-section">
         <header class="mc-case-panel__head mc-case-panel__head--row">
           <div>
             <span class="mc-case-panel__eyebrow">Project gallery</span>
-            <h2 class="mc-case-panel__title">Selected work</h2>
           </div>
-          <span class="mc-case-gallery__count"><%= itemCount %> piece<%= itemCount === 1 ? '' : 's' %></span>
         </header>
 
         <% if (coverIsVideo) { %>
