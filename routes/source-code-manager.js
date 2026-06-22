@@ -13,6 +13,7 @@ const { parseScmFilters, fetchScmDashboard, fetchScmStats, fetchSourceCodeScreen
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
 
 const ADMIN_ROLES = new Set(['admin', 'administrator', 'superadmin']);
 
@@ -39,22 +40,30 @@ function getUser(req) {
   return null;
 }
 
-function requireSourceCodeManagerLogin(req, res, next) {
-  const u = getUser(req);
-  if (!u) return res.redirect('/source-code-manager/login');
-  const role = String(u.role || '').trim().toLowerCase();
+async function requireSourceCodeManagerLogin(req, res, next) {
+  if (req.session?.adminid) {
+    req._user = { id: req.session.adminid, name: 'Admin', role: 'admin' };
+    return next();
+  }
+  const result = await enforceCrmSession(req, res, '/source-code-manager/login');
+  if (!result) return;
+  const role = String(result.role || '').trim().toLowerCase();
   if (role !== 'source_code_manager') return res.redirect('/source-code-manager/login');
-  req._user = u;
-  next();
+  req._user = result;
+  return next();
 }
 
 /** Allows source_code_manager OR admin (for sales admin to edit screenshots/demo) */
-function requireSourceCodeManagerOrAdmin(req, res, next) {
-  const u = getUser(req);
-  if (!u) return res.redirect('/source-code-manager/login');
-  const role = String(u.role || '').trim().toLowerCase();
+async function requireSourceCodeManagerOrAdmin(req, res, next) {
+  if (req.session?.adminid) {
+    req._user = { id: req.session.adminid, name: 'Admin', role: 'admin' };
+    return next();
+  }
+  const result = await enforceCrmSession(req, res, '/source-code-manager/login');
+  if (!result) return;
+  const role = String(result.role || '').trim().toLowerCase();
   if (role === 'source_code_manager' || ADMIN_ROLES.has(role)) {
-    req._user = u;
+    req._user = result;
     return next();
   }
   return res.redirect('/source-code-manager/login');
@@ -76,7 +85,7 @@ router.post('/login', async (req, res) => {
       return res.render('source-code-manager/login', { error: 'Email and password required.' });
     }
     const rows = await queryAsync(
-      `SELECT id, name, role, is_active FROM crm_users WHERE email=? AND password=? LIMIT 1`,
+      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
       [email, password]
     );
     if (!rows.length) {
@@ -89,7 +98,7 @@ router.post('/login', async (req, res) => {
     if (!r.is_active) {
       return res.render('source-code-manager/login', { error: 'Account disabled. Contact administrator.' });
     }
-    req.session.user = { id: r.id, name: r.name, role: String(r.role || '').trim() };
+    req.session.user = buildSessionUser(r);
     return res.redirect('/source-code-manager');
   } catch (e) {
     return res.render('source-code-manager/login', { error: 'Server error.' });

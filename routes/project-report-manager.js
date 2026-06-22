@@ -9,6 +9,7 @@ const router = express.Router();
 const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
 const { buildFullReportItems } = require('./prc-build-full-report-items');
 const { handleProjectReportWordDownload } = require('./project-report-creator');
 const {
@@ -34,21 +35,25 @@ function getUser(req) {
   return null;
 }
 
-function requirePRMLogin(req, res, next) {
-  const u = getUser(req);
-  if (!u) return res.redirect('/project-report-manager/login');
-  const role = String(u.role || '').trim().toLowerCase();
+async function requirePRMLogin(req, res, next) {
+  const result = await enforceCrmSession(req, res, '/project-report-manager/login');
+  if (!result) return;
+  const role = String(result.role || '').trim().toLowerCase();
   if (role !== 'project_report_manager') return res.redirect('/project-report-manager/login');
-  req._user = u;
-  next();
+  req._user = result;
+  return next();
 }
 
-function requirePRMOrAdmin(req, res, next) {
-  const u = getUser(req);
-  if (!u) return res.redirect('/project-report-manager/login');
-  const role = String(u.role || '').trim().toLowerCase();
+async function requirePRMOrAdmin(req, res, next) {
+  if (req.session?.adminid) {
+    req._user = { id: req.session.adminid, name: 'Admin', role: 'admin' };
+    return next();
+  }
+  const result = await enforceCrmSession(req, res, '/project-report-manager/login');
+  if (!result) return;
+  const role = String(result.role || '').trim().toLowerCase();
   if (role === 'project_report_manager' || ADMIN_ROLES.has(role)) {
-    req._user = u;
+    req._user = result;
     return next();
   }
   return res.redirect('/project-report-manager/login');
@@ -70,7 +75,7 @@ router.post('/login', async (req, res) => {
       return res.render('project-report-manager/login', { error: 'Email and password required.' });
     }
     const rows = await queryAsync(
-      `SELECT id, name, role, is_active FROM crm_users WHERE email=? AND password=? LIMIT 1`,
+      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
       [email, password]
     );
     if (!rows.length) {
@@ -83,7 +88,7 @@ router.post('/login', async (req, res) => {
     if (!r.is_active) {
       return res.render('project-report-manager/login', { error: 'Account disabled. Contact administrator.' });
     }
-    req.session.user = { id: r.id, name: r.name, role: String(r.role || '').trim() };
+    req.session.user = buildSessionUser(r);
     return res.redirect('/project-report-manager');
   } catch (e) {
     return res.render('project-report-manager/login', { error: 'Server error.' });

@@ -9,6 +9,14 @@ const getConnAsync = util.promisify(pool.getConnection).bind(pool);
 const dataService = require('./verify'); // you already use this for getCurrentDate()
 const { createSocketAuthToken } = require('../utils/socketAuth');
 const {
+  buildSessionUser,
+  validateSessionUser,
+  invalidateUserSessions,
+  destroySession,
+  sessionInvalidResponse,
+  SESSION_INVALID_MESSAGES
+} = require('../utils/crmSession');
+const {
   parseScmFilters,
   fetchScmDashboard,
   fetchSourceCodeScreenshotList
@@ -297,23 +305,46 @@ function asMoney(n) {
 // ---------------------------
 // Auth placeholders (map to your auth system)
 // ---------------------------
-// Expect: req.user = { id, name, role }  OR req.session.user = { ... }
-// Backoffice admins (session.adminid) get full admin access to sales
-function getUser(req) {
+function getBackofficeUser(req) {
   if (req.session?.adminid) {
     return { id: req.session.adminid, name: 'Admin', role: 'admin' };
   }
+  return null;
+}
+
+function getUser(req) {
+  const backoffice = getBackofficeUser(req);
+  if (backoffice) return backoffice;
   if (req.user) return req.user;
   if (req.session?.user) return req.session.user;
   return null;
 }
 
-function requireLogin(req, res, next) {
+async function requireLogin(req, res, next) {
+  const backoffice = getBackofficeUser(req);
+  if (backoffice) {
+    req._user = backoffice;
+    res.locals.socketAuthToken = createSocketAuthToken(backoffice);
+    return next();
+  }
+
   const u = getUser(req);
-  if (!u) return res.redirect('/auth/login');
-  req._user = u;
-  res.locals.socketAuthToken = createSocketAuthToken(u);
-  next();
+  if (!u || u.id == null) return res.redirect('/auth/login');
+
+  try {
+    const v = await validateSessionUser(u);
+    if (!v.ok) {
+      return sessionInvalidResponse(req, res, '/auth/login', v.reason);
+    }
+    req._user = v.user;
+    req.session.user = v.user;
+    res.locals.socketAuthToken = createSocketAuthToken(v.user);
+    return next();
+  } catch (e) {
+    console.error('requireLogin session error:', e);
+    destroySession(req);
+    return res.redirect('/auth/login');
+  }
 }
 
 router.use((req, res, next) => {
@@ -336,17 +367,36 @@ function requireAdmin(req, res, next) {
 // Landing
 // ---------------------------
 router.get('/', async (req, res) => {
+  const backoffice = getBackofficeUser(req);
+  if (backoffice) {
+    return res.redirect('/sales/admin/overview');
+  }
+
   const u = getUser(req);
   if (!u) {
     return res.render('freelancing/sales/login', { error: '' });
   }
-  const role = String(u.role || '').trim().toLowerCase();
-  if (['admin', 'administrator', 'superadmin'].includes(role)) return res.redirect('/sales/admin/overview');
-  if (role === 'setup_support') return res.redirect('/setup-support');
-  if (role === 'source_code_manager') return res.redirect('/source-code-manager');
-  if (role === 'project_report_manager') return res.redirect('/project-report-manager');
-  if (role === 'project_report_creator') return res.redirect('/project-report-creator');
-  return res.redirect('/sales/my');
+
+  try {
+    const v = await validateSessionUser(u);
+    if (!v.ok) {
+      destroySession(req);
+      const msg = SESSION_INVALID_MESSAGES[v.reason] || SESSION_INVALID_MESSAGES.missing;
+      return res.render('freelancing/sales/login', { error: msg });
+    }
+    req.session.user = v.user;
+    const role = String(v.user.role || '').trim().toLowerCase();
+    if (['admin', 'administrator', 'superadmin'].includes(role)) return res.redirect('/sales/admin/overview');
+    if (role === 'setup_support') return res.redirect('/setup-support');
+    if (role === 'source_code_manager') return res.redirect('/source-code-manager');
+    if (role === 'project_report_manager') return res.redirect('/project-report-manager');
+    if (role === 'project_report_creator') return res.redirect('/project-report-creator');
+    return res.redirect('/sales/my');
+  } catch (e) {
+    console.error('Sales landing session error:', e);
+    destroySession(req);
+    return res.render('freelancing/sales/login', { error: 'Server error.' });
+  }
 });
 
 // ---------------------------
@@ -2697,5 +2747,287 @@ router.post('/admin/live-demo/delete/:id', requireLogin, requireAdmin, async (re
     return res.redirect('/sales/admin/live-demo?error=Failed to delete.');
   }
 });
+
+// ---------------------------
+// CRM Users — full CRUD + session invalidation
+// ---------------------------
+const CRM_USER_ROLE_OPTIONS = [
+  { value: 'admin', label: 'Sales Admin' },
+  { value: 'agent', label: 'Sales Agent' },
+  { value: 'setup_support', label: 'Setup Support' },
+  { value: 'source_code_manager', label: 'Source Code Manager' },
+  { value: 'project_report_manager', label: 'Project Report Manager' },
+  { value: 'project_report_creator', label: 'Project Report Creator' },
+  { value: 'mern_training_manager', label: 'MERN Training Manager' }
+];
+const CRM_USER_ROLE_SET = new Set(CRM_USER_ROLE_OPTIONS.map(r => r.value));
+
+function crmUserRoleLabel(role) {
+  const key = String(role || '').trim().toLowerCase();
+  const found = CRM_USER_ROLE_OPTIONS.find(r => r.value === key);
+  return found ? found.label : role;
+}
+
+function isCrmAdminRole(role) {
+  const r = String(role || '').trim().toLowerCase();
+  return r === 'admin' || r === 'administrator' || r === 'superadmin';
+}
+
+async function countActiveAdmins(excludeId) {
+  let sql = `
+    SELECT COUNT(*) AS c FROM crm_users
+    WHERE is_active = 1 AND LOWER(role) IN ('admin','administrator','superadmin')
+  `;
+  const params = [];
+  if (excludeId) {
+    sql += ' AND id != ?';
+    params.push(excludeId);
+  }
+  const [row] = await queryAsync(sql, params);
+  return Number(row.c) || 0;
+}
+
+function redirectUsers(msg, type) {
+  const key = type === 'success' ? 'success' : 'error';
+  return `/sales/admin/users?${key}=${encodeURIComponent(msg)}`;
+}
+
+router.get('/admin/users', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const q = (req.query.q || '').toString().trim();
+    const roleFilter = (req.query.role || '').toString().trim().toLowerCase();
+    const statusFilter = (req.query.status || '').toString().trim().toLowerCase();
+
+    let where = ['1=1'];
+    const params = [];
+
+    if (q) {
+      where.push('(name LIKE ? OR email LIKE ?)');
+      const like = `%${q.replace(/%/g, '\\%')}%`;
+      params.push(like, like);
+    }
+    if (roleFilter && CRM_USER_ROLE_SET.has(roleFilter)) {
+      where.push('LOWER(role) = ?');
+      params.push(roleFilter);
+    }
+    if (statusFilter === 'active') {
+      where.push('is_active = 1');
+    } else if (statusFilter === 'inactive') {
+      where.push('is_active = 0');
+    }
+
+    const users = await queryAsync(`
+      SELECT id, name, email, role, is_active, created_at, session_token
+      FROM crm_users
+      WHERE ${where.join(' AND ')}
+      ORDER BY is_active DESC, name ASC
+      LIMIT 500
+    `, params);
+
+    return res.render('freelancing/sales/admin-crm-users', {
+      pageTitle: 'Team Access',
+      active: 'crmUsers',
+      user: req._user,
+      users,
+      roleOptions: CRM_USER_ROLE_OPTIONS,
+      crmUserRoleLabel,
+      filters: { q, role: roleFilter, status: statusFilter },
+      error: req.query.error || '',
+      success: req.query.success || ''
+    });
+  } catch (e) {
+    console.error('CRM users list error:', e);
+    res.status(500).send('Failed to load users.');
+  }
+});
+
+router.post('/admin/users', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const name = (req.body.name || '').toString().trim();
+    const email = (req.body.email || '').toString().trim().toLowerCase();
+    const password = (req.body.password || '').toString().trim();
+    const role = (req.body.role || '').toString().trim().toLowerCase();
+
+    if (!name || !email || !password) {
+      return res.redirect(redirectUsers('Name, email and password are required.'));
+    }
+    if (password.length < 6) {
+      return res.redirect(redirectUsers('Password must be at least 6 characters.'));
+    }
+    if (!CRM_USER_ROLE_SET.has(role)) {
+      return res.redirect(redirectUsers('Invalid role selected.'));
+    }
+
+    const existing = await queryAsync(`SELECT id FROM crm_users WHERE email = ? LIMIT 1`, [email]);
+    if (existing.length) {
+      return res.redirect(redirectUsers('Email is already registered.'));
+    }
+
+    await queryAsync(`
+      INSERT INTO crm_users (name, email, password, role, is_active, session_token, created_at)
+      VALUES (?, ?, ?, ?, 1, 1, NOW())
+    `, [name, email, password, role]);
+
+    return res.redirect(redirectUsers('User created successfully.', 'success'));
+  } catch (e) {
+    console.error('Create CRM user error:', e);
+    return res.redirect(redirectUsers('Failed to create user.'));
+  }
+});
+
+router.post('/admin/users/:id/update', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.redirect(redirectUsers('Invalid user id.'));
+
+    const name = (req.body.name || '').toString().trim();
+    const email = (req.body.email || '').toString().trim().toLowerCase();
+    const password = (req.body.password || '').toString().trim();
+    const role = (req.body.role || '').toString().trim().toLowerCase();
+    const isActive = (req.body.is_active || '').toString() === '1' ? 1 : 0;
+
+    if (!name || !email) {
+      return res.redirect(redirectUsers('Name and email are required.'));
+    }
+    if (password && password.length < 6) {
+      return res.redirect(redirectUsers('Password must be at least 6 characters.'));
+    }
+    if (!CRM_USER_ROLE_SET.has(role)) {
+      return res.redirect(redirectUsers('Invalid role selected.'));
+    }
+
+    const rows = await queryAsync(
+      `SELECT id, name, email, role, is_active FROM crm_users WHERE id = ? LIMIT 1`,
+      [id]
+    );
+    if (!rows.length) return res.redirect(redirectUsers('User not found.'));
+
+    const target = rows[0];
+    const currentUserId = Number(req._user.id);
+
+    if (id === currentUserId && !isActive) {
+      return res.redirect(redirectUsers('You cannot deactivate your own account.'));
+    }
+    if (id === currentUserId && !isCrmAdminRole(role)) {
+      return res.redirect(redirectUsers('You cannot remove your own admin access.'));
+    }
+
+    if (isCrmAdminRole(target.role) && !isActive) {
+      const adminsLeft = await countActiveAdmins(id);
+      if (adminsLeft < 1) {
+        return res.redirect(redirectUsers('Cannot deactivate the last active admin.'));
+      }
+    }
+    if (isCrmAdminRole(target.role) && !isCrmAdminRole(role)) {
+      const adminsLeft = await countActiveAdmins(id);
+      if (adminsLeft < 1) {
+        return res.redirect(redirectUsers('Cannot change role of the last active admin.'));
+      }
+    }
+
+    const emailTaken = await queryAsync(
+      `SELECT id FROM crm_users WHERE email = ? AND id != ? LIMIT 1`,
+      [email, id]
+    );
+    if (emailTaken.length) {
+      return res.redirect(redirectUsers('Email is already in use by another account.'));
+    }
+
+    const roleChanged = String(target.role || '').trim().toLowerCase() !== role;
+    const wasActive = !!target.is_active;
+    const deactivated = wasActive && !isActive;
+    const passwordChanged = !!password;
+
+    if (password) {
+      await queryAsync(`
+        UPDATE crm_users
+        SET name = ?, email = ?, password = ?, role = ?, is_active = ?
+        WHERE id = ?
+      `, [name, email, password, role, isActive, id]);
+    } else {
+      await queryAsync(`
+        UPDATE crm_users
+        SET name = ?, email = ?, role = ?, is_active = ?
+        WHERE id = ?
+      `, [name, email, role, isActive, id]);
+    }
+
+    if (deactivated || passwordChanged || roleChanged) {
+      await invalidateUserSessions(id);
+    }
+
+    return res.redirect(redirectUsers('User updated successfully.', 'success'));
+  } catch (e) {
+    console.error('Update CRM user error:', e);
+    return res.redirect(redirectUsers('Failed to update user.'));
+  }
+});
+
+router.post('/admin/users/:id/toggle-active', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.redirect(redirectUsers('Invalid user id.'));
+
+    if (id === Number(req._user.id)) {
+      return res.redirect(redirectUsers('You cannot deactivate your own account.'));
+    }
+
+    const rows = await queryAsync(
+      `SELECT id, role, is_active FROM crm_users WHERE id = ? LIMIT 1`,
+      [id]
+    );
+    if (!rows.length) return res.redirect(redirectUsers('User not found.'));
+
+    const target = rows[0];
+    const nextActive = target.is_active ? 0 : 1;
+
+    if (!nextActive && isCrmAdminRole(target.role)) {
+      const adminsLeft = await countActiveAdmins(id);
+      if (adminsLeft < 1) {
+        return res.redirect(redirectUsers('Cannot deactivate the last active admin.'));
+      }
+    }
+
+    await queryAsync(`UPDATE crm_users SET is_active = ? WHERE id = ?`, [nextActive, id]);
+    if (!nextActive) await invalidateUserSessions(id);
+
+    const msg = nextActive ? 'User activated.' : 'User deactivated — active sessions will be signed out.';
+    return res.redirect(redirectUsers(msg, 'success'));
+  } catch (e) {
+    console.error('Toggle CRM user error:', e);
+    return res.redirect(redirectUsers('Failed to update user status.'));
+  }
+});
+
+router.post('/admin/users/:id/delete', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.redirect(redirectUsers('Invalid user id.'));
+
+    if (id === Number(req._user.id)) {
+      return res.redirect(redirectUsers('You cannot delete your own account.'));
+    }
+
+    const rows = await queryAsync(
+      `SELECT id, role FROM crm_users WHERE id = ? LIMIT 1`,
+      [id]
+    );
+    if (!rows.length) return res.redirect(redirectUsers('User not found.'));
+
+    if (isCrmAdminRole(rows[0].role)) {
+      const adminsLeft = await countActiveAdmins(id);
+      if (adminsLeft < 1) {
+        return res.redirect(redirectUsers('Cannot delete the last active admin.'));
+      }
+    }
+
+    await queryAsync(`DELETE FROM crm_users WHERE id = ?`, [id]);
+    return res.redirect(redirectUsers('User removed. Any active sessions are now invalid.', 'success'));
+  } catch (e) {
+    console.error('Delete CRM user error:', e);
+    return res.redirect(redirectUsers('Failed to delete user. They may have linked records.'));
+  }
+});
+
 
 module.exports = router;

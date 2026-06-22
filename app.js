@@ -43,6 +43,7 @@ function configureEjsEngine(appInstance) {
 
 const { startLeadWatcher } = require('./routes/Freelancing/lead-watcher');
 const { verifySocketAuthToken } = require('./utils/socketAuth');
+const { validateSessionUser } = require('./utils/crmSession');
 // require('./routes/leaderboardCron'); // disabled
 
 const manishaRouter = require('./subdomains/manisha');
@@ -346,22 +347,27 @@ function verifyCookieSession(parsedCookies) {
   return decodeCookieSessionValue(value);
 }
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   try {
-    const tokenUser = verifySocketAuthToken(socket.handshake.auth?.token);
-    if (tokenUser) {
-      socket.user = tokenUser;
-      return next();
+    let user = verifySocketAuthToken(socket.handshake.auth?.token);
+
+    if (!user) {
+      const raw = socket.request.headers.cookie || '';
+      const parsed = cookie.parse(raw);
+
+      const sess = verifyCookieSession(parsed);
+      if (!sess) return next(new Error('Invalid session cookie'));
+
+      user = sess.user || sess._user || sess.loginUser;
     }
 
-    const raw = socket.request.headers.cookie || '';
-    const parsed = cookie.parse(raw);
-
-    const sess = verifyCookieSession(parsed);
-    if (!sess) return next(new Error('Invalid session cookie'));
-
-    const user = sess.user || sess._user || sess.loginUser;
     if (!user) return next(new Error('Unauthenticated'));
+
+    if (user.sv != null && user.id != null) {
+      const v = await validateSessionUser(user);
+      if (!v.ok) return next(new Error('Session revoked'));
+      user = v.user;
+    }
 
     socket.user = user;
     return next();

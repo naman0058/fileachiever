@@ -1,0 +1,38 @@
+<script>
+(function () {
+  var CHECK_MS = 30000;
+  var endpoint = '/auth/session-check';
+
+  function redirectToLogout() {
+    window.location.href = '/auth/logout';
+  }
+
+  function checkSession() {
+    fetch(endpoint, {
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' }
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('invalid');
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || !data.ok) {
+          if (data && data.redirect) {
+            window.location.href = data.redirect;
+            return;
+          }
+          redirectToLogout();
+        }
+      })
+      .catch(function () {
+        redirectToLogout();
+      });
+  }
+
+  setInterval(checkSession, CHECK_MS);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) checkSession();
+  });
+})();
+</script>

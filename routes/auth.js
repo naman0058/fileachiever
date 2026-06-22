@@ -3,11 +3,44 @@ const router = express.Router();
 const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const {
+  buildSessionUser,
+  validateSessionUser,
+  destroySession,
+  SESSION_INVALID_MESSAGES
+} = require('../utils/crmSession');
 
 // Login page (msg from query = e.g. redirect from requireAdmin)
 router.get('/login', (req, res) => {
   const msg = (req.query.msg || '').toString().trim();
   res.render('freelancing/sales/login', { error: msg });
+});
+
+// Lightweight session check for client-side auto-logout
+router.get('/session-check', async (req, res) => {
+  const u = req.session && req.session.user;
+  if (!u) {
+    return res.status(401).json({ ok: false, redirect: '/auth/login' });
+  }
+
+  try {
+    const v = await validateSessionUser(u);
+    if (!v.ok) {
+      const msg = SESSION_INVALID_MESSAGES[v.reason] || SESSION_INVALID_MESSAGES.missing;
+      destroySession(req);
+      return res.status(401).json({
+        ok: false,
+        message: msg,
+        redirect: `/auth/login?msg=${encodeURIComponent(msg)}`
+      });
+    }
+    req.session.user = v.user;
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('Session check error:', e);
+    destroySession(req);
+    return res.status(500).json({ ok: false, redirect: '/auth/login' });
+  }
 });
 
 // Login submit (NO encryption)
@@ -21,7 +54,7 @@ router.post('/login', async (req, res) => {
     }
 
     const rows = await queryAsync(
-      `SELECT id, name, role, is_active
+      `SELECT id, name, role, is_active, session_token
        FROM crm_users
        WHERE email=? AND password=?
        LIMIT 1`,
@@ -61,12 +94,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // store in session (ensure role is string - MySQL may return Buffer in some configs)
-    req.session.user = {
-      id: rows[0].id,
-      name: rows[0].name,
-      role: String(rows[0].role || '').trim()
-    };
+    req.session.user = buildSessionUser(rows[0]);
 
     return res.redirect('/sales');
   } catch (e) {
@@ -77,7 +105,7 @@ router.post('/login', async (req, res) => {
 
 // Logout
 router.get('/logout', (req, res) => {
-  req.session = null;
+  destroySession(req);
   res.redirect('/auth/login');
 });
 

@@ -15,6 +15,7 @@ function createSocketAuthToken(user) {
     id: user.id,
     name: user.name,
     role: user.role,
+    sv: user.sv != null ? Number(user.sv) : null,
     exp: Date.now() + TOKEN_TTL_MS
   };
 
@@ -46,7 +47,8 @@ function verifySocketAuthToken(token) {
   return {
     id: payload.id,
     name: payload.name,
-    role: payload.role
+    role: payload.role,
+    sv: payload.sv != null ? Number(payload.sv) : null
   };
 }
 

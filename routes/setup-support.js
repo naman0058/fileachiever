@@ -10,18 +10,19 @@ const pool = require('./pool');
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
 
 function getUser(req) {
   return req.user || req.session?.user || null;
 }
 
-function requireSetupSupportLogin(req, res, next) {
-  const u = getUser(req);
-  if (!u) return res.redirect('/setup-support/login');
-  const role = String(u.role || '').trim().toLowerCase();
+async function requireSetupSupportLogin(req, res, next) {
+  const result = await enforceCrmSession(req, res, '/setup-support/login');
+  if (!result) return;
+  const role = String(result.role || '').trim().toLowerCase();
   if (role !== 'setup_support') return res.redirect('/setup-support/login');
-  req._user = u;
-  next();
+  req._user = result;
+  return next();
 }
 
 // Login
@@ -40,7 +41,7 @@ router.post('/login', async (req, res) => {
       return res.render('setup-support/login', { error: 'Email and password required.' });
     }
     const rows = await queryAsync(
-      `SELECT id, name, role, is_active FROM crm_users WHERE email=? AND password=? LIMIT 1`,
+      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
       [email, password]
     );
     if (!rows.length) {
@@ -53,7 +54,7 @@ router.post('/login', async (req, res) => {
     if (!r.is_active) {
       return res.render('setup-support/login', { error: 'Account disabled. Contact administrator.' });
     }
-    req.session.user = { id: r.id, name: r.name, role: String(r.role || '').trim() };
+    req.session.user = buildSessionUser(r);
     return res.redirect('/setup-support');
   } catch (e) {
     return res.render('setup-support/login', { error: 'Server error.' });

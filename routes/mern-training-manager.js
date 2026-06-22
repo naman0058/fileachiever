@@ -7,6 +7,7 @@ const path = require('path');
 const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
 const { safeInternalPath, isMernTrainingManager } = require('./mernManagerAccess');
 
 const router = express.Router();
@@ -19,11 +20,13 @@ function getMernManagerUser(req) {
   return null;
 }
 
-function requireMernManagerLogin(req, res, next) {
-  const u = getMernManagerUser(req);
-  if (!u) return res.redirect('/mern-training-manager/login');
-  req._mernUser = u;
-  next();
+async function requireMernManagerLogin(req, res, next) {
+  const result = await enforceCrmSession(req, res, '/mern-training-manager/login');
+  if (!result) return;
+  const role = String(result.role || '').trim().toLowerCase();
+  if (role !== 'mern_training_manager') return res.redirect('/mern-training-manager/login');
+  req._mernUser = result;
+  return next();
 }
 
 router.get('/login', (req, res) => {
@@ -50,7 +53,7 @@ router.post('/login', async (req, res) => {
     }
 
     const rows = await queryAsync(
-      `SELECT id, name, role, is_active FROM crm_users WHERE email=? AND password=? LIMIT 1`,
+      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
       [email, password]
     );
 
@@ -75,11 +78,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    req.session.user = {
-      id: r.id,
-      name: r.name,
-      role: String(r.role || '').trim(),
-    };
+    req.session.user = buildSessionUser(r);
 
     const dest =
       !nextPath || nextPath.startsWith('/mern-training-manager/login') ? '/mern-training-manager' : nextPath;
