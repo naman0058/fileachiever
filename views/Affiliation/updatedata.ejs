@@ -103,7 +103,7 @@
 </div>
 <div class="col-xl-12" style="margin-top: 20px;">
     <label class="form-label">Source code file</label>
-    <p class="text-muted small mb-1">Current: <code><%= (result[0].source_code != null && result[0].source_code !== '') ? result[0].source_code : '—' %></code> — choose a new file only if you want to replace it.</p>
+    <p class="text-muted small mb-1">Current: <code><%= (result[0].source_code != null && result[0].source_code !== '') ? result[0].source_code : '—' %></code> — choose a new file only if you want to replace it. Max size: 5 MB.</p>
     <input type="file" class="form-control" id="source_code_file" name="source_code">
 </div>
 <div class="col-xl-12" style="margin-top: 20px;">
@@ -216,6 +216,21 @@ var vm = new Vue({
 
 
  $('.save').click(function() {
+    const maxBytes = 5 * 1024 * 1024;
+    const fileFields = [
+      { id: 'source_code_file', label: 'Source code file' },
+      { id: 'readme_file', label: 'README file' },
+      { id: 'schema_file', label: 'Schema file' },
+      { id: 'sql_file', label: 'SQL file' }
+    ];
+    for (var i = 0; i < fileFields.length; i++) {
+      var el = document.getElementById(fileFields[i].id);
+      if (el && el.files && el.files.length && el.files[0].size > maxBytes) {
+        alert(fileFields[i].label + ' is too large. Maximum allowed size is 5 MB.');
+        return;
+      }
+    }
+
     const fd = new FormData();
     fd.append('admin_features', CKEDITOR.instances['admin_features'].getData());
     fd.append('user_features', CKEDITOR.instances['user_features'].getData());
@@ -254,8 +269,14 @@ var vm = new Vue({
             alert('Failed to update data');
         }
     })
-    .fail(function() {
-        alert('An error occurred while processing your request');
+    .fail(function(xhr) {
+        var msg = 'An error occurred while processing your request';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          msg = xhr.responseJSON.message;
+        } else if (xhr.status === 413) {
+          msg = 'File is too large. Maximum allowed size is 5 MB.';
+        }
+        alert(msg);
     });
 });
 

@@ -10,6 +10,16 @@ var storage = multer.diskStorage({
   }
 })
 
+/** Source code zip / readme / schema / sql uploads (affiliate dashboard) */
+const SOURCE_CODE_MAX_BYTES = 5 * 1024 * 1024;
+
 var upload = multer({ storage: storage });
 
+var sourceCodeUpload = multer({
+  storage: storage,
+  limits: { fileSize: SOURCE_CODE_MAX_BYTES }
+});
+
 module.exports = upload;
+module.exports.sourceCodeUpload = sourceCodeUpload;
+module.exports.SOURCE_CODE_MAX_BYTES = SOURCE_CODE_MAX_BYTES;

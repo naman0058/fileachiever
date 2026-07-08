@@ -94,6 +94,7 @@
 <div class="col-xl-12" style="margin-top: 20px;">
   <label  class="form-label">Source Code</label>
         <input type="file" name="source_code" id="source_code" required>
+        <p class="text-muted small mt-1 mb-0">Maximum file size: 5 MB</p>
 </div>
 <div class="col-xl-12" style="margin-top: 20px;">
   <label class="form-label">README file <span class="text-muted small">(optional)</span></label>
@@ -213,6 +214,16 @@ var vm = new Vue({
 
 $('.uploadImage').submit(function (e) {
       e.preventDefault();
+
+      const maxBytes = 5 * 1024 * 1024;
+      const fileInputs = ['source_code', 'readme_file', 'schema_file', 'sql_file'];
+      for (var i = 0; i < fileInputs.length; i++) {
+        var input = document.getElementById(fileInputs[i]);
+        if (input && input.files && input.files.length && input.files[0].size > maxBytes) {
+          alert('Each uploaded file must be 5 MB or smaller.');
+          return false;
+        }
+      }
      
       const data = {
         admin_features: CKEDITOR.instances['admin_features'].getData(),

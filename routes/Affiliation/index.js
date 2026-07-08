@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var upload = require('../multer');
+const { sourceCodeUpload } = upload;
 var pool = require('../pool');
 var pool2 = require('../pool2');
 const service = require('../../services/analyticsService');
@@ -53,6 +54,20 @@ function applySourceCodeUploadedFilenames(req) {
   if (files.readme_file && files.readme_file[0]) req.body.readme_file = files.readme_file[0].filename;
   if (files.schema_file && files.schema_file[0]) req.body.schema_file = files.schema_file[0].filename;
   if (files.sql_file && files.sql_file[0]) req.body.sql_file = files.sql_file[0].filename;
+}
+
+function sourceCodeUploadMiddleware(req, res, next) {
+  sourceCodeUpload.fields(sourceCodeMultipartFields)(req, res, function (err) {
+    if (!err) return next();
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({
+        msg: 'error',
+        message: 'Each uploaded file must be 5 MB or smaller.'
+      });
+    }
+    console.error('Source code upload error:', err);
+    return res.status(400).json({ msg: 'error', message: 'File upload failed.' });
+  });
 }
           
 cloudinary.config({ 
@@ -367,7 +382,7 @@ router.get('/dashboard/update/blogs/data',(req,res)=>{
 // })
 
 
-router.post('/dashboard/source_code/add', upload.fields(sourceCodeMultipartFields), async (req, res) => {
+router.post('/dashboard/source_code/add', sourceCodeUploadMiddleware, async (req, res) => {
 
 
   try {
@@ -430,7 +445,7 @@ router.post('/dashboard/blogs/add',upload.single('image'), async (req, res) => {
 
 
 
-router.post('/dashboard/upload/data', upload.fields(sourceCodeMultipartFields), (req, res) => {
+router.post('/dashboard/upload/data', sourceCodeUploadMiddleware, (req, res) => {
   console.log('req.body', req.body);
   applySourceCodeUploadedFilenames(req);
   pool.query('UPDATE source_code SET ? WHERE id = ?', [req.body, req.body.id], (err, result) => {
