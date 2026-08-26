@@ -78,6 +78,29 @@ const server = http.createServer(app);
 app.set('trust proxy', true);
 app.disable('x-powered-by');
 
+// Cloudflare/nginx terminate TLS upstream — Express must see HTTPS or Secure cookies are dropped.
+app.use((req, res, next) => {
+  const proto = (req.get('x-forwarded-proto') || '').split(',')[0].trim().toLowerCase();
+  if (proto === 'https') return next();
+
+  const cfVisitor = String(req.get('cf-visitor') || '');
+  if (cfVisitor.includes('"scheme":"https"') || cfVisitor.includes('https')) {
+    req.headers['x-forwarded-proto'] = 'https';
+    return next();
+  }
+
+  const host = (req.get('host') || '').toLowerCase().split(':')[0];
+  const forceHttps =
+    process.env.TRUST_HTTPS_BEHIND_PROXY === 'true' ||
+    process.env.TRUST_HTTPS_BEHIND_PROXY === '1' ||
+    ((process.env.COOKIE_SECURE === 'true' || process.env.COOKIE_SECURE === '1') &&
+      host.endsWith('filemakr.com'));
+  if (forceHttps) {
+    req.headers['x-forwarded-proto'] = 'https';
+  }
+  next();
+});
+
 // ======================================================
 // MIDDLEWARES
 // ======================================================
@@ -148,25 +171,18 @@ app.use(cookieSession({
   httpOnly: true,
   sameSite: 'lax',
   path: '/',
-  domain: cookieDomain,
-  // Secure cookies only work over HTTPS. Localhost uses HTTP even with NODE_ENV=production.
-  secure: process.env.COOKIE_SECURE === 'true' || process.env.COOKIE_SECURE === '1'
+  domain: cookieDomain
+  // secure is set per-request below (must match X-Forwarded-Proto or cookies.set throws).
 }));
 
-// Per-request cookie flags (trust X-Forwarded-Proto from nginx/Cloudflare).
+// Per-request Secure flag — only when the client connection is HTTPS.
 app.use((req, res, next) => {
   if (!req.sessionOptions) return next();
-  const secureEnv =
-    process.env.COOKIE_SECURE === 'true' || process.env.COOKIE_SECURE === '1';
-  if (secureEnv) {
-    req.sessionOptions.secure = true;
-  } else {
-    const proto = (req.get('x-forwarded-proto') || req.protocol || 'http')
-      .split(',')[0]
-      .trim()
-      .toLowerCase();
-    req.sessionOptions.secure = proto === 'https';
-  }
+  const proto = (req.get('x-forwarded-proto') || req.protocol || 'http')
+    .split(',')[0]
+    .trim()
+    .toLowerCase();
+  req.sessionOptions.secure = proto === 'https';
   next();
 });
 
