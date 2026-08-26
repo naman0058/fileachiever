@@ -127,7 +127,10 @@ app.use(cookieParser());
 
 // Skip static only for /shopkeeper root: public/shopkeeper/ exists (theme assets) and would 301 to /shopkeeper/.
 const publicDir = path.join(__dirname, 'public');
-const staticOpts = { maxAge: '31536000' };
+const staticOpts = {
+  maxAge: process.env.NODE_ENV === 'production' ? '31536000' : 0,
+  immutable: process.env.NODE_ENV === 'production'
+};
 app.use((req, res, next) => {
   if (req.path === '/shopkeeper' || req.path === '/shopkeeper/') {
     return next();

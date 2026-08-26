@@ -1852,6 +1852,34 @@ router.get(Object.keys(URL_REDIRECTS), (req, res) => {
 });
 
 // using this route — lean homepage payload (no SELECT *, no unused blogs)
+const HOME_PAGE_CACHE_MS = 5 * 60 * 1000;
+let homePageDataCache = { payload: null, at: 0 };
+
+async function loadHomePageData() {
+    const scCols = 'id, name, seo_name, category, image, demo_url, LEFT(description, 280) AS description';
+    const stripByCategory = (cat, limit = 5) =>
+        queryAsync(
+            `SELECT ${scCols} FROM source_code WHERE category = ? ORDER BY id DESC LIMIT ?`,
+            [cat, limit]
+        );
+
+    const [sourceCode, liveproject, homeStrips] = await Promise.all([
+        queryAsync(`SELECT ${scCols} FROM source_code ORDER BY id DESC LIMIT 48`),
+        queryAsync(
+            `SELECT ${scCols} FROM source_code
+             WHERE demo_url IS NOT NULL AND demo_url != ''
+             ORDER BY id DESC LIMIT 12`
+        ),
+        Promise.all([
+            stripByCategory('php', 5),
+            stripByCategory('python', 5),
+            stripByCategory('machine-learning', 5),
+        ]).then(([php, python, ml]) => ({ php, python, ml }))
+    ]);
+
+    return { sourceCode, liveproject, homeStrips };
+}
+
 router.get('/', dataService.allCategory, async (req, res) => {
     try {
         res.setHeader('X-Robots-Tag', 'index, follow');
@@ -1860,30 +1888,13 @@ router.get('/', dataService.allCategory, async (req, res) => {
             req.session.referralCode = req.query.referral;
         }
 
-        // Only columns the homepage template reads; keep row counts small.
-        // Note: source_code has no created_at — order by id DESC for recency.
-        const scCols = 'id, name, seo_name, category, image, demo_url, LEFT(description, 280) AS description';
-        const stripByCategory = (cat, limit = 5) =>
-            queryAsync(
-                `SELECT ${scCols} FROM source_code WHERE category = ? ORDER BY id DESC LIMIT ?`,
-                [cat, limit]
-            );
+        const now = Date.now();
+        if (!homePageDataCache.payload || now - homePageDataCache.at > HOME_PAGE_CACHE_MS) {
+            homePageDataCache.payload = await loadHomePageData();
+            homePageDataCache.at = now;
+        }
 
-        const [sourceCode, liveproject, homeStrips] = await Promise.all([
-            queryAsync(
-                `SELECT ${scCols} FROM source_code ORDER BY id DESC LIMIT 48`
-            ),
-            queryAsync(
-                `SELECT ${scCols} FROM source_code
-                 WHERE demo_url IS NOT NULL AND demo_url != ''
-                 ORDER BY id DESC LIMIT 12`
-            ),
-            Promise.all([
-                stripByCategory('php', 5),
-                stripByCategory('python', 5),
-                stripByCategory('machine-learning', 5),
-            ]).then(([php, python, ml]) => ({ php, python, ml }))
-        ]);
+        const { sourceCode, liveproject, homeStrips } = homePageDataCache.payload;
 
         res.render('index1', {
             Metatags: onPageSeo.homePage,

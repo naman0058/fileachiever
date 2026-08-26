@@ -28,8 +28,20 @@
 
 .fm-home .container,
 .fm-dir-hero .container,
-.fm-directory .container {
+.fm-directory .container,
+.fm-home-page .offer-bar > .container {
+  width: 100%;
   max-width: var(--fm-max);
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+}
+
+.fm-home-page .fm-header .container,
+.fm-home-page .offer-bar > .container {
+  max-width: 1280px;
 }
 
 /* ===== Search hero ===== */

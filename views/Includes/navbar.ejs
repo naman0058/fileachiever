@@ -1,12 +1,12 @@
 <% if (typeof navOnly === 'undefined' || !navOnly) { %>
+<% var fmHomeLite = (typeof homeLite !== 'undefined' && homeLite) || (typeof active !== 'undefined' && active === 'home'); %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<% if (fmHomeLite) { %> class="fm-home-page"<% } %>>
 
 
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<% var fmHomeLite = (typeof homeLite !== 'undefined' && homeLite) || (typeof active !== 'undefined' && active === 'home'); %>
 <%- include('Includes/gtm-head') %>
 <title><%=Metatags.title%></title>
 <meta name="description" content="<%=Metatags.description%>"/>
@@ -67,16 +67,40 @@
 <meta name="robots" content="index, follow">
 
 <link rel="stylesheet" href="/design/css/bootstrap.min.css">
-<% if (!fmHomeLite) { %>
-<link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
-<% } %>
-<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
-<link rel="stylesheet" href="/design/plugins/feather/feather.css">
-<link rel="preload" href="/css/fm-header.css?v=25" as="style">
-<link rel="stylesheet" href="/css/fm-header.css?v=25">
 <% if (fmHomeLite) { %>
-<link rel="preload" href="/css/fm-footer.css?v=20" as="style">
-<link rel="stylesheet" href="/css/fm-footer.css?v=20">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" as="style">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap"></noscript>
+<link rel="preload" href="/css/fm-header.css?v=28" as="style">
+<link rel="stylesheet" href="/css/fm-header.css?v=28">
+<link rel="preload" href="/css/home-directory.css?v=68" as="style">
+<link rel="stylesheet" href="/css/home-directory.css?v=68">
+<link rel="preload" href="/design/plugins/feather/fonts/Feather144f.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="/design/plugins/feather/feather.css?v=woff">
+<link rel="preload" href="/design/plugins/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/design/plugins/fontawesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/design/plugins/fontawesome/css/all.min.css?v=woff2" as="style">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css?v=woff2" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css?v=woff2"></noscript>
+<link rel="stylesheet" href="/css/fm-footer.css?v=21">
+<style>
+  .fm-home-page body,.fm-home{font-family:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0}
+  .fm-home-page .fm-header .container,
+  .fm-home-page .offer-bar > .container{width:100%;max-width:1280px;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}
+  .fm-home .container,
+  .fm-dir-hero .container,
+  .fm-directory .container{width:100%;max-width:1240px;margin-left:auto!important;margin-right:auto!important;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+</style>
+<% } else { %>
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css?v=woff2">
+<link rel="stylesheet" href="/design/plugins/feather/feather.css?v=woff">
+<link rel="preload" href="/css/fm-header.css?v=28" as="style">
+<link rel="stylesheet" href="/css/fm-header.css?v=28">
 <% } %>
 
 <% if (!fmHomeLite) { %>
