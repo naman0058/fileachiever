@@ -125,6 +125,12 @@ app.use(stripOversizedSessionCookies);
 
 app.use(cookieParser());
 
+// llms.txt — serve as Markdown for AI crawler audits
+app.get('/llms.txt', (req, res) => {
+  res.type('text/markdown; charset=utf-8');
+  res.sendFile(path.join(__dirname, 'public', 'llms.txt'));
+});
+
 // Skip static only for /shopkeeper root: public/shopkeeper/ exists (theme assets) and would 301 to /shopkeeper/.
 const publicDir = path.join(__dirname, 'public');
 const staticOpts = {

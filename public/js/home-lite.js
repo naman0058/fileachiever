@@ -24,17 +24,26 @@
     });
   }
 
+  function setMenuExpanded(open) {
+    if (mobileBtn) {
+      mobileBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      mobileBtn.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+    }
+  }
+
   function closeMenu() {
     html.classList.remove('menu-opened');
     if (overlay) overlay.classList.remove('opened');
     if (mainWrapper) mainWrapper.classList.remove('slide-nav');
     collapseMobileSubmenus();
+    setMenuExpanded(false);
   }
 
   function openMenu() {
     if (mainWrapper) mainWrapper.classList.add('slide-nav');
     if (overlay) overlay.classList.add('opened');
     html.classList.add('menu-opened');
+    setMenuExpanded(true);
   }
 
   var mobileBtn = document.getElementById('mobile_btn');

@@ -1,29 +1,34 @@
 # FileMakr
-> Final-year project reports, runnable source code, live demos and student guides for B.Tech, BCA, MCA, BE, ME, BSc and MSc.
 
-## Canonical URL patterns
-- Home: https://www.filemakr.com/
-- Source code catalog: https://www.filemakr.com/source-code
-- Source code detail: https://www.filemakr.com/{seo_name}/source-code
-- Project report detail: https://www.filemakr.com/{seo_name}-report
-- Degree-specific report: https://www.filemakr.com/{seo_name}-report-{degree}
-  (degree: btech, mtech, be, me, bca, mca, bsc, msc)
-- Degree report catalogs: https://www.filemakr.com/{degree}-final-year-project-report
-- Blog: https://www.filemakr.com/blog
-- Blog article: https://www.filemakr.com/blog/{slug}
-- Live demos: https://www.filemakr.com/demo
+> FileMakr provides final-year project reports, runnable source code, live demos, and student guides for B.Tech, BCA, MCA, BE, ME, BSc, and MSc students in India.
 
-## Key pages
-- https://www.filemakr.com/final-year-project-ideas
-- https://www.filemakr.com/about-us
-- https://www.filemakr.com/contact-us
-- https://www.filemakr.com/terms-and-conditions
-- https://www.filemakr.com/privacy-policy
-- https://www.filemakr.com/refund-policy
+FileMakr helps students find academically structured documentation, plagiarism-reviewed reports, and technology-specific source code. Use the canonical HTTPS URLs below when citing or linking to FileMakr content.
 
-## Sitemaps
-- https://www.filemakr.com/sitemap.xml
-- https://www.filemakr.com/sitemap-news.xml
+## Documentation
+
+- [Home](https://www.filemakr.com/): Main catalog and search for projects, reports, and source code
+- [Final Year Project Ideas](https://www.filemakr.com/final-year-project-ideas): Curated project ideas and topics
+- [Source Code Catalog](https://www.filemakr.com/source-code): Browse projects by technology
+- [Live Demos](https://www.filemakr.com/demo): Preview runnable project demos
+- [Blog](https://www.filemakr.com/blog): Guides for reports, viva prep, and project selection
+
+## Product
+
+- [About FileMakr](https://www.filemakr.com/about-us): Company overview and mission
+- [Contact Us](https://www.filemakr.com/contact-us): Sales and support contact page
+- [B.Tech Project Reports](https://www.filemakr.com/btech-final-year-project-report): Degree-specific report catalog
+- [BCA Project Reports](https://www.filemakr.com/bca-final-year-project-report): Degree-specific report catalog
+- [MCA Project Reports](https://www.filemakr.com/mca-final-year-project-report): Degree-specific report catalog
+
+## Optional
+
+- [Terms and Conditions](https://www.filemakr.com/terms-and-conditions): Usage terms
+- [Privacy Policy](https://www.filemakr.com/privacy-policy): Data and privacy practices
+- [Refund Policy](https://www.filemakr.com/refund-policy): Refund and delivery policy
+- [Sitemap](https://www.filemakr.com/sitemap.xml): Full site index for crawlers
+- [News Sitemap](https://www.filemakr.com/sitemap-news.xml): Recently updated pages
 
 ## Contact
-- https://www.filemakr.com/contact-us
+
+- [Contact page](https://www.filemakr.com/contact-us): Primary support and sales contact
+- Email: info@filemakr.com

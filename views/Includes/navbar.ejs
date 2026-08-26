@@ -629,11 +629,11 @@ html.menu-opened header.fm-header.header-fixed{
 
 <header class="header header-page header-fixed fm-header">
     <div class="">
-    <nav class="navbar navbar-expand-lg header-nav scroll-sticky">
+    <nav class="navbar navbar-expand-lg header-nav scroll-sticky" aria-label="Main navigation">
         <div class="container">
             <div class="navbar-header" >
-            <a id="mobile_btn" href="javascript:void(0);">
-            <span class="bar-icon">
+            <a id="mobile_btn" href="javascript:void(0);" role="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="main-navigation">
+            <span class="bar-icon" aria-hidden="true">
             <span></span>
             <span></span>
             <span></span>
@@ -643,13 +643,13 @@ html.menu-opened header.fm-header.header-fixed{
             <img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 440 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_440/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="220" height="72" class="fm-header-logo" alt="FileMakr" fetchpriority="high" decoding="async">
             </a>
             </div>
-            <div class="main-menu-wrapper">
+            <div class="main-menu-wrapper" id="main-navigation">
             <div class="menu-header">
             <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students" class="menu-logo">
             <img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 440 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_440/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="220" height="72" class="fm-header-logo" alt="FileMakr" loading="lazy" decoding="async">
             </a>
-            <a id="menu_close" class="menu-close" href="javascript:void(0);">
-            <i class="fas fa-times"></i>
+            <a id="menu_close" class="menu-close" href="javascript:void(0);" role="button" aria-label="Close navigation menu">
+            <i class="fas fa-times" aria-hidden="true"></i>
             </a>
             </div>
             <ul class="main-nav">
