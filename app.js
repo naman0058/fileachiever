@@ -149,6 +149,23 @@ app.use(cookieSession({
   secure: process.env.COOKIE_SECURE === 'true' || process.env.COOKIE_SECURE === '1'
 }));
 
+// Per-request cookie flags (trust X-Forwarded-Proto from nginx/Cloudflare).
+app.use((req, res, next) => {
+  if (!req.sessionOptions) return next();
+  const secureEnv =
+    process.env.COOKIE_SECURE === 'true' || process.env.COOKIE_SECURE === '1';
+  if (secureEnv) {
+    req.sessionOptions.secure = true;
+  } else {
+    const proto = (req.get('x-forwarded-proto') || req.protocol || 'http')
+      .split(',')[0]
+      .trim()
+      .toLowerCase();
+    req.sessionOptions.secure = proto === 'https';
+  }
+  next();
+});
+
 // ======================================================
 // LOCALS
 // ======================================================

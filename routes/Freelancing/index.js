@@ -52,7 +52,9 @@ router.post('/login', (req, res) => {
       }
 
       if (result.length > 0) {
-          req.session.affiliation = result[0].id;
+          req.session = null;
+          req.session = { affiliation: result[0].id };
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
           return res.redirect('/freelancing/dashboard');
       } 
 

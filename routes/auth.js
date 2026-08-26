@@ -104,6 +104,7 @@ router.post('/login', async (req, res) => {
     }
 
     assignPortalUser(req, row);
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     return redirectAfterPortalLogin(res, '/sales');
   } catch (e) {
     console.error('Login error:', e);

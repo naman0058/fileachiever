@@ -6,32 +6,6 @@ const pool = require('../routes/pool');
 
 const queryAsync = util.promisify(pool.query).bind(pool);
 
-/** Drop checkout / payment keys so CRM session cookie stays small and saves reliably. */
-const EPHEMERAL_SESSION_KEYS = [
-  'ispayment',
-  'fm_order_id',
-  'paid_source_code_id',
-  'paid_plan',
-  'paid_product_type',
-  'paid_order_id',
-  'paid_billing_name',
-  'paid_billing_email',
-  'paid_amount',
-  'paid_method',
-  'paid_product_name',
-  'paid_date',
-  'paid_zip_file',
-  'paid_addon',
-  'checkout_csrf',
-  'checkout_plan',
-  'checkout_addon',
-  'type',
-  'source_code_id',
-  'conversionTrack',
-  'roll_number',
-  'project_report_table'
-];
-
 const SESSION_INVALID_MESSAGES = {
   missing: 'Please log in again.',
   deleted: 'Your account has been removed.',
@@ -77,20 +51,21 @@ async function findCrmUserByCredentials(email, password) {
 }
 
 function assignPortalUser(req, row) {
-  const session = req.session;
-  if (session) {
-    for (const k of [...Object.keys(session), ...EPHEMERAL_SESSION_KEYS]) {
-      if (Object.prototype.hasOwnProperty.call(session, k)) delete session[k];
-    }
-  }
-  req.session.user = buildSessionUser({
-    ...row,
-    session_token: row.session_token != null ? row.session_token : 1
-  });
-  req.session.portal_login_at = Date.now();
+  const payload = {
+    user: buildSessionUser({
+      ...row,
+      session_token: row.session_token != null ? row.session_token : 1
+    }),
+    portal_login_at: Date.now()
+  };
+  // Drop any bloated checkout cookie and write a fresh signed session (cookie-session API).
+  req.session = null;
+  req.session = payload;
 }
 
 function redirectAfterPortalLogin(res, url) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
   return res.redirect(303, url);
 }
 
