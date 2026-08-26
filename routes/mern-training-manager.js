@@ -7,7 +7,7 @@ const path = require('path');
 const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
-const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
+const { buildSessionUser, enforceCrmSession, assignPortalUser, redirectAfterPortalLogin, findCrmUserByCredentials } = require('../utils/crmSession');
 const { safeInternalPath, isMernTrainingManager } = require('./mernManagerAccess');
 
 const router = express.Router();
@@ -52,19 +52,14 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    const rows = await queryAsync(
-      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
-      [email, password]
-    );
-
-    if (!rows.length) {
+    const r = await findCrmUserByCredentials(email, password);
+    if (!r) {
       return res.render('mern-training-manager/login', {
         error: 'Invalid credentials.',
         nextPath,
       });
     }
 
-    const r = rows[0];
     if (String(r.role || '').trim().toLowerCase() !== 'mern_training_manager') {
       return res.render('mern-training-manager/login', {
         error: 'This portal is for MERN Training Program Managers only.',
@@ -78,11 +73,11 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    req.session.user = buildSessionUser(r);
+    assignPortalUser(req, r);
 
     const dest =
       !nextPath || nextPath.startsWith('/mern-training-manager/login') ? '/mern-training-manager' : nextPath;
-    return res.redirect(dest);
+    return redirectAfterPortalLogin(res, dest);
   } catch (e) {
     console.error('mern-training-manager login', e);
     return res.render('mern-training-manager/login', {

@@ -343,8 +343,7 @@ async function requireLogin(req, res, next) {
     return next();
   } catch (e) {
     console.error('requireLogin session error:', e);
-    destroySession(req);
-    return res.redirect('/auth/login');
+    return res.status(503).send('Database temporarily unavailable. Please try again in a moment.');
   }
 }
 

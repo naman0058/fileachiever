@@ -7,6 +7,9 @@ const {
   buildSessionUser,
   validateSessionUser,
   destroySession,
+  assignPortalUser,
+  redirectAfterPortalLogin,
+  findCrmUserByCredentials,
   SESSION_INVALID_MESSAGES
 } = require('../utils/crmSession');
 
@@ -54,33 +57,15 @@ router.post('/login', async (req, res) => {
       return res.render('freelancing/sales/login', { error: 'Email and password required.' });
     }
 
-    const rows = await queryAsync(
-      `SELECT id, name, role, is_active, session_token
-       FROM crm_users
-       WHERE email=? AND password=?
-       LIMIT 1`,
-      [email, password]
-    ).catch(async (e) => {
-      if (e && e.code === 'ER_BAD_FIELD_ERROR' && /session_token/i.test(String(e.message || ''))) {
-        return queryAsync(
-          `SELECT id, name, role, is_active
-           FROM crm_users
-           WHERE email=? AND password=?
-           LIMIT 1`,
-          [email, password]
-        );
-      }
-      throw e;
-    });
-
-    if (!rows.length) {
+    const row = await findCrmUserByCredentials(email, password);
+    if (!row) {
       return res.render('freelancing/sales/login', { error: 'Invalid credentials.' });
     }
-    if (!rows[0].is_active) {
+    if (!row.is_active) {
       return res.render('freelancing/sales/login', { error: 'Account disabled.' });
     }
 
-    const role = String(rows[0].role || '').trim().toLowerCase();
+    const role = String(row.role || '').trim().toLowerCase();
     if (role === 'setup_support') {
       return res.render('freelancing/sales/login', {
         error: 'This account uses the Setup Support Portal. Please use the link below.',
@@ -118,13 +103,8 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    req.session.user = buildSessionUser({
-      ...rows[0],
-      session_token: rows[0].session_token != null ? rows[0].session_token : 1
-    });
-    req.session.crm_login_at = Date.now();
-
-    return res.redirect(303, '/sales');
+    assignPortalUser(req, row);
+    return redirectAfterPortalLogin(res, '/sales');
   } catch (e) {
     console.error('Login error:', e);
     return res.render('freelancing/sales/login', { error: 'Server error.' });

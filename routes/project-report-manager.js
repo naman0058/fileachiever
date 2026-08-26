@@ -9,7 +9,7 @@ const router = express.Router();
 const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
-const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
+const { buildSessionUser, enforceCrmSession, assignPortalUser, redirectAfterPortalLogin, findCrmUserByCredentials } = require('../utils/crmSession');
 const { buildFullReportItems } = require('./prc-build-full-report-items');
 const { handleProjectReportWordDownload } = require('./project-report-creator');
 const {
@@ -74,22 +74,18 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.render('project-report-manager/login', { error: 'Email and password required.' });
     }
-    const rows = await queryAsync(
-      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
-      [email, password]
-    );
-    if (!rows.length) {
+    const r = await findCrmUserByCredentials(email, password);
+    if (!r) {
       return res.render('project-report-manager/login', { error: 'Invalid credentials.' });
     }
-    const r = rows[0];
     if (String(r.role || '').trim().toLowerCase() !== 'project_report_manager') {
       return res.render('project-report-manager/login', { error: 'This login is for Project Report Managers only.' });
     }
     if (!r.is_active) {
       return res.render('project-report-manager/login', { error: 'Account disabled. Contact administrator.' });
     }
-    req.session.user = buildSessionUser(r);
-    return res.redirect('/project-report-manager');
+    assignPortalUser(req, r);
+    return redirectAfterPortalLogin(res, '/project-report-manager');
   } catch (e) {
     return res.render('project-report-manager/login', { error: 'Server error.' });
   }

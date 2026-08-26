@@ -9,7 +9,7 @@ const pool = require('./pool');
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
-const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
+const { buildSessionUser, enforceCrmSession, assignPortalUser, redirectAfterPortalLogin, findCrmUserByCredentials } = require('../utils/crmSession');
 const setupSupportService = require('../services/setupSupportService');
 
 function getUser(req) {
@@ -139,14 +139,10 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.render('setup-support/login', { error: 'Email and password required.' });
     }
-    const rows = await queryAsync(
-      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
-      [email, password]
-    );
-    if (!rows.length) {
+    const r = await findCrmUserByCredentials(email, password);
+    if (!r) {
       return res.render('setup-support/login', { error: 'Invalid credentials.' });
     }
-    const r = rows[0];
     if (String(r.role || '').trim().toLowerCase() !== 'setup_support') {
       return res.render('setup-support/login', {
         error: 'This login is for Setup Support only. Use the Sales CRM login.'
@@ -155,8 +151,8 @@ router.post('/login', async (req, res) => {
     if (!r.is_active) {
       return res.render('setup-support/login', { error: 'Account disabled. Contact administrator.' });
     }
-    req.session.user = buildSessionUser(r);
-    return res.redirect('/setup-support');
+    assignPortalUser(req, r);
+    return redirectAfterPortalLogin(res, '/setup-support');
   } catch (e) {
     return res.render('setup-support/login', { error: 'Server error.' });
   }

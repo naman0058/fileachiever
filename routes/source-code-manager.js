@@ -13,7 +13,7 @@ const { parseScmFilters, fetchScmDashboard, fetchScmStats, fetchSourceCodeScreen
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
-const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
+const { buildSessionUser, enforceCrmSession, assignPortalUser, redirectAfterPortalLogin, findCrmUserByCredentials } = require('../utils/crmSession');
 
 const ADMIN_ROLES = new Set(['admin', 'administrator', 'superadmin']);
 
@@ -84,22 +84,18 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.render('source-code-manager/login', { error: 'Email and password required.' });
     }
-    const rows = await queryAsync(
-      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
-      [email, password]
-    );
-    if (!rows.length) {
+    const r = await findCrmUserByCredentials(email, password);
+    if (!r) {
       return res.render('source-code-manager/login', { error: 'Invalid credentials.' });
     }
-    const r = rows[0];
     if (String(r.role || '').trim().toLowerCase() !== 'source_code_manager') {
       return res.render('source-code-manager/login', { error: 'This login is for Source Code Managers only.' });
     }
     if (!r.is_active) {
       return res.render('source-code-manager/login', { error: 'Account disabled. Contact administrator.' });
     }
-    req.session.user = buildSessionUser(r);
-    return res.redirect('/source-code-manager');
+    assignPortalUser(req, r);
+    return redirectAfterPortalLogin(res, '/source-code-manager');
   } catch (e) {
     return res.render('source-code-manager/login', { error: 'Server error.' });
   }

@@ -11,7 +11,10 @@ const queryAsync = util.promisify(pool.query).bind(pool);
 const {
   buildSessionUser,
   enforceCrmSession,
-  invalidateUserSessions
+  invalidateUserSessions,
+  assignPortalUser,
+  redirectAfterPortalLogin,
+  findCrmUserByCredentials
 } = require('../utils/crmSession');
 const prs = require('../services/projectReportSalesService');
 
@@ -82,14 +85,10 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.render('report-sales-admin/login', { error: 'Email and password required.', msg: '' });
     }
-    const rows = await queryAsync(
-      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
-      [email, password]
-    );
-    if (!rows.length) {
+    const r = await findCrmUserByCredentials(email, password);
+    if (!r) {
       return res.render('report-sales-admin/login', { error: 'Invalid credentials.', msg: '' });
     }
-    const r = rows[0];
     const role = String(r.role || '').trim().toLowerCase();
     if (role === 'report_sales') {
       return res.render('report-sales-admin/login', {
@@ -107,8 +106,8 @@ router.post('/login', async (req, res) => {
     if (!r.is_active) {
       return res.render('report-sales-admin/login', { error: 'Account disabled.', msg: '' });
     }
-    req.session.user = buildSessionUser(r);
-    return res.redirect('/report-sales-admin');
+    assignPortalUser(req, r);
+    return redirectAfterPortalLogin(res, '/report-sales-admin');
   } catch (e) {
     console.error('report-sales-admin login:', e);
     return res.render('report-sales-admin/login', { error: 'Server error.', msg: '' });

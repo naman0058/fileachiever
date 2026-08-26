@@ -125,7 +125,11 @@ const sessionKeys = Array.isArray(config.sessionKeys) && config.sessionKeys.leng
   ? config.sessionKeys
   : ['naman'];
 
-const cookieDomain = String(process.env.COOKIE_DOMAIN || '').trim() || undefined;
+const cookieDomain = (() => {
+  const raw = String(process.env.COOKIE_DOMAIN || '').trim();
+  if (!raw || raw === '0' || raw === 'false') return undefined;
+  return raw;
+})();
 
 app.use(cookieSession({
   name: 'session',
@@ -133,6 +137,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000,
   httpOnly: true,
   sameSite: 'lax',
+  path: '/',
   domain: cookieDomain,
   // Secure cookies only work over HTTPS. Localhost uses HTTP even with NODE_ENV=production.
   secure: process.env.COOKIE_SECURE === 'true' || process.env.COOKIE_SECURE === '1'

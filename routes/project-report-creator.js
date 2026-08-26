@@ -10,7 +10,7 @@ const router = express.Router();
 const pool = require('./pool');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
-const { buildSessionUser, enforceCrmSession } = require('../utils/crmSession');
+const { buildSessionUser, enforceCrmSession, assignPortalUser, redirectAfterPortalLogin, findCrmUserByCredentials } = require('../utils/crmSession');
 const { Document, Packer, Paragraph, TextRun, Run, HeadingLevel, AlignmentType, convertInchesToTwip, ImageRun, Table, TableRow, TableCell, LineRuleType, UnderlineType, WidthType, TableLayoutType, Bookmark, Footer, PageNumber, BuilderElement, XmlComponent, NextAttributeComponent, SpaceType } = require('docx');
 
 /** OOXML w:instrText for PAGEREF (complex field so rPr size/bold apply to the result in Word). */
@@ -302,14 +302,10 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.render('project-report-creator/login', { error: 'Email and password required.' });
     }
-    const rows = await queryAsync(
-      `SELECT id, name, role, is_active, session_token FROM crm_users WHERE email=? AND password=? LIMIT 1`,
-      [email, password]
-    );
-    if (!rows.length) {
+    const r = await findCrmUserByCredentials(email, password);
+    if (!r) {
       return res.render('project-report-creator/login', { error: 'Invalid credentials.' });
     }
-    const r = rows[0];
     const role = String(r.role || '').trim().toLowerCase();
     if (role !== 'project_report_creator' && !ADMIN_ROLES.has(role)) {
       return res.render('project-report-creator/login', { error: 'This login is for Project Report Creators or Admin only.' });
@@ -317,8 +313,8 @@ router.post('/login', async (req, res) => {
     if (!r.is_active) {
       return res.render('project-report-creator/login', { error: 'Account disabled. Contact administrator.' });
     }
-    req.session.user = buildSessionUser(r);
-    return res.redirect('/project-report-creator');
+    assignPortalUser(req, r);
+    return redirectAfterPortalLogin(res, '/project-report-creator');
   } catch (e) {
     return res.render('project-report-creator/login', { error: 'Server error.' });
   }
