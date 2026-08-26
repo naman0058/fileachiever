@@ -59,7 +59,8 @@ const { validateSessionUser } = require('./utils/crmSession');
 const {
   resolveCanonicalHost,
   canonicalHostRedirectMiddleware,
-  resolveCookieDomain
+  resolveCookieDomain,
+  resolveSiteBaseUrl
 } = require('./utils/canonicalHost');
 // require('./routes/leaderboardCron'); // disabled
 
@@ -134,7 +135,7 @@ const sessionKeys = Array.isArray(config.sessionKeys) && config.sessionKeys.leng
   ? config.sessionKeys
   : ['naman'];
 
-const cookieDomain = resolveCookieDomain(canonicalHost);
+const cookieDomain = resolveCookieDomain();
 
 app.use(cookieSession({
   name: 'session',
@@ -154,8 +155,7 @@ app.use(cookieSession({
 app.use((req, res, next) => {
   res.locals.start = req.query.start || '';
   res.locals.end = req.query.end || '';
-  const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').split(',')[0].trim();
-  res.locals.siteBaseUrl = `${proto === 'https' ? 'https' : 'http'}://${canonicalHost}`;
+  res.locals.siteBaseUrl = resolveSiteBaseUrl(req, canonicalHost);
   res.locals.gtmContainerId = config.gtmContainerId;
   res.locals.ga4MeasurementId = config.ga4MeasurementId;
   res.locals.googleAdsConversionId = config.googleAdsConversionId;

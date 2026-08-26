@@ -77,15 +77,17 @@ async function findCrmUserByCredentials(email, password) {
 }
 
 function assignPortalUser(req, row) {
-  // Replace the whole session so cookie-session always serializes a fresh, small cookie
-  // (mutating a bloated checkout session often fails silently in production).
-  req.session = {
-    user: buildSessionUser({
-      ...row,
-      session_token: row.session_token != null ? row.session_token : 1
-    }),
-    portal_login_at: Date.now()
-  };
+  const session = req.session;
+  if (session) {
+    for (const k of [...Object.keys(session), ...EPHEMERAL_SESSION_KEYS]) {
+      if (Object.prototype.hasOwnProperty.call(session, k)) delete session[k];
+    }
+  }
+  req.session.user = buildSessionUser({
+    ...row,
+    session_token: row.session_token != null ? row.session_token : 1
+  });
+  req.session.portal_login_at = Date.now();
 }
 
 function redirectAfterPortalLogin(res, url) {
