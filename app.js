@@ -62,6 +62,7 @@ const {
   resolveCookieDomain,
   resolveSiteBaseUrl
 } = require('./utils/canonicalHost');
+const { stripOversizedSessionCookies } = require('./utils/sessionCookie');
 // require('./routes/leaderboardCron'); // disabled
 
 const manishaRouter = require('./subdomains/manisha');
@@ -95,6 +96,9 @@ app.use(express.urlencoded({ extended: false }));
 // Redirect bare / wrong host to canonical www BEFORE session cookies are read or set.
 const canonicalHost = resolveCanonicalHost();
 app.use(canonicalHostRedirectMiddleware(canonicalHost));
+
+// Drop oversized checkout cookies before session middleware parses them.
+app.use(stripOversizedSessionCookies);
 
 app.use(cookieParser());
 

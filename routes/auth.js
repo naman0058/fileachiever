@@ -104,6 +104,10 @@ router.post('/login', async (req, res) => {
     }
 
     assignPortalUser(req, row);
+    if (process.env.LOGIN_DEBUG === '1' || process.env.LOGIN_DEBUG === 'true') {
+      res.setHeader('X-Portal-Login', '1');
+      res.setHeader('X-Session-User-Id', String(req.session && req.session.user && req.session.user.id));
+    }
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     return redirectAfterPortalLogin(res, '/sales');
   } catch (e) {

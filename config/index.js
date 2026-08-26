@@ -7,7 +7,13 @@ require('dotenv').config();
 module.exports = {
   env: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 3000,
-  sessionKeys: (process.env.SESSION_KEYS || 'naman').split(',').map(k => k.trim()).filter(Boolean) || ['naman'],
+  sessionKeys: (() => {
+    const keys = (process.env.SESSION_KEYS || 'naman')
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean);
+    return keys.length ? keys : ['naman'];
+  })(),
   siteBaseUrl: process.env.SITE_BASE_URL || 'https://www.filemakr.com',
   /**
    * Cloudflare Worker proxy base for all Cloudinary clouds (recommended, free).
