@@ -374,6 +374,7 @@ router.get('/', async (req, res) => {
 
   const u = getUser(req);
   if (!u) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     return res.render('freelancing/sales/login', { error: '' });
   }
 

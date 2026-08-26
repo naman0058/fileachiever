@@ -50,7 +50,7 @@
 </head>
 <body>
   <div class="wrap">
-    <form class="card" method="POST" action="/auth/login">
+    <form class="card" method="POST" action="<%= typeof siteBaseUrl !== 'undefined' && siteBaseUrl ? siteBaseUrl : '' %>/auth/login">
       <div class="title">Sales CRM Login</div>
       <div class="sub">Login as Admin or Agent to access dashboard.</div>
 

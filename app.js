@@ -56,6 +56,11 @@ function configureEjsEngine(appInstance) {
 const { startLeadWatcher } = require('./routes/Freelancing/lead-watcher');
 const { verifySocketAuthToken } = require('./utils/socketAuth');
 const { validateSessionUser } = require('./utils/crmSession');
+const {
+  resolveCanonicalHost,
+  canonicalHostRedirectMiddleware,
+  resolveCookieDomain
+} = require('./utils/canonicalHost');
 // require('./routes/leaderboardCron'); // disabled
 
 const manishaRouter = require('./subdomains/manisha');
@@ -85,6 +90,10 @@ app.use(bodyParser.urlencoded({
   parameterLimit: 1000000
 }));
 app.use(express.urlencoded({ extended: false }));
+
+// Redirect bare / wrong host to canonical www BEFORE session cookies are read or set.
+const canonicalHost = resolveCanonicalHost();
+app.use(canonicalHostRedirectMiddleware(canonicalHost));
 
 app.use(cookieParser());
 
@@ -125,11 +134,7 @@ const sessionKeys = Array.isArray(config.sessionKeys) && config.sessionKeys.leng
   ? config.sessionKeys
   : ['naman'];
 
-const cookieDomain = (() => {
-  const raw = String(process.env.COOKIE_DOMAIN || '').trim();
-  if (!raw || raw === '0' || raw === 'false') return undefined;
-  return raw;
-})();
+const cookieDomain = resolveCookieDomain(canonicalHost);
 
 app.use(cookieSession({
   name: 'session',
@@ -149,6 +154,8 @@ app.use(cookieSession({
 app.use((req, res, next) => {
   res.locals.start = req.query.start || '';
   res.locals.end = req.query.end || '';
+  const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').split(',')[0].trim();
+  res.locals.siteBaseUrl = `${proto === 'https' ? 'https' : 'http'}://${canonicalHost}`;
   res.locals.gtmContainerId = config.gtmContainerId;
   res.locals.ga4MeasurementId = config.ga4MeasurementId;
   res.locals.googleAdsConversionId = config.googleAdsConversionId;
@@ -168,20 +175,6 @@ app.use((req, res, next) => {
 
 app.use(createGtmInjectMiddleware(config.gtmContainerId));
 app.use(createCloudinaryHtmlOptimizeMiddleware());
-
-// ======================================================
-// NON-WWW TO WWW (canonical domain)
-// Only redirect filemakr.com -> www.filemakr.com.
-// HTTPS redirect is handled by nginx/cloudflare - do NOT do it here to avoid loops.
-// ======================================================
-app.use((req, res, next) => {
-  const host = (req.get('host') || '').toLowerCase().split(':')[0];
-  if (host === 'filemakr.com' && process.env.NODE_ENV === 'production') {
-    const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').toLowerCase();
-    return res.redirect(301, (proto === 'https' ? 'https' : 'http') + '://www.filemakr.com' + (req.originalUrl || req.url));
-  }
-  next();
-});
 
 // ======================================================
 // ONLY KEEP SAFE URL NORMALIZATION
