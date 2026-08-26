@@ -2869,10 +2869,8 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
     fileName = zipFileName || safeName + '.zip';
     if (fileName && !/\.zip$/i.test(fileName)) fileName = fileName + '.zip';
     fileMeta = 'ZIP Archive · .zip';
-    // Always production CDN — localhost /images will 404
-    downloadHref = zipFileName
-      ? 'https://filemakr.com/images/' + encodeURIComponent(path.basename(String(zipFileName).trim()))
-      : '/download-instant-source' + (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '');
+    downloadHref =
+      '/download-instant-source' + (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '');
   } else if (reportDeferred) {
     fileName = safeName + (plan === 'customized' ? '_Customized_Report.docx' : '_Originality_Report.docx');
     fileMeta = 'Delivery within 24-48 hours';
@@ -2902,10 +2900,8 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
   let addonDownload = null;
   if (paidAddon && paidAddon.type === 'source') {
     const addonZip = zipFileName || req.session.paid_zip_file || '';
-    let addonHref = addonZip
-      ? 'https://filemakr.com/images/' + encodeURIComponent(path.basename(String(addonZip).trim()))
-      : '/download-instant-source' +
-        (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '');
+    const addonHref =
+      '/download-instant-source' + (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '');
     const addonAvail = await resolveCheckoutDownloadAvailability({
       isSource: true,
       sourceId,
@@ -2949,6 +2945,10 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
         fileMeta: 'Microsoft Word · .docx',
         downloadHref: addonAvail.downloadAvailable
           ? '/download-instant-report' + (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '')
+          : '',
+        downloadPdfHref: addonAvail.downloadAvailable
+          ? '/download-instant-report?format=pdf' +
+            (renderOrderId ? '&order=' + encodeURIComponent(renderOrderId) : '')
           : '',
         downloadAvailable: addonAvail.downloadAvailable,
         downloadUnavailableTitle: addonAvail.downloadUnavailableTitle,
