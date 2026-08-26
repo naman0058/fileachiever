@@ -370,7 +370,7 @@ html,body{background:var(--bg);}
 
   <!-- Hidden fields sent to server -->
   <input type="hidden" name="coupon_code" id="coupon_code_hidden" value="">
-  <input type="hidden" name="final_amount" id="final_amount_hidden" value="10.00">
+  <input type="hidden" name="final_amount" id="final_amount_hidden" value="99.00">
 
   <div class="d-flex justify-content-between mt-2">
     <button type="button" class="btn-outline px-4" data-prev>Back</button>
@@ -508,12 +508,12 @@ html,body{background:var(--bg);}
 <div class="price-card" role="group" aria-label="Order total">
   <div class="price-head">
     <span class="price-label">Total</span>
-    <span class="price-amt" id="summaryTotal">₹10.00</span>
+    <span class="price-amt" id="summaryTotal">₹99.00</span>
   </div>
 
   <div class="price-break">
     <span class="price-row-label">Base price</span>
-    <span class="price-row-val">₹10.00</span>
+    <span class="price-row-val" id="summaryBasePrice">₹99.00</span>
   </div>
 
   <!-- This row is shown only when a coupon applies -->
@@ -531,7 +531,7 @@ html,body{background:var(--bg);}
 
     <!-- Top meta -->
     <div class="summary-meta">
-      <span class="badge-soft">Project Report</span>
+      <span class="badge-soft" id="summaryProductBadge">Project Report</span>
       <span class="summary-tag"><%=graduation_type_send%></span>
     </div>
 
@@ -585,7 +585,7 @@ html,body{background:var(--bg);}
   <div class="cta-bar">
     <div class="container container-narrow">
       <div class="d-flex gap-2">
-        <button form="checkoutForm" class="btn-brand w-100">Make a Payment — ₹10</button>
+        <button form="checkoutForm" class="btn-brand w-100">Make a Payment — ₹99</button>
       </div>
     </div>
   </div>
@@ -603,9 +603,21 @@ html,body{background:var(--bg);}
   const stepper = document.getElementById('stepper');
 
   // ==== PRICING STATE ====
-  const BASE_PRICE = 10.00;
+  const urlType = (new URLSearchParams(window.location.search).get('type') || '').toLowerCase();
+  const isSynopsis = urlType === 'synopsis';
+  const BASE_PRICE = isSynopsis ? 49.00 : 99.00;
   let discountApplied = 0.00;
   let appliedCode = '';
+
+  // Prefill project type from URL
+  const projectTypeSelect = document.getElementById('projecttype');
+  if (projectTypeSelect) {
+    if (isSynopsis) {
+      projectTypeSelect.value = 'Synopsis';
+    } else if (!projectTypeSelect.value) {
+      projectTypeSelect.value = 'Major Project';
+    }
+  }
 
   // DOM hooks (FIXED IDS)
   const summaryTotalEl = document.getElementById('summaryTotal');
@@ -630,6 +642,12 @@ html,body{background:var(--bg);}
   rowCoupon.classList.add('d-none');
 
   const money = n => '₹' + Number(n).toFixed(2);
+
+  const summaryBasePriceEl = document.getElementById('summaryBasePrice');
+  const summaryProductBadge = document.getElementById('summaryProductBadge');
+  if (summaryBasePriceEl) summaryBasePriceEl.textContent = money(BASE_PRICE);
+  if (summaryProductBadge) summaryProductBadge.textContent = isSynopsis ? 'Synopsis' : 'Project Report';
+  if (hiddenFinal) hiddenFinal.value = BASE_PRICE.toFixed(2);
 
   function updateTotals(){
     const total = Math.max(0, BASE_PRICE - discountApplied);

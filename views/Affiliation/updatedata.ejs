@@ -34,27 +34,33 @@
 
 <div class="row">
     <div class="col-xl-4">
-        <label  class="form-label">Title</label>
-        <input type="text" class="form-control"  value="<%=result[0].name%>" readonly>
-        <input type="hidden" id="id" value="<%=result[0].id%>">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" id="name" value="<%= result[0].name %>" required>
+        <input type="hidden" id="id" value="<%= result[0].id %>">
     </div>
     <div class="col-xl-4">
-        <label  class="form-label">Language</label>
-        <input type="text" class="form-control" value="<%=result[0].category%>" readonly>
+        <label class="form-label">Language</label>
+        <select class="form-control" id="language" required></select>
     </div>
-
     <div class="col-xl-4">
-      <label  class="form-label">Status</label>
-      <!-- <input type="text" class="form-control" value="<%=result[0].status%>" readonly> -->
+      <label class="form-label">Status</label>
 <select class="form-control" id="status">
   <option value="pending" <%= result[0].status === 'pending' ? 'selected' : '' %>>Pending</option>
   <option value="progress" <%= result[0].status === 'progress' ? 'selected' : '' %>>In Progress</option>
   <option value="completed" <%= result[0].status === 'completed' ? 'selected' : '' %>>Completed</option>
 </select>
-
-      
   </div>
+</div>
 
+<div class="row" style="margin-top: 20px;">
+    <div class="col-xl-8">
+        <label class="form-label">SEO slug</label>
+        <input type="text" class="form-control" id="seo_name" value="<%= result[0].seo_name %>" required placeholder="project-url-slug">
+        <p class="text-muted small mb-0 mt-1">Used in the public URL, e.g. <code>/your-slug/source-code</code></p>
+    </div>
+    <div class="col-xl-4 d-flex align-items-end">
+        <button type="button" class="btn btn-outline-secondary w-100" id="seo_from_title">Generate from title</button>
+    </div>
 </div>
 
 
@@ -212,10 +218,42 @@ var vm = new Vue({
  CKEDITOR.replace('readme_text');
  CKEDITOR.replace('login_credentials');
 
+function slugifyTitle(text) {
+  return (text || '').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
+function fillCategoryDropdown(categories, selectedCategory) {
+  const $sel = $('#language');
+  $sel.empty();
+  $sel.append($('<option>').val('').text('Choose language'));
+  $.each(categories, function (i, item) {
+    const val = item.seo_name || item.name;
+    const opt = $('<option>').val(val).text(item.name);
+    if (val === selectedCategory) opt.prop('selected', true);
+    $sel.append(opt);
+  });
+}
 
+const currentCategory = <%- JSON.stringify(result[0].category || '') %>;
+
+$.getJSON('/affiliate/dashboard/category/show', function (data) {
+  fillCategoryDropdown(data, currentCategory);
+});
+
+$('#seo_from_title').on('click', function () {
+  $('#seo_name').val(slugifyTitle($('#name').val()));
+});
 
  $('.save').click(function() {
+    const name = ($('#name').val() || '').trim();
+    const category = ($('#language').val() || '').trim();
+    const seoName = ($('#seo_name').val() || '').trim().toLowerCase();
+
+    if (!name || !category || !seoName) {
+      alert('Title, language, and SEO slug are required.');
+      return;
+    }
+
     const maxBytes = 5 * 1024 * 1024;
     const fileFields = [
       { id: 'source_code_file', label: 'Source code file' },
@@ -243,6 +281,9 @@ var vm = new Vue({
     fd.append('meta_keywords', $('#meta_keywords').val());
     fd.append('id', $('#id').val());
     fd.append('status', $('#status').val());
+    fd.append('name', name);
+    fd.append('category', category);
+    fd.append('seo_name', seoName);
     const sourceCodeInput = document.getElementById('source_code_file');
     if (sourceCodeInput && sourceCodeInput.files && sourceCodeInput.files.length) {
       fd.append('source_code', sourceCodeInput.files[0]);
@@ -265,8 +306,10 @@ var vm = new Vue({
         if (response.msg === 'success') {
             alert('Successfully updated');
             window.location.reload();
+        } else if (response.msg === 'exists') {
+            alert(response.message || 'This SEO slug is already used by another project.');
         } else {
-            alert('Failed to update data');
+            alert(response.message || 'Failed to update data');
         }
     })
     .fail(function(xhr) {

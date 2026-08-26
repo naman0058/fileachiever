@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: 'FM Exceptions' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Exceptions queue</h1>
+        <p>Pending payments, failures, stuck fulfillment, gateway mismatches</p>
+      </div>
+      <form method="get" class="d-flex align-items-center gap-2">
+        <input type="hidden" name="test" value="0">
+        <label class="small mb-0 d-flex align-items-center gap-1">
+          <input type="checkbox" name="test" value="1" <%= includeTest?'checked':'' %> onchange="this.form.submit()"> Include test
+        </label>
+      </form>
+    </header>
+    <%- include('partials/admin-module-tabs', { module: 'fmOnlineOrders', activeTab: 'exceptions' }) %>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Pending payment (aging &gt; 30m) · <%= data.pendingAging.length %></h2></div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead>
+          <tbody>
+          <% if (!data.pendingAging.length) { %><tr><td colspan="6" class="text-muted text-center py-3">None</td></tr><% } %>
+          <% data.pendingAging.forEach(function(r){ %>
+            <tr>
+              <td><a href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(r.order_id) %>" class="fw-semibold"><%= r.order_id %></a></td>
+              <td><div class="fw-semibold"><%= r.billing_name %></div><div class="small text-muted"><%= r.billing_tel %></div></td>
+              <td class="small"><%= r.product_type %>/<%= r.plan %></td>
+              <td><%= money(r.final_amount) %></td>
+              <td><%= r.order_status %> / <%= r.fulfillment_status %></td>
+              <td class="small text-muted"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '—' %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Failed / cancelled (14d) · <%= data.failedRecent.length %></h2></div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead>
+          <tbody>
+          <% if (!data.failedRecent.length) { %><tr><td colspan="6" class="text-muted text-center py-3">None</td></tr><% } %>
+          <% data.failedRecent.forEach(function(r){ %>
+            <tr>
+              <td><a href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(r.order_id) %>" class="fw-semibold"><%= r.order_id %></a></td>
+              <td><div class="fw-semibold"><%= r.billing_name %></div><div class="small text-muted"><%= r.billing_tel %></div></td>
+              <td class="small"><%= r.product_type %>/<%= r.plan %></td>
+              <td><%= money(r.final_amount) %></td>
+              <td><%= r.order_status %></td>
+              <td class="small text-muted"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '—' %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Paid but fulfillment stuck · <%= data.stuckFulfillment.length %></h2></div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Amount</th><th>Fulfill</th><th>Paid at</th></tr></thead>
+          <tbody>
+          <% if (!data.stuckFulfillment.length) { %><tr><td colspan="6" class="text-muted text-center py-3">None</td></tr><% } %>
+          <% data.stuckFulfillment.forEach(function(r){ %>
+            <tr>
+              <td><a href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(r.order_id) %>" class="fw-semibold"><%= r.order_id %></a></td>
+              <td><div class="fw-semibold"><%= r.billing_name %></div><div class="small text-muted"><%= r.billing_tel %></div></td>
+              <td class="small"><%= r.product_type %>/<%= r.plan %></td>
+              <td><%= money(r.final_amount) %></td>
+              <td><%= r.fulfillment_status %></td>
+              <td class="small text-muted"><%= r.paid_at ? new Date(r.paid_at).toLocaleString() : '—' %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Amount mismatch · <%= data.mismatchEvents.length %></h2></div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Order</th><th>Customer</th><th>Message</th><th>When</th></tr></thead>
+          <tbody>
+          <% if (!data.mismatchEvents.length) { %><tr><td colspan="4" class="text-muted text-center py-3">None</td></tr><% } %>
+          <% data.mismatchEvents.forEach(function(e){ %>
+            <tr>
+              <td><a href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(e.order_id) %>"><%= e.order_id %></a></td>
+              <td><%= e.billing_name %> · <%= e.billing_tel %></td>
+              <td class="small"><%= e.event_message %></td>
+              <td class="small text-muted"><%= e.created_at ? new Date(e.created_at).toLocaleString() : '—' %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Duplicate payments · <%= data.duplicateEvents.length %></h2></div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Order</th><th>Message</th><th>When</th></tr></thead>
+          <tbody>
+          <% if (!data.duplicateEvents.length) { %><tr><td colspan="3" class="text-muted text-center py-3">None</td></tr><% } %>
+          <% data.duplicateEvents.forEach(function(e){ %>
+            <tr>
+              <td><a href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(e.order_id) %>"><%= e.order_id %></a></td>
+              <td class="small"><%= e.event_message %></td>
+              <td class="small text-muted"><%= e.created_at ? new Date(e.created_at).toLocaleString() : '—' %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

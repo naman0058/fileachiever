@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: 'Setup Support Performance' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Setup Support Performance</h1>
+        <p>Monthly team output, pending load, SLA hours, and checkout volume.</p>
+      </div>
+      <form method="GET" action="/sales/admin/setup-support/performance" class="d-flex gap-2 align-items-center">
+        <label class="crm-small mb-0">Month</label>
+        <select name="month" class="agent-month-select" onchange="this.form.submit()">
+          <% (months || []).forEach(function(m){ %>
+            <option value="<%= m %>" <%= selectedMonth === m ? 'selected' : '' %>><%= m %></option>
+          <% }) %>
+        </select>
+      </form>
+    </header>
+
+    <%- include('partials/admin-module-tabs', { module: 'setupSupport', activeTab: 'performance' }) %>
+
+    <% const k = (perf && perf.kpis) || {}; %>
+    <div class="agent-metrics mb-3" style="grid-template-columns:repeat(4,1fr);max-width:1000px;">
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
+        <div class="agent-metric__label">Done this month</div>
+        <div class="agent-metric__value"><%= k.doneMonth || 0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
+        <div class="agent-metric__label">Created this month</div>
+        <div class="agent-metric__value"><%= k.createdMonth || 0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#ef4444;--metric-bg:#fef2f2;">
+        <div class="agent-metric__label">Open pending</div>
+        <div class="agent-metric__value"><%= k.openPending || 0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#6366f1;--metric-bg:#eef2ff;">
+        <div class="agent-metric__label">Unassigned / Aging 24h</div>
+        <div class="agent-metric__value"><%= k.openUnassigned || 0 %> / <%= k.aging24h || 0 %></div>
+      </div>
+    </div>
+
+    <div class="agent-metrics mb-4" style="grid-template-columns:repeat(2,1fr);max-width:520px;">
+      <div class="agent-metric" style="--metric-accent:#2A47FF;--metric-bg:#eef2ff;">
+        <div class="agent-metric__label">Checkout tickets (month)</div>
+        <div class="agent-metric__value"><%= k.checkoutMonth || 0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#0f766e;--metric-bg:#f0fdfa;">
+        <div class="agent-metric__label">Avg completion (hrs)</div>
+        <div class="agent-metric__value"><%= k.avgHours != null ? k.avgHours : '—' %></div>
+      </div>
+    </div>
+
+    <div class="agent-table-card mb-4">
+      <div class="p-3 border-bottom">
+        <div class="fw-bold">Team leaderboard — <%= selectedMonth %></div>
+        <div class="crm-small">Done count, assigned volume, open load, average hours to complete</div>
+      </div>
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Status</th>
+              <th>Done (month)</th>
+              <th>Assigned (month)</th>
+              <th>Open pending</th>
+              <th>Avg hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% const team = (perf && perf.team) || []; %>
+            <% if (!team.length) { %>
+              <tr><td colspan="6" class="agent-empty"><i class="bi bi-people"></i>No setup support team members yet.</td></tr>
+            <% } %>
+            <% team.forEach(function(t){ %>
+              <tr>
+                <td>
+                  <strong><%= t.name %></strong>
+                  <div class="crm-small"><%= t.email %></div>
+                </td>
+                <td><%= t.is_active ? 'Active' : 'Disabled' %></td>
+                <td><strong><%= t.done_month || 0 %></strong></td>
+                <td><%= t.assigned_month || 0 %></td>
+                <td><%= t.open_pending || 0 %></td>
+                <td><%= t.avg_hours != null ? t.avg_hours : '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="agent-table-card">
+      <div class="p-3 border-bottom">
+        <div class="fw-bold">Daily completions — <%= selectedMonth %></div>
+      </div>
+      <div class="crm-table-wrap table-responsive">
+        <table class="crm-table">
+          <thead><tr><th>Date</th><th>Done</th></tr></thead>
+          <tbody>
+            <% const daily = (perf && perf.dailyDone) || []; %>
+            <% if (!daily.length) { %>
+              <tr><td colspan="2" class="agent-empty">No completions this month.</td></tr>
+            <% } %>
+            <% daily.forEach(function(d){ %>
+              <tr>
+                <td><%= d.d ? new Date(d.d).toLocaleDateString('en-IN') : '—' %></td>
+                <td><strong><%= d.c || 0 %></strong></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

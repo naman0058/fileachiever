@@ -1,0 +1,73 @@
+<section class="fm-dir-hero" aria-labelledby="fm-dir-hero-title">
+  <div class="fm-dir-hero__bg" aria-hidden="true"></div>
+
+  <div class="container">
+    <div class="fm-dir-hero__inner">
+      <p class="fm-dir-hero__trust">
+        <span class="fm-dir-hero__trust-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 1.75l6.25 2.5v5.1c0 3.85-2.55 7.35-6.25 8.4-3.7-1.05-6.25-4.55-6.25-8.4v-5.1L10 1.75z" fill="#22C55E"/>
+            <path d="M7.1 10.05l1.85 1.85 3.95-4.05" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Trusted by 45,000+ Students Across India
+      </p>
+
+      <h1 class="fm-dir-hero__title" id="fm-dir-hero-title">
+        Explore Final-Year Projects, Reports &amp; Source Code
+      </h1>
+
+      <p class="fm-dir-hero__lead">
+        Discover structured project reports, runnable source code and live demos across popular technologies and academic programs. Find resources for B.Tech, BCA, MCA and other final-year projects with documentation designed for academic evaluation and originality review.
+      </p>
+
+      <form class="fm-dir-search" action="/search" method="get" role="search" aria-label="Search FileMakr projects">
+        <label class="visually-hidden" for="fmDirSearchQ">Search projects</label>
+        <input type="hidden" name="type" value="Source Code" />
+        <div class="fm-dir-search__field">
+          <svg class="fm-dir-search__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+          <input
+            id="fmDirSearchQ"
+            class="fm-dir-search__input"
+            type="search"
+            name="q"
+            placeholder="Search project title, technology or category..."
+            autocomplete="off"
+            required
+            minlength="2"
+          />
+          <button class="fm-dir-search__btn" type="submit">Search</button>
+        </div>
+        <p class="fm-dir-search__hints">
+          Try:
+          <button type="button" class="fm-dir-hint" data-fm-hint="AI Resume Analyzer">AI Resume Analyzer</button>,
+          <button type="button" class="fm-dir-hint" data-fm-hint="Credit Card Fraud Detection">Credit Card Fraud Detection</button>,
+        </p>
+      </form>
+
+      <nav class="fm-dir-chips" aria-label="Quick project categories">
+        <a class="fm-dir-chip fm-dir-chip--active" href="/source-code" aria-current="page">ALL Project</a>
+        <a class="fm-dir-chip" href="/btech-final-year-project-report">B.Tech</a>
+        <a class="fm-dir-chip" href="/mtech-final-year-project-report">M.Tech</a>
+        <a class="fm-dir-chip" href="/bca-final-year-project-report">BCA</a>
+        <a class="fm-dir-chip" href="/mca-final-year-project-report">MCA</a>
+        <a class="fm-dir-chip" href="/source-code/python">Python</a>
+        <a class="fm-dir-chip" href="/source-code/nodejs">Node</a>
+        <a class="fm-dir-chip" href="/source-code/machine-learning">AIML</a>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var input = document.getElementById('fmDirSearchQ');
+  document.querySelectorAll('[data-fm-hint]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (!input) return;
+      input.value = btn.getAttribute('data-fm-hint') || '';
+      input.focus();
+    });
+  });
+})();
+</script>

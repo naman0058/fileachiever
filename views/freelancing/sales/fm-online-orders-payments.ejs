@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: 'FM Payments' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Payment attempts</h1>
+        <p>fm_payments · gateway tracking · failures · max 100</p>
+      </div>
+    </header>
+    <%- include('partials/admin-module-tabs', { module: 'fmOnlineOrders', activeTab: 'payments' }) %>
+
+    <div class="admin-filter-bar mb-3">
+      <form method="get" action="/sales/admin/fm-online-orders/payments" class="d-flex gap-2 align-items-center flex-wrap w-100">
+        <input type="search" name="q" value="<%= filters.q||'' %>" class="form-control form-control-sm" placeholder="Order, tracking, customer…" style="min-width:200px;">
+        <select name="payment_status" class="agent-month-select" onchange="this.form.submit()">
+          <option value="">All payment status</option>
+          <% ['initiated','pending','success','failure','aborted','unknown'].forEach(function(s){ %>
+          <option value="<%= s %>" <%= filters.paymentStatus===s?'selected':'' %>><%= s %></option>
+          <% }) %>
+        </select>
+        <select name="month" class="agent-month-select" onchange="this.form.submit()">
+          <% months.forEach(function(m){ %><option value="<%= m %>" <%= m===selectedMonth?'selected':'' %>><%= m %></option><% }) %>
+        </select>
+        <label class="small mb-0 d-flex align-items-center gap-1">
+          <input type="hidden" name="test" value="0">
+          <input type="checkbox" name="test" value="1" <%= includeTest?'checked':'' %>> Test
+        </label>
+        <button type="submit" class="agent-btn agent-btn--ghost agent-btn--sm">Filter</button>
+      </form>
+    </div>
+
+    <div class="agent-panel">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Order</th><th>#</th><th>Status</th><th>Amount</th><th>Gateway</th>
+              <th>Tracking</th><th>Mode</th><th>Failure</th><th>When</th>
+            </tr>
+          </thead>
+          <tbody>
+          <% if (!rows.length) { %><tr><td colspan="9" class="text-muted text-center py-4">No payments</td></tr><% } %>
+          <% rows.forEach(function(r){ %>
+            <tr>
+              <td>
+                <a href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(r.order_id) %>" class="fw-semibold text-decoration-none"><%= r.order_id %></a>
+                <div class="small text-muted"><%= r.billing_name %></div>
+              </td>
+              <td><%= r.attempt_no %></td>
+              <td><span class="badge bg-light text-dark border"><%= r.payment_status %></span></td>
+              <td><%= money(r.amount) %></td>
+              <td class="small"><%= r.gateway %></td>
+              <td class="small"><%= r.tracking_id || '—' %></td>
+              <td class="small"><%= r.payment_mode || '—' %></td>
+              <td class="small text-danger text-truncate" style="max-width:180px;" title="<%= (r.failure_message||r.status_message||'').replace(/"/g,'&quot;') %>"><%= (r.failure_message||r.status_message||'—').toString().slice(0,60) %></td>
+              <td class="small text-muted"><%= r.completed_at ? new Date(r.completed_at).toLocaleString() : (r.created_at ? new Date(r.created_at).toLocaleString() : '—') %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<% include Includes/navbar.ejs %>
+<% include Includes/projectReport.ejs %>
+<link rel="stylesheet" href="/css/home-directory.css?v=57">
+
+<%
+  const statusKind = typeof kind !== 'undefined' ? kind : 'empty';
+  const isEmpty = statusKind === 'empty';
+  const titleText = isEmpty ? 'Report content not ready' : (pageTitle || 'Download unavailable');
+  const orderIdSafe = (typeof orderId !== 'undefined' && orderId) ? String(orderId) : '';
+  const productNameSafe = (typeof productName !== 'undefined' && productName) ? String(productName) : '';
+  const planLabelSafe = (typeof planLabel !== 'undefined' && planLabel) ? String(planLabel) : 'Report';
+  const projectIdSafe = (typeof sourceCodeId !== 'undefined' && sourceCodeId) ? String(sourceCodeId) : '';
+  const waUrl = 'https://wa.me/918319339945?text=' + encodeURIComponent(
+    'Hi FileMakr, my ' + planLabelSafe + ' download needs help.' +
+    (orderIdSafe ? ('\nOrder ID: ' + orderIdSafe) : '') +
+    (productNameSafe ? ('\nProject: ' + productNameSafe) : '') +
+    (projectIdSafe ? ('\nProject ID: #' + projectIdSafe) : '')
+  );
+%>
+
+<style>
+.irs{
+  --blue:#2A47FF; --orange:#F17F23; --ink:#0E1220; --muted:#64748B; --line:#E8ECF2; --bg:#F4F6FB;
+  --green:#16A34A; --wa:#25D366;
+  background:
+    radial-gradient(900px 420px at 8% -10%, rgba(42,71,255,.08), transparent 58%),
+    radial-gradient(760px 380px at 100% 0%, rgba(241,127,35,.08), transparent 55%),
+    var(--bg);
+  padding:28px 20px 48px;
+  min-height:62vh;
+  box-sizing:border-box;
+}
+.irs-wrap{ max-width:720px; margin:0 auto; }
+.irs-top{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  margin:0 0 14px;
+}
+.irs-brand{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:12px; font-weight:800; color:var(--muted); letter-spacing:.02em;
+}
+.irs-brand__dot{
+  width:8px;height:8px;border-radius:50%;
+  background:<%= isEmpty ? 'var(--orange)' : '#DC2626' %>;
+  box-shadow:0 0 0 4px <%= isEmpty ? 'rgba(241,127,35,.18)' : 'rgba(220,38,38,.15)' %>;
+}
+.irs-secure{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:700;color:#475569;
+  padding:6px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);
+}
+.irs-secure svg{ width:14px;height:14px; color:var(--green); }
+.irs-card{
+  background:#fff; border:1px solid var(--line); border-radius:18px;
+  box-shadow:0 16px 48px rgba(14,18,32,.07); overflow:hidden;
+}
+.irs-card__head{
+  padding:28px 28px 20px; text-align:center;
+  background:linear-gradient(180deg,#FAFBFF 0%, #fff 100%);
+  border-bottom:1px solid var(--line);
+}
+.irs-ico{
+  width:64px;height:64px;margin:0 auto 14px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  background:<%= isEmpty ? 'linear-gradient(145deg,#FFF7ED,#FFEDD5)' : 'linear-gradient(145deg,#FEF2F2,#FEE2E2)' %>;
+  color:<%= isEmpty ? '#EA580C' : '#DC2626' %>;
+  border:1px solid <%= isEmpty ? '#FED7AA' : '#FECACA' %>;
+  box-shadow:0 8px 20px <%= isEmpty ? 'rgba(234,88,12,.12)' : 'rgba(220,38,38,.12)' %>;
+}
+.irs-ico svg{ width:30px;height:30px; display:block; }
+.irs-kicker{
+  display:inline-flex;align-items:center;gap:6px;margin:0 0 10px;padding:5px 12px;
+  border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  background:<%= isEmpty ? '#FFF7ED' : '#FEF2F2' %>;
+  color:<%= isEmpty ? '#C2410C' : '#B91C1C' %>;
+  border:1px solid <%= isEmpty ? '#FED7AA' : '#FECACA' %>;
+}
+.irs-card__head h1{
+  margin:0 0 8px;font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.025em;line-height:1.25;
+}
+.irs-card__head .lead{
+  margin:0 auto;max-width:520px;font-size:14.5px;font-weight:500;color:var(--muted);line-height:1.6;
+}
+.irs-card__body{ padding:20px 24px 24px; }
+.irs-paid{
+  display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:12px 14px;
+  border-radius:12px;background:#ECFDF5;border:1px solid #BBF7D0;
+  text-align:left;
+}
+.irs-paid svg{ width:20px;height:20px;flex-shrink:0;color:var(--green); }
+.irs-paid strong{ display:block;font-size:13px;font-weight:800;color:#166534; }
+.irs-paid span{ font-size:12px;font-weight:600;color:#15803D; }
+.irs-order{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin:0 0 14px;padding:14px 16px;border-radius:12px;
+  background:#EFF6FF;border:1px solid #BFDBFE;
+}
+.irs-order__left{ min-width:0; flex:1; text-align:left; }
+.irs-order__label{
+  font-size:11px;font-weight:800;color:#1D4ED8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;
+}
+.irs-order__id{
+  font-size:14px;font-weight:800;color:#1E3A8A;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  word-break:break-all;line-height:1.35;
+}
+.irs-order__copy{
+  display:inline-flex;align-items:center;gap:6px;
+  height:36px;padding:0 12px;border-radius:8px;border:1px solid #93C5FD;
+  background:#fff;color:#1D4ED8;font-size:12.5px;font-weight:800;cursor:pointer;
+}
+.irs-order__copy:hover{ background:#DBEAFE; }
+.irs-order__copy svg{ width:14px;height:14px; }
+.irs-meta{
+  text-align:left;background:#F8FAFC;border:1px solid var(--line);border-radius:12px;
+  padding:4px 16px;margin:0 0 18px;
+}
+.irs-meta__row{
+  display:flex;justify-content:space-between;gap:16px;align-items:flex-start;
+  padding:11px 0;font-size:13.5px;
+}
+.irs-meta__row + .irs-meta__row{ border-top:1px dashed #E2E8F0; }
+.irs-meta__label{ color:var(--muted); font-weight:600; flex-shrink:0; }
+.irs-meta__value{ color:var(--ink); font-weight:800; text-align:right; word-break:break-word; }
+.irs-meta__value--ok{ color:var(--green); }
+.irs-steps{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px;
+}
+@media (max-width:640px){ .irs-steps{ grid-template-columns:1fr; } }
+.irs-step{
+  text-align:left;padding:12px;border-radius:12px;border:1px solid var(--line);background:#fff;
+}
+.irs-step__n{
+  width:22px;height:22px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;margin-bottom:8px;
+  background:#EEF2FF;color:var(--blue);
+}
+.irs-step.is-done .irs-step__n{ background:#DCFCE7; color:#166534; }
+.irs-step.is-wait .irs-step__n{ background:#FFF7ED; color:#C2410C; }
+.irs-step strong{ display:block;font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:2px; }
+.irs-step span{ font-size:11.5px;font-weight:500;color:var(--muted);line-height:1.4; }
+.irs-actions{
+  display:grid;grid-template-columns:1.1fr 1.1fr .9fr;gap:10px;
+}
+@media (max-width:700px){ .irs-actions{ grid-template-columns:1fr; } }
+.irs-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:48px;padding:0 14px;border-radius:12px;font-size:14px;font-weight:800;
+  text-decoration:none;border:none;cursor:pointer;box-sizing:border-box;
+}
+.irs-btn svg{ width:18px;height:18px; flex-shrink:0; display:block; }
+.irs-btn--wa{ background:var(--wa); color:#fff; box-shadow:0 8px 20px rgba(37,211,102,.28); }
+.irs-btn--wa:hover{ filter:brightness(1.03); color:#fff; }
+.irs-btn--primary{ background:var(--blue); color:#fff; box-shadow:0 8px 22px rgba(42,71,255,.28); }
+.irs-btn--primary:hover{ filter:brightness(1.03); color:#fff; }
+.irs-btn--ghost{ background:#fff; color:var(--ink); border:1px solid var(--line); }
+.irs-btn--ghost:hover{ background:#F8FAFC; color:var(--ink); }
+.irs-note{
+  margin:16px 0 0; text-align:center; font-size:12.5px; color:#94A3B8; font-weight:600; line-height:1.5;
+}
+.irs-trust{
+  margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+}
+.irs-trust span{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11.5px;font-weight:700;color:#64748B;
+  padding:6px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);
+}
+.irs-trust svg{ width:13px;height:13px; color:var(--blue); }
+</style>
+
+<div class="irs">
+  <div class="irs-wrap">
+    <div class="irs-top">
+      <div class="irs-brand"><span class="irs-brand__dot"></span> FileMakr Order Desk</div>
+      <div class="irs-secure">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Secure payment verified
+      </div>
+    </div>
+
+    <div class="irs-card">
+      <div class="irs-card__head">
+        <div class="irs-ico" aria-hidden="true">
+          <% if (isEmpty) { %>
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 3.5h7.2L19 8.3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M14.2 3.5V8H19M9 12h6M9 15.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          <% } else { %>
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M12 8v5M12 16.5h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          <% } %>
+        </div>
+        <p class="irs-kicker"><%= isEmpty ? 'Content pending' : 'Action needed' %></p>
+        <h1><%= titleText %></h1>
+        <p class="lead"><%= message || 'We could not prepare your download right now.' %></p>
+      </div>
+
+      <div class="irs-card__body">
+        <% if (isEmpty) { %>
+          <div class="irs-paid">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 12.2l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <strong>Payment received successfully</strong>
+              <span>Your order is confirmed. Word file publishing is still in progress.</span>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (orderIdSafe) { %>
+          <div class="irs-order">
+            <div class="irs-order__left">
+              <div class="irs-order__label">Order ID</div>
+              <div class="irs-order__id" id="IrsOrderId"><%= orderIdSafe %></div>
+            </div>
+            <button type="button" class="irs-order__copy" id="IrsCopyOrder" data-order="<%= orderIdSafe %>">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              Copy
+            </button>
+          </div>
+        <% } %>
+
+        <div class="irs-meta">
+          <% if (productNameSafe) { %>
+            <div class="irs-meta__row">
+              <span class="irs-meta__label">Project</span>
+              <span class="irs-meta__value"><%= productNameSafe %></span>
+            </div>
+          <% } %>
+          <div class="irs-meta__row">
+            <span class="irs-meta__label">Package</span>
+            <span class="irs-meta__value"><%= planLabelSafe %></span>
+          </div>
+          <% if (projectIdSafe) { %>
+            <div class="irs-meta__row">
+              <span class="irs-meta__label">Project ID</span>
+              <span class="irs-meta__value">#<%= projectIdSafe %></span>
+            </div>
+          <% } %>
+          <div class="irs-meta__row">
+            <span class="irs-meta__label">Status</span>
+            <span class="irs-meta__value <%= isEmpty ? 'irs-meta__value--ok' : '' %>"><%= isEmpty ? 'Payment OK · Content missing' : 'Download blocked' %></span>
+          </div>
+        </div>
+
+        <% if (isEmpty) { %>
+          <div class="irs-steps" aria-label="Order progress">
+            <div class="irs-step is-done">
+              <span class="irs-step__n">1</span>
+              <strong>Payment done</strong>
+              <span>Amount captured securely</span>
+            </div>
+            <div class="irs-step is-wait">
+              <span class="irs-step__n">2</span>
+              <strong>Content publish</strong>
+              <span>Word sections being prepared</span>
+            </div>
+            <div class="irs-step">
+              <span class="irs-step__n">3</span>
+              <strong>Instant download</strong>
+              <span>Retry once content is live</span>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="irs-actions">
+          <a class="irs-btn irs-btn--wa" href="<%= waUrl %>" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12.04 2C6.58 2 2.15 6.4 2.15 11.84c0 1.99.59 3.85 1.61 5.42L2 22l4.9-1.71a9.86 9.86 0 0 0 5.14 1.42h.01c5.46 0 9.89-4.4 9.89-9.84C21.94 6.4 17.5 2 12.04 2zm5.75 13.96c-.24.68-1.4 1.25-1.93 1.33-.5.07-1.13.1-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.26-4.78-4.2-4.93-4.39-.14-.19-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.45.27-.29.59-.36.79-.36h.57c.18 0 .42-.07.66.5.24.58.82 2 .89 2.15.07.15.12.32.02.52-.1.19-.15.32-.3.49-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.76 1.25 1.63 2.02 1.12.99 2.06 1.3 2.35 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.2-.29.4-.24.67-.14.27.1 1.72.81 2.01.96.29.15.49.22.56.34.07.13.07.74-.17 1.42z"/></svg>
+            WhatsApp support
+          </a>
+          <a class="irs-btn irs-btn--primary" href="/download-instant-report">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 0 1 12.7-5.4M19.5 12a7.5 7.5 0 0 1-12.7 5.4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M17.2 3.8v4.2H13M6.8 20.2v-4.2H11" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Try download again
+          </a>
+          <a class="irs-btn irs-btn--ghost" href="/">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 11.5L12 4l8 7.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            Back to home
+          </a>
+        </div>
+
+        <p class="irs-note">
+          Share the Order ID with support so we can locate your payment and publish the Word file quickly.
+        </p>
+      </div>
+    </div>
+
+    <div class="irs-trust">
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7"/></svg>
+        SSL encrypted
+      </span>
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16v10H4zM8 17v2M16 17v2M9 11h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        Order tracked
+      </span>
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12M8 11l4 4 4-4M5 19h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Instant when ready
+      </span>
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v4l2.5 1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        Support in minutes
+      </span>
+    </div>
+  </div>
+</div>
+
+<% include Includes/footer.ejs %>
+
+<script>
+(function(){
+  var btn = document.getElementById('IrsCopyOrder');
+  if (!btn) return;
+  btn.addEventListener('click', function(){
+    var id = btn.getAttribute('data-order') || '';
+    if (!id) return;
+    var label = btn.querySelector('span') || btn;
+    function done(){
+      var old = btn.innerHTML;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="14" height="14"><path d="M8.5 12.2l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied';
+      setTimeout(function(){ btn.innerHTML = old; }, 1600);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(id).then(done).catch(function(){});
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = id; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>

@@ -1,386 +1,534 @@
-<% include Includes/navbar1.ejs %>
+<% include Includes/navbar.ejs %>
 <% include Includes/projectReport.ejs %>
 
+<link rel="stylesheet" href="/css/home-directory.css?v=57">
+<link rel="stylesheet" href="/css/blog-page.css?v=18">
+
+<script>
+  window.FM_CLOUDINARY_CDN_BASE=<%= JSON.stringify(typeof cloudinaryCdnBase !== 'undefined' ? cloudinaryCdnBase : '') %>;
+  window.FM_CLOUDINARY_CDN=<%= JSON.stringify(typeof cloudinaryCdnHost !== 'undefined' ? cloudinaryCdnHost : '') %>;
+</script>
+<script src="/js/fm-cloudinary.js?v=6"></script>
+
+<%
+  const waLink = 'https://wa.me/918319339945?text=' + encodeURIComponent('Hi FileMakr, I need support.');
+  const callLink = 'tel:+918319339945';
+  const mailLink = 'mailto:info@filemakr.com';
+
+  const cuHeroRaw = 'https://res.cloudinary.com/npuap6la/image/upload/v1787657312/Untitled_5.webp';
+  const cuHeroSrc = typeof cloudinaryUrl === 'function'
+    ? cloudinaryUrl(cuHeroRaw, { width: 720 })
+    : 'https://www.filemakr.com/cloudinary/npuap6la/image/upload/f_auto,q_auto:best,w_720,c_limit,e_sharpen:60/v1787657312/Untitled_5.webp';
+%>
+
 <style>
-	/* ===== Premium Illustration (drop in with your other scoped styles) ===== */
-.contact-hero__art{
-  display:flex; justify-content:flex-end; align-items:center;
-  overflow: hidden; /* prevents horizontal scroll */
+:root{
+  --cu-ink:#0e1220;
+  --cu-muted:#64748B;
+  --cu-bg:#ffffff;
+  --cu-card:#fff;
+  --cu-blue:#2A47FF;
+  --cu-orange:#F17F23;
+  --cu-line:rgba(14,18,32,.08);
+  --cu-radius:16px;
+  --cu-shadow:0 10px 30px rgba(14,18,32,.06);
+}
+.cu-page{
+  background:#ffffff;
+  color:var(--cu-ink);
+  padding-bottom:28px;
+  --bl-navy:#0E1220;
+  --bl-muted:#64748B;
+  --bl-blue:#2A47FF;
+}
+.cu-wrap{ width:100%; max-width:none; margin:0; padding:0 20px; box-sizing:border-box; }
+
+/* Main grid */
+.cu-main{ padding:16px 0 8px; }
+.cu-grid{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:14px;
+  align-items:stretch;
+}
+.cu-grid > .cu-card,
+.cu-grid > .cu-side{
+  min-height:0;
+  height:100%;
+  box-sizing:border-box;
+  align-self:stretch;
+}
+.cu-card{
+  background:var(--cu-card);
+  border:1px solid #E8ECF2;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(14,18,32,.04);
+  padding:16px 18px;
+}
+.cu-card__head{
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:2px;
+}
+.cu-card__head h2,
+.cu-card__head h3{
+  margin:0; font-size:18px; font-weight:900; letter-spacing:-.01em; color:#0B1220;
+}
+.cu-card__ico{
+  width:auto; height:auto; border-radius:0;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:transparent; color:var(--cu-orange); flex-shrink:0;
+  padding:0;
+}
+.cu-card__ico svg{ width:18px; height:18px; }
+.cu-card__ico--blue{ background:transparent; color:var(--cu-orange); }
+.cu-card__sub{
+  margin:0 0 12px; color:#64748B; font-size:13px; font-weight:500; line-height:1.4;
 }
 
-.art-pro{
-  position: relative;
-  width: min(92vw, 540px);      /* fluid, capped */
-  aspect-ratio: 5 / 4;          /* responsive height */
-  border-radius: 20px;
-  background:#fff;
-  border:1px solid rgba(14,18,32,.08);
-  box-shadow: 0 18px 50px rgba(14,18,32,.10);
-  overflow: hidden;
-  isolation: isolate;
-  will-change: transform;
+.cu-alert{
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:10px; padding:8px 10px;
+  border-radius:10px; background:#ECFDF5; color:#047857;
+  border:1px solid #A7F3D0; font-weight:700; font-size:12px;
 }
+.cu-alert svg{ width:15px; height:15px; }
 
-/* Gradient plate (soft background) */
-.art-pro__plate{
-  position:absolute; inset:0;
-  background:
-    radial-gradient(140% 80% at 10% 15%, rgba(42,71,255,.14) 0%, transparent 60%),
-    radial-gradient(120% 70% at 90% 85%, rgba(241,127,35,.14) 0%, transparent 60%),
-    linear-gradient(#fff, #fff);
-  z-index: 1;
+/* Form */
+.cu-form{ display:grid; gap:10px; }
+.cu-form__row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
+.cu-field{ display:flex; flex-direction:column; gap:5px; min-width:0; }
+.cu-field label{
+  font-size:13px; font-weight:800; color:#0B1220;
+}
+.cu-field label span{ color:#EF4444; }
+.cu-input{
+  display:flex; align-items:center; gap:8px;
+  min-height:40px; padding:0 11px;
+  border:1px solid #E2E8F0; border-radius:9px; background:#fff;
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.cu-input:focus-within{
+  border-color:#CBD5E1;
+  box-shadow:0 0 0 3px rgba(14,18,32,.04);
+}
+.cu-input svg{ width:16px; height:16px; color:#94A3B8; flex-shrink:0; }
+.cu-input input,
+.cu-input select,
+.cu-textarea textarea{
+  flex:1; border:0; outline:0; background:transparent;
+  font:inherit; font-weight:500; color:#0B1220; min-width:0;
+  font-size:13px;
+}
+.cu-input input::placeholder,
+.cu-textarea textarea::placeholder{ color:#94A3B8; font-weight:500; }
+.cu-input select{
+  appearance:none; cursor:pointer; height:40px;
+  color:#94A3B8; padding-right:16px;
+}
+.cu-input select:valid{ color:#0B1220; }
+.cu-select-wrap{ position:relative; padding-right:8px; }
+.cu-select-wrap::after{
+  content:""; position:absolute; right:14px; top:50%;
+  width:7px; height:7px; border-right:2px solid #94A3B8; border-bottom:2px solid #94A3B8;
+  transform:translateY(-65%) rotate(45deg); pointer-events:none;
+}
+.cu-textarea{
+  align-items:flex-start; padding:10px 11px;
+  min-height:84px;
+}
+.cu-textarea textarea{
+  width:100%; resize:vertical; min-height:68px; line-height:1.4;
+}
+.cu-wa-hint{
+  display:inline-flex; align-items:center; gap:7px;
+  margin:0; color:#64748B; font-size:12px; font-weight:500;
+  text-decoration:none;
+}
+.cu-wa-hint:hover{ color:#334155; }
+.cu-wa-hint svg{ width:15px; height:15px; color:#22C55E; flex-shrink:0; }
+.cu-hp{ position:absolute!important; left:-9999px!important; opacity:0!important; height:0!important; width:0!important; }
+.cu-submit{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  width:100%; min-height:42px; margin-top:0;
+  border:0; border-radius:9px; cursor:pointer;
+  background:#F17F23; color:#fff;
+  font-size:14px; font-weight:800;
+  box-shadow:0 8px 18px rgba(241,127,35,.24);
+  transition:filter .15s ease, transform .15s ease;
+}
+.cu-submit:hover{ filter:brightness(1.05); color:#fff; }
+.cu-submit:disabled{ opacity:.7; cursor:wait; }
+.cu-submit svg{ width:16px; height:16px; }
 
-/* Rings */
-.art-pro__ring{
-  position:absolute;
-  border-radius: 50%;
-  filter: blur(.2px);
-  opacity: .8;
-  will-change: transform;
-  z-index: 2;
+/* Touch list — stretch to match form column height */
+.cu-side{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  min-height:100%;
+  height:100%;
 }
-.art-pro__ring--a{
-  width: 75%; height: 75%;
-  top: -18%; left: -10%;
-  background: radial-gradient(circle at 50% 50%, rgba(42,71,255,.18), transparent 60%);
-  animation: floatA 10s ease-in-out infinite;
+.cu-side .cu-card--touch{
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
 }
-.art-pro__ring--b{
-  width: 60%; height: 60%;
-  bottom: -20%; right: -8%;
-  background: radial-gradient(circle at 50% 50%, rgba(241,127,35,.18), transparent 60%);
-  animation: floatB 12s ease-in-out infinite;
+.cu-side .cu-card--follow{
+  flex:0 0 auto;
+  margin-top:0;
 }
+.cu-side .cu-card--follow .cu-card__sub{
+  margin-bottom:14px;
+}
+.cu-touch{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-evenly;
+  flex:1 1 auto;
+  margin-top:8px;
+  padding:6px 0 4px;
+  min-height:0;
+}
+.cu-touch__item{
+  display:flex; align-items:center; gap:12px;
+  padding:18px 0;
+  border:0;
+  border-bottom:1px solid #EEF2F7;
+  border-radius:0;
+  background:transparent;
+  text-decoration:none; color:inherit;
+  transition:background .15s ease;
+}
+.cu-touch__item:last-child{
+  border-bottom:0;
+  padding-bottom:0;
+}
+.cu-touch__item:first-child{ padding-top:2px; }
+.cu-touch__item:hover{
+  background:transparent;
+  box-shadow:none;
+  transform:none;
+}
+.cu-touch__item:hover .cu-touch__title{ color:var(--cu-blue); }
+.cu-touch__ico{
+  width:40px; height:40px; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.cu-touch__ico svg{ width:18px; height:18px; }
+.cu-touch__ico--wa{ background:#E8F8EF; color:#16A34A; }
+.cu-touch__ico--mail{ background:#EEE8FF; color:#6D28D9; }
+.cu-touch__ico--call{ background:#FFF1E6; color:#EA580C; }
+.cu-touch__ico--chat{ background:#E8EEFF; color:#2A47FF; }
+.cu-touch__body{ flex:1; min-width:0; }
+.cu-touch__title{
+  display:block; font-size:14px; font-weight:800; color:#0B1220; line-height:1.2;
+}
+.cu-touch__desc{
+  display:block; font-size:12px; font-weight:500; color:#64748B; margin-top:2px; line-height:1.3;
+}
+.cu-touch__value{
+  display:block; font-size:13px; font-weight:800; color:#0B1220; margin-top:3px; line-height:1.2;
+}
+.cu-touch__chev{ color:#CBD5E1; flex-shrink:0; }
+.cu-touch__chev svg{ width:16px; height:16px; }
 
-/* Dotted grid overlay */
-.art-pro__grid{
-  position:absolute; inset: 8% 8% auto 8%;
-  height: 52%;
-  background-image: radial-gradient(circle at center, rgba(14,18,32,.08) 1px, transparent 1px);
-  background-size: 14px 14px;
-  border-radius: 14px;
-  opacity: .55;
-  z-index: 3;
+.cu-socials{ display:flex; flex-wrap:wrap; gap:10px; margin-top:2px; }
+.cu-social{
+  width:42px; height:42px; border-radius:10px;
+  display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid #E8ECF2; background:#fff;
+  text-decoration:none; transition:transform .15s ease, box-shadow .15s ease;
 }
+.cu-social:hover{ transform:translateY(-2px); box-shadow:0 8px 18px rgba(14,18,32,.08); }
+.cu-social svg{ width:16px; height:16px; }
+.cu-social--li{ color:#0A66C2; }
+.cu-social--ig{ color:#E4405F; }
+.cu-social--yt{ color:#FF0000; }
+.cu-social--tg{ color:#229ED9; }
+.cu-social--x{ color:#0F172A; }
 
-/* Floating badges */
-.art-pro__badge{
-  position:absolute; display:inline-flex; align-items:center; gap:8px;
-  padding: 8px 11px;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid rgba(14,18,32,.10);
-  box-shadow: 0 10px 26px rgba(14,18,32,.10);
-  font-weight: 800;
-  z-index: 4;
-  will-change: transform, box-shadow;
+@media (max-width:992px){
+  .cu-grid{ grid-template-columns:1fr; }
+  .cu-form__row{ grid-template-columns:1fr; }
 }
-.art-pro__badge i{ width:16px; height:16px; color:#2A47FF; }
-.art-pro__badge span{ white-space:nowrap; color:#0e1220; }
-
-.art-pro__badge--primary{ top: 14px; left: 14px; }
-.art-pro__badge--accent{ bottom: 16px; right: 16px; }
-.art-pro__badge--accent i{ color:#F17F23; }
-.art-pro__badge--neutral{
-  top: 50%; right: 12px; transform: translateY(-50%);
-  opacity:.95;
+@media (max-width:640px){
+  .cu-wrap{ padding:0 10px; }
+  .cu-card{ padding:14px; }
 }
-
-/* Hover polish (desktop) */
-@media (hover:hover){
-  .art-pro:hover .art-pro__badge{
-    box-shadow: 0 14px 34px rgba(14,18,32,.14);
-    transform: translateZ(0) scale(1.02);
-  }
-}
-
-/* Motion (respect reduced motion) */
-@keyframes floatA{
-  0%,100%{ transform: translate(0,0) }
-  50%    { transform: translate(6px, -8px) }
-}
-@keyframes floatB{
-  0%,100%{ transform: translate(0,0) }
-  50%    { transform: translate(-8px, 6px) }
-}
-@media (prefers-reduced-motion: reduce){
-  .art-pro__ring{ animation: none !important; }
-}
-
-/* Small screens */
-@media (max-width: 520px){
-  .art-pro{ width: 100%; border-radius: 16px; }
-  .art-pro__badge{ padding: 7px 10px; border-radius: 10px; }
-}
-
 </style>
 
-<!-- ===== Hero ===== -->
-<header class="contact-hero">
-  <div class="container contact-hero__grid">
-    <div class="contact-hero__copy">
-      <span class="chip">We’re here to help</span>
-      <h1>Contact FileMakr</h1>
-      <p class="lead">Questions about project files, source code, or setup support? Send us a message and we’ll get back within 24 hours.</p>
-      <ul class="contact-hero__pills">
-        <li><i data-feather="message-circle"></i> Friendly support</li>
-        <li><i data-feather="clock"></i> Quick turnarounds</li>
-        <li><i data-feather="shield"></i> Secure & private</li>
-      </ul>
-    </div>
-    <!-- Hero Illustration -->
-<div class="contact-hero__art" aria-hidden="true">
-  <div class="art-pro">
-    <!-- soft gradient plate -->
-    <div class="art-pro__plate"></div>
+<div class="cu-page bl-page">
 
-    <!-- floating rings -->
-    <div class="art-pro__ring art-pro__ring--a"></div>
-    <div class="art-pro__ring art-pro__ring--b"></div>
+  <!-- Hero — same layout as blog listing (copy left, illustration right) -->
+  <section class="bl-hero" aria-labelledby="cu-hero-title">
+    <div class="bl-hero__wrap">
+      <div class="bl-hero__grid">
 
-    <!-- dotted grid -->
-    <div class="art-pro__grid"></div>
+        <div class="bl-hero__copy">
+          <p class="bl-hero__eyebrow">Contact Us</p>
 
-    <!-- floating badges -->
-    <div class="art-pro__badge art-pro__badge--primary">
-      <i data-feather="headphones"></i>
-      <span>Code Setup Support</span>
-    </div>
-    <div class="art-pro__badge art-pro__badge--accent">
-      <i data-feather="zap"></i>
-      <span>Fast Response</span>
-    </div>
-    <div class="art-pro__badge art-pro__badge--neutral">
-      <i data-feather="shield"></i>
-      <span>Secure</span>
-    </div>
-  </div>
-</div>
+          <h1 id="cu-hero-title" class="bl-hero__title">
+            Need Help With Your<br class="bl-hero__br">
+            Project Report or Source Code?
+          </h1>
 
-  </div>
-</header>
+          <span class="bl-hero__rule" aria-hidden="true"></span>
 
-<main class="contact-main">
-  <div class="container">
-    <div class="contact-grid">
-      <!-- ===== Left: Form ===== -->
-      <section class="card-surface contact-card">
-        <div class="card-head">
-          <h2>Submit a Request</h2>
-          <% if (msg) { %>
-            <div class="alert-soft"><i data-feather="info"></i><span><%= msg %></span></div>
-          <% } %>
+          <p class="bl-hero__lead">
+            Questions on reports, source code, setup, customization, or payment?
+            Our FileMakr team is ready to guide you for B.Tech, BCA, MCA and other
+            final-year projects.
+          </p>
+
+          <ul class="bl-hero__points" aria-label="Support highlights">
+            <li>
+              <span class="bl-hero__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M4 14a8 8 0 0 1 16 0v3a2 2 0 0 1-2 2h-1.2a1.8 1.8 0 0 1-1.8-1.8V15M4 14v2.2A1.8 1.8 0 0 0 5.8 18H7"
+                    stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>
+                <strong>24/7 Support</strong>
+                <small>Always available when you need help</small>
+              </span>
+            </li>
+
+            <li>
+              <span class="bl-hero__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"
+                    stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span>
+                <strong>Instant Response</strong>
+                <small>Quick replies on WhatsApp and email</small>
+              </span>
+            </li>
+
+            <li>
+              <span class="bl-hero__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 3 20 6.5v5.2c0 4.6-3.1 8.8-8 10.3-4.9-1.5-8-5.7-8-10.3V6.5L12 3z"
+                    stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                  <path d="m9 12 2 2 4-4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span>
+                <strong>45,000+ Students</strong>
+                <small>Trusted for final year success</small>
+              </span>
+            </li>
+          </ul>
         </div>
 
-        <form id="contact" class="contactForm" action="/contact-us" method="post" novalidate>
-          <!-- Honeypot (anti-spam) -->
-          <input type="text" name="company" autocomplete="off" tabindex="-1" class="hp" aria-hidden="true">
+        <div class="bl-hero__media">
+          <img
+            src="<%= cuHeroSrc %>"
+            srcset="<%= typeof cloudinarySrcSet === 'function'
+              ? cloudinarySrcSet(cuHeroRaw, [480, 720, 960])
+              : cuHeroSrc %>"
+            sizes="(max-width: 991px) calc(100vw - 20px), 520px"
+            alt="FileMakr support — project reports and source code help"
+            width="720"
+            height="540"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          >
+        </div>
 
-          <div class="form-row">
-            <div class="field">
-              <label for="name">Full name</label>
-              <div class="input">
-                <i data-feather="user"></i>
-                <input type="text" id="name" name="name" placeholder="Your name" minlength="3" required>
+      </div>
+    </div>
+  </section>
+
+  <main class="cu-main">
+    <div class="cu-wrap cu-grid">
+      <section class="cu-card" aria-labelledby="cu-form-title">
+        <div class="cu-card__head">
+          <span class="cu-card__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </span>
+          <div>
+            <h2 id="cu-form-title">Send Us a Message</h2>
+          </div>
+        </div>
+        <p class="cu-card__sub">Fill out the form below and we'll get back to you as soon as possible.</p>
+
+        <% if (typeof msg !== 'undefined' && msg) { %>
+          <div class="cu-alert" role="status">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 12.2 11 14.7 15.8 9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><%= msg %></span>
+          </div>
+        <% } %>
+
+        <form id="contact" class="cu-form" action="/contact-us" method="post" novalidate>
+          <input type="text" name="company" autocomplete="off" tabindex="-1" class="cu-hp" aria-hidden="true">
+
+          <div class="cu-field">
+            <label for="name">Full Name <span>*</span></label>
+            <div class="cu-input">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <input type="text" id="name" name="name" placeholder="Enter your full name" minlength="2" required>
+            </div>
+          </div>
+
+          <div class="cu-field">
+            <label for="email">Email Address <span>*</span></label>
+            <div class="cu-input">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5h16v11H4v-11z" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+            </div>
+          </div>
+
+          <div class="cu-form__row">
+            <div class="cu-field">
+              <label for="phone">Phone Number <span>*</span></label>
+              <div class="cu-input">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.6 10.8c1.6 3.1 3.5 5 6.6 6.6l2.2-2.2a1.4 1.4 0 0 1 1.4-.35c1.5.5 3.2.8 4.9.8a1.4 1.4 0 0 1 1.4 1.4V20a1.4 1.4 0 0 1-1.4 1.4A17.4 17.4 0 0 1 2.6 4a1.4 1.4 0 0 1 1.4-1.4H7a1.4 1.4 0 0 1 1.4 1.4c0 1.7.3 3.4.8 4.9a1.4 1.4 0 0 1-.35 1.4l-2.25 2.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                <input type="tel" id="phone" name="phone" inputmode="numeric" pattern="[0-9+\-\s]{10,}" placeholder="Enter your phone number" required>
               </div>
-              <small class="hint">What should we call you?</small>
             </div>
 
-            <div class="field">
-              <label for="phone">Mobile number</label>
-              <div class="input">
-                <i data-feather="smartphone"></i>
-                <input type="tel" id="phone" name="email" inputmode="numeric" pattern="[0-9]{10,}" placeholder="10+ digit number" required>
-              </div>
-              <small class="hint">We’ll use this if we need a quick follow-up.</small>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="field">
-              <label for="subject">Subject</label>
-              <div class="input">
-                <i data-feather="tag"></i>
-                <input type="text" id="subject" name="subject" placeholder="e.g., Help with project report format" minlength="4" required>
+            <div class="cu-field">
+              <label for="subject">Subject <span>*</span></label>
+              <div class="cu-input cu-select-wrap">
+                <select id="subject" name="subject" required>
+                  <option value="" disabled selected>Select a subject</option>
+                  <option value="Project Report Help">Project Report Help</option>
+                  <option value="Source Code Support">Source Code Support</option>
+                  <option value="Setup / Installation Support">Setup / Installation Support</option>
+                  <option value="Payment / Order Issue">Payment / Order Issue</option>
+                  <option value="Custom Project Request">Custom Project Request</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
           </div>
 
-          <div class="field">
-            <label for="message">Description</label>
-            <div class="textarea">
-              <i data-feather="edit-3"></i>
-              <textarea id="message" name="message" rows="6" placeholder="Tell us a bit about your query…" required></textarea>
+          <div class="cu-field">
+            <label for="message">Your Message <span>*</span></label>
+            <div class="cu-input cu-textarea">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 18.5 7.2 16H18a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="9.5" cy="10.5" r="1" fill="currentColor"/><circle cx="14.5" cy="10.5" r="1" fill="currentColor"/><path d="M9.2 13.2c.8.8 1.8 1.2 2.8 1.2s2-.4 2.8-1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <textarea id="message" name="message" rows="3" placeholder="Type your message here..." required></textarea>
             </div>
           </div>
 
-          <div class="actions">
-            <button type="submit" class="btn btn-brand" id="SendBtn">
-              <i data-feather="send"></i> Submit Request
-            </button>
-            <a class="btn btn-light" href="https://wa.me/918319339945" target="_blank" rel="noopener">
-              <i data-feather="message-square"></i> Chat on WhatsApp
-            </a>
-          </div>
+          <a class="cu-wa-hint" href="<%= waLink %>" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.15 6.4 2.15 11.83c0 2.08.55 4.03 1.52 5.73L2 22l4.6-1.5a9.9 9.9 0 0 0 5.44 1.6h.01c5.46 0 9.89-4.4 9.89-9.83C21.94 6.4 17.5 2 12.04 2zm5.75 13.9c-.24.67-1.4 1.24-1.93 1.32-.5.07-1.13.1-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.79-4.17-4.93-4.36-.14-.2-1.16-1.54-1.16-2.94s.73-2.08 1-2.25c.24-.16.53-.2.71-.2h.51c.16 0 .38-.06.59.45.22.53.74 1.83.8 1.96.07.13.11.29.02.46-.09.18-.14.29-.27.45-.14.16-.29.35-.41.47-.14.13-.28.27-.12.53.16.26.7 1.15 1.5 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.59-.07.16-.18.7-.81.88-1.09.18-.27.37-.23.62-.13.26.09 1.64.77 1.92.91.28.14.47.21.54.33.07.12.07.7-.17 1.37z"/></svg>
+            You can also reach us on WhatsApp for instant support.
+          </a>
+
+          <button type="submit" class="cu-submit" id="SendBtn">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            Send Message
+          </button>
         </form>
       </section>
 
-      <!-- ===== Right: Contact Info / Quick Links ===== -->
-      <aside class="card-surface info-card">
-        <h3>Other ways to reach us</h3>
-        <ul class="info-list">
-          <li>
-            <i data-feather="mail"></i>
-            <div>
-              <strong>Email</strong>
-              <span>info@filemakr.com</span>
-            </div>
-          </li>
-          <li>
-            <i data-feather="phone-call"></i>
-            <div>
-              <strong>WhatsApp</strong>
-              <a href="https://wa.me/918319339945" target="_blank" rel="noopener">+91 83193 39945</a>
-            </div>
-          </li>
-          <li>
-            <i data-feather="clock"></i>
-            <div>
-              <strong>Support Hours</strong>
-              <span>Mon–Sat, 9:00 AM – 7:00 PM IST</span>
-            </div>
-          </li>
-        </ul>
+      <aside class="cu-side">
+        <section class="cu-card cu-card--touch" aria-labelledby="cu-touch-title">
+          <div class="cu-card__head">
+            <span class="cu-card__ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M5 18.5 7.2 16H18a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </span>
+            <h3 id="cu-touch-title">Get in Touch</h3>
+          </div>
 
-        <hr class="divider">
+          <div class="cu-touch">
+            <a class="cu-touch__item" href="<%= waLink %>" target="_blank" rel="noopener noreferrer">
+              <span class="cu-touch__ico cu-touch__ico--wa" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.15 6.4 2.15 11.83c0 2.08.55 4.03 1.52 5.73L2 22l4.6-1.5a9.9 9.9 0 0 0 5.44 1.6h.01c5.46 0 9.89-4.4 9.89-9.83C21.94 6.4 17.5 2 12.04 2zm5.75 13.9c-.24.67-1.4 1.24-1.93 1.32-.5.07-1.13.1-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.79-4.17-4.93-4.36-.14-.2-1.16-1.54-1.16-2.94s.73-2.08 1-2.25c.24-.16.53-.2.71-.2h.51c.16 0 .38-.06.59.45.22.53.74 1.83.8 1.96.07.13.11.29.02.46-.09.18-.14.29-.27.45-.14.16-.29.35-.41.47-.14.13-.28.27-.12.53.16.26.7 1.15 1.5 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.59-.07.16-.18.7-.81.88-1.09.18-.27.37-.23.62-.13.26.09 1.64.77 1.92.91.28.14.47.21.54.33.07.12.07.7-.17 1.37z"/></svg>
+              </span>
+              <span class="cu-touch__body">
+                <span class="cu-touch__title">WhatsApp Support</span>
+                <span class="cu-touch__desc">Chat with us instantly on WhatsApp</span>
+                <span class="cu-touch__value">+91 83193 39945</span>
+              </span>
+              <span class="cu-touch__chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </a>
 
-        <h4>Popular help topics</h4>
-        <ul class="links">
-          <li><a href="/final-year-project-ideas"><i data-feather="file-text"></i> Project file formats we support</a></li>
-          <li><a href="/source-code"><i data-feather="code"></i> What’s included in source code downloads</a></li>
-          <li><a href="/refund-policy"><i data-feather="shield"></i> Refunds & policies</a></li>
-        </ul>
+            <a class="cu-touch__item" href="<%= mailLink %>">
+              <span class="cu-touch__ico cu-touch__ico--mail" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M4 6.5h16v11H4v-11z" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="cu-touch__body">
+                <span class="cu-touch__title">Email Us</span>
+                <span class="cu-touch__desc">Drop us an email anytime</span>
+                <span class="cu-touch__value">info@filemakr.com</span>
+              </span>
+              <span class="cu-touch__chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </a>
+
+            <a class="cu-touch__item" href="<%= callLink %>">
+              <span class="cu-touch__ico cu-touch__ico--call" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8c1.6 3.1 3.5 5 6.6 6.6l2.2-2.2a1.4 1.4 0 0 1 1.4-.35c1.5.5 3.2.8 4.9.8a1.4 1.4 0 0 1 1.4 1.4V20a1.4 1.4 0 0 1-1.4 1.4A17.4 17.4 0 0 1 2.6 4a1.4 1.4 0 0 1 1.4-1.4H7a1.4 1.4 0 0 1 1.4 1.4c0 1.7.3 3.4.8 4.9a1.4 1.4 0 0 1-.35 1.4l-2.25 2.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="cu-touch__body">
+                <span class="cu-touch__title">Call Us</span>
+                <span class="cu-touch__desc">Speak with our support team</span>
+                <span class="cu-touch__value">+91 83193 39945</span>
+              </span>
+              <span class="cu-touch__chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </a>
+          </div>
+        </section>
+
+        <section class="cu-card cu-card--follow" aria-labelledby="cu-follow-title">
+          <div class="cu-card__head">
+            <span class="cu-card__ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="2.4" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="12" r="2.4" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="19" r="2.4" stroke="currentColor" stroke-width="1.8"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <h3 id="cu-follow-title">Follow Us</h3>
+          </div>
+          <p class="cu-card__sub">Stay connected with us on social media for updates, offers and valuable content.</p>
+          <div class="cu-socials">
+            <a class="cu-social cu-social--li" href="https://www.linkedin.com/company/filemakr/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S.02 4.88.02 3.5 1.14 1 2.5 1s2.48 1.12 2.48 2.5zM.2 8.5h4.6V23H.2V8.5zM8.34 8.5h4.4v1.98h.06c.61-1.16 2.1-2.38 4.33-2.38 4.63 0 5.49 3.05 5.49 7.01V23h-4.6v-6.6c0-1.57-.03-3.59-2.19-3.59-2.19 0-2.53 1.71-2.53 3.48V23h-4.6V8.5z"/></svg>
+            </a>
+            <a class="cu-social cu-social--ig" href="https://www.instagram.com/filemakr" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5zm5.75-3.25a1.05 1.05 0 1 1-1.05 1.05 1.05 1.05 0 0 1 1.05-1.05z"/></svg>
+            </a>
+            <a class="cu-social cu-social--yt" href="https://www.youtube.com/@filemakr" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8zM9.75 15.5v-7l6.5 3.5-6.5 3.5z"/></svg>
+            </a>
+            <a class="cu-social cu-social--tg" href="https://t.me/filemakr" target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.04 15.3 8.9 19.1c.3 0 .43-.13.58-.28l2.78-2.66 5.77 4.24c1.06.58 1.82.28 2.11-.98L23.8 4.2c.34-1.37-.5-1.9-1.52-1.56L1.76 9.5C.43 10.03.45 10.78 1.53 11.1l5.5 1.72L19.3 5.4c.62-.38 1.19-.17.72.21L9.04 15.3z"/></svg>
+            </a>
+            <a class="cu-social cu-social--x" href="https://twitter.com/FileMakr" target="_blank" rel="noopener noreferrer" aria-label="X" title="X">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-6.8 7.78L23.2 22h-6.5l-5.1-6.66L5.7 22H2.6l7.28-8.32L.8 2h6.66l4.6 6.1L18.9 2zm-1.14 18h1.8L6.36 3.9H4.42L17.76 20z"/></svg>
+            </a>
+          </div>
+        </section>
       </aside>
     </div>
-  </div>
 </main>
+</div>
 
 <% include Includes/footer.ejs %>
 
-<!-- ===== Scoped Styles ===== -->
-<style>
-:root{
-  --ink:#0e1220; --muted:#6b7280; --bg:#f7f8fc; --card:#fff;
-  --brand:#2A47FF; --accent:#F17F23; --ring:rgba(42,71,255,.18);
-  --brd:rgba(14,18,32,.10); --radius:16px;
-}
-html,body{background:var(--bg);color:var(--ink);}
-.container{max-width:1100px;margin:0 auto;padding:0 16px;}
-
-/* Hero */
-.contact-hero{
-  background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));
-  border-bottom:1px solid var(--brd);
-  padding:28px 0 20px;
-}
-.contact-hero__grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:center;}
-@media (max-width:992px){.contact-hero__grid{grid-template-columns:1fr;}}
-.chip{display:inline-block;background:rgba(42,71,255,.08);color:var(--brand);border:1px solid rgba(42,71,255,.2);border-radius:999px;padding:6px 10px;font-weight:800;font-size:12px;}
-.contact-hero h1{margin:.4rem 0 .6rem;font-weight:900;}
-.lead{color:#111;}
-.contact-hero__pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;padding:0;list-style:none;}
-.contact-hero__pills li{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--brd);border-radius:999px;background:#fff;font-weight:700;}
-.contact-hero__pills svg{width:16px;height:16px;color:var(--brand);}
-
-/* Art */
-.contact-hero__art{display:flex;justify-content:flex-end;overflow:hidden;}
-.art{position:relative;width:clamp(280px, 92vw, 520px);aspect-ratio:5/4;border:1px solid var(--brd);border-radius:18px;background:#fff;box-shadow:0 12px 32px rgba(14,18,32,.08);overflow:hidden;}
-.art-ring{position:absolute;inset:auto;border-radius:50%;filter:blur(0.2px);opacity:.6;}
-.ring-1{width:140%;height:140%;top:-28%;left:-20%;background:radial-gradient(circle at center, rgba(42,71,255,.15), transparent 60%);}
-.ring-2{width:90%;height:90%;bottom:-25%;right:-10%;background:radial-gradient(circle at center, rgba(241,127,35,.16), transparent 60%);}
-.art-badge{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--brd);border-radius:12px;padding:8px 10px;font-weight:800;box-shadow:0 8px 20px rgba(14,18,32,.06);}
-.art-badge svg{width:16px;height:16px;color:var(--brand);}
-
-/* Main grid */
-.contact-main{padding:22px 0 32px;}
-.contact-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;align-items:start;}
-@media (max-width:992px){.contact-grid{grid-template-columns:1fr;}}
-
-/* Cards */
-.card-surface{background:var(--card);border:1px solid var(--brd);border-radius:var(--radius);box-shadow:0 10px 30px rgba(14,18,32,.06);}
-.contact-card{padding:16px;}
-.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.card-head h2{margin:0;font-weight:900;}
-.alert-soft{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(241,127,35,.25);color:#8a4b00;border-radius:12px;padding:8px 10px;}
-.alert-soft svg{width:16px;height:16px;color:#d97706;}
-
-/* Form */
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media (max-width:640px){.form-row{grid-template-columns:1fr;}}
-.field{display:flex;flex-direction:column;gap:6px;}
-.field label{font-weight:800;}
-.input,.textarea{display:flex;align-items:center;gap:8px;border:1px solid var(--brd);border-radius:12px;background:#fff;padding:0 10px;}
-.input:focus-within,.textarea:focus-within{box-shadow:0 0 0 4px var(--ring);border-color:var(--brand);}
-.input input{height:44px;border:none;outline:none;flex:1;font-weight:600;background:transparent;}
-.textarea textarea{border:none;outline:none;flex:1;resize:vertical;min-height:120px;padding:10px 0;font-weight:600;background:transparent;}
-.input svg,.textarea svg{width:18px;height:18px;color:var(--brand);}
-.hint{color:var(--muted);font-size:.85rem;}
-.hp{position:absolute !important;left:-9999px !important;opacity:0 !important;}
-
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
-.btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:12px;border:1px solid transparent;font-weight:900;text-decoration:none;cursor:pointer;}
-.btn svg{width:18px;height:18px;}
-.btn-brand{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 10px 26px rgba(42,71,255,.15);}
-.btn-brand:hover{filter:brightness(.98);}
-.btn-light{background:#fff;color:#111;border:1px solid var(--brd);}
-.btn-light:hover{box-shadow:0 0 0 4px var(--ring);}
-
-/* Info card */
-.info-card{padding:16px;}
-.info-card h3{margin:0 0 8px;font-weight:900;}
-.info-list{list-style:none;padding:0;margin:10px 0;display:grid;gap:10px;}
-.info-list li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--brd);border-radius:12px;padding:10px;background:#fff;}
-.info-list svg{width:18px;height:18px;color:var(--brand);margin-top:2px;}
-.info-list strong{display:block;}
-.links{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px;}
-.links a{display:flex;align-items:center;gap:8px;font-weight:700;text-decoration:none;color:#111;border:1px solid var(--brd);border-radius:10px;padding:8px;background:#fff;}
-.links a:hover{box-shadow:0 0 0 4px var(--ring);}
-.links svg{width:16px;height:16px;color:var(--brand);}
-.divider{border:none;border-top:1px solid var(--brd);margin:12px 0;}
-</style>
-
-<!-- Feather icons (safe load) + tiny UX script -->
 <script>
-(function(){
-  // Feather icons
-  function initFeather(){ window.feather && window.feather.replace(); }
-  if (!window.feather) {
-    const s = document.createElement('script');
-    s.src = 'https://unpkg.com/feather-icons';
-    s.onload = initFeather; document.head.appendChild(s);
-  } else { initFeather(); }
-
-  // Submit button lock
-  const form = document.getElementById('contact');
-  const btn  = document.getElementById('SendBtn');
-  form && form.addEventListener('submit', function(e){
-    if(!form.checkValidity()){
-      e.preventDefault(); e.stopPropagation(); form.reportValidity(); return;
+(function () {
+  var form = document.getElementById('contact');
+  var btn = document.getElementById('SendBtn');
+  if (!form) return;
+  form.addEventListener('submit', function (e) {
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.reportValidity();
+      return;
     }
-    if(btn){ btn.disabled = true; btn.innerHTML = '<i data-feather="loader"></i> Sending…'; initFeather(); }
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = 'Sending…';
+    }
   });
 })();
-</script>
-
-
-<!-- Feather (safe load) -->
-<script>
-  (function(){
-    function go(){ window.feather && window.feather.replace(); }
-    if(!window.feather){
-      var s=document.createElement('script');
-      s.src='https://unpkg.com/feather-icons'; s.onload=go; document.head.appendChild(s);
-    } else { go(); }
-  })();
 </script>

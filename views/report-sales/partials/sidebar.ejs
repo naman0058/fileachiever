@@ -1,0 +1,38 @@
+<aside class="support-sidebar">
+  <div class="support-sidebar__brand">
+    <div class="support-brand">FileMakr</div>
+    <div class="support-sub">Report Sales Team</div>
+  </div>
+  <nav class="support-nav">
+    <% Object.keys(planMeta || {}).forEach(function(key){
+      var m = planMeta[key];
+      var c = (countsByPlan && countsByPlan[key]) ? countsByPlan[key] : { pool: 0, mine: 0 };
+    %>
+    <a class="support-link <%= active === key ? 'active' : '' %>" href="/report-sales/queue/<%= key %>">
+      <i class="bi bi-file-earmark-text"></i>
+      <span style="flex:1"><%= m.title %></span>
+      <% if (c.mine || c.pool) { %><span style="font-size:11px;opacity:.75"><%= c.mine %>/<%= c.pool %></span><% } %>
+    </a>
+    <% }) %>
+    <div class="support-nav__sep"></div>
+    <a class="support-link <%= active === 'delivered' ? 'active' : '' %>" href="/report-sales/delivered">
+      <i class="bi bi-check2-circle"></i> Delivered
+    </a>
+    <a class="support-link <%= active === 'source' ? 'active' : '' %>" href="/report-sales/source-orders">
+      <i class="bi bi-file-zip"></i> Source code
+    </a>
+    <a class="support-link <%= active === 'reports' ? 'active' : '' %>" href="/report-sales/reports">
+      <i class="bi bi-search"></i> Order lookup
+    </a>
+    <a class="support-link <%= active === 'performance' ? 'active' : '' %>" href="/report-sales/performance">
+      <i class="bi bi-graph-up-arrow"></i> My performance
+    </a>
+    <a class="support-link danger" href="/report-sales/logout">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+  </nav>
+  <div class="support-user">
+    <div class="support-user__name"><%= user && user.name ? user.name : 'Team member' %></div>
+    <div class="support-user__meta">Report Sales Specialist</div>
+  </div>
+</aside>

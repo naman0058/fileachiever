@@ -46,7 +46,10 @@
     </a>
 
     <span class="agent-nav__section">Modules</span>
-    <a class="agent-nav__link <%= active === 'setupSupportOverview' || active === 'setupSupportEmployees' ? 'is-active' : '' %>" href="/sales/admin/setup-support">
+    <a class="agent-nav__link <%= String(active||'').indexOf('fmOnlineOrders')===0 ? 'is-active' : '' %>" href="/sales/admin/fm-online-orders">
+      <i class="bi bi-cart-check-fill"></i><span>FM Online Orders</span>
+    </a>
+    <a class="agent-nav__link <%= active === 'setupSupportOverview' || active === 'setupSupportEmployees' || active === 'setupSupportPerformance' ? 'is-active' : '' %>" href="/sales/admin/setup-support">
       <i class="bi bi-headset"></i><span>Setup Support</span>
     </a>
     <a class="agent-nav__link <%= active === 'sourceCodeManagerOverview' || active === 'sourceCodeManagerEmployees' ? 'is-active' : '' %>" href="/sales/admin/source-code-manager">

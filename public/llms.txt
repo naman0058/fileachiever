@@ -1,0 +1,29 @@
+# FileMakr
+> Final-year project reports, runnable source code, live demos and student guides for B.Tech, BCA, MCA, BE, ME, BSc and MSc.
+
+## Canonical URL patterns
+- Home: https://www.filemakr.com/
+- Source code catalog: https://www.filemakr.com/source-code
+- Source code detail: https://www.filemakr.com/{seo_name}/source-code
+- Project report detail: https://www.filemakr.com/{seo_name}-report
+- Degree-specific report: https://www.filemakr.com/{seo_name}-report-{degree}
+  (degree: btech, mtech, be, me, bca, mca, bsc, msc)
+- Degree report catalogs: https://www.filemakr.com/{degree}-final-year-project-report
+- Blog: https://www.filemakr.com/blog
+- Blog article: https://www.filemakr.com/blog/{slug}
+- Live demos: https://www.filemakr.com/demo
+
+## Key pages
+- https://www.filemakr.com/final-year-project-ideas
+- https://www.filemakr.com/about-us
+- https://www.filemakr.com/contact-us
+- https://www.filemakr.com/terms-and-conditions
+- https://www.filemakr.com/privacy-policy
+- https://www.filemakr.com/refund-policy
+
+## Sitemaps
+- https://www.filemakr.com/sitemap.xml
+- https://www.filemakr.com/sitemap-news.xml
+
+## Contact
+- https://www.filemakr.com/contact-us

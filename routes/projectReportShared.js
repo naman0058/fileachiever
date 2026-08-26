@@ -522,6 +522,233 @@ function buildReportStats(rows) {
   };
 }
 
+/**
+ * SEO-friendly report slug: strip trailing "-final..." (and everything after).
+ * e.g. eye-care-management-system-final-year-project → eye-care-management-system
+ * Leaves titles that start with "final-..." intact.
+ */
+function cleanReportSeoSlug(seo) {
+  let s = String(seo == null ? '' : seo).toLowerCase().trim();
+  if (!s) return '';
+  const idx = s.lastIndexOf('-final');
+  if (idx > 0) {
+    s = s.slice(0, idx);
+  }
+  return s.replace(/-+$/g, '');
+}
+
+/**
+ * Resolve source_code row by exact report URL slug (database seo_name).
+ */
+async function findSourceCodeByReportSeo(seoSlug) {
+  const name = String(seoSlug == null ? '' : seoSlug).toLowerCase().trim();
+  if (!name) return [];
+
+  const rows = await queryAsync('SELECT * FROM source_code WHERE seo_name = ? LIMIT 1', [name]);
+  return rows && rows.length ? rows : [];
+}
+
+const REPORT_CATALOG_DEGREES = ['btech', 'mtech', 'be', 'me', 'bca', 'mca', 'bsc', 'msc'];
+
+const REPORT_CATALOG_DEGREE_LABELS = {
+  btech: 'B.Tech',
+  mtech: 'M.Tech',
+  be: 'B.E.',
+  me: 'M.E.',
+  bca: 'BCA',
+  mca: 'MCA',
+  bsc: 'BSc',
+  msc: 'MSc',
+};
+
+function normalizeReportDegreeSlug(slug) {
+  return String(slug || '').trim().toLowerCase().replace(/\./g, '');
+}
+
+/** Extract DB seo slug from /{slug}-report or /{slug}-report-{degree} path. */
+function parseReportDetailPathSlug(reqPath) {
+  const p = String(reqPath || '').replace(/^\//, '').replace(/\/edit$/i, '');
+  const withDegree = p.match(/^(.+)-report-(btech|mtech|be|me|bca|mca|bsc|msc)$/i);
+  if (withDegree) return withDegree[1].toLowerCase();
+  const plain = p.match(/^(.+)-report$/i);
+  if (plain) return plain[1].toLowerCase();
+  return p.toLowerCase();
+}
+
+function degreeSlugToLabel(degreeSlug) {
+  const s = normalizeReportDegreeSlug(degreeSlug);
+  return REPORT_CATALOG_DEGREE_LABELS[s] || '';
+}
+
+/** New canonical report detail URL: /{seo_name}-report or /{seo_name}-report-{degree} */
+function projectReportUrl(seoName, degreeSlug) {
+  const slug = resolveProjectReportSeoSlug(seoName);
+  if (!slug) return '/final-year-project-ideas';
+  const deg = normalizeReportDegreeSlug(degreeSlug);
+  if (deg && isReportCatalogDegree(deg)) {
+    return `/${slug}-report-${deg}`;
+  }
+  return `/${slug}-report`;
+}
+
+/** Canonical slug fixes when old URLs pointed at duplicate/legacy seo_name values. */
+const PROJECT_REPORT_SLUG_REDIRECTS = {
+  'email-spam-detection-system': 'email-spam-detection',
+  'blood-bank-&-donor-management-system-using-php-and-mysql': 'blood-bank-and-donor-management-system',
+  'client-management-system-using-php-&-mysql': 'client-management-system-using-php-and-mysql',
+  'cyber-cafe-management-system-using-php-&-mysql': 'cyber-cafe-management-system-using-php-and-mysql',
+  'student-result-management-system-using-php-&-mysql': 'student-result-management-system-using-php-and-mysql',
+  'user-registration-&-login-and-user-management-system-with-admin-panel': 'user-registration-and-login-and-user-management-system-with-admin-panel',
+  'employee-leaves-management-system-(elms)': 'employee-leave-management-system',
+};
+
+function resolveProjectReportSeoSlug(seoName) {
+  const slug = String(seoName || '').trim().toLowerCase();
+  return PROJECT_REPORT_SLUG_REDIRECTS[slug] || slug;
+}
+
+/**
+ * Resolve legacy URL slug to canonical DB seo_name (never strip -final-year-project).
+ */
+async function resolveReportSeoFromLegacySlug(seoSlug) {
+  const raw = resolveProjectReportSeoSlug(seoSlug);
+  if (!raw) return '';
+
+  const candidates = [
+    raw,
+    `${raw}-final-year-project`,
+    `${raw}-final-year-php-project`,
+    `${raw}-final-year-mern-project`,
+  ];
+
+  for (const slug of candidates) {
+    const rows = await queryAsync('SELECT seo_name FROM source_code WHERE seo_name = ? LIMIT 1', [slug]);
+    if (rows && rows.length) return rows[0].seo_name;
+  }
+
+  const prefixRows = await queryAsync(
+    `SELECT seo_name FROM source_code
+     WHERE seo_name LIKE ?
+     ORDER BY CHAR_LENGTH(seo_name) DESC
+     LIMIT 1`,
+    [`${raw}-final%`]
+  );
+  if (prefixRows && prefixRows.length) return prefixRows[0].seo_name;
+
+  return raw;
+}
+
+/** If URL slug is partial/legacy, resolve to exact DB seo_name; otherwise return input. */
+async function resolveCanonicalReportSeo(seoSlug) {
+  const raw = resolveProjectReportSeoSlug(seoSlug);
+  if (!raw) return '';
+
+  const exact = await queryAsync('SELECT seo_name FROM source_code WHERE seo_name = ? LIMIT 1', [raw]);
+  if (exact && exact.length) return exact[0].seo_name;
+
+  return resolveReportSeoFromLegacySlug(raw);
+}
+
+/** 301 when /{partial-slug}-report should be /{db_seo_name}-report (optional -{degree}) */
+async function canonicalReportUrlRedirect(req) {
+  const p = req.path;
+  const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+
+  let m = p.match(/^\/([^/]+)-report-(btech|mtech|be|me|bca|mca|bsc|msc)(\/edit)?$/i);
+  if (m) {
+    const urlSlug = m[1].toLowerCase();
+    const degree = m[2].toLowerCase();
+    if (isReportCatalogSeoName(urlSlug)) return null;
+
+    const exact = await queryAsync('SELECT seo_name FROM source_code WHERE seo_name = ? LIMIT 1', [urlSlug]);
+    if (exact && exact.length) return null;
+
+    const canonical = await resolveReportSeoFromLegacySlug(urlSlug);
+    if (!canonical || canonical === urlSlug) return null;
+
+    const targetBase = projectReportUrl(canonical, degree);
+    const target = m[3] ? `${targetBase}/edit` : targetBase;
+    if (target === p) return null;
+    return target + q;
+  }
+
+  m = p.match(/^\/([^/]+)-report(\/edit)?$/i);
+  if (!m) return null;
+
+  const urlSlug = m[1].toLowerCase();
+  if (!urlSlug || isReportCatalogDegree(urlSlug) || isReportCatalogSeoName(urlSlug)) return null;
+
+  const exact = await queryAsync('SELECT seo_name FROM source_code WHERE seo_name = ? LIMIT 1', [urlSlug]);
+  if (exact && exact.length) return null;
+
+  const canonical = await resolveReportSeoFromLegacySlug(urlSlug);
+  if (!canonical || canonical === urlSlug) return null;
+
+  const targetBase = projectReportUrl(canonical);
+  const target = m[2] ? `${targetBase}/edit` : targetBase;
+  if (target === p) return null;
+  return target + q;
+}
+
+function isReportCatalogSeoName(seoName) {
+  const s = String(seoName || '').trim().toLowerCase();
+  return REPORT_CATALOG_DEGREES.some((d) => s === `${d}-final-year-project`);
+}
+
+function isReportCatalogDegree(slug) {
+  return REPORT_CATALOG_DEGREES.includes(String(slug || '').trim().toLowerCase().replace(/\./g, ''));
+}
+
+/**
+ * 301 target for legacy report detail URLs (/final-year-project-report-* and degree-prefixed).
+ * Returns null when path is not a legacy report detail URL.
+ */
+async function legacyProjectReportRedirect(req) {
+  const p = req.path;
+  const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+
+  let m = p.match(/^\/final-year-project-report-([^/]+)(\/edit)?$/i);
+  if (m) {
+    const seo = await resolveReportSeoFromLegacySlug(m[1]);
+    if (m[2]) {
+      const plan = String(req.query.type || '').toLowerCase() === 'synopsis' ? 'synopsis' : 'report';
+      return `/checkout?type=report&seo=${encodeURIComponent(seo)}&plan=${plan}`;
+    }
+    return projectReportUrl(seo) + q;
+  }
+
+  m = p.match(/^\/(btech|mtech|be|me|bca|mca|bsc|msc)-final-year-project-report-([^/]+)(\/edit)?$/i);
+  if (m) {
+    const degree = m[1].toLowerCase();
+    const seo = await resolveReportSeoFromLegacySlug(m[2]);
+    if (m[3]) {
+      const plan = String(req.query.type || '').toLowerCase() === 'synopsis' ? 'synopsis' : 'report';
+      return `/checkout?type=report&seo=${encodeURIComponent(seo)}&plan=${plan}`;
+    }
+    return projectReportUrl(seo, degree) + q;
+  }
+
+  m = p.match(/^\/(.+)-final-year-project-report-([^/]+)(\/edit)?$/i);
+  if (m) {
+    const prefix = m[1].toLowerCase().replace(/\./g, '');
+    const tail = m[2].toLowerCase().replace(/\./g, '');
+    if (!REPORT_CATALOG_DEGREES.includes(prefix)) {
+      // /{seo_name}-report-{degree} when seo_name ends with -final-year-project
+      if (REPORT_CATALOG_DEGREES.includes(tail)) {
+        return null;
+      }
+      const seo = await resolveReportSeoFromLegacySlug(m[2]);
+      if (m[3]) {
+        const plan = String(req.query.type || '').toLowerCase() === 'synopsis' ? 'synopsis' : 'report';
+        return `/checkout?type=report&seo=${encodeURIComponent(seo)}&plan=${plan}`;
+      }
+      return projectReportUrl(seo) + q;
+    }
+  }
+
+  return null;
+}
+
 module.exports = {
   SOURCE_TABLE_DEGREE_LABEL,
   PROJECT_REPORT_TABLES,
@@ -534,4 +761,20 @@ module.exports = {
   buildReportStats,
   projectTypeLabel,
   safeTableName,
+  cleanReportSeoSlug,
+  findSourceCodeByReportSeo,
+  projectReportUrl,
+  resolveProjectReportSeoSlug,
+  resolveReportSeoFromLegacySlug,
+  resolveCanonicalReportSeo,
+  canonicalReportUrlRedirect,
+  legacyProjectReportRedirect,
+  isReportCatalogSeoName,
+  isReportCatalogDegree,
+  REPORT_CATALOG_DEGREES,
+  REPORT_CATALOG_DEGREE_LABELS,
+  degreeSlugToLabel,
+  normalizeReportDegreeSlug,
+  parseReportDetailPathSlug,
+  PROJECT_REPORT_SLUG_REDIRECTS,
 };

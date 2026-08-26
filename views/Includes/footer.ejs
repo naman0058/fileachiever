@@ -1,31 +1,32 @@
 <% const navActive = (typeof active !== 'undefined' && active) ? active : ''; %>
 
-<!-- Bottom App Navigation -->
-<nav class="app-nav" role="navigation" aria-label="Primary" style="background-color: white;">
-  <a href="/" class="<%= navActive === 'home' ? 'active' : '' %>">
-    <i class="feather-home"></i><span>Home</span>
-  </a>
-  
-  <a href="/final-year-project-ideas" class="<%= navActive === 'report' ? 'active' : '' %>">
-    <i class="feather-file-text"></i><span>Report</span>
-  </a>
-  
-  <a href="/source-code" class="<%= navActive === 'source-code' ? 'active' : '' %>">
-    <i class="feather-code"></i><span>Code</span>
-  </a>
-  
-  <a href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>" class="<%= navActive === 'demo' ? 'active' : '' %>">
-    <i class="feather-play-circle"></i><span>Demo</span>
-  </a>
-  
-  <a href="https://wa.me/918319339945" class="app-nav-chat <%= navActive === 'chat' ? 'active' : '' %>" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
-    <span class="app-nav-wa" aria-hidden="true">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" focusable="false">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-      </svg>
-    </span>
-    <span>Chat</span>
-  </a>
+<!-- Bottom App Navigation (mobile only — styled in fm-footer.css) -->
+<nav class="app-nav" role="navigation" aria-label="Mobile primary">
+  <div class="app-nav__dock">
+    <a href="/" class="app-nav__item<%= navActive === 'home' ? ' is-active' : '' %>"<% if (navActive === 'home') { %> aria-current="page"<% } %>>
+      <i class="feather-home" aria-hidden="true"></i>
+      <span class="app-nav__label">Home</span>
+    </a>
+    <a href="/final-year-project-ideas" class="app-nav__item app-nav__item--report<%= navActive === 'report' ? ' is-active' : '' %>"<% if (navActive === 'report') { %> aria-current="page"<% } %>>
+      <% if (navActive !== 'report') { %>
+      <span class="app-nav__flag" aria-hidden="true"><i class="feather-shield"></i> Plagiarism Free</span>
+      <% } %>
+      <i class="feather-file-text" aria-hidden="true"></i>
+      <span class="app-nav__label">Report</span>
+    </a>
+    <a href="/source-code" class="app-nav__item app-nav__item--code<%= navActive === 'source-code' ? ' is-active' : '' %>"<% if (navActive === 'source-code') { %> aria-current="page"<% } %>>
+      <i class="feather-code" aria-hidden="true"></i>
+      <span class="app-nav__label">Code</span>
+    </a>
+    <a href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>" class="app-nav__item<%= navActive === 'demo' ? ' is-active' : '' %>"<% if (navActive === 'demo') { %> aria-current="page"<% } %>>
+      <i class="feather-play-circle" aria-hidden="true"></i>
+      <span class="app-nav__label">Demo</span>
+    </a>
+    <a href="https://wa.me/918319339945" class="app-nav__item app-nav__item--chat<%= navActive === 'chat' ? ' is-active' : '' %>" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+      <i class="fab fa-whatsapp" aria-hidden="true"></i>
+      <span class="app-nav__label">Chat</span>
+    </a>
+  </div>
 </nav>
 
 <script>
@@ -33,10 +34,15 @@
   const waNumber = "<%= typeof whatsappNumber !== 'undefined' ? whatsappNumber : '918319339945' %>"; // e.g., 919876543210
   const grad = "<%= graduation_type_send || '' %>"; // empty string if null
 
-  function waLink(extra=''){
-    const base = `https://wa.me/${waNumber}`;
-    const text = `Hi FileMakr,%0AI'm looking for ${grad} final-year project report and source code.${extra ? '%0AQuery: ' + encodeURIComponent(extra) : ''}%0APlease share details.`;
-    return `${base}?text=${text}`;
+  function waLink(extra) {
+    extra = extra || '';
+    var base = 'https://wa.me/' + waNumber;
+    var text = 'Hi FileMakr,%0AI\'m looking for ' + grad + ' final-year project report and source code.';
+    if (extra) {
+      text += '%0AQuery: ' + encodeURIComponent(extra);
+    }
+    text += '%0APlease share details.';
+    return base + '?text=' + text;
   }
   function setAllWaLinks(query=''){
     ['WhatsAppFloat','WhatsAppTop','WhatsAppEmpty','WhatsAppSide','WhatsAppHero','WhatsAppSticky'].forEach(id=>{
@@ -45,10 +51,19 @@
     });
   }
 
+  // Homepage / pages without listing grid: skip heavy filter/sort JS
+  if (!document.getElementById('Grid') && !document.getElementById('Search')) {
+    setAllWaLinks();
+  } else if (document.getElementById('Grid') && document.getElementById('Grid').getAttribute('data-pr-catalog') === '1') {
+    // project-report progressive catalog owns search/filter — don't bind DOM listing filter
+    setAllWaLinks();
+  } else {
   // ====== Search + Sort ======
   const input=document.getElementById('Search');
+  const exploreSearch=document.getElementById('ExploreSearch');
+  const techFilter=document.getElementById('TechFilter');
   const nodes=Array.from(document.getElementsByClassName('target'));
-  const countEl=document.getElementById('ResultCount');
+  const countEl=document.getElementById('ResultCount') || document.getElementById('ExploreCount');
   const emptyEl=document.getElementById('EmptyState');
   const grid=document.getElementById('Grid');
   const sortSel=document.getElementById('Sort');
@@ -58,7 +73,31 @@
 
   let q='';
   let activeStack='';
+  let activeTech='';
   const normalize=s=> (s||'').toLowerCase();
+  // Match categories regardless of -, _, ., spaces (e.g. machine-learning === Machine Learning)
+  const normalizeCat=s=> String(s||'')
+    .toLowerCase()
+    .replace(/[,|/]+/g, ' ')
+    .replace(/[-_.]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const compactCat=s=> normalizeCat(s).replace(/\s+/g, '');
+
+  function categoryMatches(cardCat, selectedTech){
+    if (!selectedTech) return true;
+    const nc = normalizeCat(cardCat);
+    const nt = normalizeCat(selectedTech);
+    if (!nt) return true;
+    if (nc === nt) return true;
+    if (nc.includes(nt)) return true;
+    // token / compact match: "nodejs" <-> "node js", "data-analytics" <-> "Data Analytics"
+    if (compactCat(cardCat).includes(compactCat(selectedTech))) return true;
+    const cardTokens = nc.split(' ').filter(Boolean);
+    const techTokens = nt.split(' ').filter(Boolean);
+    if (techTokens.length && techTokens.every(function (t) { return cardTokens.indexOf(t) !== -1; })) return true;
+    return false;
+  }
 
   function isDemoFilterActive(){
     return (demoFilterBtn && demoFilterBtn.classList.contains('active'))
@@ -89,12 +128,14 @@
   nodes.forEach(n=>{
     const name = normalize(n.getAttribute('data-name'));
     const desc = normalize(n.getAttribute('data-desc'));
+    const cat = normalize(n.getAttribute('data-category'));
     const hasDemo = n.getAttribute('data-demo') === '1';
     const stackSlug = (n.getAttribute('data-stack-slug') || '').toLowerCase();
-    const matchText = !nq || name.includes(nq) || desc.includes(nq);
+    const matchText = !nq || name.includes(nq) || desc.includes(nq) || normalizeCat(cat).includes(nq) || compactCat(cat).includes(nq.replace(/\s+/g, ''));
     const matchDemo = !demoOnlyActive || hasDemo;
     const matchStack = !activeStack || stackSlug === activeStack;
-    const matches = matchText && matchDemo && matchStack;
+    const matchTech = categoryMatches(cat, activeTech);
+    const matches = matchText && matchDemo && matchStack && matchTech;
     n.classList.toggle('is-filter-hidden', !matches);
     if (matches) {
       if (grid) grid.appendChild(n);
@@ -194,8 +235,20 @@
 
   // Debounced search
   let t;
-  input && input.addEventListener('input',(e)=>{q=e.target.value||'';clearTimeout(t);t=setTimeout(apply,150);});
+  function setSearchQuery(val){
+    q = val || '';
+    if (input && input.value !== q) input.value = q;
+    if (exploreSearch && exploreSearch.value !== q) exploreSearch.value = q;
+    clearTimeout(t);
+    t = setTimeout(apply, 150);
+  }
+  input && input.addEventListener('input',(e)=>{ setSearchQuery(e.target.value || ''); });
+  exploreSearch && exploreSearch.addEventListener('input',(e)=>{ setSearchQuery(e.target.value || ''); });
   sortSel && sortSel.addEventListener('change',apply);
+  techFilter && techFilter.addEventListener('change', function(){
+    activeTech = techFilter.value || '';
+    apply();
+  });
   demoFilterBtn && demoFilterBtn.addEventListener('click', function(){
     setDemoFilterActive(!isDemoFilterActive());
     apply();
@@ -221,6 +274,7 @@
   setAllWaLinks('');
   populateMostDemanding();
   apply();
+  } // end listing-page branch
 </script>
 
 <script>
@@ -228,12 +282,24 @@
 (function(){
   const waBtn = document.getElementById('WhatsAppEmpty');
   const topicInput = document.getElementById('EmptyTopicInput');
+  const emptyWrap = document.getElementById('EmptyState');
 
   if (waBtn) {
     waBtn.addEventListener('click', function(e){
       e.preventDefault();
-      const topic = (topicInput?.value || q || 'custom topic').trim();
-      const msg = topic ? `Custom topic: ${topic}` : '';
+      const searchQ = (typeof q !== 'undefined' ? q : '')
+        || document.getElementById('Search')?.value
+        || document.getElementById('ExploreSearch')?.value
+        || window.__PR_SEARCH_QUERY
+        || '';
+      const topic = (topicInput?.value || searchQ || 'custom project topic').trim();
+      const kind = emptyWrap?.getAttribute('data-empty-kind') || 'source-code';
+      const isIdeas = kind === 'ideas';
+      const msg = topic
+        ? (isIdeas
+          ? `Hi FileMakr, I searched for "${topic}" but couldn't find a matching project idea. Can your team create a custom final-year project idea and report outline for me?`
+          : `Hi FileMakr, I searched for "${topic}" but couldn't find matching source code. Can your team build this project for me with complete source code, database, documentation and setup support?`)
+        : '';
       window.open(waLink(msg), '_blank', 'noopener');
     });
   }
@@ -251,139 +317,148 @@
 
 
 
-<footer class="footer">
-	<div class="footer-top aos" data-aos="fade-up">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-4 col-md-6">
-					<div class="footer-widget footer-about">
-						<div class="footer-logo">
-							<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="FileMakr Logo" title="FileMakr Logo">
-							</div>
-							<div class="footer-about-content">
-								<p>The #1 Online Major & Minor Project file Generator! we've helped students owners create easy-to-read, highly effective, custom project files.</p>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-2 col-md-6">
-						<div class="footer-widget footer-menu">
-							<h2 class="footer-title">Project Report</h2>
-							<ul>
-								<li>
-									<a href="/btech-final-year-project-report">B.TECH</a>
-								</li>
-								<li>
-									<a href="/mtech-final-year-project-report">M.TECH</a>
-								</li>
-								<li>
-									<a href="/be-final-year-project-report">BE</a>
-								</li>
-								<li>
-									<a href="/me-final-year-project-report">ME</a>
-								</li>
-								<li>
-									<a href="/bca-final-year-project-report">BCA</a>
-								</li>
-								<li>
-									<a href="/mca-final-year-project-report">MCA</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-lg-2 col-md-6">
-						<div class="footer-widget footer-menu">
-							<h2 class="footer-title">Important Links</h2>
-							<ul>
-								<li>
-									<a href="/final-year-project-ideas" title="Top Final Year Project Ideas for College Students | FileMakr">Project Ideas</a>
-								</li>
-								<li>
-									<a href="/source-code" title="Source Code for PHP, Python, Java, Node.js, and More | FileMakr">Source Code</a>
-								</li>
-								<li>
-									<a href="/about-us" title="About Us | FileMakr">About Us</a>
-								</li>
-								<li>
-									<a href="/contact-us" title="Contact Us | FileMakr">Contact Us</a>
-								</li>
-								<li>
-									<a href="/blog" title="Contact Us | FileMakr">Blog</a>
-								</li>
-								<li>
-									<a href="/blog" title="Blog | FileMakr">Blog</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-6">
-						<div class="footer-widget footer-contact">
-							<h2 class="footer-title">Contact Details</h2>
-							<div class="footer-contact-info">
-								<div class="footer-address">
-									<img src="/design/img/icon/icon-20.svg" alt="FileMakr Address Icon" title="FileMakr Address Icon" class="img-fluid">
-									<p>Shiv Shakti Apartment 2nd Floor, Morena, Madhya Pradesh, 476001</p>
-									
-									</div>
-									<p>
-										<img src="/design/img/icon/icon-19.svg" alt="FileMakr Email Icon" title="FileMakr Email Icon" class="img-fluid">
-<a href="mailto:info@filemakr.com" title="Contact FileMakr: Send an Email to info@filemakr.com">info@filemakr.com</a>
+<link rel="stylesheet" href="/css/fm-footer.css?v=19">
 
-										</p>
-										<!-- <p><img src="/design/img/icon/icon-21.svg" alt="" class="img-fluid">
-  +91 831-933-9945
-  </p> -->
-										<p>
-											<p class="mb-0">
-												<a href="https://www.filemakr.com/" title="FileMakr: Project Report and Source Code for Final Year College Students">
-													<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/w_30,h_30/net-icon-01_ajxr39.avif" alt="FileMakr Logo" title="FileMakr: Project Report and Source Code for Final Year College Students" class="img-fluid" style="width: 30px;">
-												</a>
-													<a href="https://www.facebook.com/FileMakr" title="FileMakr: Connect with Us on Facebook | Learn More about FileMakr">
-														<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/w_30,h_30/facebook_vjgbfw.avif" alt="FileMakr Facebook Page" title="FileMakr: Connect with Us on Facebook | Learn More about FileMakr" class="img-fluid" style="width: 30px;">
-													</a>
-														
-															<a href="https://www.instagram.com/filemakr" title="Explore FileMakr on Instagram | Engaging Content & Updates">
-																<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/w_30,h_30/instagram_l8dmnm.avif" alt="FileMakr Instagram Page" title="Explore FileMakr on Instagram | Engaging Content & Updates" class="img-fluid" style="width: 30px;">
-															</a>
-															<a href="https://www.linkedin.com/company/filemakr/" title="Connect with FileMakr on LinkedIn | Explore our Company Updates">
-																<img src="https://res.cloudinary.com/dggf8vl9p/image/upload/w_30,h_30/linkedin_wslaqg.avif" alt="FileMakr LinkedIn Page"  title="Connect with FileMakr on LinkedIn | Explore our Company Updates" class="img-fluid" style="width: 30px;">
-															</a>
-															
-																</p>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="footer-bottom">
-											<div class="container">
-												<div class="copyright">
-													<div class="row">
-														<div class="col-md-6">
-															<div class="privacy-policy">
-																<ul>
-																	<li>
-																		<a href="/terms-and-conditions" title="Terms & Conditions | FileMakr">Terms</a>
-																	</li>
-																	<li>
-																		<a href="/privacy-policy" title="Privacy Policy | FileMakr">Privacy</a>
-																	</li>
-																	<li>
-																		<a href="/refund-policy" title="Refund Policy | FileMakr">Refund</a>
-																	</li>
-																</ul>
-															</div>
-														</div>
-														<div class="col-md-6">
-															<div class="copyright-text">
-																<p class="mb-0">&copy; 2019 FileMakr. All rights reserved.</p>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									</footer>
+<footer class="footer fm-footer" role="contentinfo" itemscope itemtype="https://schema.org/Organization">
+	<meta itemprop="name" content="FileMakr">
+	<link itemprop="url" href="<%= typeof fullUrl !== 'undefined' ? fullUrl : 'https://www.filemakr.com/' %>">
+
+	<div class="footer-top fm-footer__main">
+		<div class="container">
+			<div class="fm-footer__top">
+				<div class="fm-footer__brand">
+					<a class="fm-footer__logo" href="/" title="FileMakr home — final year projects">
+						<img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 300 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_300,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="148" height="44" alt="FileMakr — final year project report and source code download" loading="lazy">
+					</a>
+					<p class="fm-footer__brand-text" itemprop="description">
+						FileMakr helps students discover final-year project ideas, academic reports and runnable source code across popular technologies and degree programs.
+					</p>
+					<div class="fm-footer__social" aria-label="Follow FileMakr">
+						<a href="https://www.facebook.com/FileMakr" title="FileMakr Facebook" aria-label="Facebook" rel="noopener noreferrer"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+						<a href="https://www.instagram.com/filemakr" title="FileMakr Instagram" aria-label="Instagram" rel="noopener noreferrer"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+						<a href="https://www.linkedin.com/company/filemakr" title="FileMakr LinkedIn" aria-label="LinkedIn" rel="noopener noreferrer"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+					</div>
+				</div>
+
+				<nav class="fm-footer__cols" aria-label="Footer links">
+					<div class="fm-footer__col">
+						<h2 class="fm-footer__heading">Projects</h2>
+						<ul class="fm-footer__links">
+							<li><a href="/final-year-project-ideas">Final Year Projects</a></li>
+							<li><a href="/btech-final-year-project-report">Project Reports</a></li>
+							<li><a href="/source-code">Source Code</a></li>
+							<li><a href="/demo">Live Demo</a></li>
+							<li><a href="/final-year-project-ideas">Project Ideas</a></li>
+						</ul>
+					</div>
+					<div class="fm-footer__col">
+						<h2 class="fm-footer__heading">Technologies</h2>
+						<ul class="fm-footer__links">
+							<li><a href="/source-code/python">Python Projects</a></li>
+							<li><a href="/source-code/java">Java Projects</a></li>
+							<li><a href="/source-code/machine-learning">AI &amp; ML Projects</a></li>
+							<li><a href="/source-code/data-analytics">DBMS Projects</a></li>
+							<li><a href="/source-code/php">PHP Projects</a></li>
+							<li><a href="/source-code/php">Web Development Projects</a></li>
+						</ul>
+					</div>
+					<div class="fm-footer__col">
+						<h2 class="fm-footer__heading">Academic</h2>
+						<ul class="fm-footer__links">
+							<li><a href="/btech-final-year-project-report">B.Tech Projects</a></li>
+							<li><a href="/be-final-year-project-report">BE Projects</a></li>
+							<li><a href="/bca-final-year-project-report">BCA Projects</a></li>
+							<li><a href="/mca-final-year-project-report">MCA Projects</a></li>
+							<li><a href="/mtech-final-year-project-report">M.Tech Projects</a></li>
+						</ul>
+					</div>
+					<div class="fm-footer__col">
+						<h2 class="fm-footer__heading">Resources</h2>
+						<ul class="fm-footer__links">
+							<li><a href="/btech-final-year-project-report">B.Tech Projects</a></li>
+							<li><a href="/blog">Blog</a></li>
+							<li><a href="/final-year-project-ideas">Project Ideas</a></li>
+							<li><a href="/#fm-dir-faq-title">FAQs</a></li>
+						</ul>
+					</div>
+					<div class="fm-footer__col">
+						<h2 class="fm-footer__heading">Support</h2>
+						<ul class="fm-footer__links">
+							<li><a href="/contact-us">Contact Us</a></li>
+							<li><a href="https://wa.me/918319339945" target="_blank" rel="noopener noreferrer">WhatsApp Support</a></li>
+							<li><a href="https://wa.me/918319339945?text=Hi%20FileMakr%2C%20I%20need%20setup%20support." target="_blank" rel="noopener noreferrer">Setup Support</a></li>
+						</ul>
+					</div>
+					<div class="fm-footer__col">
+						<h2 class="fm-footer__heading">Company</h2>
+						<ul class="fm-footer__links">
+							<li><a href="/about-us">About</a></li>
+						</ul>
+					</div>
+					<div class="fm-footer__col">
+						<h2 class="fm-footer__heading">Legal</h2>
+						<ul class="fm-footer__links">
+							<li><a href="/privacy-policy">Privacy Policy</a></li>
+							<li><a href="/terms-and-conditions">Terms &amp; Conditions</a></li>
+						</ul>
+						<div class="fm-footer__pay" aria-label="Accepted payments">
+							<span class="fm-footer__pay-badge" title="UPI">
+								<img src="/images/pay/bhim.svg?v=1" alt="UPI" width="48" height="18" loading="lazy" decoding="async">
+							</span>
+							<span class="fm-footer__pay-badge" title="Visa">
+								<img src="/images/pay/visa-final.svg?v=1" alt="Visa" width="48" height="18" loading="lazy" decoding="async">
+							</span>
+							<span class="fm-footer__pay-badge" title="Mastercard">
+								<img src="/images/pay/mastercard.svg?v=1" alt="Mastercard" width="34" height="18" loading="lazy" decoding="async">
+							</span>
+							<span class="fm-footer__pay-badge" title="RuPay">
+								<img src="/images/pay/rupay.svg?v=1" alt="RuPay" width="48" height="18" loading="lazy" decoding="async">
+							</span>
+						</div>
+					</div>
+				</nav>
+			</div>
+		</div>
+	</div>
+
+	<div class="footer-bottom fm-footer__legal">
+		<div class="container fm-footer__legal-inner">
+			<nav aria-label="Legal links">
+				<ul class="fm-footer__legal-nav">
+					<li><a href="/terms-and-conditions" title="Terms and conditions">Terms</a></li>
+					<li><a href="/privacy-policy" title="Privacy policy">Privacy</a></li>
+					<li><a href="/refund-policy" title="Refund policy">Refund</a></li>
+					<li><a href="/contact-us" title="Contact FileMakr">Support</a></li>
+				</ul>
+			</nav>
+			<p class="fm-footer__copy">&copy; <span id="fm-footer-year"></span> FileMakr. All rights reserved.</p>
+		</div>
+	</div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "FileMakr",
+  "url": "https://www.filemakr.com/",
+  "logo": "https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
+  "description": "Final year project reports, synopsis, and source code for B.Tech, MCA, BCA, BE, ME, BSc, and MSc students in India.",
+  "email": "info@filemakr.com",
+  "sameAs": [
+    "https://www.facebook.com/FileMakr",
+    "https://www.instagram.com/filemakr",
+    "https://www.linkedin.com/company/filemakr"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer support",
+    "email": "info@filemakr.com",
+    "availableLanguage": ["English", "Hindi"]
+  }
+}
+</script>
+<script>document.getElementById('fm-footer-year')&&(document.getElementById('fm-footer-year').textContent=new Date().getFullYear());</script>
 								</div>
 								<script src="/javascripts/all.js"></script>
 								
@@ -393,18 +468,7 @@
 
 
 						<style>
-							/* Bottom nav WhatsApp icon (global — works on all pages) */
-							.app-nav a.app-nav-chat .app-nav-wa{
-								width:22px;height:22px;display:flex;align-items:center;justify-content:center;
-								color:#25D366;flex-shrink:0;
-							}
-							.app-nav a.app-nav-chat .app-nav-wa svg{width:22px;height:22px;display:block;}
-							.app-nav a.app-nav-chat.active > span:last-child{color:#FF6B00;}
-							.app-nav .thumb-icon{
-								font-size:20px!important;line-height:1!important;color:#25D366!important;
-								background:none!important;padding:0!important;border-radius:0!important;
-							}
-							.float{
+.float{
 	position:fixed;
 	width:60px;
 	height:60px;

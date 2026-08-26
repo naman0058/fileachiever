@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: pageTitle }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <% var o = detail.order; %>
+    <header class="agent-page-header">
+      <div>
+        <h1><%= o.order_id %></h1>
+        <p><%= o.plan_label || (o.product_type + ' / ' + o.plan) %> · <%= o.product_name %></p>
+      </div>
+      <a class="agent-btn agent-btn--ghost agent-btn--sm" href="/sales/admin/fm-online-orders/orders">Back to orders</a>
+    </header>
+    <%- include('partials/admin-module-tabs', { module: 'fmOnlineOrders', activeTab: 'orders' }) %>
+
+    <% if (msg) { %><div class="alert alert-success py-2"><%= msg %></div><% } %>
+    <% if (err) { %><div class="alert alert-danger py-2"><%= err %></div><% } %>
+
+    <div class="row g-3 mb-3">
+      <div class="col-lg-6">
+        <div class="agent-panel p-3">
+          <h3 class="h6 fw-bold">Customer</h3>
+          <div class="fw-semibold"><%= o.billing_name %></div>
+          <div class="small text-muted"><%= o.billing_email %></div>
+          <div class="small"><%= o.billing_tel %>
+            <% if (o.billing_tel) { %>
+            <a href="https://wa.me/<%= String(o.billing_tel).replace(/\D/g,'') %>" target="_blank" rel="noopener">WhatsApp</a>
+            <% } %>
+          </div>
+          <% if (o.is_test) { %><span class="badge bg-secondary mt-2">TEST order</span><% } %>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="agent-panel p-3">
+          <h3 class="h6 fw-bold">Money &amp; status</h3>
+          <div>Amount: <strong><%= money(o.final_amount) %></strong> <%= o.currency || 'INR' %></div>
+          <div class="small text-muted">List <%= money(o.list_amount) %> · Discount <%= money(o.discount_amount) %><% if (o.coupon_code) { %> · Coupon <%= o.coupon_code %><% } %></div>
+          <div class="mt-2">Order: <span class="badge bg-light text-dark border"><%= o.order_status %></span>
+            Fulfillment: <span class="badge bg-light text-dark border"><%= o.fulfillment_status %></span></div>
+          <div class="small text-muted mt-1">Pref: <%= o.payment_pref || '—' %> · Paid <%= o.paid_at ? new Date(o.paid_at).toLocaleString() : '—' %></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-panel p-3 mb-3">
+      <h3 class="h6 fw-bold">Admin actions</h3>
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        <button type="button" class="agent-btn agent-btn--ghost agent-btn--sm" id="btnRefund">Mark refunded</button>
+        <select id="fulfillSelect" class="agent-month-select">
+          <% ['pending','ready','delivered','failed'].forEach(function(s){ %>
+          <option value="<%= s %>" <%= o.fulfillment_status===s?'selected':'' %>><%= s %></option>
+          <% }) %>
+        </select>
+        <button type="button" class="agent-btn agent-btn--primary agent-btn--sm" id="btnFulfill">Update fulfillment</button>
+      </div>
+    </div>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Payment attempts (<%= detail.payments.length %>)</h2></div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>#</th><th>Status</th><th>Amount</th><th>Gateway</th><th>Tracking</th><th>Mode</th><th>Failure</th><th>When</th></tr></thead>
+          <tbody>
+          <% if (!detail.payments.length) { %><tr><td colspan="8" class="text-muted text-center py-3">No payment rows</td></tr><% } %>
+          <% detail.payments.forEach(function(p){ %>
+            <tr>
+              <td><%= p.attempt_no %></td>
+              <td><%= p.payment_status %></td>
+              <td><%= money(p.amount) %></td>
+              <td><%= p.gateway %></td>
+              <td class="small"><%= p.tracking_id || '—' %></td>
+              <td class="small"><%= p.payment_mode || '—' %></td>
+              <td class="small text-danger"><%= p.failure_message || p.status_message || '—' %></td>
+              <td class="small text-muted"><%= p.completed_at ? new Date(p.completed_at).toLocaleString() : (p.created_at ? new Date(p.created_at).toLocaleString() : '—') %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Timeline</h2></div>
+      <div class="p-3">
+        <% if (!detail.events.length) { %><div class="text-muted">No events</div><% } %>
+        <% detail.events.forEach(function(e){ %>
+          <div class="mb-2 pb-2 border-bottom">
+            <div class="fw-semibold small"><%= e.event_type %> · <span class="text-muted"><%= e.created_at ? new Date(e.created_at).toLocaleString() : '' %></span></div>
+            <div class="small"><%= e.event_message || '' %></div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  var orderId = <%- JSON.stringify(o.order_id) %>;
+  document.getElementById('btnRefund').addEventListener('click', async function(){
+    if (!confirm('Mark this order as refunded?')) return;
+    var res = await fetch('/sales/api/admin/fm-online-orders/' + encodeURIComponent(orderId) + '/refund', { method: 'POST' });
+    var j = await res.json();
+    if (j.ok) location.reload(); else alert(j.message || 'Failed');
+  });
+  document.getElementById('btnFulfill').addEventListener('click', async function(){
+    var status = document.getElementById('fulfillSelect').value;
+    var res = await fetch('/sales/api/admin/fm-online-orders/' + encodeURIComponent(orderId) + '/fulfillment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'status=' + encodeURIComponent(status)
+    });
+    var j = await res.json();
+    if (j.ok) location.reload(); else alert(j.message || 'Failed');
+  });
+})();
+</script>
+</body>
+</html>

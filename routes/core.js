@@ -20,6 +20,317 @@ const bulkAmbassadorUpload = multer({
   limits: { fileSize: 8 * 1024 * 1024 },
 });
 const projectReportShared = require('./projectReportShared');
+const {
+  handleProjectReportWordDownload,
+  loadPrcLibraryForExport
+} = require('./project-report-creator');
+const { buildFullReportItems, filterSynopsisItems, filterPredefinedReportItems } = require('./prc-build-full-report-items');
+const checkoutOrders = require('../services/checkoutOrderService');
+const fs = require('fs');
+const path = require('path');
+
+const CHECKOUT_PRICES = {
+  source: { basic: 99, support: 248 },
+  report: { synopsis: 49, report: 99, customized: 149, originality: 299 }
+};
+
+function checkoutGuid() {
+  const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
+function normalizeReportPlan(plan) {
+  const p = String(plan || '').toLowerCase();
+  if (p === 'synopsis') return 'synopsis';
+  if (p === 'customized') return 'customized';
+  if (p === 'originality' || p === 'ai' || p === 'original') return 'originality';
+  return 'report';
+}
+
+function isDeferredReportPlan(plan) {
+  const p = normalizeReportPlan(plan);
+  return p === 'customized' || p === 'originality';
+}
+
+function resolveCheckoutCatalog(type, plan) {
+  const t = String(type || '').toLowerCase();
+  const p = String(plan || '').toLowerCase();
+  if (t === 'source' && (p === 'basic' || p === 'support')) {
+    return {
+      productType: 'source',
+      plan: p,
+      price: CHECKOUT_PRICES.source[p],
+      paymentType: 'source_code',
+      planLabel: p === 'support' ? 'Code + setup support (24hr)' : 'Source code download',
+      delivery: 'instant',
+      includes: p === 'support'
+        ? ['Full source + Database File', 'Setup README', '24hr setup support', 'Instant ZIP']
+        : ['Full source + Database File', 'Setup README', 'Instant ZIP']
+    };
+  }
+  if (t === 'report') {
+    const rp = normalizeReportPlan(p);
+    if (!CHECKOUT_PRICES.report[rp] && rp !== 'report') return null;
+    if (rp === 'synopsis') {
+      return {
+        productType: 'report',
+        plan: 'synopsis',
+        price: CHECKOUT_PRICES.report.synopsis,
+        paymentType: 'synopsis',
+        planLabel: 'Synopsis (PDF & Word)',
+        delivery: 'instant',
+        includes: ['Up to ~30 pages', '1 diagram', 'Instant PDF & Word download']
+      };
+    }
+    if (rp === 'customized') {
+      return {
+        productType: 'report',
+        plan: 'customized',
+        price: CHECKOUT_PRICES.report.customized,
+        paymentType: 'customized_report',
+        planLabel: 'Customized Report (PDF & Word)',
+        delivery: 'deferred',
+        includes: ['College-format customization', 'Personalized content', 'PDF & Word · delivery within 24-48 hours']
+      };
+    }
+    if (rp === 'originality') {
+      return {
+        productType: 'report',
+        plan: 'originality',
+        price: CHECKOUT_PRICES.report.originality,
+        paymentType: 'originality_report',
+        planLabel: 'Originality Reviewed Report (PDF & Word)',
+        delivery: 'deferred',
+        includes: ['AI detection reviewed', 'Plagiarism-free rewrite', 'PDF & Word · delivery within 24-48 hours']
+      };
+    }
+    return {
+      productType: 'report',
+      plan: 'report',
+      price: CHECKOUT_PRICES.report.report,
+      paymentType: 'project_report',
+      planLabel: 'Pre Defined Project Report (PDF & Word)',
+      delivery: 'instant',
+      includes: ['Up to ~70 pages', 'ER/DFD + diagrams', 'Instant PDF & Word download']
+    };
+  }
+  return null;
+}
+
+/** Optional matching add-on (report↔source) — simple combo, not a cart. */
+function listCheckoutAddonPlans(primaryType) {
+  const t = String(primaryType || '').toLowerCase();
+  if (t === 'report') {
+    return [
+      {
+        id: 'basic',
+        price: CHECKOUT_PRICES.source.basic,
+        title: 'Code Only',
+        sub: 'ZIP · instant download',
+        planLabel: 'Source code download',
+        label: 'Matching Source Code',
+        delivery: 'instant'
+      },
+      {
+        id: 'support',
+        price: CHECKOUT_PRICES.source.support,
+        title: 'Code + Setup',
+        sub: 'ZIP · 24hr support',
+        planLabel: 'Code + setup support (24hr)',
+        label: 'Matching Source Code',
+        delivery: 'instant'
+      }
+    ];
+  }
+  if (t === 'source') {
+    return [
+      {
+        id: 'synopsis',
+        price: CHECKOUT_PRICES.report.synopsis,
+        title: 'Synopsis',
+        sub: 'PDF & Word · instant',
+        planLabel: 'Synopsis (PDF & Word)',
+        label: 'Matching Project Report',
+        delivery: 'instant'
+      },
+      {
+        id: 'report',
+        price: CHECKOUT_PRICES.report.report,
+        title: 'Project Report',
+        sub: 'PDF & Word · instant',
+        planLabel: 'Pre Defined Project Report (PDF & Word)',
+        label: 'Matching Project Report',
+        delivery: 'instant'
+      },
+      {
+        id: 'customized',
+        price: CHECKOUT_PRICES.report.customized,
+        title: 'Customized',
+        sub: 'PDF & Word · 24-48 hrs',
+        planLabel: 'Customized Report (PDF & Word)',
+        label: 'Matching Project Report',
+        delivery: 'deferred'
+      },
+      {
+        id: 'originality',
+        price: CHECKOUT_PRICES.report.originality,
+        title: 'Originality',
+        sub: 'PDF & Word · 24-48 hrs',
+        planLabel: 'Originality Reviewed Report (PDF & Word)',
+        label: 'Matching Project Report',
+        delivery: 'deferred'
+      }
+    ];
+  }
+  return [];
+}
+
+function resolveCheckoutAddon(primaryType, rawFlag, rawPlan) {
+  const flag = String(rawFlag == null ? '' : rawFlag).toLowerCase().trim();
+  const on =
+    flag === '1' ||
+    flag === 'true' ||
+    flag === 'yes' ||
+    flag === 'on' ||
+    flag === 'source' ||
+    flag === 'report' ||
+    flag === 'basic' ||
+    flag === 'support' ||
+    flag === 'synopsis' ||
+    flag === 'customized' ||
+    flag === 'originality';
+  if (!on) return null;
+
+  const t = String(primaryType || '').toLowerCase();
+  const plans = listCheckoutAddonPlans(t);
+  if (!plans.length) return null;
+
+  let planId = String(rawPlan || flag || '').toLowerCase().trim();
+  if (planId === 'ai' || planId === 'original') planId = 'originality';
+  if (!plans.some((p) => p.id === planId)) {
+    planId = t === 'report' ? 'basic' : 'report';
+  }
+  const selected = plans.find((p) => p.id === planId) || plans[0];
+  return {
+    type: t === 'report' ? 'source' : 'report',
+    plan: selected.id,
+    price: selected.price,
+    label: selected.label,
+    planLabel: selected.planLabel,
+    title: selected.title,
+    delivery: selected.delivery || 'instant'
+  };
+}
+
+function setPaidCheckoutSession(req, opts) {
+  req.session.ispayment = 'done';
+  req.session.fm_order_id = opts.orderId || '';
+  req.session.paid_source_code_id = opts.sourceCodeId;
+  req.session.paid_plan = opts.plan || '';
+  req.session.paid_product_type = opts.productType || 'report';
+  req.session.paid_order_id = opts.orderId || '';
+  req.session.paid_billing_name = opts.billingName || '';
+  req.session.paid_billing_email = opts.billingEmail || '';
+  req.session.paid_amount = opts.amount != null ? String(opts.amount) : '';
+  req.session.paid_method = opts.method || 'UPI';
+  req.session.paid_product_name = opts.productName || '';
+  req.session.paid_date = opts.paymentDate || checkoutOrders.formatPaymentDate(new Date());
+  if (opts.zipFileName) req.session.paid_zip_file = opts.zipFileName;
+  if (opts.addon) {
+    req.session.paid_addon = opts.addon;
+  } else {
+    delete req.session.paid_addon;
+  }
+}
+
+async function resolveCheckoutDownloadAvailability({ isSource, sourceId, plan, zipFileName }) {
+  const result = {
+    downloadAvailable: false,
+    downloadUnavailableTitle: 'Download temporarily unavailable',
+    downloadUnavailableMessage:
+      'Your payment was successful. The file for this order is not ready for download yet. Please share your Order ID with support on WhatsApp and our team will enable it shortly.'
+  };
+
+  if (!Number.isFinite(sourceId)) {
+    result.downloadUnavailableTitle = 'Project could not be verified';
+    result.downloadUnavailableMessage =
+      'Your payment was successful, but we could not link this order to a project file. Please contact support with your Order ID for immediate assistance.';
+    return result;
+  }
+
+  if (isSource) {
+    const zip = String(zipFileName || '').trim();
+    if (!zip) {
+      result.downloadUnavailableTitle = 'Source code file not published';
+      result.downloadUnavailableMessage =
+        'Your payment was successful. The ZIP package for this project has not been published yet. Share your Order ID on WhatsApp and we will attach your download within a short time.';
+      return result;
+    }
+
+    const safeZip = path.basename(zip);
+    const localPath = path.join(__dirname, '..', 'public', 'images', safeZip);
+    try {
+      if (fs.existsSync(localPath) && fs.statSync(localPath).size > 0) {
+        result.downloadAvailable = true;
+        return result;
+      }
+    } catch (e) {}
+
+    try {
+      const remoteUrl = 'https://filemakr.com/images/' + encodeURIComponent(safeZip);
+      let head = await fetch(remoteUrl, { method: 'HEAD', timeout: 6000 }).catch(() => null);
+      if (head && head.status === 405) {
+        head = await fetch(remoteUrl, {
+          method: 'GET',
+          headers: { Range: 'bytes=0-0' },
+          timeout: 6000
+        }).catch(() => null);
+      }
+      if (head && head.ok) {
+        result.downloadAvailable = true;
+        return result;
+      }
+      if (head && (head.status === 404 || head.status === 410)) {
+        result.downloadUnavailableTitle = 'Source code file not found';
+        result.downloadUnavailableMessage =
+          'Your payment was successful, but the source code package could not be located on our servers. Please contact WhatsApp support with your Order ID — delivery will be prioritized.';
+        return result;
+      }
+    } catch (e) {}
+
+    // Filename exists in catalog; local/remote probe inconclusive — allow download attempt
+    result.downloadAvailable = true;
+    return result;
+  }
+
+  try {
+    const lib = await loadPrcLibraryForExport(sourceId);
+    let items = buildFullReportItems({
+      sections: lib.sectionsWithSub,
+      dbScreenshots: lib.dbScreenshots,
+      screenshots: lib.screenshots,
+      diagrams: lib.diagramsList
+    });
+    if (plan === 'synopsis') {
+      items = filterSynopsisItems(items);
+    } else if (plan === 'report') {
+      items = filterPredefinedReportItems(items);
+    }
+    if (items && items.length) {
+      result.downloadAvailable = true;
+      return result;
+    }
+    result.downloadUnavailableTitle = 'Report content not ready';
+    result.downloadUnavailableMessage =
+      'Your payment was successful. The Word document for this project is still being prepared in our library. Share your Order ID on WhatsApp and our team will enable your download as soon as content is published.';
+    return result;
+  } catch (e) {
+    result.downloadUnavailableTitle = 'Report could not be verified';
+    result.downloadUnavailableMessage =
+      'Your payment was successful, but we could not verify the report file right now. Please contact WhatsApp support with your Order ID and we will resolve this promptly.';
+    return result;
+  }
+}
 
 const Tesseract = require('tesseract.js');
 
@@ -115,10 +426,27 @@ var ccavReqHandler = require('./ccavRequestHandler');
 var ccavResHandler = require('./ccavResponseHandler');
 
 const nodeCCAvenue = require('node-ccavenue');
+const ccavConfig = require('../config/ccavenue');
+const crypto = require('crypto');
 const ccave = new nodeCCAvenue.Configure({
-  merchant_id: '1760015',
-  working_key: '3F831E8FD26B47BBFDBCDB8E021635F2'
+  merchant_id: ccavConfig.merchantId,
+  working_key: ccavConfig.workingKey
 });
+
+function issueCheckoutCsrf(req) {
+  const token = crypto.randomBytes(24).toString('hex');
+  req.session.checkout_csrf = token;
+  return token;
+}
+
+function assertCheckoutCsrf(req) {
+  const expected = String(req.session.checkout_csrf || '');
+  const got = String(req.body.checkout_csrf || '');
+  if (!expected || !got || expected.length < 16 || got !== expected) {
+    return false;
+  }
+  return true;
+}
 
 // const nodeCCAvenue = require('node-ccavenue');
 // const ccav = new nodeCCAvenue.Configure({
@@ -313,122 +641,427 @@ body['final_amount'] = request.body.final_amount || '99.00';
 // })
 
 
-router.post('/ccavResponseHandler',dataService.allCategory, (request, response) => {
-    console.log('routes call')
-    const { encResp } = request.body;
-    let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
+router.post('/ccavResponseHandler', dataService.allCategory, async (request, response) => {
+  console.log('routes call');
+  const { encResp } = request.body;
+  let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
 
-    decryptedJsonResponse.type = 'source_code';
-    decryptedJsonResponse.typeid = request.session.source_code_id;
+  decryptedJsonResponse.type = request.session.type || 'source_code';
+  decryptedJsonResponse.typeid = request.session.source_code_id;
 
-    console.log('routes call after decryptedJsonResponse',decryptedJsonResponse)
+  console.log('routes call after decryptedJsonResponse', decryptedJsonResponse);
 
+  const gatewayOrderId =
+    decryptedJsonResponse.order_id || request.body.orderNo || request.session.fm_order_id || '';
 
-    const insertQuery = `INSERT INTO payment_response(order_id, tracking_id, bank_ref_no, order_status, failure_message, payment_mode, card_name, status_code, status_message, currency, amount, billing_name, billing_address, billing_city, billing_state, billing_zip, billing_tel, billing_email, trans_date) 
+  try {
+    const fmOrder = gatewayOrderId ? await checkoutOrders.findByOrderId(gatewayOrderId) : null;
+    if (fmOrder) {
+      const updated = await checkoutOrders.recordGatewayResponse(fmOrder, decryptedJsonResponse);
+      const order = updated || fmOrder;
+      const payType = String(order.payment_type || 'source_code');
+      const gatewayStatus = String(decryptedJsonResponse.order_status || '');
+
+      if (gatewayStatus === 'Aborted' || gatewayStatus === 'Failure') {
+        if (
+          payType === 'synopsis' ||
+          payType === 'project_report' ||
+          payType === 'customized_report' ||
+          payType === 'originality_report'
+        ) {
+          return response.redirect(
+            `https://www.filemakr.com${projectReportShared.projectReportUrl(order.seo_name || '')}`
+          );
+        }
+        return response.redirect(`https://www.filemakr.com/${order.seo_name}/source-code`);
+      }
+
+      if (gatewayStatus === 'Success') {
+        // Only fulfill when our ledger confirms paid (amount/currency verified)
+        if (String(order.order_status) !== 'paid') {
+          console.error('CCAvenue Success ignored — order not marked paid', {
+            order_id: order.order_id,
+            order_status: order.order_status,
+            gateway_amount: decryptedJsonResponse.amount,
+            expected_amount: order.final_amount
+          });
+          return response.status(400).render('error', {
+            message: 'Payment could not be verified. If money was deducted, contact support with your Order ID: ' + order.order_id,
+            error: { status: 400, stack: '' },
+            Metatags: onPageSeo.errorPage,
+            CommonMetaTags: onPageSeo.commonMetaTags,
+            category: request.categories || [],
+            fullUrl: request.fullUrl,
+            graduation_type_send: '',
+            active: ''
+          });
+        }
+
+        const paidAddon =
+          (request.session.checkout_addon && request.session.checkout_addon.type
+            ? request.session.checkout_addon
+            : null) ||
+          (/\+\s*source code/i.test(String(order.plan_label || ''))
+            ? resolveCheckoutAddon('report', '1')
+            : /\+\s*(pre defined project report|synopsis|customized|originality)/i.test(
+                  String(order.plan_label || '')
+                )
+              ? resolveCheckoutAddon('source', '1')
+              : null);
+
+        if (
+          payType === 'synopsis' ||
+          payType === 'project_report' ||
+          payType === 'customized_report' ||
+          payType === 'originality_report'
+        ) {
+          let zipFileName = '';
+          if (paidAddon && paidAddon.type === 'source') {
+            try {
+              const zipRows = await queryAsync(
+                'SELECT source_code FROM source_code WHERE id = ? LIMIT 1',
+                [order.source_code_id]
+              );
+              zipFileName = (zipRows && zipRows[0] && zipRows[0].source_code) || '';
+            } catch (e) {}
+          }
+
+          const reportPlan = normalizeReportPlan(order.plan || payType);
+          setPaidCheckoutSession(request, {
+            orderId: order.order_id,
+            sourceCodeId: order.source_code_id,
+            plan: reportPlan,
+            productType: 'report',
+            billingName: decryptedJsonResponse.billing_name || order.billing_name || '',
+            billingEmail: decryptedJsonResponse.billing_email || order.billing_email || '',
+            amount: order.final_amount || decryptedJsonResponse.amount || '',
+            method: decryptedJsonResponse.payment_mode || order.payment_pref || 'UPI',
+            productName: order.product_name || '',
+            paymentDate: checkoutOrders.formatPaymentDate(order.paid_at || new Date()),
+            zipFileName,
+            addon: paidAddon
+          });
+
+          setImmediate(async () => {
+            try {
+              const deferred = isDeferredReportPlan(reportPlan);
+              const planLabel =
+                (order.plan_label || '').split('+')[0].trim() ||
+                (reportPlan === 'synopsis'
+                  ? 'Synopsis'
+                  : reportPlan === 'customized'
+                    ? 'Customized Report'
+                    : reportPlan === 'originality'
+                      ? 'Originality Reviewed Report'
+                      : 'Project Report');
+              const dl = 'https://www.filemakr.com/checkout/report-ready';
+              const subject = deferred
+                ? `Payment received — ${planLabel} delivery in 24-48 hours | FileMakr`
+                : `Your ${planLabel}${paidAddon ? ' + Source Code' : ''} is ready — FileMakr`;
+              const msg = deferred
+                ? `Hi ${decryptedJsonResponse.billing_name || order.billing_name || 'there'},\n\nPayment received for ${planLabel}.\n\nDelivery within 24-48 hours on your WhatsApp or Email ID.\n\nOrder ID: ${order.order_id}\nTrack / details: ${dl}\n\n— FileMakr`
+                : `Hi ${decryptedJsonResponse.billing_name || order.billing_name || 'there'},\n\nPayment received. Download your files here:\n${dl}\n\nOrder ID: ${order.order_id}\n\n— FileMakr`;
+              const email = decryptedJsonResponse.billing_email || order.billing_email;
+              if (email) await verify.sendUserMail(email, subject, msg);
+            } catch (backgroundErr) {
+              console.error('Background task error (report email):', backgroundErr);
+            }
+          });
+
+          return response.redirect('/checkout/report-ready');
+        }
+
+        pool.query(
+          `SELECT source_code FROM source_code WHERE id = ?`,
+          [order.source_code_id],
+          async (err, result) => {
+            if (err) {
+              console.error('Error retrieving source code:', err);
+              return response.status(500).send('Unable to prepare download');
+            }
+            const zipName = (result[0] && result[0].source_code) || '';
+            const project_link = verify.generateSignedUrl(
+              `https://filemakr.com/images/${zipName}`,
+              zipName
+            );
+            const amountNum = parseFloat(order.final_amount || decryptedJsonResponse.amount) || 0;
+
+            setPaidCheckoutSession(request, {
+              orderId: order.order_id,
+              sourceCodeId: order.source_code_id,
+              plan: order.plan === 'support' || amountNum > 200 ? 'support' : 'basic',
+              productType: 'source',
+              billingName: decryptedJsonResponse.billing_name || order.billing_name || '',
+              billingEmail: decryptedJsonResponse.billing_email || order.billing_email || '',
+              amount: order.final_amount || decryptedJsonResponse.amount || '',
+              method: decryptedJsonResponse.payment_mode || order.payment_pref || 'UPI',
+              productName: order.product_name || '',
+              paymentDate: checkoutOrders.formatPaymentDate(order.paid_at || new Date()),
+              zipFileName: zipName,
+              addon: paidAddon
+            });
+
+            setImmediate(async () => {
+              try {
+                const userMessage = emailTemplates.soucrceCodeConfirmation.userMessage(
+                  decryptedJsonResponse.billing_name || order.billing_name,
+                  project_link
+                );
+                const adminSubject = emailTemplates.soucrceCodeConfirmation.adminSubject.replace(
+                  '{{Customer_Name}}',
+                  decryptedJsonResponse.billing_name || order.billing_name
+                );
+                const adminMessage = emailTemplates.soucrceCodeConfirmation.adminMessage(
+                  decryptedJsonResponse.billing_name || order.billing_name,
+                  decryptedJsonResponse.billing_tel || order.billing_tel,
+                  project_link
+                );
+                const email = decryptedJsonResponse.billing_email || order.billing_email;
+                if (email) {
+                  await verify.sendUserMail(
+                    email,
+                    emailTemplates.soucrceCodeConfirmation.userSubject,
+                    userMessage
+                  );
+                }
+                await verify.sendUserMail('filemakrxpert@gmail.com', adminSubject, adminMessage);
+              } catch (backgroundErr) {
+                console.error('Background task error (email):', backgroundErr);
+              }
+            });
+
+            return response.redirect('/checkout/report-ready');
+          }
+        );
+        return;
+      }
+
+      return response.json(decryptedJsonResponse);
+    }
+  } catch (fmErr) {
+    console.error('fm_orders gateway handler error:', fmErr);
+  }
+
+  // Legacy payment_request / payment_response path (old flows only)
+  const insertQuery = `INSERT INTO payment_response(order_id, tracking_id, bank_ref_no, order_status, failure_message, payment_mode, card_name, status_code, status_message, currency, amount, billing_name, billing_address, billing_city, billing_state, billing_zip, billing_tel, billing_email, trans_date) 
                          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    pool.query(insertQuery, [decryptedJsonResponse.order_id, decryptedJsonResponse.tracking_id, decryptedJsonResponse.bank_ref_no, decryptedJsonResponse.order_status, decryptedJsonResponse.failure_message, decryptedJsonResponse.payment_mode, decryptedJsonResponse.card_name, decryptedJsonResponse.status_code, decryptedJsonResponse.status_message, decryptedJsonResponse.currency, decryptedJsonResponse.amount, decryptedJsonResponse.billing_name, decryptedJsonResponse.billing_address, decryptedJsonResponse.billing_city, decryptedJsonResponse.billing_state, decryptedJsonResponse.billing_zip, decryptedJsonResponse.billing_tel, decryptedJsonResponse.billing_email, decryptedJsonResponse.trans_date], (err, result) => {
-        if (err) {
-            console.error('Error inserting payment response:', err);
-            throw err;
-        } else {
-            if (decryptedJsonResponse.order_status === 'Aborted' || decryptedJsonResponse.order_status === 'Failure') {
-                pool.query(`SELECT * FROM payment_request WHERE order_id = ?`, [request.body.orderNo], (err, result) => {
-                    if (err) {
-                        console.error('Error retrieving payment request:', err);
-                        throw err;
-                    } else {
-                        response.redirect(`https://www.filemakr.com/${result[0].seo_name}/source-code`);
-                    }
-                });
-            } else if (decryptedJsonResponse.order_status === 'Success') {
-
-
-
-                pool.query(`update payment_request set status = 'success' where order_id = ?`,[request.body.orderNo],(err,result)=>{
-
-                    if(err) throw err;
-                    else{
-                        pool.query(`SELECT * FROM payment_request WHERE order_id = ?`, [request.body.orderNo], (err, result) => {
-                            if (err) {
-                                console.error('Error retrieving payment request:', err);
-                                throw err;
-                            } else {
-                                pool.query(`SELECT source_code FROM source_code WHERE id = ?`, [result[0].source_code_id], async(err, result) => {
-                                    if (err) {
-                                        console.error('Error retrieving source code:', err);
-                                        throw err;
-                                    } else {
-
-                                      console.log('source code',result)
-                                        let project_link = verify.generateSignedUrl(`https://filemakr.com/images/${result[0].source_code}`, result[0].source_code);
-                                        
-
-
-                                        const downloadSuccessLocals = {
-                                            result,
-                                            Metatags: onPageSeo.refundPage,
-                                            CommonMetaTags: onPageSeo.commonMetaTags,
-                                            msg: '',
-                                            category: request.categories,
-                                            fullUrl: request.fullUrl,
-                                            navOnly: true,
-                                            active: 'source-code',
-                                            graduation_type_send: '',
-                                            conversionTrack: {
-                                                order_id: String(decryptedJsonResponse.order_id || request.body.orderNo || ''),
-                                                value: parseFloat(decryptedJsonResponse.amount) || 1,
-                                                currency: String(decryptedJsonResponse.currency || 'INR').toUpperCase(),
-                                                email: decryptedJsonResponse.billing_email || '',
-                                                product_type: 'source_code',
-                                                item_name: result[0] && result[0].source_code
-                                                    ? 'Source Code - ' + result[0].source_code
-                                                    : 'Source Code',
-                                                item_category: 'Source Code'
-                                            }
-                                        };
-
-                                        if(decryptedJsonResponse.amount>110){
-                                        response.render('download-successfull', { ...downloadSuccessLocals, setupSupport: true });
-
-                                        }
-                                        else{
-                                        response.render('download-successfull', { ...downloadSuccessLocals, setupSupport: false });
-
-                                        }
-                                
-
-                                       setImmediate(async () => {
-          try {
-            const userMessage = emailTemplates.soucrceCodeConfirmation.userMessage(decryptedJsonResponse.billing_name,project_link);
-                            
-                                        const adminSubject = emailTemplates.soucrceCodeConfirmation.adminSubject.replace('{{Customer_Name}}', decryptedJsonResponse.billing_name);
-                                        const adminMessage = emailTemplates.soucrceCodeConfirmation.adminMessage(decryptedJsonResponse.billing_name , decryptedJsonResponse.billing_tel,project_link);
-                            
-                            
-                                        await verify.sendUserMail(decryptedJsonResponse.billing_email,emailTemplates.soucrceCodeConfirmation.userSubject,userMessage);
-                                        await verify.sendUserMail('filemakrxpert@gmail.com',adminSubject,adminMessage);
-
-          } catch (backgroundErr) {
-            console.error('Background task error (email):', backgroundErr);
-          }
-        });
-                                        
-                                       
-                                    }
-                                });
-                            }
-                        });
-                    }
-             })
-
-
-               
-            } else {
-                response.json(decryptedJsonResponse);
+  pool.query(
+    insertQuery,
+    [
+      decryptedJsonResponse.order_id,
+      decryptedJsonResponse.tracking_id,
+      decryptedJsonResponse.bank_ref_no,
+      decryptedJsonResponse.order_status,
+      decryptedJsonResponse.failure_message,
+      decryptedJsonResponse.payment_mode,
+      decryptedJsonResponse.card_name,
+      decryptedJsonResponse.status_code,
+      decryptedJsonResponse.status_message,
+      decryptedJsonResponse.currency,
+      decryptedJsonResponse.amount,
+      decryptedJsonResponse.billing_name,
+      decryptedJsonResponse.billing_address,
+      decryptedJsonResponse.billing_city,
+      decryptedJsonResponse.billing_state,
+      decryptedJsonResponse.billing_zip,
+      decryptedJsonResponse.billing_tel,
+      decryptedJsonResponse.billing_email,
+      decryptedJsonResponse.trans_date
+    ],
+    (err, result) => {
+      if (err) {
+        console.error('Error inserting payment response:', err);
+        throw err;
+      } else {
+        if (
+          decryptedJsonResponse.order_status === 'Aborted' ||
+          decryptedJsonResponse.order_status === 'Failure'
+        ) {
+          pool.query(
+            `SELECT * FROM payment_request WHERE order_id = ?`,
+            [request.body.orderNo],
+            (err, result) => {
+              if (err) {
+                console.error('Error retrieving payment request:', err);
+                throw err;
+              } else {
+                const pay = result[0] || {};
+                const payType = String(pay.type || 'source_code');
+                if (payType === 'synopsis' || payType === 'project_report') {
+                  return response.redirect(
+                    `https://www.filemakr.com${projectReportShared.projectReportUrl(pay.seo_name || '')}`
+                  );
+                }
+                response.redirect(`https://www.filemakr.com/${pay.seo_name}/source-code`);
+              }
             }
+          );
+        } else if (decryptedJsonResponse.order_status === 'Success') {
+          pool.query(
+            `update payment_request set status = 'success' where order_id = ?`,
+            [request.body.orderNo],
+            (err, result) => {
+              if (err) throw err;
+              else {
+                pool.query(
+                  `SELECT * FROM payment_request WHERE order_id = ?`,
+                  [request.body.orderNo],
+                  (err, payRows) => {
+                    if (err) {
+                      console.error('Error retrieving payment request:', err);
+                      throw err;
+                    } else {
+                      const pay = payRows[0] || {};
+                      const payType = String(pay.type || 'source_code');
+
+                      if (payType === 'synopsis' || payType === 'project_report') {
+                        request.session.ispayment = 'done';
+                        request.session.paid_source_code_id = pay.source_code_id;
+                        request.session.paid_plan = payType === 'synopsis' ? 'synopsis' : 'report';
+                        request.session.paid_order_id = pay.order_id || request.body.orderNo;
+                        request.session.paid_billing_name =
+                          decryptedJsonResponse.billing_name || pay.billing_name || '';
+                        request.session.paid_billing_email =
+                          decryptedJsonResponse.billing_email || pay.billing_email || '';
+                        request.session.paid_amount =
+                          pay.final_amount || pay.amount || decryptedJsonResponse.amount || '';
+                        request.session.paid_method =
+                          decryptedJsonResponse.payment_mode || pay.payment_mode || 'UPI';
+                        request.session.paid_product_name = '';
+                        request.session.paid_date = new Date().toLocaleString('en-IN', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true
+                        });
+
+                        setImmediate(async () => {
+                          try {
+                            const planLabel = payType === 'synopsis' ? 'Synopsis' : 'Project Report';
+                            const dl = 'https://www.filemakr.com/download-instant-report';
+                            const subject = `Your ${planLabel} is ready — FileMakr`;
+                            const msg = `Hi ${decryptedJsonResponse.billing_name || 'there'},\n\nPayment received. Download your ${planLabel} (Word) here:\n${dl}\n\n— FileMakr`;
+                            if (decryptedJsonResponse.billing_email) {
+                              await verify.sendUserMail(
+                                decryptedJsonResponse.billing_email,
+                                subject,
+                                msg
+                              );
+                            }
+                          } catch (backgroundErr) {
+                            console.error('Background task error (report email):', backgroundErr);
+                          }
+                        });
+
+                        return response.redirect('/checkout/report-ready');
+                      }
+
+                      pool.query(
+                        `SELECT source_code FROM source_code WHERE id = ?`,
+                        [pay.source_code_id],
+                        async (err, result) => {
+                          if (err) {
+                            console.error('Error retrieving source code:', err);
+                            throw err;
+                          } else {
+                            console.log('source code', result);
+                            let project_link = verify.generateSignedUrl(
+                              `https://filemakr.com/images/${result[0].source_code}`,
+                              result[0].source_code
+                            );
+
+                            const downloadSuccessLocals = {
+                              result,
+                              Metatags: onPageSeo.refundPage,
+                              CommonMetaTags: onPageSeo.commonMetaTags,
+                              msg: '',
+                              category: request.categories,
+                              fullUrl: request.fullUrl,
+                              navOnly: true,
+                              active: 'source-code',
+                              graduation_type_send: '',
+                              conversionTrack: {
+                                order_id: String(
+                                  decryptedJsonResponse.order_id || request.body.orderNo || ''
+                                ),
+                                value: parseFloat(decryptedJsonResponse.amount) || 1,
+                                currency: String(
+                                  decryptedJsonResponse.currency || 'INR'
+                                ).toUpperCase(),
+                                email: decryptedJsonResponse.billing_email || '',
+                                product_type: 'source_code',
+                                item_name:
+                                  result[0] && result[0].source_code
+                                    ? 'Source Code - ' + result[0].source_code
+                                    : 'Source Code',
+                                item_category: 'Source Code'
+                              }
+                            };
+
+                            if (decryptedJsonResponse.amount > 110) {
+                              response.render('download-successfull', {
+                                ...downloadSuccessLocals,
+                                setupSupport: true
+                              });
+                            } else {
+                              response.render('download-successfull', {
+                                ...downloadSuccessLocals,
+                                setupSupport: false
+                              });
+                            }
+
+                            setImmediate(async () => {
+                              try {
+                                const userMessage =
+                                  emailTemplates.soucrceCodeConfirmation.userMessage(
+                                    decryptedJsonResponse.billing_name,
+                                    project_link
+                                  );
+
+                                const adminSubject =
+                                  emailTemplates.soucrceCodeConfirmation.adminSubject.replace(
+                                    '{{Customer_Name}}',
+                                    decryptedJsonResponse.billing_name
+                                  );
+                                const adminMessage =
+                                  emailTemplates.soucrceCodeConfirmation.adminMessage(
+                                    decryptedJsonResponse.billing_name,
+                                    decryptedJsonResponse.billing_tel,
+                                    project_link
+                                  );
+
+                                await verify.sendUserMail(
+                                  decryptedJsonResponse.billing_email,
+                                  emailTemplates.soucrceCodeConfirmation.userSubject,
+                                  userMessage
+                                );
+                                await verify.sendUserMail(
+                                  'filemakrxpert@gmail.com',
+                                  adminSubject,
+                                  adminMessage
+                                );
+                              } catch (backgroundErr) {
+                                console.error('Background task error (email):', backgroundErr);
+                              }
+                            });
+                          }
+                        }
+                      );
+                    }
+                  }
+                );
+              }
+            }
+          );
+        } else {
+          response.json(decryptedJsonResponse);
         }
-    });
+      }
+    }
+  );
 });
 
 
@@ -975,9 +1608,9 @@ router.get('/download-project-report1', async (req, res) => {
 
 
 
-router.get('/index2',(req,res)=>{
-    res.render('index2')
-})
+router.get('/index2', (req, res) => {
+  res.redirect(301, '/');
+});
 
 
 
@@ -1001,36 +1634,57 @@ router.get(Object.keys(URL_REDIRECTS), (req, res) => {
   res.redirect(301, target);
 });
 
-// using this route
+// using this route — lean homepage payload (no SELECT *, no unused blogs)
 router.get('/', dataService.allCategory, async (req, res) => {
     try {
-        req.session.referralCode = req.query.referral
-        const projectQuery = 'SELECT name, seo_name, short_description FROM project limit 8';
-        const sourceCodeQuery = 'SELECT * FROM source_code';
-        const liveprojectQuery = 'SELECT * FROM source_code where demo_url is not null limit 8';
+        res.setHeader('X-Robots-Tag', 'index, follow');
 
+        if (req.query.referral) {
+            req.session.referralCode = req.query.referral;
+        }
 
-        const [project, sourceCode,liveproject] = await Promise.all([
-            queryAsync(projectQuery),
-            queryAsync(sourceCodeQuery),
-            queryAsync(liveprojectQuery)
+        // Only columns the homepage template reads; keep row counts small.
+        // Note: source_code has no created_at — order by id DESC for recency.
+        const scCols = 'id, name, seo_name, category, image, demo_url, LEFT(description, 280) AS description';
+        const stripByCategory = (cat, limit = 5) =>
+            queryAsync(
+                `SELECT ${scCols} FROM source_code WHERE category = ? ORDER BY id DESC LIMIT ?`,
+                [cat, limit]
+            );
+
+        const [sourceCode, liveproject, homeStrips] = await Promise.all([
+            queryAsync(
+                `SELECT ${scCols} FROM source_code ORDER BY id DESC LIMIT 48`
+            ),
+            queryAsync(
+                `SELECT ${scCols} FROM source_code
+                 WHERE demo_url IS NOT NULL AND demo_url != ''
+                 ORDER BY id DESC LIMIT 12`
+            ),
+            Promise.all([
+                stripByCategory('php', 5),
+                stripByCategory('python', 5),
+                stripByCategory('machine-learning', 5),
+            ]).then(([php, python, ml]) => ({ php, python, ml }))
         ]);
-        
 
         res.render('index1', {
             Metatags: onPageSeo.homePage,
             CommonMetaTags: onPageSeo.commonMetaTags,
-            project,
             sourceCode,
             liveproject,
+            homeStrips,
+            blogs: [],
             category: req.categories,
-            fullUrl:req.fullUrl,
-            active:'home',
-            graduation_type_send:''
+            fullUrl: req.fullUrl,
+            active: 'home',
+            graduation_type_send: '',
+            homeLite: true
         });
 
-        const endTime = Date.now();
-        console.log(`Response time: ${endTime - req.startTime}ms`);
+        if (req.startTime) {
+            console.log(`Homepage response time: ${Date.now() - req.startTime}ms`);
+        }
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
@@ -1115,9 +1769,34 @@ router.post('/get-html-response', (req, res) => {
 
 router.post('/contact-us', dataService.date_and_time, dataService.allCategory, async (req, res) => {
     try {
-        let body = req.body;
-        body['date'] = req.currentDate;
-        body['status'] = 'pending'
+        const phone = String((req.body && req.body.phone) || '').trim();
+        let message = String((req.body && req.body.message) || '').trim();
+        if (phone) {
+            message = `Phone: ${phone}\n\n${message}`;
+        }
+
+        // contactus columns: name, email, subject, message (+ date/status)
+        const body = {
+            name: String((req.body && req.body.name) || '').trim(),
+            email: String((req.body && req.body.email) || '').trim(),
+            subject: String((req.body && req.body.subject) || '').trim(),
+            message,
+            date: req.currentDate,
+            status: 'pending'
+        };
+
+        // Honeypot: silently accept but skip insert
+        if (req.body && req.body.company) {
+            return res.render('contact', {
+                Metatags: onPageSeo.contactPage,
+                CommonMetaTags: onPageSeo.commonMetaTags,
+                msg: 'Our team will contact you soon',
+                category: req.categories,
+                fullUrl: req.fullUrl,
+                active: '',
+                graduation_type_send: ''
+            });
+        }
 
         pool.query('INSERT INTO contactus SET ?', body, async (err, result) => {
             if (err) {
@@ -1125,15 +1804,14 @@ router.post('/contact-us', dataService.date_and_time, dataService.allCategory, a
                 throw err;
             } else {
                 try {
-                    // Access categories from req object
-                    let category = req.categories;
-
                     res.render('contact', {
                         Metatags: onPageSeo.contactPage,
                         CommonMetaTags: onPageSeo.commonMetaTags,
                         msg: 'Our team will contact you soon',
-                        category: category,
-                        fullUrl:req.fullUrl
+                        category: req.categories,
+                        fullUrl: req.fullUrl,
+                        active: '',
+                        graduation_type_send: ''
                     });
                 } catch (error) {
                     console.error('Error accessing categories from req:', error);
@@ -1160,7 +1838,7 @@ router.get('/synopsis', (req, res) => {
 
 //old route
 router.get('/cse/:name',(req,res)=>{
-    res.redirect(`/btech-final-year-project-report-${req.params.name}`)
+    res.redirect(projectReportShared.projectReportUrl(req.params.name))
 })
 
 
@@ -1171,37 +1849,157 @@ router.get('/cse/:name',(req,res)=>{
 
 
 // using this routes
-   router.get('/final-year-project-ideas',dataService.allCategory, (req, res) => { 
-    res.setHeader('X-Robots-Tag', 'index, follow');
-pool.query(`select name,seo_name,short_description from project where assign is not null`,
-(err,result)=>err ? console.log(err) : res.render('project-ideas',{result:result,Metatags: onPageSeo.projectPage,
-    CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,msg:'',fullUrl:req.fullUrl,graduation_type_send:'',active:'report'}))
+router.get('/final-year-project-ideas', dataService.allCategory, async (req, res) => {
+  res.setHeader('X-Robots-Tag', 'index, follow');
+  res.setHeader('Cache-Control', 'public, max-age=60');
+
+  const CACHE_TTL_MS = 60 * 1000;
+  const PR_CACHE_V = 3;
+  if (!global.__projectReportSourceCache || global.__projectReportSourceCache.v !== PR_CACHE_V) {
+    global.__projectReportSourceCache = { v: PR_CACHE_V, data: null, exp: 0 };
+  }
+  const cache = global.__projectReportSourceCache;
+
+  try {
+    let rows;
+    if (cache.data && cache.exp > Date.now()) {
+      rows = cache.data;
+    } else {
+      const sql = `
+        SELECT id, name, seo_name, category, image,
+               LEFT(description, 160) AS description
+        FROM source_code
+        ORDER BY id DESC
+      `;
+      const [result] = await pool.promise().query(sql);
+      rows = result;
+      cache.data = rows;
+      cache.exp = Date.now() + CACHE_TTL_MS;
+    }
+
+    res.render('project-ideas', {
+      result: rows,
+      graduation_type_send: 'Final Year',
+      original: 'btech',
+      ideasPage: true,
+      Metatags: onPageSeo.projectPage,
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      msg: '',
+      fullUrl: req.fullUrl,
+      active: 'report',
+      listCtaLabel: 'View Idea'
+    });
+  } catch (err) {
+    console.error('final-year-project-ideas error:', err);
+    res.status(500).render('error', {
+      message: 'Something went wrong. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? err : {},
+    });
+  }
 })
 
 
 // using this route
-router.get('/source-code',dataService.allCategory, (req, res) => { 
-    res.setHeader('X-Robots-Tag', 'index, follow');
-    pool.query(`select * from source_code`,
-(err,result)=>err ? console.log(err) : res.render('category',{result:result,Metatags: onPageSeo.sourcePage,
-        CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,graduation_type_send:'',active:'source-code',listCtaLabel:'Get Source Code'}))
-    })
+router.get('/source-code', dataService.allCategory, async (req, res) => {
+  res.setHeader('X-Robots-Tag', 'index, follow');
+  res.setHeader('Cache-Control', 'public, max-age=60');
+
+  const CACHE_TTL_MS = 60 * 1000;
+  const SC_CACHE_V = 1;
+  if (!global.__sourceCodeListCache || global.__sourceCodeListCache.v !== SC_CACHE_V) {
+    global.__sourceCodeListCache = { v: SC_CACHE_V, data: null, exp: 0 };
+  }
+  const cache = global.__sourceCodeListCache;
+
+  try {
+    let rows;
+    if (cache.data && cache.exp > Date.now()) {
+      rows = cache.data;
+    } else {
+      const sql = `
+        SELECT id, name, seo_name, category, image, demo_url,
+               LEFT(description, 160) AS description
+        FROM source_code
+        ORDER BY id DESC
+      `;
+      const [result] = await pool.promise().query(sql);
+      rows = result;
+      cache.data = rows;
+      cache.exp = Date.now() + CACHE_TTL_MS;
+    }
+
+    res.render('source_code', {
+      result: rows,
+      graduation_type_send: 'Final Year',
+      original: '',
+      sourceCodePage: true,
+      Metatags: onPageSeo.sourcePage,
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      msg: '',
+      fullUrl: req.fullUrl,
+      active: 'source-code',
+      listCtaLabel: 'Get Source Code'
+    });
+  } catch (err) {
+    console.error('source-code list error:', err);
+    res.status(500).render('error', {
+      message: 'Something went wrong. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? err : {},
+    });
+  }
+})
 
 
 
     // using this route
-router.get('/demo',dataService.allCategory, (req, res) => { 
-    res.setHeader('X-Robots-Tag', 'index, follow');
-    // Merge live_demo table entries (admin-managed) with source_code entries (legacy)
-    pool.query(`SELECT id, title AS name, description, demo_link AS demo_url, seo_slug FROM live_demo WHERE is_active = 1`, (err, liveRows) => {
-      if (err) return console.log(err);
-      pool.query(`SELECT id, name, description, demo_url, NULL AS seo_slug FROM source_code WHERE demo_url IS NOT NULL AND demo_url != ''`, (err2, codeRows) => {
-        if (err2) return console.log(err2);
-        const result = [...(liveRows || []), ...(codeRows || [])];
-        res.render('live_demo',{result,Metatags: onPageSeo.homePage,
-          CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,graduation_type_send:'',active:'demo'});
-      });
+router.get('/demo', dataService.allCategory, async (req, res) => {
+  res.setHeader('X-Robots-Tag', 'index, follow');
+  res.setHeader('Cache-Control', 'public, max-age=60');
+
+  try {
+    const [liveRows] = await pool.promise().query(`
+      SELECT id, title AS name, description, demo_link AS demo_url, seo_slug,
+             NULL AS image, tech_stack AS category,
+             LEFT(IFNULL(description, ''), 160) AS short_description
+      FROM live_demo
+      WHERE is_active = 1
+      ORDER BY id DESC
+    `);
+    const [codeRows] = await pool.promise().query(`
+      SELECT id, name, description, demo_url, NULL AS seo_slug,
+             image, category,
+             LEFT(IFNULL(description, ''), 160) AS short_description
+      FROM source_code
+      WHERE demo_url IS NOT NULL AND demo_url != ''
+      ORDER BY id DESC
+    `);
+
+    const result = [...(liveRows || []), ...(codeRows || [])].map((row) => ({
+      ...row,
+      description: row.short_description || row.description || ''
+    }));
+
+    res.render('live_demo', {
+      result,
+      graduation_type_send: 'Final Year',
+      original: '',
+      liveDemoPage: true,
+      Metatags: onPageSeo.homePage,
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      active: 'demo',
+      listCtaLabel: 'Try Live Demo'
     });
+  } catch (err) {
+    console.error('demo list error:', err);
+    res.status(500).render('error', {
+      message: 'Something went wrong. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? err : {},
+    });
+  }
 });
 
 // Single live demo page (SEO-friendly slug from live_demo table)
@@ -1223,7 +2021,8 @@ router.get('/demo/:slug', dataService.allCategory, async (req, res) => {
       abstract: demo.meta_description || demo.description || '',
       keywords: demo.meta_keywords || (demo.tech_stack || '') + ', live demo, final year project, FileMakr',
       url: pageUrl,
-      ogImage: demo.og_image || onPageSeo.commonMetaTags.ogImage
+      ogImage: demo.og_image || demo.image || demo.thumbnail_url || '',
+      ogImageAlt: (demo.title || 'Live demo') + ' — FileMakr'
     };
     res.setHeader('X-Robots-Tag', 'index, follow');
     res.render('live-demo-single', {
@@ -1242,39 +2041,96 @@ router.get('/demo/:slug', dataService.allCategory, async (req, res) => {
 });
 
 
-    // using this route
+async function renderSingleProjectReport(req, res, { seoName, graduation_type_send = '', original = '', degreeLabel = '' }) {
+  const pathSlug = projectReportShared.parseReportDetailPathSlug(req.path);
+  const candidates = [...new Set([
+    pathSlug,
+    projectReportShared.resolveProjectReportSeoSlug(seoName),
+    projectReportShared.resolveProjectReportSeoSlug(`${String(seoName || '').trim().toLowerCase()}-final-year-project`),
+  ].filter(Boolean))];
+
+  let name = '';
+  let rows = [];
+  for (const slug of candidates) {
+    rows = await projectReportShared.findSourceCodeByReportSeo(slug);
+    if (rows && rows.length) {
+      name = slug;
+      break;
+    }
+  }
+
+  if (!name || name.length > 150) {
+    return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
+  }
+  try {
+    if (rows[0] && !rows[0].short_description) {
+      rows[0].short_description = String(rows[0].description || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 280);
+    }
+    const product = rows[0];
+    let others = [];
+    if (product.category) {
+      const [byCat] = await pool.promise().query(
+        `SELECT name, seo_name, image, demo_url,
+                LEFT(IFNULL(description, ''), 220) AS short_description
+         FROM source_code
+         WHERE seo_name != ?
+           AND category = ?
+         ORDER BY RAND()
+         LIMIT 10`,
+        [product.seo_name, product.category]
+      );
+      others = byCat || [];
+    }
+    if (!others.length) {
+      const [fallback] = await pool.promise().query(
+        `SELECT name, seo_name, image, demo_url,
+                LEFT(IFNULL(description, ''), 220) AS short_description
+         FROM source_code
+         WHERE seo_name != ?
+         ORDER BY RAND()
+         LIMIT 10`,
+        [product.seo_name]
+      );
+      others = fallback || [];
+    }
+    const result = [rows, others];
+    res.setHeader('X-Robots-Tag', 'index, follow');
+    res.render('single-project-report', {
+      result,
+      graduation_type_send,
+      original,
+      Metatags: onPageSeo.projectReportDetailMeta(product, req.fullUrl, {
+        categories: req.categories,
+        degreeLabel: degreeLabel || graduation_type_send,
+      }),
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      active: 'report',
+      listCtaLabel: 'Get Project Report',
+    });
+  } catch (err) {
+    console.error('project-report detail error:', err);
+    res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
+  }
+}
+
+const { projectReportUrl, resolveProjectReportSeoSlug, isReportCatalogSeoName } = projectReportShared;
+
+// Legacy → /{db_seo_name}-report (middleware in app.js also redirects; keep route fallback)
 router.get('/final-year-project-report-:name', dataService.allCategory, async (req, res) => {
-    const name = (req.params.name || '').trim();
-    if (!name || name.length > 150) {
-        return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
-    }
-    try {
-        const [rows] = await pool.promise().query('SELECT * FROM project WHERE seo_name = ?', [name]);
-        if (!rows || rows.length === 0) {
-            return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
-        }
-        const [others] = await pool.promise().query('SELECT name, seo_name, short_description FROM project WHERE seo_name != ?', [rows[0].seo_name]);
-        const result = [rows, others || []];
-        res.render('single-project-report', {
-            result,
-            Metatags: onPageSeo.homePage,
-            CommonMetaTags: onPageSeo.commonMetaTags,
-            category: req.categories,
-            fullUrl: req.fullUrl,
-            active: 'report',
-            graduation_type_send: '',
-            listCtaLabel: 'Get Project Report'
-        });
-    } catch (err) {
-        console.error('final-year-project-report error:', err);
-        res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
-    }
-})
+  const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  const seo = await projectReportShared.resolveReportSeoFromLegacySlug(req.params.name);
+  return res.redirect(301, projectReportUrl(seo) + q);
+});
 
 
 // using this routes
-router.get('/:graduation_type-final-year-project-report', dataService.allCategory, async (req, res) => {
-  
+router.get('/:graduation_type-final-year-project-report', dataService.allCategory, async (req, res, next) => {
+  const original = String(req.params.graduation_type || '').toLowerCase().trim();
+  if (!projectReportShared.isReportCatalogDegree(original)) {
+    return next();
+  }
 
   // Map for graduation types
   const DEGREE_MAP = {
@@ -1289,16 +2145,16 @@ router.get('/:graduation_type-final-year-project-report', dataService.allCategor
   };
 
 
-  const original = String(req.params.graduation_type || '').toLowerCase().trim();
   const graduation_type_send = DEGREE_MAP[original] ?? original.toUpperCase();
 
   // --- OPTIONAL: tiny in-memory cache (60s TTL) to reduce DB load ---
   // Feel free to remove if you don't want caching.
   const CACHE_TTL_MS = 60 * 1000;
-  if (!global.__projectReportCache) {
-    global.__projectReportCache = { data: null, exp: 0 };
+  const PR_CACHE_V = 3;
+  if (!global.__projectReportSourceCache || global.__projectReportSourceCache.v !== PR_CACHE_V) {
+    global.__projectReportSourceCache = { v: PR_CACHE_V, data: null, exp: 0 };
   }
-  const cache = global.__projectReportCache;
+  const cache = global.__projectReportSourceCache;
 
   try {
     let rows;
@@ -1306,12 +2162,13 @@ router.get('/:graduation_type-final-year-project-report', dataService.allCategor
     if (cache.data && cache.exp > Date.now()) {
       rows = cache.data;
     } else {
+      // Lean source_code rows for catalog (search/filter over full set; UI loads progressively)
       const sql = `
-        SELECT name, seo_name, short_description
-        FROM project
-        WHERE assign IS NOT NULL
+        SELECT id, name, seo_name, category, image,
+               LEFT(description, 160) AS description
+        FROM source_code
+        ORDER BY id DESC
       `;
-      // Using mysql2/promise pool
       const [result] = await pool.promise().query(sql);
       rows = result;
       cache.data = rows;
@@ -1319,19 +2176,20 @@ router.get('/:graduation_type-final-year-project-report', dataService.allCategor
     }
 
     // Optional HTTP caching for intermediaries/browsers (adjust as needed)
+    res.setHeader('X-Robots-Tag', 'index, follow');
     res.setHeader('Cache-Control', 'public, max-age=60');
 
     res.render('project-report', {
       result: rows,
       graduation_type_send,
       original,
-      Metatags: onPageSeo.homePage,
+      Metatags: onPageSeo.graduationReportCatalogMeta(graduation_type_send, req.fullUrl),
       CommonMetaTags: onPageSeo.commonMetaTags,
       category: req.categories,
       msg: '',
       fullUrl: req.fullUrl,
-      active:'report',
-      listCtaLabel: 'Get Project Report'
+      active: 'report',
+      listCtaLabel: 'View Report'
     });
   } catch (err) {
     console.error('project-report route error:', err);
@@ -1343,99 +2201,32 @@ router.get('/:graduation_type-final-year-project-report', dataService.allCategor
 });
 
 
-// Project slug canonical redirects (duplicate-title fix: -system -> base slug)
-const SLUG_REDIRECTS = {
-  'email-spam-detection-system': 'email-spam-detection',
-  'blood-bank-&-donor-management-system-using-php-and-mysql': 'blood-bank-and-donor-management-system',
-  'client-management-system-using-php-&-mysql': 'client-management-system-using-php-and-mysql',
-  'cyber-cafe-management-system-using-php-&-mysql': 'cyber-cafe-management-system-using-php-and-mysql',
-  'student-result-management-system-using-php-&-mysql': 'student-result-management-system-using-php-and-mysql',
-  'user-registration-&-login-and-user-management-system-with-admin-panel': 'user-registration-and-login-and-user-management-system-with-admin-panel',
-  'employee-leaves-management-system-(elms)': 'employee-leave-management-system',
-};
-// using this route
-router.get('/:graduation_type-final-year-project-report-:name', dataService.allCategory, async (req, res) => {
-    const name = (req.params.name || '').trim().toLowerCase();
-    if (!name || name.length > 200) {
-        return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
-    }
-
-    if (SLUG_REDIRECTS[name]) {
-        const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
-        return res.redirect(301, `/${req.params.graduation_type}-final-year-project-report-${SLUG_REDIRECTS[name]}${q}`);
-    }
-
-    const DEGREE_MAP = { btech: 'B.Tech', mtech: 'M.Tech', be: 'B.E.', me: 'M.E.', bca: 'BCA', mca: 'MCA', msc: 'MSc', bsc: 'BSc' };
-    const graduation_type_send = DEGREE_MAP[req.params.graduation_type] || req.params.graduation_type;
-
-    try {
-        const [rows] = await pool.promise().query('SELECT * FROM project WHERE seo_name = ?', [name]);
-        if (!rows || rows.length === 0) {
-            return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
-        }
-        const [langs] = await pool.promise().query("SELECT * FROM programming_language WHERE name IN ('HTML','CSS','JavaScript','PHP')");
-        const [others] = await pool.promise().query('SELECT name, seo_name, short_description FROM project WHERE seo_name != ?', [rows[0].seo_name]);
-        const result = [rows, langs || [], others || []];
-        res.render('graduation-single-project-report', {
-            result,
-            graduation_type_send,
-            original: req.params.graduation_type,
-            Metatags: onPageSeo.homePage,
-            CommonMetaTags: onPageSeo.commonMetaTags,
-            category: req.categories,
-            fullUrl: req.fullUrl,
-            active: 'report',
-            listCtaLabel: 'Get Project Report'
-        });
-    } catch (err) {
-        console.error('graduation-single-project-report error:', err);
-        res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
-    }
-})
+// Legacy degree-prefixed report detail → /{db_seo_name}-report-{degree}
+router.get('/:graduation_type-final-year-project-report-:name', dataService.allCategory, async (req, res, next) => {
+  const degree = String(req.params.graduation_type || '').toLowerCase().trim();
+  if (!projectReportShared.isReportCatalogDegree(degree)) {
+    return next();
+  }
+  const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  const seo = await projectReportShared.resolveReportSeoFromLegacySlug(req.params.name);
+  return res.redirect(301, projectReportUrl(seo, degree) + q);
+});
 
 
-// using this route
-router.get('/:graduation_type-final-year-project-report-:name/edit',dataService.allCategory,(req,res)=>{
-
-
-    let graduation_type_send = '';
-
-    if(req.params.graduation_type == 'btech'){
-       graduation_type_send = 'B.Tech'
-    }
-    else if(req.params.graduation_type == 'mtech'){
-       graduation_type_send = 'M.Tech'
-    }
-    else if(req.params.graduation_type == 'be'){
-      graduation_type_send = 'B.E.'
-    }
-    else if(req.params.graduation_type == 'me'){
-       graduation_type_send = 'M.E.'
-     }
-     else if(req.params.graduation_type == 'bca'){
-       graduation_type_send = 'BCA'
-     }
-     else if(req.params.graduation_type == 'mca'){
-       graduation_type_send = 'MCA'
-     }
-     else if(req.params.graduation_type == 'bsc'){
-       graduation_type_send = 'BSc'
-     }
-     else if(req.params.graduation_type == 'msc'){
-       graduation_type_send = 'MSc'
-     }
-     
-
-    var query = `select * from project where seo_name = '${req.params.name}';`
-    var query1 = `select name,id,type from programming_language where type = 'backend[]';`
-    var query2 = `select name,id,type from programming_language where type = 'frontend[]';`
-
-    pool.query(query+query1+query2,(err,result)=>{
-        err ? console.log(err) : res.render('customization',{result : result,msg:req.query.msg,graduation_type_send,original:req.params.graduation_type,Metatags: onPageSeo.homePage,
-        CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,fullUrl:req.fullUrl,active:'report',navOnly:true})
-    })
-
-})
+// Legacy edit URL → checkout (or /{seo}-report/edit via middleware)
+router.get('/:graduation_type-final-year-project-report-:name/edit', dataService.allCategory, (req, res, next) => {
+  const degree = String(req.params.graduation_type || '').toLowerCase().trim();
+  if (!projectReportShared.isReportCatalogDegree(degree)) {
+    return next();
+  }
+  const seo = projectReportShared.resolveProjectReportSeoSlug(req.params.name);
+  if (!seo || seo.length > 200) {
+    return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
+  }
+  const qType = String(req.query.type || '').toLowerCase();
+  const plan = qType === 'synopsis' ? 'synopsis' : 'report';
+  return res.redirect(301, `/checkout?type=report&seo=${encodeURIComponent(seo)}&plan=${plan}`);
+});
 
 
 
@@ -1459,11 +2250,855 @@ router.get('/api/coupon/validate', (req, res) => {
   });
 });
 
+// ── Shared checkout (source + report / synopsis) ─────────────────────────────
+router.get('/checkout', dataService.allCategory, async (req, res) => {
+  try {
+    const type = String(req.query.type || '').toLowerCase();
+    const plan = String(req.query.plan || '').toLowerCase();
+    const seo = String(req.query.seo || '').trim().toLowerCase();
+    const catalog = resolveCheckoutCatalog(type, plan);
+    const addon = resolveCheckoutAddon(type, req.query.addon, req.query.addon_plan);
+    const addonPlans = listCheckoutAddonPlans(type);
+
+    if (!catalog || !seo) {
+      return res.status(400).render('error', {
+        message: 'Invalid checkout link. Please go back and choose a package again.',
+        error: { status: 400, stack: '' }
+      });
+    }
+
+    let rows;
+    if (type === 'report') {
+      rows = await projectReportShared.findSourceCodeByReportSeo(seo);
+    } else {
+      rows = await queryAsync('SELECT * FROM source_code WHERE seo_name = ? LIMIT 1', [seo]);
+    }
+    if (!rows || !rows.length) {
+      return res.status(404).render('error', {
+        message: 'Product not found for checkout.',
+        error: { status: 404, stack: '' }
+      });
+    }
+
+    const product = rows[0];
+    const backUrl =
+      type === 'report'
+        ? projectReportShared.projectReportUrl(product.seo_name || seo)
+        : `/${product.seo_name}/source-code`;
+
+    const addonPrice = addon ? addon.price : 0;
+    const checkoutCsrf = issueCheckoutCsrf(req);
+
+    res.render('checkout', {
+      product,
+      catalog,
+      type,
+      plan: catalog.plan,
+      basePrice: catalog.price,
+      addon,
+      addonEnabled: !!addon,
+      addonPrice,
+      addonPlans,
+      totalPrice: Number(catalog.price) + addonPrice,
+      backUrl,
+      checkoutCsrf,
+      allowDummyPay: !!ccavConfig.allowDummyPay,
+      Metatags: {
+        title: `Checkout — ${product.name} | FileMakr`,
+        description: `Secure checkout for ${catalog.planLabel}`,
+        abstract: '',
+        keywords: ''
+      },
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      active: type === 'report' ? 'report' : 'source-code',
+      graduation_type_send: '',
+      msg: ''
+    });
+  } catch (err) {
+    console.error('GET /checkout error:', err);
+    res.status(500).render('error', {
+      message: 'Something went wrong loading checkout.',
+      error: { status: 500, stack: '' }
+    });
+  }
+});
+
+router.post('/checkout/submit', dataService.date_and_time, async (req, res) => {
+  try {
+    if (!assertCheckoutCsrf(req)) {
+      return res.status(403).send('Invalid checkout session. Please go back and try again.');
+    }
+    if (!ccavConfig.merchantId || !ccavConfig.workingKey || !ccavConfig.accessCode) {
+      console.error('CCAvenue credentials missing');
+      return res.status(503).send('Payment gateway is temporarily unavailable.');
+    }
+
+    const type = String(req.body.type || '').toLowerCase();
+    const plan = String(req.body.plan || '').toLowerCase();
+    const seo = String(req.body.seo_name || '').trim().toLowerCase();
+    const catalog = resolveCheckoutCatalog(type, plan);
+    const addon = resolveCheckoutAddon(type, req.body.addon, req.body.addon_plan);
+    if (!catalog || !seo) {
+      return res.status(400).send('Invalid checkout request');
+    }
+
+    let rows;
+    if (type === 'report') {
+      rows = await projectReportShared.findSourceCodeByReportSeo(seo);
+    } else {
+      rows = await queryAsync('SELECT * FROM source_code WHERE seo_name = ? LIMIT 1', [seo]);
+    }
+    if (!rows || !rows.length) return res.status(404).send('Product not found');
+
+    const product = rows[0];
+    const billing_name = String(req.body.billing_name || '').trim().slice(0, 120);
+    const billing_email = String(req.body.billing_email || '').trim().slice(0, 180).toLowerCase();
+    const billing_tel = String(req.body.billing_tel || '').replace(/\D/g, '').slice(0, 15);
+    if (!billing_name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing_email) || billing_tel.length < 10) {
+      return res.status(400).send('Please fill name, a valid email and a valid mobile number.');
+    }
+
+    const listAmount = Number(catalog.price) + (addon ? Number(addon.price) : 0);
+    let finalAmount = listAmount;
+    let coupon_code = String(req.body.coupon_code || '').trim().slice(0, 64);
+    if (coupon_code) {
+      const couponRows = await queryAsync(
+        'SELECT discount FROM shopkeeper WHERE unique_code = ? LIMIT 1',
+        [coupon_code]
+      );
+      const discountPct = couponRows && couponRows[0] ? Number(couponRows[0].discount) || 0 : 0;
+      if (discountPct > 0) {
+        finalAmount = Math.max(0, Math.round((listAmount * (100 - discountPct)) / 100 * 100) / 100);
+      } else {
+        coupon_code = '';
+      }
+    }
+
+    const planLabel = addon
+      ? catalog.planLabel + ' + ' + addon.planLabel
+      : catalog.planLabel;
+
+    // Ignore any client-supplied amount — only catalog + coupon
+    const paymentPref = String(req.body.payment_pref || 'upi').trim().toLowerCase();
+    const paymentApp = String(req.body.payment_app || paymentPref).trim().toLowerCase();
+
+    req.session.source_code_id = product.id;
+    req.session.type = catalog.paymentType;
+    req.session.checkout_plan = catalog.plan;
+    req.session.checkout_addon = addon || null;
+    // One-time CSRF after successful submit attempt
+    delete req.session.checkout_csrf;
+
+    const created = await checkoutOrders.createCheckoutOrder({
+      productType: catalog.productType,
+      plan: catalog.plan,
+      planLabel,
+      paymentType: catalog.paymentType,
+      sourceCodeId: product.id,
+      productName: product.name || '',
+      seoName: product.seo_name || seo,
+      billingName: billing_name,
+      billingEmail: billing_email,
+      billingTel: billing_tel,
+      listAmount,
+      finalAmount,
+      couponCode: coupon_code || null,
+      paymentPref,
+      paymentApp,
+      referralCode: req.body.referral_code || null,
+      isTest: false,
+      ipAddress: req.ip || req.headers['x-forwarded-for'] || null,
+      userAgent: req.headers['user-agent'] || null,
+      sessionId: req.sessionID || null,
+      addon: addon || null
+    });
+
+    req.session.fm_order_id = created.orderId;
+
+    if (catalog.paymentType === 'source_code') {
+      const title_case_name = String(product.seo_name || '')
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      setImmediate(async () => {
+        try {
+          const userSubject = emailTemplates.beforesourcecode.userSubject.replace(
+            '{{Project_Name}}',
+            title_case_name
+          );
+          const userMessage = emailTemplates.beforesourcecode.userMessage(
+            billing_name,
+            title_case_name,
+            product.seo_name
+          );
+          await verify.sendUserMail(billing_email, userSubject, userMessage);
+        } catch (backgroundErr) {
+          console.error('Background task error (checkout email):', backgroundErr);
+        }
+      });
+    }
+
+    const encryptedOrderData = ccave.getEncryptedOrder(created.ccavenuePayload);
+    res.render('send', {
+      enccode: encryptedOrderData,
+      accesscode: ccavConfig.accessCode,
+      initiateUrl: ccavConfig.initiateUrl,
+      orderId: created.orderId,
+      amount: created.amountStr,
+      paymentPref: created.paymentPref
+    });
+  } catch (err) {
+    console.error('POST /checkout/submit error:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+/** TEST ONLY — skip CCAvenue (disabled in production unless ALLOW_DUMMY_PAY=1) */
+router.post('/checkout/dummy-pay', dataService.allCategory, async (req, res) => {
+  try {
+    if (!ccavConfig.allowDummyPay) {
+      return res.status(404).send('Not found');
+    }
+    if (!assertCheckoutCsrf(req)) {
+      return res.status(403).send('Invalid checkout session. Please go back and try again.');
+    }
+
+    const type = String(req.body.type || '').toLowerCase();
+    const plan = String(req.body.plan || '').toLowerCase();
+    const seo = String(req.body.seo_name || '').trim().toLowerCase();
+    const catalog = resolveCheckoutCatalog(type, plan);
+    const addon = resolveCheckoutAddon(type, req.body.addon, req.body.addon_plan);
+    if (!catalog || !seo) {
+      return res.status(400).send('Invalid checkout request');
+    }
+
+    let rows;
+    if (type === 'report') {
+      rows = await projectReportShared.findSourceCodeByReportSeo(seo);
+    } else {
+      rows = await queryAsync('SELECT * FROM source_code WHERE seo_name = ? LIMIT 1', [seo]);
+    }
+    if (!rows || !rows.length) return res.status(404).send('Product not found');
+
+    const product = rows[0];
+    const billing_name = String(req.body.billing_name || '').trim() || 'Test User';
+    const billing_email = String(req.body.billing_email || '').trim() || 'test@filemakr.com';
+    const billing_tel = String(req.body.billing_tel || '').replace(/\D/g, '') || '9999999999';
+
+    const listAmount = Number(catalog.price) + (addon ? Number(addon.price) : 0);
+    const planLabel = addon
+      ? catalog.planLabel + ' + ' + addon.planLabel
+      : catalog.planLabel;
+
+    req.session.source_code_id = product.id;
+    req.session.type = catalog.paymentType;
+    req.session.checkout_plan = catalog.plan;
+    req.session.checkout_addon = addon || null;
+    delete req.session.checkout_csrf;
+
+    const created = await checkoutOrders.createCheckoutOrder({
+      productType: catalog.productType,
+      plan: catalog.plan,
+      planLabel,
+      paymentType: catalog.paymentType,
+      sourceCodeId: product.id,
+      productName: product.name || '',
+      seoName: product.seo_name || seo,
+      billingName: billing_name,
+      billingEmail: billing_email,
+      billingTel: billing_tel,
+      listAmount,
+      finalAmount: listAmount,
+      couponCode: String(req.body.coupon_code || '').trim() || null,
+      paymentPref: String(req.body.payment_pref || 'upi').trim().toLowerCase() || 'upi',
+      paymentApp: String(req.body.payment_app || 'upi').trim().toLowerCase() || 'upi',
+      referralCode: 'DUMMY_TEST',
+      isTest: true,
+      orderId: 'FMK-TEST-' + checkoutOrders.generatePublicOrderId().replace(/^FMK-/, ''),
+      ipAddress: req.ip || req.headers['x-forwarded-for'] || null,
+      userAgent: req.headers['user-agent'] || null,
+      sessionId: req.sessionID || null,
+      addon: addon || null
+    });
+
+    const orderId = created.orderId;
+    const amountStr = created.amountStr;
+    req.session.fm_order_id = orderId;
+
+    let zipFileName = '';
+    const needsZip = catalog.productType === 'source' || (addon && addon.type === 'source');
+    if (needsZip) {
+      const scFileRows = await queryAsync(
+        'SELECT source_code FROM source_code WHERE id = ? LIMIT 1',
+        [product.id]
+      );
+      zipFileName = (scFileRows && scFileRows[0] && scFileRows[0].source_code) || '';
+    }
+
+    setPaidCheckoutSession(req, {
+      orderId,
+      sourceCodeId: product.id,
+      plan: catalog.plan,
+      productType: catalog.productType,
+      billingName: billing_name,
+      billingEmail: billing_email,
+      amount: amountStr,
+      method: String(req.body.payment_pref || 'upi').toUpperCase(),
+      productName: product.name || '',
+      zipFileName,
+      addon: addon || null
+    });
+
+    return res.redirect('/checkout/report-ready');
+  } catch (err) {
+    console.error('POST /checkout/dummy-pay error:', err);
+    res.status(500).send('Dummy payment failed: ' + (err.message || 'server error'));
+  }
+});
+
+router.get('/checkout/report-ready', dataService.allCategory, async (req, res) => {
+  if (req.session.ispayment !== 'done' || !req.session.paid_source_code_id) {
+    return res.status(403).render('instant-report-status', {
+      kind: 'error',
+      pageTitle: 'Payment session missing',
+      message: 'No paid order found in this session. If you just paid, open the download link from your email or contact WhatsApp support with your Order ID.',
+      orderId: req.session.paid_order_id || '',
+      productName: '',
+      planLabel: 'Download',
+      sourceCodeId: '',
+      Metatags: {
+        title: 'Download unavailable | FileMakr',
+        description: 'Download session missing',
+        abstract: '',
+        keywords: ''
+      },
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      active: 'report',
+      graduation_type_send: '',
+      msg: ''
+    });
+  }
+
+  let fmOrder = null;
+  const lookupOrderId = req.session.fm_order_id || req.session.paid_order_id;
+  if (lookupOrderId) {
+    try {
+      fmOrder = await checkoutOrders.findByOrderId(lookupOrderId);
+    } catch (e) {}
+  }
+
+  const paymentType = String(
+    (fmOrder && fmOrder.payment_type) || req.session.type || ''
+  ).toLowerCase();
+  const productTypeRaw = String(
+    (fmOrder && fmOrder.product_type) || req.session.paid_product_type || ''
+  ).toLowerCase();
+  const isSource =
+    productTypeRaw === 'source' ||
+    paymentType === 'source_code' ||
+    req.session.paid_product_type === 'source';
+
+  const plan = isSource
+    ? String((fmOrder && fmOrder.plan) || req.session.paid_plan || 'basic').toLowerCase() ===
+      'support'
+      ? 'support'
+      : 'basic'
+    : normalizeReportPlan((fmOrder && fmOrder.plan) || req.session.paid_plan || 'report');
+
+  const planLabel =
+    (fmOrder && fmOrder.plan_label) ||
+    (isSource
+      ? plan === 'support'
+        ? 'Code + setup support (24hr)'
+        : 'Source code download'
+      : plan === 'synopsis'
+        ? 'Synopsis'
+        : plan === 'customized'
+          ? 'Customized Report'
+          : plan === 'originality'
+            ? 'Originality Reviewed Report'
+            : 'Pre Defined Project Report');
+
+  let productName = (fmOrder && fmOrder.product_name) || req.session.paid_product_name || '';
+  const sourceId = parseInt(
+    (fmOrder && fmOrder.source_code_id) || req.session.paid_source_code_id,
+    10
+  );
+
+  let zipFileName = req.session.paid_zip_file || '';
+  if (Number.isFinite(sourceId)) {
+    try {
+      const rows = await queryAsync(
+        'SELECT name, source_code FROM source_code WHERE id=? LIMIT 1',
+        [sourceId]
+      );
+      if (rows && rows[0]) {
+        if (!productName) productName = rows[0].name || '';
+        if (!zipFileName) zipFileName = rows[0].source_code || '';
+      }
+    } catch (e) {}
+  }
+
+  let amountPaid = parseFloat(
+    (fmOrder && fmOrder.final_amount) || req.session.paid_amount
+  );
+  if (!Number.isFinite(amountPaid) || amountPaid <= 0) {
+    if (isSource) {
+      amountPaid = plan === 'support' ? CHECKOUT_PRICES.source.support : CHECKOUT_PRICES.source.basic;
+    } else {
+      amountPaid = CHECKOUT_PRICES.report[plan] || CHECKOUT_PRICES.report.report;
+    }
+  }
+
+  const safeName = (productName || (isSource ? 'Source_Code' : 'Project_Report'))
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '_');
+
+  const reportDeferred = !isSource && isDeferredReportPlan(plan);
+
+  let fileName;
+  let fileMeta;
+  let downloadHref;
+  if (isSource) {
+    fileName = zipFileName || safeName + '.zip';
+    if (fileName && !/\.zip$/i.test(fileName)) fileName = fileName + '.zip';
+    fileMeta = 'ZIP Archive · .zip';
+    // Always production CDN — localhost /images will 404
+    downloadHref = zipFileName
+      ? 'https://filemakr.com/images/' + encodeURIComponent(path.basename(String(zipFileName).trim()))
+      : '/download-instant-source';
+  } else if (reportDeferred) {
+    fileName = safeName + (plan === 'customized' ? '_Customized_Report.docx' : '_Originality_Report.docx');
+    fileMeta = 'Delivery within 24-48 hours';
+    downloadHref = '';
+  } else {
+    fileName = safeName + (plan === 'synopsis' ? '_Synopsis.docx' : '_Report.docx');
+    fileMeta = 'Microsoft Word · .docx';
+    downloadHref = '/download-instant-report';
+  }
+
+  const paidAddon =
+    (req.session.paid_addon && req.session.paid_addon.type
+      ? req.session.paid_addon
+      : null) ||
+    (fmOrder && /\+\s*source code/i.test(String(fmOrder.plan_label || ''))
+      ? resolveCheckoutAddon('report', '1')
+      : fmOrder && /\+\s*originality/i.test(String(fmOrder.plan_label || ''))
+        ? resolveCheckoutAddon('source', '1', 'originality')
+        : fmOrder && /\+\s*customized/i.test(String(fmOrder.plan_label || ''))
+          ? resolveCheckoutAddon('source', '1', 'customized')
+          : fmOrder && /\+\s*synopsis/i.test(String(fmOrder.plan_label || ''))
+            ? resolveCheckoutAddon('source', '1', 'synopsis')
+            : fmOrder && /\+\s*pre defined project report/i.test(String(fmOrder.plan_label || ''))
+              ? resolveCheckoutAddon('source', '1', 'report')
+              : null);
+
+  let addonDownload = null;
+  if (paidAddon && paidAddon.type === 'source') {
+    const addonZip = zipFileName || req.session.paid_zip_file || '';
+    let addonHref = addonZip
+      ? 'https://filemakr.com/images/' + encodeURIComponent(path.basename(String(addonZip).trim()))
+      : '/download-instant-source';
+    const addonAvail = await resolveCheckoutDownloadAvailability({
+      isSource: true,
+      sourceId,
+      plan: 'basic',
+      zipFileName: addonZip
+    });
+    addonDownload = {
+      label: 'Matching Source Code',
+      fileName: (addonZip ? path.basename(String(addonZip)) : safeName + '.zip').replace(/\.zip$/i, '') + '.zip',
+      fileMeta: 'ZIP Archive · .zip',
+      downloadHref: addonAvail.downloadAvailable ? addonHref : '',
+      downloadAvailable: addonAvail.downloadAvailable,
+      downloadUnavailableTitle: addonAvail.downloadUnavailableTitle,
+      downloadUnavailableMessage: addonAvail.downloadUnavailableMessage
+    };
+  } else if (paidAddon && paidAddon.type === 'report') {
+    const addonPlan = normalizeReportPlan(paidAddon.plan);
+    if (isDeferredReportPlan(addonPlan)) {
+      addonDownload = {
+        label: paidAddon.title || 'Matching Project Report',
+        fileName:
+          safeName +
+          (addonPlan === 'customized' ? '_Customized_Report.docx' : '_Originality_Report.docx'),
+        fileMeta: 'Delivery within 24-48 hours',
+        downloadHref: '',
+        downloadAvailable: false,
+        downloadUnavailableTitle: 'Delivery within 24-48 hours',
+        downloadUnavailableMessage:
+          'Payment successful. Your report will be delivered within 24-48 hours on your WhatsApp or Email ID.'
+      };
+    } else {
+      const addonAvail = await resolveCheckoutDownloadAvailability({
+        isSource: false,
+        sourceId,
+        plan: addonPlan,
+        zipFileName: ''
+      });
+      addonDownload = {
+        label: paidAddon.title || 'Matching Project Report',
+        fileName: safeName + (addonPlan === 'synopsis' ? '_Synopsis.docx' : '_Report.docx'),
+        fileMeta: 'Microsoft Word · .docx',
+        downloadHref: addonAvail.downloadAvailable ? '/download-instant-report' : '',
+        downloadAvailable: addonAvail.downloadAvailable,
+        downloadUnavailableTitle: addonAvail.downloadUnavailableTitle,
+        downloadUnavailableMessage: addonAvail.downloadUnavailableMessage
+      };
+    }
+  }
+
+  const paymentDate =
+    req.session.paid_date ||
+    checkoutOrders.formatPaymentDate((fmOrder && (fmOrder.paid_at || fmOrder.created_at)) || new Date());
+
+  const methodRaw = String(
+    req.session.paid_method || (fmOrder && fmOrder.payment_pref) || 'UPI'
+  ).toLowerCase();
+  const methodMap = {
+    upi: 'UPI',
+    card: 'Card',
+    netbanking: 'Net Banking',
+    wallet: 'Wallet'
+  };
+
+  let existingReview = null;
+  const renderOrderId = (fmOrder && fmOrder.order_id) || req.session.paid_order_id || '';
+  if (renderOrderId) {
+    try {
+      existingReview = await checkoutOrders.findReviewByOrderId(renderOrderId);
+    } catch (e) {}
+  }
+
+  const billingEmail =
+    (fmOrder && fmOrder.billing_email) || req.session.paid_billing_email || '';
+
+  let availability;
+  if (reportDeferred) {
+    availability = {
+      downloadAvailable: false,
+      downloadUnavailableTitle: 'Delivery within 24-48 hours',
+      downloadUnavailableMessage:
+        'Payment successful. Your report will be delivered within 24-48 hours on your WhatsApp or Email ID.'
+    };
+  } else {
+    availability = await resolveCheckoutDownloadAvailability({
+      isSource,
+      sourceId,
+      plan,
+      zipFileName
+    });
+  }
+
+  res.render('instant-report-success', {
+    plan,
+    planLabel,
+    billingName: (fmOrder && fmOrder.billing_name) || req.session.paid_billing_name || '',
+    orderId: renderOrderId,
+    productName,
+    amountPaid,
+    paymentMethod: methodMap[methodRaw] || String(req.session.paid_method || 'UPI'),
+    paymentDate,
+    fileName,
+    fileMeta,
+    downloadHref: availability.downloadAvailable ? downloadHref : '',
+    downloadPdfHref:
+      !isSource && !reportDeferred && availability.downloadAvailable
+        ? '/download-instant-report?format=pdf'
+        : '',
+    downloadAvailable: availability.downloadAvailable,
+    downloadUnavailableTitle: availability.downloadUnavailableTitle,
+    downloadUnavailableMessage: availability.downloadUnavailableMessage,
+    addonDownload,
+    existingRating: existingReview ? Number(existingReview.rating) : 0,
+    existingReviewText: existingReview ? (existingReview.review_text || '') : '',
+    conversionTrack: {
+      order_id: renderOrderId,
+      value: amountPaid || 1,
+      currency: 'INR',
+      email: billingEmail,
+      product_type: isSource ? 'source_code' : 'project_report',
+      item_name: isSource
+        ? 'Source Code - ' + (productName || 'Download')
+        : (plan === 'synopsis' ? 'Synopsis - ' : 'Project Report - ') + (productName || 'Download'),
+      item_category: isSource ? 'Source Code' : 'Project Report'
+    },
+    Metatags: {
+      title: 'Download Ready | FileMakr',
+      description: 'Your FileMakr files are ready to download',
+      abstract: '',
+      keywords: ''
+    },
+    CommonMetaTags: onPageSeo.commonMetaTags,
+    category: req.categories,
+    fullUrl: req.fullUrl,
+    active: isSource ? 'source-code' : 'report',
+    graduation_type_send: '',
+    msg: ''
+  });
+});
+
+router.post('/checkout/review', async (req, res) => {
+  try {
+    const orderId = String(req.body.order_id || req.session.fm_order_id || req.session.paid_order_id || '').trim();
+    const rating = parseInt(req.body.rating, 10);
+    const reviewText = String(req.body.review_text || '').trim();
+
+    if (!orderId) {
+      return res.status(400).json({ ok: false, error: 'Order ID missing' });
+    }
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ ok: false, error: 'Please select a rating from 1 to 5' });
+    }
+
+    const saved = await checkoutOrders.saveOrderReview({
+      orderId,
+      rating,
+      reviewText,
+      sourceCodeId: req.session.paid_source_code_id || null,
+      billingName: req.session.paid_billing_name || null,
+      billingEmail: req.session.paid_billing_email || null,
+      ipAddress: req.ip || req.headers['x-forwarded-for'] || null,
+      userAgent: req.headers['user-agent'] || null
+    });
+
+    return res.json({
+      ok: true,
+      rating: saved.rating,
+      rating_label: saved.rating_label,
+      review_text: saved.review_text || ''
+    });
+  } catch (err) {
+    console.error('POST /checkout/review error:', err);
+    return res.status(500).json({ ok: false, error: err.message || 'Could not save review' });
+  }
+});
+
+router.get('/download-instant-report', dataService.allCategory, async (req, res) => {
+  const renderStatus = (status, extras) => {
+    const plan = req.session.paid_plan === 'synopsis' ? 'synopsis' : 'report';
+    return res.status(status).render('instant-report-status', {
+      kind: extras.kind || 'error',
+      pageTitle: extras.pageTitle || 'Download unavailable',
+      message: extras.message || '',
+      orderId: req.session.paid_order_id || extras.orderId || '',
+      productName: extras.productName || '',
+      planLabel: plan === 'synopsis' ? 'Synopsis' : 'Project Report',
+      sourceCodeId: extras.sourceCodeId || req.session.paid_source_code_id || '',
+      Metatags: {
+        title: (extras.pageTitle || 'Download unavailable') + ' | FileMakr',
+        description: extras.message || 'Report download status',
+        abstract: '',
+        keywords: ''
+      },
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      active: 'report',
+      graduation_type_send: '',
+      msg: ''
+    });
+  };
+
+  try {
+    if (req.session.ispayment !== 'done' || !req.session.paid_source_code_id) {
+      return renderStatus(403, {
+        kind: 'error',
+        pageTitle: 'Payment session expired',
+        message: 'Your payment session is missing or expired. Please use the confirmation email link, or contact WhatsApp support with your Order ID.'
+      });
+    }
+    const hasReportAccess =
+      req.session.paid_product_type === 'report' ||
+      (req.session.paid_addon && req.session.paid_addon.type === 'report');
+    if (!hasReportAccess) {
+      return renderStatus(403, {
+        kind: 'error',
+        pageTitle: 'Report not in this order',
+        message: 'This payment session does not include a project report download.'
+      });
+    }
+    const id = parseInt(req.session.paid_source_code_id, 10);
+    let plan = 'report';
+    if (req.session.paid_product_type === 'report') {
+      plan = normalizeReportPlan(req.session.paid_plan);
+    } else if (req.session.paid_addon && req.session.paid_addon.type === 'report') {
+      plan = normalizeReportPlan(req.session.paid_addon.plan);
+    }
+    if (isDeferredReportPlan(plan)) {
+      return renderStatus(200, {
+        kind: 'pending',
+        pageTitle: 'Delivery within 24-48 hours',
+        message:
+          'Payment successful. Your report will be delivered within 24-48 hours on your WhatsApp or Email ID.',
+        productName: '',
+        sourceCodeId: req.session.paid_source_code_id || ''
+      });
+    }
+    if (!Number.isFinite(id)) {
+      return renderStatus(400, {
+        kind: 'error',
+        pageTitle: 'Invalid project',
+        message: 'We could not resolve the project linked to this payment.'
+      });
+    }
+
+    const scRows = await queryAsync('SELECT id, name FROM source_code WHERE id=? LIMIT 1', [id]);
+    if (!scRows.length) {
+      return renderStatus(404, {
+        kind: 'error',
+        pageTitle: 'Project not found',
+        message: 'The project linked to this order was not found.',
+        sourceCodeId: id
+      });
+    }
+
+    const lib = await loadPrcLibraryForExport(id);
+    let items = buildFullReportItems({
+      sections: lib.sectionsWithSub,
+      dbScreenshots: lib.dbScreenshots,
+      screenshots: lib.screenshots,
+      diagrams: lib.diagramsList
+    });
+    if (plan === 'synopsis') {
+      items = filterSynopsisItems(items);
+    } else if (plan === 'report') {
+      items = filterPredefinedReportItems(items);
+    }
+    if (!items.length) {
+      return renderStatus(400, {
+        kind: 'empty',
+        pageTitle: 'Report content not ready',
+        message: 'Payment is successful, but Word content for this project is not published yet. Share your Order ID on WhatsApp and our team will enable the download.',
+        productName: scRows[0].name || '',
+        sourceCodeId: id
+      });
+    }
+
+    const sourceCodeName =
+      (scRows[0].name || 'Report').toString().trim() + (plan === 'synopsis' ? ' Synopsis' : ' Report');
+    const prevBody = req.body;
+    try {
+      const fmt = String(req.query.format || 'docx').toLowerCase() === 'pdf' ? 'pdf' : 'docx';
+      req.body = { sourceCodeId: id, sourceCodeName, items, format: fmt };
+      await handleProjectReportWordDownload(req, res);
+      const deliverOrderId = req.session.fm_order_id || req.session.paid_order_id;
+      if (deliverOrderId) {
+        setImmediate(() => {
+          checkoutOrders.markDelivered(deliverOrderId).catch((e) => {
+            console.warn('markDelivered failed:', e.message || e);
+          });
+        });
+      }
+    } finally {
+      req.body = prevBody;
+    }
+  } catch (e) {
+    console.error('download-instant-report error:', e);
+    if (!res.headersSent) {
+      return renderStatus(500, {
+        kind: 'error',
+        pageTitle: 'Could not generate Word file',
+        message: 'Something went wrong while generating your document. Please try again, or contact WhatsApp support with your Order ID.'
+      });
+    }
+  }
+});
+
+router.get('/download-instant-source', dataService.allCategory, async (req, res) => {
+  const renderStatus = (status, extras) => {
+    return res.status(status).render('instant-report-status', {
+      kind: extras.kind || 'error',
+      pageTitle: extras.pageTitle || 'Download unavailable',
+      message: extras.message || '',
+      orderId: req.session.paid_order_id || extras.orderId || '',
+      productName: extras.productName || '',
+      planLabel: 'Source Code',
+      sourceCodeId: extras.sourceCodeId || req.session.paid_source_code_id || '',
+      Metatags: {
+        title: (extras.pageTitle || 'Download unavailable') + ' | FileMakr',
+        description: extras.message || 'Source code download status',
+        abstract: '',
+        keywords: ''
+      },
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      active: 'source-code',
+      graduation_type_send: '',
+      msg: ''
+    });
+  };
+
+  try {
+    if (req.session.ispayment !== 'done' || !req.session.paid_source_code_id) {
+      return renderStatus(403, {
+        kind: 'error',
+        pageTitle: 'Payment session expired',
+        message:
+          'Your payment session is missing or expired. Please use the confirmation email link, or contact WhatsApp support with your Order ID.'
+      });
+    }
+
+    const id = parseInt(req.session.paid_source_code_id, 10);
+    if (!Number.isFinite(id)) {
+      return renderStatus(400, {
+        kind: 'error',
+        pageTitle: 'Invalid project',
+        message: 'We could not resolve the project linked to this payment.'
+      });
+    }
+
+    const rows = await queryAsync(
+      'SELECT id, name, source_code FROM source_code WHERE id=? LIMIT 1',
+      [id]
+    );
+    if (!rows.length) {
+      return renderStatus(404, {
+        kind: 'error',
+        pageTitle: 'Project not found',
+        message: 'The project linked to this order was not found.',
+        sourceCodeId: id
+      });
+    }
+
+    const zipName = path.basename(String(req.session.paid_zip_file || rows[0].source_code || '').trim());
+    if (!zipName) {
+      return renderStatus(400, {
+        kind: 'empty',
+        pageTitle: 'Source file not ready',
+        message:
+          'Payment is successful, but the ZIP file for this project is not available yet. Share your Order ID on WhatsApp and our team will enable the download.',
+        productName: rows[0].name || '',
+        sourceCodeId: id
+      });
+    }
+
+    // ZIPs are hosted on production CDN — never use localhost /images (404 in local/dev)
+    return res.redirect('https://filemakr.com/images/' + encodeURIComponent(zipName));
+  } catch (e) {
+    console.error('download-instant-source error:', e);
+    if (!res.headersSent) {
+      return renderStatus(500, {
+        kind: 'error',
+        pageTitle: 'Could not start download',
+        message:
+          'Something went wrong while preparing your source code. Please try again, or contact WhatsApp support with your Order ID.'
+      });
+    }
+  }
+});
+
 
 
 
 router.get('/cse/synopsis/:name',(req,res)=>{
-    res.redirect(`/btech-final-year-project-report-${req.params.name}`)
+    res.redirect(projectReportShared.projectReportUrl(req.params.name))
 })
 
 
@@ -1471,7 +3106,7 @@ router.get('/cse/synopsis/:name',(req,res)=>{
 
 
 router.get('/ieee-standard-project-report-:name',(req,res)=>{
-   res.redirect(`/btech-final-year-project-report-${req.params.name}`)
+   res.redirect(projectReportShared.projectReportUrl(req.params.name))
 })
 
 
@@ -1534,61 +3169,180 @@ router.get('/make-your-own-project-pricing-list', (req, res) => { pool.query(`se
 
 
 
-router.get('/search',dataService.allCategory,(req,res)=>{
-    if(req.query.type == 'Project Report'){
-        pool.query(`select name,seo_name,short_description from project where assign is not null and seo_name like '%${req.query.q}%'`,
-        (err,result)=>err ? console.log(err) : res.render('project-ideas',{result:result,Metatags: onPageSeo.successPage,
-                CommonMetaTags: onPageSeo.commonMetaTags,
-                category: req.categories,msg:'',fullUrl:req.fullUrl}))
+function sanitizeCatalogSearchQuery(raw) {
+  return String(raw || '')
+    .trim()
+    .slice(0, 120)
+    .replace(/[%_\\]/g, '');
+}
+
+async function searchSourceCodeCatalog(term, limit) {
+  const q = sanitizeCatalogSearchQuery(term);
+  if (!q) return [];
+
+  const maxRows = Math.min(Math.max(parseInt(limit, 10) || 200, 1), 300);
+  const like = `%${q}%`;
+  const likeStart = `${q}%`;
+
+  const cols = [
+    'name',
+    'seo_name',
+    'category',
+    "IFNULL(description, '')",
+    "IFNULL(meta_keywords, '')",
+    "IFNULL(meta_desc, '')",
+    "REPLACE(seo_name, '-', ' ')"
+  ];
+
+  const params = [];
+  const conditions = [];
+
+  const fullMatch = cols.map((c) => `${c} LIKE ?`).join(' OR ');
+  conditions.push(`(${fullMatch})`);
+  cols.forEach(() => params.push(like));
+
+  const words = q.split(/\s+/).filter(Boolean).slice(0, 6);
+  if (words.length > 1) {
+    const wordGroups = words.map((word) => {
+      const wLike = `%${word.replace(/[%_\\]/g, '')}%`;
+      cols.forEach(() => params.push(wLike));
+      return `(${cols.map((c) => `${c} LIKE ?`).join(' OR ')})`;
+    });
+    conditions.push(`(${wordGroups.join(' AND ')})`);
+  }
+
+  const whereSql = conditions.join(' OR ');
+  params.push(q, likeStart, likeStart, like);
+
+  const sql = `
+    SELECT id, name, seo_name, category, image, demo_url,
+           LEFT(IFNULL(description, ''), 160) AS description
+    FROM source_code
+    WHERE (${whereSql})
+    ORDER BY
+      CASE
+        WHEN LOWER(name) = LOWER(?) THEN 0
+        WHEN name LIKE ? THEN 1
+        WHEN seo_name LIKE ? THEN 2
+        WHEN category LIKE ? THEN 3
+        ELSE 4
+      END,
+      id DESC
+    LIMIT ${maxRows}
+  `;
+
+  const [rows] = await pool.promise().query(sql, params);
+  return rows || [];
+}
+
+router.get('/search', dataService.allCategory, async (req, res) => {
+  const typeRaw = String(req.query.type || 'Source Code').trim();
+  const isProjectReport = /project\s*report/i.test(typeRaw);
+  const q = sanitizeCatalogSearchQuery(req.query.q);
+
+  if (!q) {
+    return res.redirect(isProjectReport ? '/final-year-project-ideas' : '/source-code');
+  }
+
+  res.setHeader('X-Robots-Tag', 'noindex, follow');
+  res.setHeader('Cache-Control', 'private, no-store');
+
+  try {
+    const rows = await searchSourceCodeCatalog(q);
+    const label = isProjectReport ? 'Project Ideas' : 'Source Code';
+    const pageTitle = `Search “${q}” – ${label} | FileMakr`;
+    const pageDesc = `Results for “${q}” in FileMakr ${label.toLowerCase()} catalog. Browse matching final year projects with reports, source code and setup support.`;
+
+    const common = {
+      result: rows,
+      searchPage: true,
+      searchQuery: q,
+      searchType: isProjectReport ? 'Project Report' : 'Source Code',
+      Metatags: {
+        title: pageTitle,
+        description: pageDesc,
+        abstract: pageDesc,
+        keywords: `${q}, ${label}, final year project, FileMakr`
+      },
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      msg: '',
+      fullUrl: req.fullUrl
+    };
+
+    if (isProjectReport) {
+      return res.render('project-ideas', {
+        ...common,
+        graduation_type_send: 'Final Year',
+        original: 'btech',
+        ideasPage: true,
+        active: 'report',
+        listCtaLabel: 'View Idea'
+      });
     }
-    else{
-        pool.query(`select name,seo_name,description from source_code where seo_name like '%${req.query.q}%'`,
-        (err,result)=>err ? console.log(err) : res.render('searching-source-code',{result:result,Metatags: onPageSeo.successPage,
-                CommonMetaTags: onPageSeo.commonMetaTags,
-                category: req.categories,msg:'',fullUrl:req.fullUrl,graduation_type_send:'',active:''}))  
-    }
+
+    return res.render('source_code', {
+      ...common,
+      graduation_type_send: 'Final Year',
+      original: '',
+      sourceCodePage: true,
+      active: 'source-code',
+      listCtaLabel: 'Get Source Code'
+    });
+  } catch (err) {
+    console.error('search catalog error:', err);
+    res.status(500).render('error', {
+      message: 'Something went wrong. Please try again.',
+      error: { status: 500, stack: '' }
+    });
+  }
 })
 
 
 
 
 // using this routes
-router.get('/source-code/:category', dataService.allCategory ,async (req, res) => {
-    res.setHeader('X-Robots-Tag', 'index, follow');
-    // Split the string into an array of words separated by hyphens
+router.get('/source-code/:category', dataService.allCategory, async (req, res) => {
+  res.setHeader('X-Robots-Tag', 'index, follow');
+  res.setHeader('Cache-Control', 'public, max-age=60');
 
-    
-var words = req.params.category.split('-');
+  const cat = String(req.params.category || '').trim().toLowerCase();
+  if (!cat || cat.length > 80) {
+    return res.status(404).render('error', { message: 'Category not found', error: { status: 404, stack: '' } });
+  }
 
-// Capitalize the first letter of each word and join them with spaces
-var graduation_type_send = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    try {        
-        pool.query(
-            'SELECT name, seo_name, description, image FROM source_code WHERE category = ?',
-            [req.params.category],
-            (err, result) => {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).send('Internal Server Error');
-                }
+  const graduation_type_send = onPageSeo.resolveSourceCategoryLabel(req.categories, cat);
 
-                res.render('source_code', {
-                    result: result,
-                    graduation_type_send,
-                    original:req.params.category,
-                    msg: '',
-                    category: req.categories,
-                    fullUrl:req.fullUrl,
-                    active:'source-code'
-                });
-            }
-        );
-        const endTime = Date.now();
-        console.log(`Response time: ${endTime - req.startTime}ms`);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
+  try {
+    const [rows] = await pool.promise().query(
+      `SELECT id, name, seo_name, category, image, demo_url,
+              LEFT(description, 160) AS description
+       FROM source_code
+       WHERE category = ?
+       ORDER BY id DESC`,
+      [cat]
+    );
+
+    res.render('source_code', {
+      result: rows || [],
+      graduation_type_send,
+      original: cat,
+      sourceCodePage: true,
+      Metatags: onPageSeo.sourceCodeCategoryMeta(req.categories, cat, req.fullUrl),
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      category: req.categories,
+      msg: '',
+      fullUrl: req.fullUrl,
+      active: 'source-code',
+      listCtaLabel: 'Get Source Code'
+    });
+  } catch (err) {
+    console.error('source-code category error:', err);
+    res.status(500).render('error', {
+      message: 'Something went wrong. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? err : {},
+    });
+  }
 });
 
 
@@ -1616,8 +3370,8 @@ router.get('/:name/source-code', dataService.allCategory, async (req, res) => {
 
         const result = await queryAsync(
             'SELECT * FROM source_code WHERE seo_name = ?; ' +
-            'SELECT sc.name, sc.seo_name, sc.description, sc.demo_url FROM source_code sc WHERE sc.seo_name != ? AND sc.category = ? ORDER BY RAND() LIMIT 12; ' +
-            'SELECT * FROM screenshots WHERE source_code_id = ?;',
+            'SELECT sc.name, sc.seo_name, sc.description, sc.demo_url, sc.image FROM source_code sc WHERE sc.seo_name != ? AND sc.category = ? ORDER BY RAND() LIMIT 10; ' +
+            'SELECT * FROM screenshots WHERE source_code_id = ? ORDER BY id ASC LIMIT 5;',
             [seoName, seoName, projectcategory, projectid]
         );
 
@@ -1629,6 +3383,8 @@ router.get('/:name/source-code', dataService.allCategory, async (req, res) => {
         const pageTitle = `${product.name} Source Code Download | FileMakr`;
         const pageDesc = product.meta_desc || `Download ${product.name} final year project source code with frontend, backend, database and setup guide. Instant secure download for B.Tech, MCA, BCA students.`;
 
+        res.setHeader('X-Robots-Tag', 'index, follow');
+        res.setHeader('Cache-Control', 'public, max-age=60');
         res.render('download-source-code', {
             result,
             category: req.categories,
@@ -1644,7 +3400,9 @@ router.get('/:name/source-code', dataService.allCategory, async (req, res) => {
                 title: pageTitle,
                 description: pageDesc,
                 abstract: pageDesc,
-                keywords: product.meta_keywords || `${product.name}, source code, final year project`
+                keywords: product.meta_keywords || `${product.name}, source code, final year project`,
+                ogImage: product.image || '',
+                ogImageAlt: `${product.name} source code — FileMakr`
             },
             CommonMetaTags: onPageSeo.commonMetaTags
         });
@@ -2359,49 +4117,6 @@ router.get('/final/year/project/report/:roll_number',(req,res)=>{
 
 
 
-      router.get('/our-campus-brand-ambassador',dataService.allCategory,(req,res)=>{
-        pool.query(`WITH performance_data AS (
-    SELECT 
-        s.id,
-        s.name,
-        s.address,
-        s.image_url,
-        s.instagram_id,
-        s.linkedin_id,
-        s.youtube_id,
-        COUNT(pe.post_id) AS total_post,
-        COALESCE(SUM(pe.liked), 0) AS total_like,
-        COALESCE(SUM(pe.commented), 0) AS total_comment,
-        CASE 
-            WHEN COUNT(pe.post_id) = 0 THEN 0
-            ELSE (COALESCE(SUM(pe.liked), 0) + COALESCE(SUM(pe.commented), 0)) / (COUNT(pe.post_id) * 2.0)
-        END AS engagement_ratio
-    FROM 
-        shopkeeper s
-    LEFT JOIN 
-        post_engagement pe ON pe.ambassador_id = s.id
-    GROUP BY 
-        s.id, s.name, s.address
-)
-
-SELECT 
-    pd.*,
-    ROUND(pd.engagement_ratio * 100) AS performance_score,       -- Out of 100
-    ROUND(pd.engagement_ratio * 5) AS rating_star                -- Out of 5
-FROM 
-    performance_data pd
-ORDER BY 
-    performance_score DESC;
-
-
-`,(err,result)=>{
-            if(err) throw err;
-            else res.render('campus_ambassador',{result:result,Metatags: onPageSeo.AmbassadorPage,
-    CommonMetaTags: onPageSeo.commonMetaTags,category:req.categories,msg:'',fullUrl:req.fullUrl,active:'',graduation_type_send:''})
-//    else res.json(result)
-        
-})
-      })
 
 
 
@@ -2544,14 +4259,12 @@ router.get('/add-ambassador/bulk-sample.csv', requireMernManagerToolkit, (req, r
 
 // routes/blog.js
 router.get('/blog', dataService.allCategory, (req, res) => {
-  // --- Inputs ---
-  const pageSize = Math.min(Math.max(parseInt(req.query.pageSize || 12, 10), 6), 48); // clamp 6–48
+  const pageSize = 10;
   const page     = Math.max(parseInt(req.query.page || 1, 10), 1);
   const q        = (req.query.q || req.query.tag || '').trim().slice(0, 100);
-  const cat      = (req.query.category || '').trim().slice(0, 50);
+  const cat      = (req.query.category || '').trim().slice(0, 80);
   const order    = (req.query.sort || 'new'); // 'new' | 'old' | 'alpha'
 
-  // --- Build SQL safely ---
   const where = [];
   const params = [];
 
@@ -2560,7 +4273,7 @@ router.get('/blog', dataService.allCategory, (req, res) => {
     params.push(`%${q}%`, `%${q}%`, `%${q}%`);
   }
   if (cat) {
-    where.push(`category_slug = ?`);
+    where.push(`category = ?`);
     params.push(cat);
   }
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
@@ -2569,70 +4282,80 @@ router.get('/blog', dataService.allCategory, (req, res) => {
   if (order === 'old')   orderSql = 'ORDER BY created_at ASC, id ASC';
   if (order === 'alpha') orderSql = 'ORDER BY meta_title ASC';
 
-  const offset = (page - 1) * pageSize;
-
-  // --- Queries ---
   const countSql = `SELECT COUNT(*) AS total FROM blogs ${whereSql}`;
   const listSql  = `
-    SELECT id, slug, meta_title, meta_description, thumbnail_url, created_at
+    SELECT id, slug, title, meta_title, meta_description, thumbnail_url, created_at, category
     FROM blogs
     ${whereSql}
     ${orderSql}
     LIMIT ? OFFSET ?
   `;
+  const popularSql = `
+    SELECT id, slug, title, meta_title, meta_description, thumbnail_url, created_at, category
+    FROM blogs
+    ORDER BY created_at DESC
+    LIMIT 15
+  `;
 
-  // --- Run queries ---
   pool2.query(countSql, params, (err, countRows) => {
     if (err) throw err;
     const total = countRows[0]?.total || 0;
     const totalPages = Math.max(Math.ceil(total / pageSize), 1);
+    const safePage = Math.min(page, totalPages);
+    const from = total === 0 ? 0 : (safePage - 1) * pageSize + 1;
+    const to = Math.min(safePage * pageSize, total);
 
-    pool2.query(listSql, [...params, pageSize, offset], (err2, result) => {
+      pool2.query(listSql, [...params, pageSize, (safePage - 1) * pageSize], (err2, result) => {
       if (err2) throw err2;
 
-      // Build canonical & prev/next (page 1 = base to avoid dup titles; page 2+ = self)
-      const baseUrl = req.fullUrl?.split('?')[0] || `${req.protocol}://${req.get('host')}${req.path}`;
-      const queryNoPage = new URLSearchParams(req.query);
-      queryNoPage.delete('page');
-      const qStr = queryNoPage.toString();
-      const canonical = page > 1 ? req.fullUrl : (qStr ? `${baseUrl}?${qStr}` : baseUrl);
+      pool2.query(popularSql, [], (err4, popularRows) => {
+        if (err4) throw err4;
 
-      const mkUrl = (p) => {
-        const sp = new URLSearchParams(req.query);
-        sp.set('page', p);
-        return `${baseUrl}?${sp.toString()}`;
-      };
+          const baseUrl = req.fullUrl?.split('?')[0] || `${req.protocol}://${req.get('host')}${req.path}`;
+          const queryNoPage = new URLSearchParams(req.query);
+          queryNoPage.delete('page');
+          const qStr = queryNoPage.toString();
+          const canonical = safePage > 1 ? req.fullUrl : (qStr ? `${baseUrl}?${qStr}` : baseUrl);
 
-      res.render('blog', {
-        Metatags: onPageSeo.blogPage,
-        CommonMetaTags: onPageSeo.commonMetaTags,
-        msg: '',
-        category: req.categories,
-        fullUrl: req.fullUrl,
-        canonicalUrl: canonical,
-        prevUrl: page > 1 ? mkUrl(page - 1) : null,
-        nextUrl: page < totalPages ? mkUrl(page + 1) : null,
-        result,
-        active: 'blog',
-        graduation_type_send: '',
-        pagination: {
-          page,
-          pageSize,
-          total,
-          totalPages,
-          hasPrev: page > 1,
-          hasNext: page < totalPages,
-          prevUrl: page > 1 ? mkUrl(page - 1) : null,
-          nextUrl: page < totalPages ? mkUrl(page + 1) : null,
-          canonical,
-          baseUrl
-        },
-        filters: { q, cat, order }
+          const mkUrl = (p) => {
+            const sp = new URLSearchParams(req.query);
+            sp.set('page', p);
+            return `${baseUrl}?${sp.toString()}`;
+          };
+
+          res.render('blog', {
+            Metatags: onPageSeo.blogListingMeta(canonical, { q, cat, page: safePage }),
+            CommonMetaTags: onPageSeo.commonMetaTags,
+            msg: '',
+            category: req.categories,
+            fullUrl: req.fullUrl,
+            canonicalUrl: canonical,
+            prevUrl: safePage > 1 ? mkUrl(safePage - 1) : null,
+            nextUrl: safePage < totalPages ? mkUrl(safePage + 1) : null,
+            result,
+            popularPosts: popularRows || [],
+            active: 'blog',
+            graduation_type_send: '',
+            pagination: {
+              page: safePage,
+              pageSize,
+              total,
+              totalPages,
+              from,
+              to,
+              hasPrev: safePage > 1,
+              hasNext: safePage < totalPages,
+              prevUrl: safePage > 1 ? mkUrl(safePage - 1) : null,
+              nextUrl: safePage < totalPages ? mkUrl(safePage + 1) : null,
+              canonical,
+              baseUrl
+            },
+            filters: { q, cat, order }
+          });
+        });
       });
-    });
   });
 });
-
 
 
 
@@ -2648,8 +4371,8 @@ router.get('/blog/:name', dataService.allCategory, (req, res) => {
 
     const blogQuery = `SELECT * FROM blogs WHERE slug = ? LIMIT 1`;
     const recentBlogsQuery = `
-        SELECT id, meta_title, slug, thumbnail_url, created_at 
-        FROM blogs ORDER BY created_at DESC LIMIT 10
+        SELECT id, title, meta_title, slug, thumbnail_url, created_at, meta_description
+        FROM blogs ORDER BY created_at DESC LIMIT 25
     `;
 
     pool2.query(blogQuery, [blogSlug], (err, blogResult) => {
@@ -2667,16 +4390,23 @@ router.get('/blog/:name', dataService.allCategory, (req, res) => {
                 return res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
             }
 
+            const post = blogResult[0];
+            const pageMetatags = onPageSeo.blogDetailMeta(post, req.fullUrl);
+            const pageCommonMeta = {
+                ...onPageSeo.commonMetaTags,
+                ogImage: post.thumbnail_url || onPageSeo.commonMetaTags.ogImage
+            };
+
             res.render('blog_details', {
                 result: blogResult,
                 recentBlogs: recentBlogs || [],
-                Metatags: onPageSeo.contactPage,
-                CommonMetaTags: onPageSeo.commonMetaTags,
+                Metatags: pageMetatags,
+                CommonMetaTags: pageCommonMeta,
                 msg: '',
                 category: req.categories,
                 fullUrl: req.fullUrl,
-                active: '',
-                graduation_type_send: 'B.Tech'
+                active: 'blog',
+                graduation_type_send: ''
             });
         });
     });
@@ -3024,6 +4754,66 @@ router.get('/sitemap-news.xml', async (req, res) => {
     publicationName: 'FileMakr',
     publicationLang: 'en'
   });
+});
+
+// Canonical report detail with degree: /{seo_name}-report-{degree}
+router.get('/:seoName-report-:degree', dataService.allCategory, async (req, res, next) => {
+  const degree = projectReportShared.normalizeReportDegreeSlug(req.params.degree);
+  if (!projectReportShared.isReportCatalogDegree(degree)) {
+    return next();
+  }
+  const seoName = (req.params.seoName || '').trim().toLowerCase();
+  if (!seoName || isReportCatalogSeoName(seoName)) {
+    return next();
+  }
+  const graduation_type_send = projectReportShared.degreeSlugToLabel(degree) || degree.toUpperCase();
+  return renderSingleProjectReport(req, res, {
+    seoName,
+    original: degree,
+    graduation_type_send,
+    degreeLabel: graduation_type_send,
+  });
+});
+
+router.get('/:seoName-report-:degree/edit', dataService.allCategory, async (req, res, next) => {
+  const degree = projectReportShared.normalizeReportDegreeSlug(req.params.degree);
+  if (!projectReportShared.isReportCatalogDegree(degree)) {
+    return next();
+  }
+  const seoName = (req.params.seoName || '').trim().toLowerCase();
+  if (!seoName || isReportCatalogSeoName(seoName)) {
+    return next();
+  }
+  const seo = resolveProjectReportSeoSlug(seoName);
+  if (!seo || seo.length > 200) {
+    return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
+  }
+  const qType = String(req.query.type || '').toLowerCase();
+  const plan = qType === 'synopsis' ? 'synopsis' : 'report';
+  return res.redirect(301, `/checkout?type=report&seo=${encodeURIComponent(seo)}&plan=${plan}`);
+});
+
+// Canonical report detail: /{seo_name}-report (register late — path ends with -report)
+router.get('/:seoName-report', dataService.allCategory, async (req, res, next) => {
+  const seoName = (req.params.seoName || '').trim().toLowerCase();
+  if (!seoName || isReportCatalogSeoName(seoName)) {
+    return next();
+  }
+  return renderSingleProjectReport(req, res, { seoName });
+});
+
+router.get('/:seoName-report/edit', dataService.allCategory, async (req, res, next) => {
+  const seoName = (req.params.seoName || '').trim().toLowerCase();
+  if (!seoName || isReportCatalogSeoName(seoName)) {
+    return next();
+  }
+  const seo = resolveProjectReportSeoSlug(seoName);
+  if (!seo || seo.length > 200) {
+    return res.status(404).render('error', { message: 'Project report not found', error: { status: 404, stack: '' } });
+  }
+  const qType = String(req.query.type || '').toLowerCase();
+  const plan = qType === 'synopsis' ? 'synopsis' : 'report';
+  return res.redirect(301, `/checkout?type=report&seo=${encodeURIComponent(seo)}&plan=${plan}`);
 });
 
 module.exports = router;

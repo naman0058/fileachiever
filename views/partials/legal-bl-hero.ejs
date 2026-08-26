@@ -1,0 +1,67 @@
+<%
+  if (typeof lpHeroRaw === 'undefined') {
+    lpHeroRaw = 'https://res.cloudinary.com/npuap6la/image/upload/v1787657312/Untitled_4.webp';
+  }
+  if (typeof lpHeroSrc === 'undefined') {
+    lpHeroSrc = typeof cloudinaryUrl === 'function'
+      ? cloudinaryUrl(lpHeroRaw, { width: 720 })
+      : 'https://www.filemakr.com/cloudinary/npuap6la/image/upload/f_auto,q_auto:best,w_720,c_limit,e_sharpen:60/v1787657312/Untitled_4.webp';
+  }
+%>
+  <!-- Hero — same layout as blog listing (copy left, illustration right) -->
+  <section class="bl-hero" aria-labelledby="<%= lpHeroId %>">
+    <div class="bl-hero__wrap">
+      <div class="bl-hero__grid">
+
+        <div class="bl-hero__copy">
+          <% if (typeof lpHeroCrumb !== 'undefined' && lpHeroCrumb) { %>
+            <nav aria-label="Breadcrumb">
+              <ol class="lp-crumb">
+                <li><a href="/">Home</a></li>
+                <li aria-current="page"><%= lpHeroCrumb %></li>
+              </ol>
+            </nav>
+          <% } %>
+
+          <p class="bl-hero__eyebrow"><%= lpHeroEyebrow %></p>
+
+          <h1 id="<%= lpHeroId %>" class="bl-hero__title"><%- lpHeroTitle %></h1>
+
+          <span class="bl-hero__rule" aria-hidden="true"></span>
+
+          <p class="bl-hero__lead"><%- lpHeroLead %></p>
+
+          <ul class="bl-hero__points" aria-label="<%= lpHeroPointsLabel || 'Page highlights' %>">
+            <% (lpHeroPoints || []).forEach(function (point) { %>
+              <li>
+                <span class="bl-hero__point-icon" aria-hidden="true">
+                  <%- point.icon %>
+                </span>
+                <span>
+                  <strong><%= point.strong %></strong>
+                  <small><%= point.small %></small>
+                </span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+
+        <div class="bl-hero__media">
+          <img
+            src="<%= lpHeroSrc %>"
+            srcset="<%= typeof cloudinarySrcSet === 'function'
+              ? cloudinarySrcSet(lpHeroRaw, [480, 720, 960])
+              : lpHeroSrc %>"
+            sizes="(max-width: 991px) calc(100vw - 20px), 520px"
+            alt="<%= lpHeroAlt %>"
+            width="720"
+            height="540"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          >
+        </div>
+
+      </div>
+    </div>
+  </section>

@@ -59,6 +59,12 @@
         <% if (typeof setupSupportLink !== 'undefined' && setupSupportLink) { %>
           <div class="mt-2"><a href="/setup-support/login" style="color:#2563eb;font-weight:700;">Go to Setup Support Portal →</a></div>
         <% } %>
+        <% if (typeof reportSalesLink !== 'undefined' && reportSalesLink) { %>
+          <div class="mt-2"><a href="/report-sales/login" style="color:#2563eb;font-weight:700;">Go to Report Sales Team →</a></div>
+        <% } %>
+        <% if (typeof reportSalesAdminLink !== 'undefined' && reportSalesAdminLink) { %>
+          <div class="mt-2"><a href="/report-sales-admin/login" style="color:#2563eb;font-weight:700;">Go to Report Sales Admin →</a></div>
+        <% } %>
         <% if (typeof sourceCodeManagerLink !== 'undefined' && sourceCodeManagerLink) { %>
           <div class="mt-2"><a href="/source-code-manager/login" style="color:#2563eb;font-weight:700;">Go to Source Code Manager Portal →</a></div>
         <% } %>

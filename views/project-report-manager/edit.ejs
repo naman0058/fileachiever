@@ -160,8 +160,9 @@
 
 <div class="prm-toast-wrap" id="prmToastWrap" aria-live="polite"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script src="/js/fm-download-progress.js?v=1"></script>
 <script>
 (function(){
   const scId = <%= sc.id %>;
@@ -493,33 +494,46 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating…';
     try {
-      const res = await fetch('/project-report-manager/api/' + scId + '/download-word', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ items: collectSections() })
-      });
-      const ct = (res.headers.get('Content-Type') || '').toLowerCase();
-      if (!res.ok) {
-        let msg = 'Download failed.';
-        try {
-          if (ct.includes('application/json')) {
-            const j = await res.json();
-            if (j.message) msg = j.message;
-          }
-        } catch (_) {}
-        showToast(msg, 'error');
-        return;
+      const fname = (scName || 'report').replace(/[^\w\s-]/g, '') + '.docx';
+      const payload = { items: collectSections() };
+      if (window.FmDownloadProgress && typeof window.FmDownloadProgress.postAndSave === 'function') {
+        await window.FmDownloadProgress.postAndSave(
+          '/project-report-manager/api/' + scId + '/download-word',
+          payload,
+          { title: 'Preparing Word…', filename: fname }
+        );
+        showToast('Word document downloaded.');
+      } else {
+        const res = await fetch('/project-report-manager/api/' + scId + '/download-word', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify(payload)
+        });
+        const ct = (res.headers.get('Content-Type') || '').toLowerCase();
+        if (!res.ok) {
+          let msg = 'Download failed.';
+          try {
+            if (ct.includes('application/json')) {
+              const j = await res.json();
+              if (j.message) msg = j.message;
+            }
+          } catch (_) {}
+          showToast(msg, 'error');
+          return;
+        }
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fname;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('Word document downloaded.');
       }
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = (scName || 'report').replace(/[^\w\s-]/g, '') + '.docx';
-      a.click();
-      URL.revokeObjectURL(a.href);
-      showToast('Word document downloaded.');
     } catch (err) {
-      showToast(err.message || 'Download failed.', 'error');
+      if (!(window.FmDownloadProgress && err)) {
+        showToast(err.message || 'Download failed.', 'error');
+      }
     } finally {
       btn.disabled = false;
       btn.innerHTML = label;

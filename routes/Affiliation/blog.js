@@ -954,7 +954,7 @@ function generateCorrectMtechDownloadUrl(slug) {
   const cleanSlug = slug.split('-mtech')[0];
 
   // Step 2: Format the final URL
-  const correctUrl = `https://filemakr.com/mtech-final-year-project-report-${cleanSlug}`;
+  const correctUrl = `https://filemakr.com/${cleanSlug}-report`;
 
   return correctUrl;
 }

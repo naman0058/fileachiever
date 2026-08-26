@@ -34,7 +34,7 @@
     <meta property="og:phone_number" content="+91-8319339945"/>
     <meta property="og:email" content="filemakr@gmail.com"/>
     <meta property="og:country-name" content="India"/>
-   <link rel="canonical" href="https://www.filemakr.com/be-final-year-project-report-<%=result[0][0].seo_name%>">
+   <link rel="canonical" href="https://www.filemakr.com/<%=result[0][0].seo_name%>-report">
     <title>BE Project Report Of <%=result[0][0].name%> — Filemakr </title>
 
 
@@ -1798,7 +1798,7 @@ White-box testing's basic procedures involves the tester having a deep level of 
 <script>
 $('.edit').click(function(){
   const seo_name = $(this).attr('seo_name')
-    window.location.href='/be-final-year-project-report-'+seo_name+'/edit';
+    window.location.href='/'+seo_name+'-report/edit';
 })
 </script>
 

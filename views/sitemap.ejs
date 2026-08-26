@@ -1,147 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-  <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+    http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-
-
+<% (staticPages || []).forEach(function (page) { %>
 <url>
-  <loc>https://www.filemakr.com/</loc>
-  <lastmod><%=lastupdate%></lastmod>
-  <priority>1.00</priority>
+  <loc><%= page.loc %></loc>
+  <lastmod><%= lastupdate %></lastmod>
+  <priority><%= page.priority %></priority>
 </url>
+<% }); %>
 
-
+<% (degreeCatalogs || []).forEach(function (page) { %>
 <url>
-  <loc>https://www.filemakr.com/source-code</loc>
-  <lastmod><%=lastupdate%></lastmod>
+  <loc><%= page.loc %></loc>
+  <lastmod><%= lastupdate %></lastmod>
+  <priority><%= page.priority %></priority>
+</url>
+<% }); %>
+
+<% for (var ci = 0; ci < result[0].length; ci++) {
+     var catSlug = String(result[0][ci].seo_name || '').trim();
+     if (!catSlug) continue;
+%>
+<url>
+  <loc><%= siteBase %>/source-code/<%= encodeURIComponent(catSlug) %></loc>
+  <lastmod><%= lastupdate %></lastmod>
   <priority>0.80</priority>
 </url>
-
-
-<url>
-  <loc>https://www.filemakr.com/blog</loc>
-  <lastmod><%=lastupdate%></lastmod>
-  <priority>0.80</priority>
-</url>
-
-
-<url>
-  <loc>https://www.filemakr.com/final-year-project-ideas</loc>
-  <lastmod><%=lastupdate%></lastmod>
-  <priority>0.80</priority>
-</url>
-
-
-
-<% for(i=0;i<result[0].length;i++) { %>
-<url>
-  <loc>https://www.filemakr.com/source-code/<%=result[0][i].seo_name%></loc>
-  <lastmod><%=lastupdate%></lastmod>
-  <priority>0.80</priority>
-</url>
-
 <% } %>
 
+<% for (var si = 0; si < result[1].length; si++) {
+     var scSlug = String(result[1][si].seo_name || '').trim();
+     if (!scSlug) continue;
+%>
+<url>
+  <loc><%= siteBase %>/<%= encodeURIComponent(scSlug) %>/source-code</loc>
+  <lastmod><%= lastupdate %></lastmod>
+  <priority>0.72</priority>
+</url>
+<% } %>
 
-<% for(i=0;i<result[1].length;i++) { %>
-  <url>
-    <loc>https://www.filemakr.com/<%=result[1][i].seo_name%>/source-code</loc>
-    <lastmod><%=lastupdate%></lastmod>
-    <priority>0.64</priority>
-  </url>
-  
-  <% } %>
+<% for (var ri = 0; ri < result[2].length; ri++) {
+     var reportSeo = resolveProjectReportSeoSlug(result[2][ri].seo_name);
+     if (!reportSeo) continue;
+     var reportBase = projectReportUrl(reportSeo);
+%>
+<url>
+  <loc><%= siteBase %><%= reportBase %></loc>
+  <lastmod><%= lastupdate %></lastmod>
+  <priority>0.68</priority>
+</url>
+<%   for (var di = 0; di < reportDegrees.length; di++) {
+       var degreeUrl = projectReportUrl(reportSeo, reportDegrees[di]);
+       if (degreeUrl === reportBase) continue;
+%>
+<url>
+  <loc><%= siteBase %><%= degreeUrl %></loc>
+  <lastmod><%= lastupdate %></lastmod>
+  <priority>0.64</priority>
+</url>
+<%   }
+   } %>
 
+<% (liveDemos || []).forEach(function (demo) {
+     var demoSlug = String(demo.seo_slug || '').trim();
+     if (!demoSlug) return;
+     var demoMod = demo.modified
+       ? new Date(demo.modified).toISOString().split('T')[0]
+       : lastupdate;
+%>
+<url>
+  <loc><%= siteBase %>/demo/<%= encodeURIComponent(demoSlug) %></loc>
+  <lastmod><%= demoMod %></lastmod>
+  <priority>0.60</priority>
+</url>
+<% }); %>
 
-
-
-  <% for(i=0;i<result[2].length;i++) { %>
-    <url>
-      <loc>https://www.filemakr.com/final-year-project-report-<%=result[2][i].seo_name%></loc>
-      <lastmod><%=lastupdate%></lastmod>
-      <priority>0.64</priority>
-    </url>
-    
-    <% } %>
-
-
-
-    <% for(i=0;i<result[2].length;i++) { %>
-      <url>
-        <loc>https://www.filemakr.com/btech-final-year-project-report-<%=result[2][i].seo_name%></loc>
-        <lastmod><%=lastupdate%></lastmod>
-        <priority>0.64</priority>
-      </url>
-      
-      <% } %>
-
-
-      <% for(i=0;i<result[2].length;i++) { %>
-        <url>
-          <loc>https://www.filemakr.com/mtech-final-year-project-report-<%=result[2][i].seo_name%></loc>
-          <lastmod><%=lastupdate%></lastmod>
-          <priority>0.64</priority>
-        </url>
-        
-        <% } %>
-
-
-        <% for(i=0;i<result[2].length;i++) { %>
-          <url>
-            <loc>https://www.filemakr.com/be-final-year-project-report-<%=result[2][i].seo_name%></loc>
-            <lastmod><%=lastupdate%></lastmod>
-            <priority>0.64</priority>
-          </url>
-          
-          <% } %>
-
-
-          <% for(i=0;i<result[2].length;i++) { %>
-            <url>
-              <loc>https://www.filemakr.com/me-final-year-project-report-<%=result[2][i].seo_name%></loc>
-              <lastmod><%=lastupdate%></lastmod>
-              <priority>0.64</priority>
-            </url>
-            
-            <% } %>
-
-
-            <% for(i=0;i<result[2].length;i++) { %>
-              <url>
-                <loc>https://www.filemakr.com/bca-final-year-project-report-<%=result[2][i].seo_name%></loc>
-                <lastmod><%=lastupdate%></lastmod>
-                <priority>0.64</priority>
-              </url>
-              
-              <% } %>
-
-
-              <% for(i=0;i<result[2].length;i++) { %>
-                <url>
-                  <loc>https://www.filemakr.com/mca-final-year-project-report-<%=result[2][i].seo_name%></loc>
-                  <lastmod><%=lastupdate%></lastmod>
-                  <priority>0.64</priority>
-                </url>
-                
-                <% } %>
-
-
-  <% for(i=0;i<result[3].length;i++) { %>
-                <url>
-                  <loc>https://www.filemakr.com/blog/<%=result[3][i].slug%></loc>
-                  <lastmod><%=lastupdate%></lastmod>
-                  <priority>0.64</priority>
-                </url>
-                
-                <% } %>
-
-
-
-
-
-
+<% for (var bi = 0; bi < result[3].length; bi++) {
+     var blogSlug = String(result[3][bi].slug || '').trim();
+     if (!blogSlug) continue;
+     var blogMod = result[3][bi].modified
+       ? new Date(result[3][bi].modified).toISOString().split('T')[0]
+       : lastupdate;
+%>
+<url>
+  <loc><%= siteBase %>/blog/<%= encodeURIComponent(blogSlug) %></loc>
+  <lastmod><%= blogMod %></lastmod>
+  <priority>0.64</priority>
+</url>
+<% } %>
 
 </urlset>
-

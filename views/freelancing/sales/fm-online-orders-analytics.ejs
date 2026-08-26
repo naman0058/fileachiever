@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/admin-head', { pageTitle: 'FM Sales Analytics' }) %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Sales analytics</h1>
+        <p>Revenue, conversion funnel, plan mix — built for high order volume</p>
+      </div>
+      <form method="get" action="/sales/admin/fm-online-orders/analytics" class="d-flex gap-2 align-items-center">
+        <select name="month" class="agent-month-select" onchange="this.form.submit()">
+          <% months.forEach(function(m){ %><option value="<%= m %>" <%= m===selectedMonth?'selected':'' %>><%= m %></option><% }) %>
+        </select>
+        <input type="hidden" name="test" value="0">
+        <label class="small mb-0 d-flex align-items-center gap-1">
+          <input type="checkbox" name="test" value="1" <%= includeTest?'checked':'' %> onchange="this.form.submit()"> Test
+        </label>
+      </form>
+    </header>
+    <%- include('partials/admin-module-tabs', { module: 'fmOnlineOrders', activeTab: 'analytics' }) %>
+
+    <div class="agent-metrics mb-3" style="grid-template-columns:repeat(4,1fr);max-width:1000px;">
+      <div class="agent-metric"><div class="agent-metric__label">GMV</div><div class="agent-metric__value" style="font-size:1.2rem;"><%= money(kpis.gmv) %></div></div>
+      <div class="agent-metric"><div class="agent-metric__label">Paid</div><div class="agent-metric__value"><%= kpis.paidCount||0 %></div></div>
+      <div class="agent-metric"><div class="agent-metric__label">Created</div><div class="agent-metric__value"><%= kpis.createdMonth||0 %></div></div>
+      <div class="agent-metric"><div class="agent-metric__label">Success %</div><div class="agent-metric__value"><%= kpis.successRate!=null?kpis.successRate:'—' %></div></div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-lg-8">
+        <div class="agent-panel p-3">
+          <h3 class="h6 fw-bold">Daily paid GMV</h3>
+          <canvas id="chartDaily" height="120"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="agent-panel p-3">
+          <h3 class="h6 fw-bold">Funnel (created month)</h3>
+          <canvas id="chartFunnel" height="180"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="agent-panel p-3">
+          <h3 class="h6 fw-bold">By plan</h3>
+          <canvas id="chartPlan" height="160"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="agent-panel p-3">
+          <h3 class="h6 fw-bold">Payment mode (success)</h3>
+          <canvas id="chartMode" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-panel">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Top failure reasons</h2></div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Reason</th><th>Count</th></tr></thead>
+          <tbody>
+          <% if (!(analytics.failReasons||[]).length) { %><tr><td colspan="2" class="text-muted text-center py-3">No failures this month</td></tr><% } %>
+          <% (analytics.failReasons||[]).forEach(function(r){ %>
+            <tr><td class="small"><%= r.reason %></td><td><%= r.c %></td></tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  var daily = <%- JSON.stringify(analytics.dailyPaid||[]) %>;
+  var funnel = <%- JSON.stringify(analytics.funnel||{}) %>;
+  var byPlan = <%- JSON.stringify(analytics.byPlan||[]) %>;
+  var byMode = <%- JSON.stringify(analytics.byMode||[]) %>;
+
+  new Chart(document.getElementById('chartDaily'), {
+    type: 'line',
+    data: {
+      labels: daily.map(function(d){ return String(d.d).slice(5,10); }),
+      datasets: [
+        { label: 'GMV', data: daily.map(function(d){ return Number(d.gmv)||0; }), borderColor: '#F17F23', tension: .3, yAxisID: 'y' },
+        { label: 'Orders', data: daily.map(function(d){ return Number(d.orders)||0; }), borderColor: '#2A47FF', tension: .3, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { position: 'left' },
+        y1: { position: 'right', grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('chartFunnel'), {
+    type: 'bar',
+    data: {
+      labels: ['Created','Paid','Failed','Cancelled'],
+      datasets: [{
+        data: [funnel.created||0, funnel.paid||0, funnel.failed||0, funnel.cancelled||0],
+        backgroundColor: ['#94a3b8','#16a34a','#ef4444','#f59e0b']
+      }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('chartPlan'), {
+    type: 'doughnut',
+    data: {
+      labels: byPlan.map(function(d){ return d.k; }),
+      datasets: [{ data: byPlan.map(function(d){ return Number(d.gmv)||0; }), backgroundColor: ['#F17F23','#2A47FF','#16a34a','#f59e0b','#8b5cf6','#06b6d4'] }]
+    }
+  });
+
+  new Chart(document.getElementById('chartMode'), {
+    type: 'bar',
+    data: {
+      labels: byMode.map(function(d){ return d.k; }),
+      datasets: [{ data: byMode.map(function(d){ return Number(d.c)||0; }), backgroundColor: '#2A47FF' }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+})();
+</script>
+</body>
+</html>

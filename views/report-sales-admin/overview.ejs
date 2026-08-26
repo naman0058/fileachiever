@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= pageTitle %> • Report Sales Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales-admin/prs-admin.css?v=1">
+  <style>
+    .prs-plan-pills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+    .prs-plan-pill { padding:8px 12px; border-radius:10px; background:#fff; border:1px solid var(--ss-line); font-size:12px; font-weight:800; }
+    .prs-plan-pill span { color:var(--ss-muted); font-weight:600; margin-left:6px; }
+  </style>
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap"><%- include('partials/sidebar') %></aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div>
+          <h1>Order overview</h1>
+          <p>All report plans · assign · SLA · no pricing</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <form method="POST" action="/report-sales-admin/backfill" onsubmit="return confirm('Create missing tickets from paid report orders?');">
+            <button class="ss-btn ss-btn--ghost" type="submit"><i class="bi bi-arrow-repeat"></i> Backfill</button>
+          </form>
+        </div>
+      </div>
+
+      <% if (flash) { %><div class="ss-login-error" style="margin-bottom:14px;background:#EEF2FF;color:#3730A3"><%= flash %></div><% } %>
+
+      <div class="ss-kpis">
+        <div class="ss-kpi ss-kpi--warn"><div class="ss-kpi__label">Open</div><div class="ss-kpi__value"><%= kpis.open||0 %></div></div>
+        <div class="ss-kpi ss-kpi--blue"><div class="ss-kpi__label">Unassigned</div><div class="ss-kpi__value"><%= kpis.unassigned||0 %></div></div>
+        <div class="ss-kpi ss-kpi--danger"><div class="ss-kpi__label">Overdue</div><div class="ss-kpi__value"><%= kpis.overdue||0 %></div></div>
+        <div class="ss-kpi ss-kpi--pending"><div class="ss-kpi__label">Due soon</div><div class="ss-kpi__value"><%= kpis.dueSoon||0 %></div></div>
+        <div class="ss-kpi ss-kpi--orange"><div class="ss-kpi__label">Created month</div><div class="ss-kpi__value"><%= kpis.createdMonth||0 %></div></div>
+        <div class="ss-kpi ss-kpi--ok"><div class="ss-kpi__label">Delivered month</div><div class="ss-kpi__value"><%= kpis.deliveredMonth||0 %></div></div>
+      </div>
+
+      <% if (byPlan && byPlan.length) { %>
+      <div class="prs-plan-pills">
+        <% byPlan.forEach(function(bp){ %>
+        <div class="prs-plan-pill"><%= planMeta[bp.plan] || bp.plan %>
+          <span>open <%= bp.open_c||0 %> · done <%= bp.done_c||0 %><% if (bp.overdue_c) { %> · overdue <%= bp.overdue_c %><% } %></span>
+        </div>
+        <% }) %>
+      </div>
+      <% } %>
+
+      <div class="ss-panel">
+        <form method="get" action="/report-sales-admin" class="ss-filters" style="grid-template-columns:1fr .7fr .7fr .7fr .7fr auto">
+          <div><label>Search</label><input class="ss-input" name="q" value="<%= filters.q||'' %>" placeholder="Name, phone, order…"></div>
+          <div><label>Plan</label>
+            <select class="ss-select" name="plan">
+              <option value="">All plans</option>
+              <% Object.keys(planMeta).forEach(function(k){ %><option value="<%= k %>" <%= filters.plan===k?'selected':'' %>><%= planMeta[k] %></option><% }) %>
+            </select>
+          </div>
+          <div><label>Status</label>
+            <select class="ss-select" name="status">
+              <option value="">All open statuses</option>
+              <% ['pending','claimed','in_progress','waiting_customer','ready_to_deliver'].forEach(function(s){ %>
+              <option value="<%= s %>" <%= filters.status===s?'selected':'' %>><%= s.replace(/_/g,' ') %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div><label>Delay</label>
+            <select class="ss-select" name="delay">
+              <option value="">Any</option>
+              <option value="overdue" <%= filters.delay==='overdue'?'selected':'' %>>Overdue</option>
+              <option value="due_soon" <%= filters.delay==='due_soon'?'selected':'' %>>Due soon</option>
+              <option value="on_track" <%= filters.delay==='on_track'?'selected':'' %>>On track</option>
+            </select>
+          </div>
+          <div><label>Assignee</label>
+            <select class="ss-select" name="employee">
+              <option value="">Anyone</option>
+              <% (team||[]).forEach(function(t){ %><option value="<%= t.id %>" <%= String(filters.employee)===String(t.id)?'selected':'' %>><%= t.name %></option><% }) %>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end"><button class="ss-btn ss-btn--primary" type="submit">Filter</button></div>
+        </form>
+        <div class="ss-tabs">
+          <a class="ss-tab is-active is-active--warn" href="/report-sales-admin">Open work</a>
+          <a class="ss-tab" href="/report-sales-admin/delivered">Delivered (last 100)</a>
+          <a class="ss-tab" href="/report-sales-admin/reports">Reports lookup</a>
+        </div>
+      </div>
+
+      <div class="ss-panel">
+        <div class="ss-panel__head"><div><h2 class="ss-panel__title">Open orders</h2><p class="ss-panel__sub"><%= rows.length %> active · delivered is under Delivered (last 100)</p></div></div>
+        <div class="ss-table-wrap">
+          <table class="ss-table">
+            <thead>
+              <tr>
+                <th>ID</th><th>Plan</th><th>Order / Product</th><th>Customer</th><th>Phone</th>
+                <th>Status</th><th>SLA</th><th>Assignee</th><th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="9"><div class="ss-empty"><i class="bi bi-inbox"></i>No orders match filters. Try Backfill if paid orders are missing.</div></td></tr>
+            <% } %>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td class="ss-strong">#<%= r.id %></td>
+                <td><span class="ss-badge ss-badge--checkout"><%= planMeta[r.plan] || r.plan %></span></td>
+                <td><div class="ss-strong"><%= r.fm_order_id || '—' %></div><div class="ss-muted ss-clamp"><%= r.product_name || '—' %></div></td>
+                <td>
+                  <div class="ss-strong"><%= r.customer_name %></div>
+                  <% if (r.customer_email) { %><div class="ss-muted" style="font-size:12px"><%= r.customer_email %></div><% } %>
+                </td>
+                <td>
+                  <% if (r.customer_number) { %>
+                  <%= r.customer_number %>
+                  <a class="ss-wa" href="https://wa.me/<%= String(r.customer_number).replace(/\D/g,'') %>" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+                  <% } else { %>—<% } %>
+                </td>
+                <td>
+                  <select class="ss-select-sm status-select" data-id="<%= r.id %>">
+                    <% ['pending','claimed','in_progress','waiting_customer','ready_to_deliver','delivered','cancelled'].forEach(function(s){ %>
+                    <option value="<%= s %>" <%= r.status===s?'selected':'' %>><%= s.replace(/_/g,' ') %></option>
+                    <% }) %>
+                  </select>
+                </td>
+                <td>
+                  <% if (r.delay==='overdue') { %><span class="ss-badge ss-badge--cancelled">Overdue</span>
+                  <% } else if (r.delay==='due_soon') { %><span class="ss-badge ss-badge--pending">Due soon</span>
+                  <% } else if (r.status==='delivered') { %><span class="ss-muted">Done</span>
+                  <% } else { %><span class="ss-muted"><%= r.sla_due_at ? new Date(r.sla_due_at).toLocaleString() : '—' %></span><% } %>
+                </td>
+                <td>
+                  <select class="ss-select-sm assign-select" data-id="<%= r.id %>">
+                    <option value="">Unassigned</option>
+                    <% (team||[]).forEach(function(t){ %>
+                    <option value="<%= t.id %>" <%= r.assigned_to===t.id?'selected':'' %>><%= t.name %></option>
+                    <% }) %>
+                  </select>
+                </td>
+                <td class="ss-muted"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '—' %></td>
+              </tr>
+            <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+document.querySelectorAll('.status-select').forEach(function(sel){
+  sel.addEventListener('change', async function(){
+    var res = await fetch('/report-sales-admin/api/'+this.dataset.id+'/status', {
+      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'status='+encodeURIComponent(this.value)
+    });
+    var j = await res.json();
+    if (j.ok) location.reload(); else alert(j.message||'Failed');
+  });
+});
+document.querySelectorAll('.assign-select').forEach(function(sel){
+  sel.addEventListener('change', async function(){
+    var res = await fetch('/report-sales-admin/api/'+this.dataset.id+'/assign', {
+      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'assigned_to='+encodeURIComponent(this.value)
+    });
+    var j = await res.json();
+    if (j.ok) location.reload(); else alert(j.message||'Failed');
+  });
+});
+</script>
+</body>
+</html>

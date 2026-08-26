@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: 'FM Orders' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Orders inbox</h1>
+        <p>All checkout orders · max 100 · filter by status, product, month</p>
+      </div>
+    </header>
+    <%- include('partials/admin-module-tabs', { module: 'fmOnlineOrders', activeTab: 'orders' }) %>
+
+    <div class="admin-filter-bar mb-3">
+      <form method="get" action="/sales/admin/fm-online-orders/orders" class="d-flex gap-2 align-items-center flex-wrap w-100">
+        <input type="search" name="q" value="<%= filters.q||'' %>" class="form-control form-control-sm" placeholder="Order, name, email, phone…" style="min-width:200px;">
+        <select name="status" class="agent-month-select" onchange="this.form.submit()">
+          <option value="">All statuses</option>
+          <% ['initiated','payment_pending','paid','failed','cancelled','refunded'].forEach(function(s){ %>
+          <option value="<%= s %>" <%= filters.status===s?'selected':'' %>><%= s %></option>
+          <% }) %>
+        </select>
+        <select name="product_type" class="agent-month-select" onchange="this.form.submit()">
+          <option value="">All products</option>
+          <option value="source" <%= filters.productType==='source'?'selected':'' %>>Source</option>
+          <option value="report" <%= filters.productType==='report'?'selected':'' %>>Report</option>
+        </select>
+        <select name="month" class="agent-month-select" onchange="this.form.submit()">
+          <option value="">All months</option>
+          <% months.forEach(function(m){ %><option value="<%= m %>" <%= m===selectedMonth?'selected':'' %>><%= m %></option><% }) %>
+        </select>
+        <label class="small mb-0 d-flex align-items-center gap-1">
+          <input type="hidden" name="test" value="0">
+          <input type="checkbox" name="test" value="1" <%= includeTest?'checked':'' %>> Test
+        </label>
+        <button type="submit" class="agent-btn agent-btn--ghost agent-btn--sm">Filter</button>
+      </form>
+    </div>
+
+    <div class="agent-panel">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Order</th><th>Customer</th><th>Product</th><th>Amount</th>
+              <th>Status</th><th>Fulfill</th><th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+          <% if (!rows.length) { %><tr><td colspan="7" class="text-muted text-center py-4">No orders</td></tr><% } %>
+          <% rows.forEach(function(r){ %>
+            <tr>
+              <td>
+                <a href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(r.order_id) %>" class="fw-semibold text-decoration-none"><%= r.order_id %></a>
+                <% if (r.is_test) { %><span class="badge bg-secondary">test</span><% } %>
+              </td>
+              <td>
+                <div class="fw-semibold"><%= r.billing_name %></div>
+                <div class="small text-muted"><%= r.billing_tel %> · <%= r.billing_email %></div>
+              </td>
+              <td>
+                <div class="small fw-semibold"><%= r.product_type %> / <%= r.plan %></div>
+                <div class="small text-muted text-truncate" style="max-width:220px;"><%= r.plan_label || r.product_name %></div>
+              </td>
+              <td class="fw-semibold"><%= money(r.final_amount) %></td>
+              <td><span class="badge bg-light text-dark border"><%= r.order_status %></span></td>
+              <td><span class="badge bg-light text-dark border"><%= r.fulfillment_status %></span></td>
+              <td class="small text-muted"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '—' %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

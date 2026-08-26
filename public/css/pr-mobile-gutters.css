@@ -1,0 +1,28 @@
+/* Catalog / report listing pages — 10px mobile side gutters */
+@media (max-width: 991.98px) {
+  .pr-page__body {
+    padding-left: max(10px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(10px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  .pr-hero__top {
+    padding-left: max(10px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(10px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  .pr-page .fm-dir-strip {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .pr-page--search .pr-search-head {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .pr-list-sticky {
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+  }
+}

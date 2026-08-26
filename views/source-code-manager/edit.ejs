@@ -126,6 +126,19 @@
                   </label>
                   <input type="url" id="imageUrl" class="form-control" placeholder="https://cdn.example.com/cover.jpg" value="<%= sc.image || '' %>">
                   <div class="scm-edit-field__hint">Primary thumbnail shown in the product catalog</div>
+                  <% if (sc.image && String(sc.image).trim()) { %>
+                  <div class="mt-2">
+                    <img
+                      src="<%= cloudinaryUrl(sc.image, { width: 320 }) %>"
+                      alt="Cover preview"
+                      class="scm-edit-gallery-item__thumb"
+                      width="200"
+                      height="144"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <% } %>
                   <button type="button" class="scm-edit-btn scm-edit-btn--primary mt-2" id="btnSaveImage"><i class="bi bi-check2"></i> Save Image</button>
                 </div>
               </div>
@@ -181,7 +194,7 @@
                 <div class="scm-edit-gallery">
                   <% screenshots.forEach(function(s){ %>
                   <div class="scm-edit-gallery-item screenshot-item" data-sid="<%= s.id %>">
-                    <img src="<%= s.url %>" alt="<%= s.name || 'Screenshot' %>" class="scm-edit-gallery-item__thumb" onerror="this.src='';this.classList.add('bg-light')">
+                    <img src="<%= cloudinaryUrl(s.url, { width: 200 }) %>" alt="<%= s.name || 'Screenshot' %>" class="scm-edit-gallery-item__thumb" width="100" height="72" loading="lazy" decoding="async" onerror="this.src='';this.classList.add('bg-light')">
                     <div class="scm-edit-gallery-item__body">
                       <input type="url" class="form-control form-control-sm screenshot-url-input mb-1" value="<%= s.url %>" placeholder="URL" data-sid="<%= s.id %>">
                       <div class="row g-1 mb-1">
@@ -272,7 +285,7 @@
                   <% var hasDatatable = !!(ds.data_table && String(ds.data_table).trim()); %>
                   <div class="scm-edit-db-item db-screenshot-item" data-dsid="<%= ds.id %>">
                     <div class="scm-edit-db-item__head">
-                      <img src="<%= ds.url %>" alt="<%= ds.name %>" class="scm-edit-gallery-item__thumb" onerror="this.style.display='none'">
+                      <img src="<%= cloudinaryUrl(ds.url, { width: 200 }) %>" alt="<%= ds.name %>" class="scm-edit-gallery-item__thumb" width="100" height="72" loading="lazy" decoding="async" onerror="this.style.display='none'">
                       <div class="flex-grow-1 min-w-0">
                         <input type="text" class="form-control form-control-sm db-screenshot-name-input mb-1" value="<%= ds.name || '' %>" placeholder="Name" data-dsid="<%= ds.id %>">
                         <input type="url" class="form-control form-control-sm db-screenshot-url-input mb-1" value="<%= ds.url %>" placeholder="URL" data-dsid="<%= ds.id %>">

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Team • Report Sales Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales-admin/prs-admin.css?v=1">
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap"><%- include('partials/sidebar') %></aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div><h1>Team members</h1><p>Create Report Sales Team / additional admins</p></div>
+      </div>
+      <% if (flash) { %><div class="ss-login-error" style="margin-bottom:14px;background:#F0FDF4;color:#15803D"><%= flash %></div><% } %>
+      <% if (error) { %><div class="ss-login-error" style="margin-bottom:14px"><%= error %></div><% } %>
+
+      <div class="ss-panel">
+        <div class="ss-panel__head"><h2 class="ss-panel__title">Add member</h2></div>
+        <form method="POST" action="/report-sales-admin/employees" class="ss-filters" style="grid-template-columns:1fr 1fr 1fr .8fr auto;border-bottom:0">
+          <div><label>Name</label><input class="ss-input" name="name" required placeholder="Full name"></div>
+          <div><label>Email</label><input class="ss-input" type="email" name="email" required placeholder="email@company.com"></div>
+          <div><label>Password</label><input class="ss-input" type="text" name="password" required placeholder="Temporary password"></div>
+          <div><label>Role</label>
+            <select class="ss-select" name="role">
+              <option value="report_sales">Team member</option>
+              <option value="report_sales_admin">Admin</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end"><button class="ss-btn ss-btn--primary" type="submit">Create</button></div>
+        </form>
+      </div>
+
+      <div class="ss-panel">
+        <div class="ss-panel__head"><h2 class="ss-panel__title">Directory</h2></div>
+        <div class="ss-table-wrap">
+          <table class="ss-table" style="min-width:0">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead>
+            <tbody>
+            <% (employees||[]).forEach(function(e){ %>
+              <tr>
+                <td class="ss-strong"><%= e.name %></td>
+                <td><%= e.email %></td>
+                <td><span class="ss-badge ss-badge--checkout"><%= e.role === 'report_sales_admin' ? 'Admin' : 'Team' %></span></td>
+                <td><%= e.is_active ? 'Active' : 'Disabled' %></td>
+                <td class="ss-muted"><%= e.created_at ? new Date(e.created_at).toLocaleDateString() : '—' %></td>
+                <td>
+                  <% if (user && user.id !== e.id) { %>
+                  <form method="POST" action="/report-sales-admin/employees/<%= e.id %>/toggle" style="display:inline">
+                    <button class="ss-btn ss-btn--ghost ss-btn--sm" type="submit"><%= e.is_active ? 'Disable' : 'Enable' %></button>
+                  </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (!(employees||[]).length) { %>
+              <tr><td colspan="6"><div class="ss-empty">No users yet. Create the first admin/team member above.<br><span style="font-size:12px">Or insert bootstrap admin via SQL in migrations/prs_orders.sql</span></div></td></tr>
+            <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

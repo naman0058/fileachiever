@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Source code orders • Report Sales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales/prs.css?v=3">
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap"><%- include('partials/sidebar') %></aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div>
+          <h1>Source code orders</h1>
+          <p>Last 100 paid source / setup orders · download ZIP to share if needed</p>
+        </div>
+      </div>
+      <div class="ss-panel">
+        <div class="ss-panel__head">
+          <div><h2 class="ss-panel__title">Recent source / setup</h2><p class="ss-panel__sub"><%= rows.length %> of max 100</p></div>
+        </div>
+        <div class="ss-table-wrap">
+          <table class="ss-table">
+            <thead>
+              <tr>
+                <th>Order</th><th>Product</th><th>Customer</th><th>Phone</th>
+                <th>Includes</th><th>Paid</th><th>Download</th>
+              </tr>
+            </thead>
+            <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="7"><div class="ss-empty"><i class="bi bi-file-zip"></i>No source/setup orders found.</div></td></tr>
+            <% } %>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td class="ss-strong"><%= r.order_id %></td>
+                <td>
+                  <div class="ss-strong ss-clamp"><%= r.product_name || r.sc_name || '—' %></div>
+                  <div class="ss-muted" style="font-size:12px"><%= r.plan_label || r.plan %></div>
+                </td>
+                <td>
+                  <div class="ss-strong"><%= r.billing_name %></div>
+                  <% if (r.billing_email) { %><div class="ss-muted" style="font-size:12px"><%= r.billing_email %></div><% } %>
+                </td>
+                <td>
+                  <% if (r.billing_tel) { %>
+                  <%= r.billing_tel %>
+                  <a class="ss-wa" href="https://wa.me/<%= String(r.billing_tel).replace(/\D/g,'') %>" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+                  <% } else { %>—<% } %>
+                </td>
+                <td>
+                  <% (r.purchaseItems || []).forEach(function(it){ %>
+                  <span class="ss-badge ss-badge--checkout" style="margin:2px 2px 2px 0"><%= it %></span>
+                  <% }) %>
+                </td>
+                <td class="ss-muted"><%= r.paid_at ? new Date(r.paid_at).toLocaleString() : '—' %></td>
+                <td>
+                  <% if (r.zipUrl) { %>
+                  <a class="ss-btn ss-btn--primary ss-btn--sm" href="<%= r.zipUrl %>" target="_blank" rel="noopener"><i class="bi bi-download"></i> Source ZIP</a>
+                  <% } else { %><span class="ss-muted">ZIP missing</span><% } %>
+                </td>
+              </tr>
+            <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

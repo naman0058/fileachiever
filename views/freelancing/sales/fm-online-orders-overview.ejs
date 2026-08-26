@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: 'FM Online Orders' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>FM Online Orders</h1>
+        <p>Checkout payments, sales volume, and fulfillment health from fm_orders / fm_payments.</p>
+      </div>
+      <form method="get" action="/sales/admin/fm-online-orders" class="d-flex gap-2 align-items-center flex-wrap">
+        <select name="month" class="agent-month-select" onchange="this.form.submit()">
+          <% months.forEach(function(m){ %><option value="<%= m %>" <%= m===selectedMonth?'selected':'' %>><%= m %></option><% }) %>
+        </select>
+        <input type="hidden" name="test" value="0">
+        <label class="small mb-0 d-flex align-items-center gap-1">
+          <input type="checkbox" name="test" value="1" <%= includeTest ? 'checked' : '' %> onchange="this.form.submit()"> Include test
+        </label>
+      </form>
+    </header>
+
+    <%- include('partials/admin-module-tabs', { module: 'fmOnlineOrders', activeTab: 'overview' }) %>
+
+    <% if (msg) { %><div class="alert alert-success py-2"><%= msg %></div><% } %>
+    <% if (err) { %><div class="alert alert-danger py-2"><%= err %></div><% } %>
+    <% if (includeTest) { %><div class="alert alert-warning py-2 mb-3">Showing <strong>test / dummy</strong> checkout orders (FMK-TEST-*). Uncheck “Include test” to see live payments only.</div><% } %>
+
+    <div class="agent-metrics mb-3" style="grid-template-columns:repeat(4,1fr);max-width:1100px;">
+      <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
+        <div class="agent-metric__label">GMV (month)</div>
+        <div class="agent-metric__value" style="font-size:1.35rem;">₹<%= Number(kpis.gmv||0).toLocaleString('en-IN') %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#2A47FF;--metric-bg:#eef2ff;">
+        <div class="agent-metric__label">Paid orders</div>
+        <div class="agent-metric__value"><%= kpis.paidCount||0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#f59e0b;--metric-bg:#fffbeb;">
+        <div class="agent-metric__label">Pending payment</div>
+        <div class="agent-metric__value"><%= kpis.pendingOpen||0 %></div>
+      </div>
+      <div class="agent-metric" style="--metric-accent:#ef4444;--metric-bg:#fef2f2;">
+        <div class="agent-metric__label">Failed (month)</div>
+        <div class="agent-metric__value"><%= kpis.failedMonth||0 %></div>
+      </div>
+    </div>
+
+    <div class="agent-metrics mb-4" style="grid-template-columns:repeat(5,1fr);max-width:1100px;">
+      <div class="agent-metric"><div class="agent-metric__label">Today GMV</div><div class="agent-metric__value" style="font-size:1.1rem;">₹<%= Number(kpis.todayGmv||0).toLocaleString('en-IN') %></div></div>
+      <div class="agent-metric"><div class="agent-metric__label">Today paid</div><div class="agent-metric__value"><%= kpis.todayPaid||0 %></div></div>
+      <div class="agent-metric"><div class="agent-metric__label">Success rate</div><div class="agent-metric__value"><%= kpis.successRate!=null?kpis.successRate+'%':'—' %></div></div>
+      <div class="agent-metric"><div class="agent-metric__label">Avg ticket</div><div class="agent-metric__value" style="font-size:1.1rem;"><%= kpis.avgTicket!=null?('₹'+Number(kpis.avgTicket).toLocaleString('en-IN')):'—' %></div></div>
+      <div class="agent-metric"><div class="agent-metric__label">Delivered</div><div class="agent-metric__value"><%= kpis.deliveredMonth||0 %></div></div>
+    </div>
+
+    <div class="agent-panel mb-3">
+      <div class="agent-panel__head"><h2 class="agent-panel__title mb-0">Exceptions snapshot</h2></div>
+      <div class="d-flex flex-wrap gap-2 p-3">
+        <a class="admin-filter-pill is-active--warn" href="/sales/admin/fm-online-orders/exceptions">Pending aging (<%= exceptionCounts.pending %>)</a>
+        <a class="admin-filter-pill" href="/sales/admin/fm-online-orders/exceptions">Failed recent (<%= exceptionCounts.failed %>)</a>
+        <a class="admin-filter-pill" href="/sales/admin/fm-online-orders/exceptions">Stuck fulfillment (<%= exceptionCounts.stuck %>)</a>
+        <a class="admin-filter-pill" href="/sales/admin/fm-online-orders/exceptions">Amount mismatch (<%= exceptionCounts.mismatch %>)</a>
+        <a class="agent-btn agent-btn--ghost agent-btn--sm ms-auto" href="/sales/admin/fm-online-orders/analytics?month=<%= selectedMonth %><%= includeTest?'&test=1':'' %>">Open analytics</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

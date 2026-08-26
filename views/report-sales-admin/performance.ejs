@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Team Performance • Report Sales Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales-admin/prs-admin.css?v=1">
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap"><%- include('partials/sidebar') %></aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div><h1>Team performance</h1><p><%= selectedMonth %> · deliveries, claims, SLA</p></div>
+        <form method="get" action="/report-sales-admin/performance">
+          <select name="month" class="ss-select" style="min-width:140px" onchange="this.form.submit()">
+            <% months.forEach(function(m){ %><option value="<%= m %>" <%= m===selectedMonth?'selected':'' %>><%= m %></option><% }) %>
+          </select>
+        </form>
+      </div>
+      <div class="ss-kpis" style="grid-template-columns:repeat(4,1fr)">
+        <div class="ss-kpi ss-kpi--ok"><div class="ss-kpi__label">Delivered</div><div class="ss-kpi__value"><%= kpis.deliveredMonth||0 %></div></div>
+        <div class="ss-kpi"><div class="ss-kpi__label">Avg hours</div><div class="ss-kpi__value"><%= kpis.avgHours!=null?kpis.avgHours:'—' %></div></div>
+        <div class="ss-kpi ss-kpi--warn"><div class="ss-kpi__label">Open</div><div class="ss-kpi__value"><%= kpis.open||0 %></div></div>
+        <div class="ss-kpi ss-kpi--danger"><div class="ss-kpi__label">Overdue</div><div class="ss-kpi__value"><%= kpis.overdue||0 %></div></div>
+      </div>
+      <div class="ss-panel">
+        <div class="ss-panel__head"><h2 class="ss-panel__title">Members</h2></div>
+        <div class="ss-table-wrap">
+          <table class="ss-table" style="min-width:0">
+            <thead>
+              <tr><th>Name</th><th>Open</th><th>Claimed month</th><th>Delivered month</th><th>Overdue</th><th>Avg hours</th><th>Active</th></tr>
+            </thead>
+            <tbody>
+            <% (team||[]).forEach(function(t){ %>
+              <tr>
+                <td><div class="ss-strong"><%= t.name %></div><div class="ss-muted" style="font-size:12px"><%= t.email %></div></td>
+                <td><%= t.open_c||0 %></td>
+                <td><%= t.claimed_month||0 %></td>
+                <td><%= t.done_month||0 %></td>
+                <td><%= t.overdue_c||0 %></td>
+                <td><%= t.avg_hours!=null?t.avg_hours:'—' %></td>
+                <td><%= t.is_active ? 'Yes' : 'No' %></td>
+              </tr>
+            <% }) %>
+            <% if (!(team||[]).length) { %><tr><td colspan="7"><div class="ss-empty">No team members yet. Create them under Team.</div></td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,5 +1,5 @@
-<% const _gtmId = (typeof gtmContainerId !== 'undefined' && gtmContainerId) ? gtmContainerId : 'GTM-T6C299QC'; %>
-<% if (_gtmId) { %>
+<% const _gtmId = ((typeof gtmContainerId !== 'undefined' && gtmContainerId) ? String(gtmContainerId) : 'GTM-T6C299QC').trim(); %>
+<% if (_gtmId && /^GTM-[A-Z0-9]+$/i.test(_gtmId)) { %>
 <!-- Google Tag Manager (GTM-T6C299QC) — configure GA4 tag G-3BRFBRR1B5 inside GTM -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

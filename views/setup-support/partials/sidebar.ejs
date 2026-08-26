@@ -1,20 +1,31 @@
 <aside class="support-sidebar">
   <div class="support-sidebar__brand">
-    <div class="support-brand">Setup Support</div>
-    <div class="support-sub">Customer support portal</div>
+    <div class="support-brand">FileMakr</div>
+    <div class="support-sub">Setup Support Portal</div>
   </div>
   <nav class="support-nav">
     <% var qs = typeof buildQuery === 'function' ? buildQuery('all') : ''; %>
-    <a class="support-link <%= active === 'all' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">All</a>
+    <a class="support-link <%= active === 'all' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">
+      <i class="bi bi-inbox"></i> All requests
+    </a>
     <% qs = typeof buildQuery === 'function' ? buildQuery('pending') : 'tab=pending'; %>
-    <a class="support-link <%= active === 'pending' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">Pending</a>
+    <a class="support-link <%= active === 'pending' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">
+      <i class="bi bi-hourglass-split"></i> Pending
+    </a>
     <% qs = typeof buildQuery === 'function' ? buildQuery('done') : 'tab=done'; %>
-    <a class="support-link <%= active === 'done' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">Completed</a>
+    <a class="support-link <%= active === 'done' ? 'active' : '' %>" href="/setup-support<%= qs ? '?' + qs : '' %>">
+      <i class="bi bi-check2-circle"></i> Completed
+    </a>
+    <a class="support-link <%= active === 'performance' ? 'active' : '' %>" href="/setup-support/performance">
+      <i class="bi bi-graph-up-arrow"></i> My performance
+    </a>
     <div class="support-nav__sep"></div>
-    <a class="support-link danger" href="/setup-support/logout">Logout</a>
+    <a class="support-link danger" href="/setup-support/logout">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
   </nav>
   <div class="support-user">
-    <div class="support-user__name"><%= user.name %></div>
-    <div class="support-user__meta">Setup Support</div>
+    <div class="support-user__name"><%= user && user.name ? user.name : 'Team member' %></div>
+    <div class="support-user__meta">Setup Support Specialist</div>
   </div>
 </aside>

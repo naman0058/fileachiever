@@ -21,6 +21,18 @@ const cookie = require('cookie');
 const Keygrip = require('keygrip');
 const ejs = require('ejs');
 const { createGtmInjectMiddleware } = require('./middleware/gtmInject');
+const { createCloudinaryHtmlOptimizeMiddleware } = require('./middleware/cloudinaryHtmlOptimize');
+const {
+  cloudinaryDisplayUrl,
+  cloudinarySrcSet,
+  browserHelperSource: cloudinaryBrowserHelperSource,
+  getCdnHost: getCloudinaryCdnHost,
+  getCdnBase: getCloudinaryCdnBase
+} = require('./utils/cloudinaryDisplay');
+const { resolveOgImageUrl, defaultOgImageUrl } = require('./utils/ogImage');
+const { imageAltLabel } = require('./utils/imageAlt');
+const { projectReportUrl } = require('./routes/projectReportShared');
+const onPageSeo = require('./routes/onPageSeo');
 
 const viewsPath = path.join(__dirname, 'views');
 
@@ -94,6 +106,18 @@ app.set('view engine', 'ejs');
 configureEjsEngine(app);
 app.set('view cache', process.env.NODE_ENV === 'production');
 
+app.locals.cloudinaryUrl = cloudinaryDisplayUrl;
+app.locals.cloudinarySrcSet = cloudinarySrcSet;
+app.locals.cloudinaryBrowserHelper = cloudinaryBrowserHelperSource;
+app.locals.cloudinaryCdnHost = getCloudinaryCdnHost();
+app.locals.cloudinaryCdnBase = getCloudinaryCdnBase();
+app.locals.ogImageUrl = resolveOgImageUrl;
+app.locals.defaultOgImageUrl = defaultOgImageUrl;
+app.locals.imageAltLabel = imageAltLabel;
+app.locals.projectReportUrl = projectReportUrl;
+app.locals.blogPostHeading = onPageSeo.blogPostHeading;
+app.locals.blogPostExcerpt = onPageSeo.blogPostExcerpt;
+
 // ======================================================
 // SESSION
 // ======================================================
@@ -121,10 +145,21 @@ app.use((req, res, next) => {
   res.locals.ga4MeasurementId = config.ga4MeasurementId;
   res.locals.googleAdsConversionId = config.googleAdsConversionId;
   res.locals.googleAdsConversionLabel = config.googleAdsConversionLabel;
+  res.locals.cloudinaryUrl = cloudinaryDisplayUrl;
+  res.locals.cloudinarySrcSet = cloudinarySrcSet;
+  res.locals.cloudinaryCdnHost = getCloudinaryCdnHost();
+  res.locals.cloudinaryCdnBase = getCloudinaryCdnBase();
+  res.locals.ogImageUrl = resolveOgImageUrl;
+  res.locals.defaultOgImageUrl = defaultOgImageUrl;
+  res.locals.imageAltLabel = imageAltLabel;
+  res.locals.projectReportUrl = projectReportUrl;
+  res.locals.blogPostHeading = onPageSeo.blogPostHeading;
+  res.locals.blogPostExcerpt = onPageSeo.blogPostExcerpt;
   next();
 });
 
 app.use(createGtmInjectMiddleware(config.gtmContainerId));
+app.use(createCloudinaryHtmlOptimizeMiddleware());
 
 // ======================================================
 // NON-WWW TO WWW (canonical domain)
@@ -145,6 +180,7 @@ app.use((req, res, next) => {
 // This does not force domain/https and is safe for now.
 // ======================================================
 const CANONICAL_DEGREES = ['btech', 'mtech', 'be', 'me', 'bca', 'mca', 'bsc', 'msc'];
+const { legacyProjectReportRedirect, canonicalReportUrlRedirect } = require('./routes/projectReportShared');
 
 app.use((req, res, next) => {
   try {
@@ -173,33 +209,27 @@ app.use((req, res, next) => {
   }
 });
 
-// ======================================================
-// MALFORMED PROJECT REPORT URL REDIRECTS
-// Catches *-final-year-project-report-* where prefix is not a valid degree
-// e.g. online-shopping-system-final-year-project-report-email-spam-detection-system
-//      hotel-booking-system-btech-final-year-project-report-email-spam-detection-system
-// ======================================================
-app.use((req, res, next) => {
+// Legacy report detail URLs → /{db_seo_name}-report
+app.use(async (req, res, next) => {
   try {
-    const m = req.path.match(/^\/(.+)-final-year-project-report-(.+)$/i);
-    if (!m) return next();
-
-    const prefix = (m[1] || '').toLowerCase().replace(/\./g, '');
-    const projectSlug = (m[2] || '').trim();
-    if (!projectSlug) return next();
-
-    if (CANONICAL_DEGREES.includes(prefix)) return next();
-
-    let degree = 'btech';
-    for (const d of CANONICAL_DEGREES) {
-      if (prefix.includes(d)) {
-        degree = d;
-        break;
-      }
+    const target = await legacyProjectReportRedirect(req);
+    if (target) {
+      return res.redirect(301, target);
     }
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+});
 
-    const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
-    return res.redirect(301, `/${degree}-final-year-project-report-${projectSlug}${query}`);
+// Partial slug URLs (/short-name-report) → full DB seo_name URL
+app.use(async (req, res, next) => {
+  try {
+    const target = await canonicalReportUrlRedirect(req);
+    if (target) {
+      return res.redirect(301, target);
+    }
+    return next();
   } catch (err) {
     return next(err);
   }
@@ -208,7 +238,7 @@ app.use((req, res, next) => {
 // ======================================================
 // TRAILING SLASH REDIRECT (exempt CRM portals to avoid redirect loops)
 // ======================================================
-const TRAILING_SLASH_EXEMPT = ['/sales', '/project-report-manager', '/mern-training-manager', '/setup-support', '/source-code-manager', '/project-report-creator', '/auth', '/mern-training-program', '/shopkeeper'];
+const TRAILING_SLASH_EXEMPT = ['/sales', '/project-report-manager', '/mern-training-manager', '/setup-support', '/source-code-manager', '/project-report-creator', '/auth', '/mern-training-program', '/shopkeeper', '/report-sales', '/report-sales-admin'];
 app.use((req, res, next) => {
   if (req.path.length > 1 && req.path.endsWith('/')) {
     const base = req.path.replace(/\/$/, '');
@@ -486,14 +516,55 @@ app.use((req, res, next) => {
   next(createError(404));
 });
 
-app.use((err, req, res, next) => {
+app.use(async (err, req, res, next) => {
   console.error(err);
 
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  const status = err.status || 500;
+  const onPageSeo = require('./routes/onPageSeo');
+  let category = Array.isArray(req.categories) ? req.categories : [];
+  if (!category.length) {
+    try {
+      const pool = require('./routes/pool');
+      category = await new Promise((resolve) => {
+        pool.query('SELECT id, name, seo_name FROM category', (e, rows) => {
+          resolve(e ? [] : (rows || []));
+        });
+      });
+    } catch (_) {
+      category = [];
+    }
+  }
 
-  res.status(err.status || 500);
-  res.render('error');
+  let fullUrl = req.fullUrl;
+  if (!fullUrl) {
+    const host = ((req.get('host') || 'www.filemakr.com').toLowerCase().split(':')[0] === 'filemakr.com')
+      ? 'www.filemakr.com'
+      : ((req.get('host') || 'www.filemakr.com').split(':')[0]);
+    const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').toLowerCase();
+    fullUrl = (proto === 'https' ? 'https' : 'http') + '://' + host + (req.originalUrl || req.url || '');
+  }
+
+  const is404 = status === 404;
+  const Metatags = is404
+    ? onPageSeo.errorPage
+    : {
+        ...onPageSeo.errorPage,
+        title: 'Something Went Wrong | FileMakr',
+        description: 'An unexpected error occurred. Please return to FileMakr home or contact support for project report and source code help.'
+      };
+
+  res.status(status);
+  res.render('error', {
+    message: err.message || (is404 ? 'Page not found' : 'Something went wrong'),
+    error: req.app.get('env') === 'development' ? err : { status },
+    Metatags,
+    CommonMetaTags: onPageSeo.commonMetaTags,
+    category,
+    fullUrl,
+    active: '',
+    graduation_type_send: '',
+    statusCode: status
+  });
 });
 
 // ======================================================

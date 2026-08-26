@@ -53,16 +53,54 @@ src="https://www.facebook.com/tr?id=1189449807922713&ev=PageView&noscript=1"
 
 
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title><%=Metatags.title%></title>
-<meta name=description content="<%=Metatags.description%>"/>
+<meta name="description" content="<%=Metatags.description%>"/>
 <meta name="abstract" content="<%=Metatags.abstract%>"/>
 <meta name="keywords" content="<%=Metatags.keywords%>"/>
-<meta name="og:title" content="<%=Metatags.title%>"/>
-<meta name="og:description" content="<%=Metatags.description%>"/>
-<meta property=og:url content="<%=CommonMetaTags.URL%>"/>
-<meta property=og:image content="<%=CommonMetaTags.ogImage%>" style="width:80px;"/>
-<meta property=og:site_name content="<%=CommonMetaTags.siteName%>"/>
+<%
+  var fmOgUrl = (typeof fullUrl !== 'undefined' && fullUrl) ? fullUrl : (CommonMetaTags.URL || 'https://www.filemakr.com/');
+  var fmOgTitle = Metatags.title || 'FileMakr';
+  var fmOgDesc = Metatags.description || '';
+  var fmIsHomeOg = (typeof active !== 'undefined' && active === 'home');
+  var fmOgImageRaw = '';
+  if (Metatags && Metatags.ogImage) fmOgImageRaw = Metatags.ogImage;
+  else if (!fmIsHomeOg && typeof ogImage !== 'undefined' && ogImage) fmOgImageRaw = ogImage;
+  else if (!fmIsHomeOg && typeof product !== 'undefined' && product && product.image) fmOgImageRaw = product.image;
+  else if (!fmIsHomeOg && typeof demo !== 'undefined' && demo) {
+    fmOgImageRaw = demo.og_image || demo.thumbnail_url || demo.image || demo.cover_image || '';
+  } else if (!fmIsHomeOg && typeof result !== 'undefined' && result) {
+    var fmOgProduct = null;
+    if (Array.isArray(result) && result.length) {
+      if (Array.isArray(result[0]) && result[0].length) fmOgProduct = result[0][0];
+      else if (result[0] && typeof result[0] === 'object') fmOgProduct = result[0];
+    }
+    if (fmOgProduct && fmOgProduct.image) fmOgImageRaw = fmOgProduct.image;
+  }
+  var fmOgImage = (typeof ogImageUrl === 'function')
+    ? ogImageUrl(fmOgImageRaw)
+    : ((typeof defaultOgImageUrl === 'function') ? defaultOgImageUrl() : (CommonMetaTags.ogImage || ''));
+  var fmOgImageAlt = (Metatags && Metatags.ogImageAlt)
+    || (Metatags && Metatags.title)
+    || 'FileMakr — final year project reports and source code';
+%>
+<meta property="og:title" content="<%= fmOgTitle %>"/>
+<meta property="og:description" content="<%= fmOgDesc %>"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="<%= fmOgUrl %>"/>
+<meta property="og:image" content="<%= fmOgImage %>"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="<%= fmOgImageAlt %>"/>
+<meta property="og:site_name" content="<%=CommonMetaTags.siteName%>"/>
+<meta property="og:locale" content="en_IN"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@FileMakr"/>
+<meta name="twitter:title" content="<%= fmOgTitle %>"/>
+<meta name="twitter:description" content="<%= fmOgDesc %>"/>
+<meta name="twitter:image" content="<%= fmOgImage %>"/>
+<meta name="twitter:image:alt" content="<%= fmOgImageAlt %>"/>
+<meta property="article:publisher" content="https://www.facebook.com/FileMakr">
 <meta name="HandheldFriendly" content="<%=CommonMetaTags.HandheldFriendly%>"/>
 <meta name="MobileOptimized" content="<%=CommonMetaTags.MobileOptimized%>"/>
 <meta property="og:phone_number" content="<%=CommonMetaTags.ogPhone%>"/>
@@ -70,32 +108,33 @@ src="https://www.facebook.com/tr?id=1189449807922713&ev=PageView&noscript=1"
 <meta property="og:country-name" content="<%=CommonMetaTags.ogCountry%>"/>
 <link rel="shortcut icon" type="image/x-icon" href="<%=CommonMetaTags.Icon%>">
 <link rel="alternate" hreflang="en" href="<%= fullUrl %>">
-<link rel=canonical href="<%=fullUrl%>">
+<link rel="canonical" href="<%= fullUrl %>">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="https://www.filemakr.com/sitemap.xml">
+<meta name="robots" content="index, follow">
 
 <link rel="stylesheet" href="/design/css/bootstrap.min.css">
 
 <link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
 <link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="/design/plugins/feather/feather.css">
 
+<% var fmHomeLite = (typeof homeLite !== 'undefined' && homeLite) || (typeof active !== 'undefined' && active === 'home'); %>
+<% if (!fmHomeLite) { %>
 <link rel="stylesheet" href="/design/css/owl.carousel.min.css">
 <link rel="stylesheet" href="/design/css/owl.theme.default.min.css">
-    <link rel="stylesheet" href="/design/plugins/feather/feather.css">
-
-
 <link rel="stylesheet" href="/design/plugins/slick/slick.css">
 <link rel="stylesheet" href="/design/plugins/slick/slick-theme.css">
-
 <link rel="stylesheet" href="/design/plugins/select2/css/select2.min.css">
-
 <link rel="stylesheet" href="/design/plugins/aos/aos.css">
+<link rel="stylesheet" href="/css/title.css">
+<link rel="dns-prefetch" href="//fonts.googleapis.com">
+<link rel="dns-prefetch" href="//fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Alice&display=swap" rel="stylesheet">
+<% } %>
 
 <link rel="stylesheet" href="/design/css/style.css">
-<link rel="stylesheet" href="/css/title.css">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alice&display=swap" rel="stylesheet">
-
+<% if (!fmHomeLite) { %>
 <style>
   /* Minified and optimized CSS */
 
@@ -166,6 +205,7 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
 
 
 </style>
+<% } %>
 
 
 <script type='application/ld+json'> 
@@ -190,7 +230,7 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
       "https://twitter.com/FileMakr",
       "https://instagram.com/filemakr/",
       "https://www.filemakr.com",
-      "https://www.linkedin.com/company/filemakr/"
+      "https://www.linkedin.com/company/filemakr"
     ],
     "contactPoint": {
       "@type": "ContactPoint",
@@ -199,7 +239,7 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
     },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://localhost:3000/"
+    "@id": <%- JSON.stringify(fullUrl || 'https://www.filemakr.com/') %>
   },
   "aggregateRating": {
     "@type": "AggregateRating",
@@ -221,6 +261,27 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
   }
 }
   </script>
+
+<% if (typeof active !== 'undefined' && active === 'home') { %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": <%- JSON.stringify(Metatags.title || 'FileMakr') %>,
+  "description": <%- JSON.stringify(Metatags.description || '') %>,
+  "url": <%- JSON.stringify(fullUrl || 'https://www.filemakr.com/') %>,
+  "publisher": {
+    "@type": "Organization",
+    "name": "FileMakr",
+    "url": "https://www.filemakr.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto:best,w_300,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif"
+    }
+  }
+}
+</script>
+<% } %>
 
 
 
@@ -254,7 +315,19 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
     }
   </style>
 
-
+<script id="fm-cdn-boot" type="application/json"><%- JSON.stringify({ b: (typeof cloudinaryCdnBase !== 'undefined' ? cloudinaryCdnBase : ''), h: (typeof cloudinaryCdnHost !== 'undefined' ? cloudinaryCdnHost : '') }) %></script>
+<script>
+(function () {
+  var el = document.getElementById('fm-cdn-boot');
+  if (!el) return;
+  try {
+    var c = JSON.parse(el.textContent || '{}');
+    window.FM_CLOUDINARY_CDN_BASE = c.b || '';
+    window.FM_CLOUDINARY_CDN = c.h || '';
+  } catch (e) {}
+})();
+</script>
+<script src="/js/fm-cloudinary.js?v=6"></script>
 </head>
 
 <body>
@@ -262,172 +335,157 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
 <% } %>
 <div class="main-wrapper">
   <style>
-   /* ---- Offer Bar (mobile-first, premium strip) ---- */
+   /* ---- Offer Bar — sticky only (header scrolls away) ---- */
 .offer-bar{
-  --offer-blue: var(--brandBlue, #2a47ff);
-  --offer-orange: var(--brandOrange, #f17f23);
+  --offer-orange: #F17F23;
+  --offer-ink: #2F3542;
   position: sticky;
   top: 0;
-  z-index: 1020;
+  z-index: 1040;
   width: 100%;
-  color: #fff;
-  box-shadow: 0 4px 24px rgba(14, 18, 32, 0.14);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  background:
-    linear-gradient(105deg, rgba(255, 255, 255, 0.14) 0%, transparent 42%, rgba(255, 255, 255, 0.06) 100%),
-    linear-gradient(92deg, var(--offer-blue) 0%, #2438c9 38%, var(--offer-orange) 100%);
+  color: var(--offer-ink);
+  box-shadow: none;
+  border-bottom: 1px solid #F3E0D2;
+  background: #FFF3EA;
 }
 
-.app-nav{
-  z-index: 1015;              /* below offcanvas (1045), above page content */
+/* Theme `.header-fixed` is fixed/top:0 — keep header in document flow so it never covers offer */
+header.fm-header.header-fixed,
+.fm-header.header-fixed{
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 1025 !important;
+}
+
+html.menu-opened .fm-header.header-fixed,
+html.menu-opened header.fm-header.header-fixed{
+  z-index: 20000 !important;
 }
 
 .wa-fab{
-  z-index: 1016;              /* above bottom nav, but below offcanvas */
+  z-index: 1016;
 }
 
-.has-fixed-navbar .offer-bar { z-index: 1031; }
+.has-fixed-navbar .offer-bar { z-index: 1040; }
 
 .offer-inner{
-  padding: 11px 0 12px;
+  padding: 8px 0;
 }
 
 .offer-content{
   display: flex;
   align-items: center;
-  gap: 12px 16px;
+  gap: 10px 18px;
   justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.offer-badge{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  color: #fff;
-  font-weight: 800;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 7px 11px;
-  border-radius: 999px;
-}
-.offer-badge i{
-  font-size: 13px;
-  opacity: 0.95;
+  flex-wrap: nowrap;
+  position: relative;
 }
 
 .offer-main{
-  flex: 1 1 200px;
+  flex: 1 1 auto;
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
+}
+
+.offer-gift{
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--offer-orange);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.offer-gift svg{
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .offer-headline{
   margin: 0;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-  color: #fff;
-}
-
-.offer-price-pill{
-  display: inline-flex;
-  align-items: center;
-  margin-left: 4px;
-  padding: 2px 10px 3px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #0e1220;
-  font-weight: 900;
-  font-size: 15px;
-  letter-spacing: -0.02em;
-  vertical-align: middle;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-  animation: offer-price-glow 2.8s ease-in-out infinite;
-}
-
-.offer-sub{
-  margin: 0;
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   line-height: 1.35;
-  color: rgba(255, 255, 255, 0.88);
-  letter-spacing: 0.01em;
+  color: var(--offer-ink);
 }
 
-@keyframes offer-price-glow {
-  0%, 100% { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12); }
-  50% { box-shadow: 0 2px 18px rgba(255, 255, 255, 0.45); }
-}
-
-.offer-cta{
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: #fff;
-  color: #0e1220 !important;
-  text-decoration: none !important;
+.offer-headline .offer-em{
+  color: var(--offer-orange);
   font-weight: 800;
-  font-size: 13px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
-}
-.offer-cta:hover{
-  filter: brightness(1.02);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-  color: #0e1220 !important;
-}
-.offer-cta:focus-visible{
-  outline: 2px solid #fff;
-  outline-offset: 2px;
 }
 
-.offer-dismiss{
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.offer-valid{
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--offer-orange);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-decoration: none;
 }
-.offer-dismiss:hover{ background: rgba(255, 255, 255, 0.12); }
 
-@media (max-width: 576px){
-  .offer-inner{ padding: 10px 0 11px; }
+.offer-valid strong{
+  font-weight: 800;
+  color: var(--offer-orange);
+}
+
+.offer-valid .offer-chevron{
+  margin-left: 2px;
+  font-weight: 700;
+}
+
+/* Desktop: main offer text centered in the bar */
+@media (min-width: 768px){
   .offer-content{
-    gap: 10px;
-    align-items: flex-start;
+    justify-content: flex-end;
+    min-height: 22px;
   }
-  .offer-headline{ font-size: 14px; }
-  .offer-price-pill{ font-size: 14px; padding: 2px 8px 3px; }
-  .offer-sub{ font-size: 11px; }
-  .offer-cta{
-    width: 100%;
-    order: 4;
-    padding: 11px 16px;
+
+  .offer-main{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    flex: 0 1 auto;
+    max-width: calc(100% - 280px);
+    justify-content: center;
+    text-align: center;
   }
-  .offer-badge{ order: 0; }
-  .offer-main{ order: 1; flex: 1 1 100%; }
+
+  .offer-valid{
+    margin-left: auto;
+    position: relative;
+    z-index: 1;
+  }
 }
 
-@media (prefers-reduced-motion: reduce){
-  .offer-price-pill{ animation: none; }
+/* unused legacy hooks kept harmless */
+.offer-badge,
+.offer-price-pill,
+.offer-sub,
+.offer-cta,
+.offer-dismiss{ display: none !important; }
+
+@media (max-width: 767.98px){
+  .offer-inner{ padding: 8px 0; }
+  .offer-content{
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+  .offer-headline{ font-size: 12.5px; }
+  .offer-valid{
+    width: 100%;
+    padding-left: 26px;
+    font-size: 12px;
+  }
 }
 
   </style>
@@ -436,18 +494,117 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
   <div class="container">
     <div class="offer-inner">
       <div class="offer-content">
-        <span class="offer-badge"><i class="feather-zap" aria-hidden="true"></i> Limited offer</span>
         <div class="offer-main">
+          <span class="offer-gift" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="10" width="18" height="11" rx="1.5"/>
+              <path d="M12 10v11M3 14h18"/>
+              <path d="M12 10c-2.2 0-4-1.3-4-3s1.2-2.2 2.5-1.5C11.2 6 12 7.4 12 10z"/>
+              <path d="M12 10c2.2 0 4-1.3 4-3s-1.2-2.2-2.5-1.5C12.8 6 12 7.4 12 10z"/>
+            </svg>
+          </span>
           <p class="offer-headline">
-            Full project source code from <span class="offer-price-pill" aria-label="99 rupees">₹99</span>
+            Limited Time Offer! Flat <span class="offer-em">80% OFF</span> on all source code.
           </p>
         </div>
+        <p class="offer-valid">Offer Valid Till <strong id="offerValidTill">—</strong> <span class="offer-chevron" aria-hidden="true">›</span></p>
       </div>
     </div>
   </div>
 </div>
+<script>
+(function () {
+  var el = document.getElementById('offerValidTill');
+  if (!el) return;
+  var now = new Date();
+  var last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  el.textContent = last.getDate() + ' ' + months[last.getMonth()] + ' ' + last.getFullYear();
+})();
+</script>
 
-<header class="header header-page">
+<link rel="stylesheet" href="/css/fm-header.css?v=20">
+
+<style id="fm-header-mobile-fix">
+@media (max-width: 991.98px) {
+  .fm-header .main-menu-wrapper {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: min(86vw, 320px) !important;
+    min-width: min(86vw, 320px) !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    z-index: 20001 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    opacity: 1 !important;
+    transform: translate3d(-105%, 0, 0) !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  html.menu-opened .fm-header .main-menu-wrapper,
+  .menu-opened .fm-header .main-menu-wrapper {
+    transform: translate3d(0, 0, 0) !important;
+  }
+  .fm-header .menu-header {
+    position: relative !important;
+    display: flex !important;
+    width: 100% !important;
+    height: 60px !important;
+    background: #ffffff !important;
+  }
+  .fm-header .menu-logo {
+    position: absolute !important;
+    left: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+  }
+  .fm-header .menu-logo img.fm-header-logo {
+    width: 156px !important;
+    height: 46px !important;
+    max-width: 156px !important;
+    max-height: 46px !important;
+  }
+  .fm-header .menu-close {
+    position: absolute !important;
+    right: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+  }
+  .fm-header .main-menu-wrapper .main-nav {
+    background: #ffffff !important;
+    width: 100% !important;
+  }
+  .fm-header .main-menu-wrapper .main-nav > li > a,
+  .fm-header .main-menu-wrapper .main-nav > li > a.submenu {
+    padding-left: 18px !important;
+    text-align: left !important;
+  }
+  .fm-header .main-menu-wrapper .main-nav > li .submenu {
+    position: static !important;
+    transform: none !important;
+    left: 0 !important;
+    width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .fm-header .main-menu-wrapper .main-nav > li .submenu::before { display: none !important; }
+  .fm-header .main-menu-wrapper .main-nav > li .submenu > li > a {
+    padding-left: 20px !important;
+    text-align: left !important;
+  }
+  .sidebar-overlay.opened {
+    display: block !important;
+    z-index: 19999 !important;
+  }
+}
+</style>
+
+<header class="header header-page header-fixed fm-header">
     <div class="">
     <nav class="navbar navbar-expand-lg header-nav scroll-sticky">
         <div class="container">
@@ -460,29 +617,23 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
             </span>
             </a>
             <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students" class="navbar-brand logo">
-            <!-- <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width: 60px;" class="img-fluid" alt="Logo">
-             -->
-             <!-- FileMakr -->
-             <h1>File<span style="color: #F17F23;">Makr</span></h1>
-            
+            <img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 440 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_440/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="220" height="72" class="fm-header-logo" alt="FileMakr">
             </a>
             </div>
             <div class="main-menu-wrapper">
             <div class="menu-header">
             <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students" class="menu-logo">
-            <!-- <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" class="img-fluid" alt="Logo"> -->
-            <h1>File<span style="color: #F17F23;">Makr</span></h1>
-            
+            <img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 440 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_440/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="220" height="72" class="fm-header-logo" alt="FileMakr">
             </a>
             <a id="menu_close" class="menu-close" href="javascript:void(0);">
             <i class="fas fa-times"></i>
             </a>
             </div>
             <ul class="main-nav">
-            <li class="active">
+            <li class="<%= (typeof active !== 'undefined' && active === 'home') ? 'active' : '' %>">
             <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
             </li>
-            <li class="has-submenu">
+            <li class="has-submenu <%= (typeof active !== 'undefined' && active === 'report') ? 'active' : '' %>">
             <a href="#">Project Report <i class="fas fa-chevron-down"></i></a>
             <ul class="submenu">
               <li><a href="/btech-final-year-project-report" title="B.Tech Final Year Project Report — Filemakr">B.TECH</a></li>
@@ -501,16 +652,11 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
               <a href="/final-year-project-ideas" title="Top Final Year Project Ideas for College Students | FileMakr">Project Ideas</a>
               </li>
             
-              <li class="">
+              <li class="<%= (typeof active !== 'undefined' && active === 'demo') ? 'active' : '' %>">
                 <a href="/demo" title="Live Demo of Source Code | FileMakr">Live Demo</a>
                 </li>
 
-            
-              <!-- <li class="">
-                <a href="/source-code">Source Code</a>
-                </li> -->
-
-                <li class="has-submenu">
+                <li class="has-submenu <%= (typeof active !== 'undefined' && active === 'source-code') ? 'active' : '' %>">
                   <a href="#">Source Code <i class="fas fa-chevron-down"></i></a>
                   <ul class="submenu">
             <% for(i=0;i<category.length;i++){%>
@@ -520,19 +666,9 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
                   </ul>
                   </li>
             
-                      <li>
-                <a href="/our-campus-brand-ambassador">Our Campus Brand Ambassador</a>
-              </li>
-            
-            <!-- <li class="login-link">
-            <a href="login.html">Login / Signup</a>
-            </li> -->
             </ul>
             </div>
             <ul class="nav header-navbar-rht">
-            <!-- <li class="nav-item">
-            <a class="nav-link header-sign" href="login.html">Signin</a>
-            </li> -->
             <li class="nav-item">
             <a class="nav-link header-login" href="/contact-us" title="Contact Us | FileMakr">Contact Us</a>
             </li>

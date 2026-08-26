@@ -1,0 +1,46 @@
+<%
+  var qEnc = encodeURIComponent(typeof searchQ !== 'undefined' ? searchQ : (typeof searchQuery !== 'undefined' ? searchQuery : ''));
+  var typeVal = typeof searchTypeVal !== 'undefined' ? searchTypeVal : (typeof searchType !== 'undefined' ? searchType : 'Source Code');
+  var isIdeas = /project\s*report/i.test(typeVal);
+  var displayQ = typeof searchQ !== 'undefined' ? searchQ : (typeof searchQuery !== 'undefined' ? String(searchQuery || '') : '');
+%>
+
+<section class="pr-search-head" aria-labelledby="pr-search-heading">
+  <nav aria-label="Breadcrumb">
+    <ol class="pr-search-head__crumb">
+      <li><a href="/">Home</a></li>
+      <li aria-current="page">Search</li>
+    </ol>
+  </nav>
+
+  <h1 class="pr-search-head__title" id="pr-search-heading">
+    Results for <em>&ldquo;<%= displayQ %>&rdquo;</em>
+  </h1>
+
+  <form class="pr-search-head__row" action="/search" method="get" role="search">
+    <input type="hidden" name="type" value="<%= typeVal %>" id="PrSearchTypeHidden" />
+
+    <div class="pr-search-head__combo">
+      <label class="pr-search-head__input-wrap">
+        <span class="visually-hidden" for="PrGlobalSearch">Search catalog</span>
+        <i class="feather-search pr-search-head__input-ico" aria-hidden="true"></i>
+        <input id="PrGlobalSearch" type="search" name="q" value="<%= displayQ %>" placeholder="<%= isIdeas ? 'Search project ideas…' : 'Search source code…' %>" autocomplete="off" required />
+      </label>
+      <button type="submit" class="pr-search-head__submit">
+        <i class="feather-search" aria-hidden="true"></i>
+        Search
+      </button>
+    </div>
+
+    <div class="pr-search-head__tabs" role="tablist" aria-label="Search category">
+      <a href="/search?q=<%= qEnc %>&amp;type=Source%20Code" role="tab" aria-selected="<%= isIdeas ? 'false' : 'true' %>" class="pr-search-head__tab<%= isIdeas ? '' : ' is-active' %>">
+        <i class="feather-code" aria-hidden="true"></i>
+        Source Code
+      </a>
+      <a href="/search?q=<%= qEnc %>&amp;type=Project%20Report" role="tab" aria-selected="<%= isIdeas ? 'true' : 'false' %>" class="pr-search-head__tab<%= isIdeas ? ' is-active' : '' %>">
+        <i class="far fa-lightbulb" aria-hidden="true"></i>
+        Project Ideas
+      </a>
+    </div>
+  </form>
+</section>

@@ -5,6 +5,7 @@
  */
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const router = express.Router();
 const pool = require('./pool');
 const util = require('util');
@@ -51,24 +52,69 @@ function tocPagerefRun(bookmarkId, runOpts) {
 const fetch = (typeof globalThis.fetch === 'function') ? globalThis.fetch : require('node-fetch');
 const { imageSize: getImageSize } = require('image-size');
 const cheerio = require('cheerio');
-const multer = require('multer');
-const { buildFullReportItems } = require('./prc-build-full-report-items');
+const { buildFullReportItems, filterSynopsisItems, filterPredefinedReportItems } = require('./prc-build-full-report-items');
+const { buildReportItemsFromPastedToc, parsePastedTocToEntries } = require('./prc-toc-paste-match');
 const {
-  mergeTocWithFullLibraryItems,
-  isConclusionTitle,
-  normalizeTitle,
-  insertBeforeReferences
-} = require('./prc-toc-ai-merge');
-const { extractTocFromImageBuffer, buildConclusionPlaceholderHtml } = require('./prc-toc-ocr');
+  estimateBodyTocPages,
+  measureBodyTocPages,
+  formatTocPageLabel,
+  buildReportPdfBuffer,
+  bufferCacheToDataUrlMap,
+  getSharedBrowser
+} = require('./prc-report-export');
 
-const tocImageUpload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 8 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (/^image\/(jpeg|png|webp|gif)$/i.test(file.mimetype)) cb(null, true);
-    else cb(new Error('Only JPEG, PNG, WebP, or GIF images are allowed.'));
-  }
-});
+/** Run async work over items with a fixed concurrency limit. */
+async function mapPool(items, concurrency, worker) {
+  const list = Array.isArray(items) ? items : [];
+  const results = new Array(list.length);
+  let next = 0;
+  const run = async () => {
+    while (true) {
+      const i = next++;
+      if (i >= list.length) return;
+      results[i] = await worker(list[i], i);
+    }
+  };
+  const n = Math.max(1, Math.min(concurrency || 1, list.length || 1));
+  await Promise.all(Array.from({ length: n }, () => run()));
+  return results;
+}
+
+function resolveReportImageUrl(url, req) {
+  const u = (url || '').toString().trim();
+  if (!u) return '';
+  if (/^https?:\/\//i.test(u)) return u;
+  return (req.protocol || 'http') + '://' + (req.get('host') || 'localhost') + (u.startsWith('/') ? '' : '/') + u;
+}
+
+/** Prefer disk read for same-host / public assets (avoids round-trip HTTP). */
+function tryReadLocalReportImage(url, req) {
+  try {
+    let pathname = (url || '').toString().trim();
+    if (!pathname) return null;
+    if (/^https?:\/\//i.test(pathname)) {
+      const parsed = new URL(pathname);
+      const reqHost = String(req.get('host') || '').split(':')[0].toLowerCase();
+      const urlHost = String(parsed.hostname || '').toLowerCase();
+      const localHosts = new Set(['localhost', '127.0.0.1', reqHost].filter(Boolean));
+      if (!localHosts.has(urlHost)) return null;
+      pathname = parsed.pathname || '';
+    }
+    if (!pathname.startsWith('/')) return null;
+    const rel = pathname.replace(/^\//, '').replace(/\?.*$/, '');
+    const candidates = [
+      path.join(__dirname, '../public', rel),
+      path.join(__dirname, '..', rel)
+    ];
+    for (const local of candidates) {
+      if (fs.existsSync(local) && fs.statSync(local).isFile()) {
+        const buf = fs.readFileSync(local);
+        if (buf.length > 0 && buf.length < 5 * 1024 * 1024) return buf;
+      }
+    }
+  } catch (_) { /* ignore */ }
+  return null;
+}
 
 router.use(express.static(path.join(__dirname, '../public/setup-support'), { maxAge: '1d' }));
 
@@ -176,7 +222,13 @@ async function requirePRCOrAdmin(req, res, next) {
   const result = await enforceCrmSession(req, res, '/project-report-creator/login');
   if (!result) return;
   const role = String(result.role || '').trim().toLowerCase();
-  if (role === 'project_report_creator' || ADMIN_ROLES.has(role)) {
+  // report_sales may open /create/:id from Report Sales Team portal to deliver customized/originality
+  if (
+    role === 'project_report_creator' ||
+    role === 'report_sales' ||
+    role === 'report_sales_admin' ||
+    ADMIN_ROLES.has(role)
+  ) {
     req._user = result;
     return next();
   }
@@ -352,136 +404,51 @@ router.get('/api/source-code/:id/data', requirePRCOrAdmin, async (req, res) => {
   }
 });
 
-// API: Upload TOC image → OpenAI vision → full library + missing TOC headings/subheadings + optional Conclusion draft
-router.post(
-  '/api/source-code/:id/toc-from-image',
-  requirePRCOrAdmin,
-  (req, res, next) => {
-    tocImageUpload.single('tocImage')(req, res, (err) => {
-      if (err) return res.status(400).json({ ok: false, message: err.message || 'Upload failed' });
-      next();
-    });
-  },
-  async (req, res) => {
-    try {
-      const id = parseInt(req.params.id, 10);
-      if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
-      if (!req.file || !req.file.buffer) {
-        return res.status(400).json({ ok: false, message: 'No image file (field name: tocImage).' });
-      }
+// API: Paste TOC text → match library (exact/related + diagram/DB/screenshot rules) → reportItems
+router.post('/api/source-code/:id/toc-from-text', requirePRCOrAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
 
-      const scRows = await queryAsync(`SELECT id, name FROM source_code WHERE id=? LIMIT 1`, [id]);
-      if (!scRows.length) return res.status(404).json({ ok: false, message: 'Source code not found' });
-      const projectName = (scRows[0].name || 'Report').toString().trim();
-
-      let ocrText = '';
-      let tocEntries = [];
-      try {
-        const extracted = await extractTocFromImageBuffer(req.file.buffer);
-        ocrText = extracted.text || '';
-        tocEntries = Array.isArray(extracted.entries) ? extracted.entries : [];
-      } catch (ocrErr) {
-        console.warn('PRC TOC OCR error:', ocrErr.message);
-        return res.status(422).json({
-          ok: false,
-          message: 'Could not read text from the image. Try a sharper, well-lit photo or a PNG screenshot.'
-        });
-      }
-
-      if (!tocEntries.length && (!ocrText || ocrText.replace(/\s/g, '').length < 15)) {
-        return res.status(422).json({
-          ok: false,
-          message:
-            'No table-of-contents lines could be detected. Use a clearer image with visible chapter numbers (e.g. 1 Introduction, 1.1 Background).'
-        });
-      }
-
-      const lib = await loadPrcLibraryForExport(id);
-      const fullItems = buildFullReportItems({
-        sections: lib.sectionsWithSub,
-        dbScreenshots: lib.dbScreenshots,
-        screenshots: lib.screenshots,
-        diagrams: lib.diagramsList
-      });
-
-      const { mergedItems, addedCount, addedLabels } = mergeTocWithFullLibraryItems(
-        fullItems,
-        tocEntries,
-        lib.sectionsWithSub
-      );
-
-      let reportItems = mergedItems.slice();
-      const notes = [];
-      if (addedCount) notes.push(`Added ${addedCount} heading(s)/subtitle(s) from your TOC that were not in the content library.`);
-
-      const tocHasConclusion = tocEntries.some((e) => e.level === 1 && isConclusionTitle(e.title));
-      let conclusionHeadingIdx = reportItems.findIndex(
-        (it) => it.type === 'heading' && isConclusionTitle(it.heading)
-      );
-      if (tocHasConclusion && conclusionHeadingIdx < 0) {
-        const raw = tocEntries.find((e) => e.level === 1 && isConclusionTitle(e.title));
-        if (raw && (raw.title || '').trim()) {
-          reportItems = insertBeforeReferences(reportItems, [{ type: 'heading', heading: (raw.title || '').trim() }]);
-          conclusionHeadingIdx = reportItems.findIndex(
-            (it) => it.type === 'heading' && isConclusionTitle(it.heading)
-          );
-          notes.push('Added a Conclusion chapter from your TOC for the placeholder text.');
-        }
-      }
-
-      function conclusionBlockHasBody(items, hIdx) {
-        if (hIdx < 0) return false;
-        for (let i = hIdx + 1; i < items.length; i++) {
-          const it = items[i];
-          if (it.type === 'heading') break;
-          if (it.type === 'subheading') {
-            const t = (it.body || '').replace(/<[^>]+>/g, ' ').trim();
-            if (t.length > 80) return true;
-          }
-        }
-        return false;
-      }
-
-      const needConclusionDraft =
-        (tocHasConclusion || conclusionHeadingIdx >= 0) &&
-        !conclusionBlockHasBody(reportItems, conclusionHeadingIdx);
-
-      if (needConclusionDraft) {
-        const draftHtml = buildConclusionPlaceholderHtml(projectName);
-
-        if (conclusionHeadingIdx >= 0) {
-          const next = reportItems[conclusionHeadingIdx + 1];
-          if (next && next.type === 'subheading' && !(next.body || '').trim()) {
-            next.body = draftHtml;
-            notes.push('Filled an empty subtitle under Conclusion with a starter paragraph. Edit as needed.');
-          } else if (
-            !next ||
-            next.type !== 'subheading' ||
-            normalizeTitle(next.subheading) !== 'summary'
-          ) {
-            reportItems.splice(conclusionHeadingIdx + 1, 0, {
-              type: 'subheading',
-              subheading: 'Summary',
-              body: draftHtml
-            });
-            notes.push('Inserted a Conclusion Summary placeholder. Edit as needed.');
-          }
-        }
-      }
-
-      return res.json({
-        ok: true,
-        tocEntries,
-        reportItems,
-        notes: notes.join(' '),
-        addedLabels
-      });
-    } catch (e) {
-      console.error('PRC toc-from-image error:', e);
-      return res.status(500).json({ ok: false, message: (e && e.message) || 'Server error' });
+    const text = (req.body && req.body.text != null ? req.body.text : '').toString();
+    if (!text.trim()) {
+      return res.status(400).json({ ok: false, message: 'Paste your table of contents text first.' });
     }
+
+    const scRows = await queryAsync(`SELECT id, name FROM source_code WHERE id=? LIMIT 1`, [id]);
+    if (!scRows.length) return res.status(404).json({ ok: false, message: 'Source code not found' });
+
+    const tocEntries = parsePastedTocToEntries(text);
+    if (!tocEntries.length) {
+      return res.status(422).json({
+        ok: false,
+        message:
+          'No TOC lines detected. Paste lines such as "1 Introduction", "1.1 Background", or plain titles like "System Architecture".'
+      });
+    }
+
+    const lib = await loadPrcLibraryForExport(id);
+    const { reportItems, matchedLabels, missingLabels, notes } = buildReportItemsFromPastedToc({
+      tocEntries,
+      sections: lib.sectionsWithSub,
+      diagrams: lib.diagramsList,
+      screenshots: lib.screenshots,
+      dbScreenshots: lib.dbScreenshots
+    });
+
+    return res.json({
+      ok: true,
+      tocEntries,
+      reportItems,
+      notes: (notes || []).join(' '),
+      matchedLabels,
+      missingLabels
+    });
+  } catch (e) {
+    console.error('PRC toc-from-text error:', e);
+    return res.status(500).json({ ok: false, message: (e && e.message) || 'Server error' });
   }
-);
+});
 
 // API: Download Word document
 async function handleProjectReportWordDownload(req, res) {
@@ -490,6 +457,27 @@ async function handleProjectReportWordDownload(req, res) {
     const items = Array.isArray(req.body.items) ? req.body.items : [];
     const sourceCodeName = (req.body.sourceCodeName || 'Report').toString().trim();
     if (!Number.isFinite(sourceCodeId)) return res.status(400).json({ ok: false, message: 'Invalid sourceCodeId' });
+
+    const formatRaw = String(
+      (req.body && req.body.format) || (req.query && req.query.format) || 'docx'
+    )
+      .toLowerCase()
+      .trim();
+    const wantPdf = formatRaw === 'pdf';
+    const baseName = sourceCodeName.replace(/[^\w\s-]/g, '') || 'report';
+
+    if (wantPdf) {
+      const baseUrl =
+        (req.protocol || 'http') + '://' + (req.get('host') || 'localhost:5000');
+      const pdfBuf = await buildReportPdfBuffer({
+        title: sourceCodeName,
+        items,
+        baseUrl
+      });
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename="' + baseName + '.pdf"');
+      return res.send(pdfBuf);
+    }
 
     const marginTwip = convertInchesToTwip(1); // 1 inch ≈ 2.54cm
     const parts = [];
@@ -533,6 +521,39 @@ async function handleProjectReportWordDownload(req, res) {
     };
     const { abstractItems, bodyItems } = splitAbstractPrefix(items);
 
+    // Prefetch all images in parallel (was the 2nd biggest delay after Puppeteer TOC measure).
+    const imageBufCache = new Map();
+    const imageUrls = [];
+    for (const it of [...abstractItems, ...bodyItems]) {
+      if (it && it.url) imageUrls.push(String(it.url).trim());
+    }
+    const uniqueImageUrls = [...new Set(imageUrls.filter(Boolean))];
+    await mapPool(uniqueImageUrls, 8, async (url) => {
+      const fullUrl = resolveReportImageUrl(url, req);
+      const local = tryReadLocalReportImage(url, req) || tryReadLocalReportImage(fullUrl, req);
+      if (local) {
+        imageBufCache.set(url, local);
+        imageBufCache.set(fullUrl, local);
+        return;
+      }
+      try {
+        const resp = await fetch(fullUrl);
+        if (!resp.ok) {
+          imageBufCache.set(url, null);
+          imageBufCache.set(fullUrl, null);
+          return;
+        }
+        const buf = Buffer.from(await resp.arrayBuffer());
+        const ok = buf.length > 0 && buf.length < 5 * 1024 * 1024;
+        imageBufCache.set(url, ok ? buf : null);
+        imageBufCache.set(fullUrl, ok ? buf : null);
+      } catch (err) {
+        console.warn('Image prefetch failed:', url, err.message);
+        imageBufCache.set(url, null);
+        imageBufCache.set(fullUrl, null);
+      }
+    });
+
     const addHeading = (text, sizePt = 16, centered = true, opts = {}) => {
       const isMainHeading = sizePt >= 16 && centered;
       const prefix = opts.prefix || '';
@@ -552,6 +573,7 @@ async function handleProjectReportWordDownload(req, res) {
         heading: sizePt >= 16 ? HeadingLevel.HEADING_1 : HeadingLevel.HEADING_2,
         alignment: centered ? AlignmentType.CENTER : AlignmentType.LEFT,
         pageBreakBefore: pageBreak,
+        keepNext: true,
         ...paraSpacing
       }));
     };
@@ -616,46 +638,65 @@ async function handleProjectReportWordDownload(req, res) {
       }
     };
 
-    // Page content area: ~6.5" width, ~8" height (1" margins). docx ~96 DPI: full width, fit within page
+    // Usable area ≈ A4/Letter with 1" margins (~6.27" × 9.7" at 96dpi).
+    // Diagrams: fill nearly one page under the section title — clear, no stretch, no spill.
     const PAGE_CONTENT_WIDTH = 600;
-    const PAGE_CONTENT_HEIGHT = 550;
+    const PAGE_CONTENT_HEIGHT = 520; // screenshots / DB (may stack)
+    const DIAGRAM_CONTENT_WIDTH = 620;
+    const DIAGRAM_CONTENT_HEIGHT = 760; // heading + one diagram stay on a single page
     const addImage = async (url, opts = {}) => {
       try {
-        const fullUrl = url.startsWith('http') ? url : (req.protocol + '://' + req.get('host') + (url.startsWith('/') ? '' : '/') + url);
-        const resp = await fetch(fullUrl);
-        if (!resp.ok) return;
-        const buf = Buffer.from(await resp.arrayBuffer());
-        if (buf.length > 0 && buf.length < 5 * 1024 * 1024) { // max 5MB
-          const ext = (url.split('.').pop() || 'jpg').toLowerCase().replace(/\?.*$/, '');
-          const type = ['png','jpg','jpeg','gif','bmp'].includes(ext) ? (ext === 'jpg' ? 'jpeg' : ext) : 'jpeg';
-          const maxW = opts.maxWidth ?? PAGE_CONTENT_WIDTH;
-          const maxH = opts.maxHeight ?? PAGE_CONTENT_HEIGHT;
-          let width = maxW, height = maxH;
-          try {
-            const dims = getImageSize(buf);
-            if (dims && dims.width && dims.height) {
-              // Scale to fit within page: 100% of available width, no crop, maintain aspect ratio
-              const scaleW = maxW / dims.width;
-              const scaleH = maxH / dims.height;
-              const scale = Math.min(scaleW, scaleH, 1);  // never upscale
-              width = Math.round(dims.width * scale);
-              height = Math.round(dims.height * scale);
-              if (width < 50) width = 50;
-              if (height < 50) height = 50;
-            }
-          } catch (_) { /* use defaults */ }
-          parts.push(new Paragraph({
-            children: [
-              new ImageRun({
-                type: type,
-                data: buf,
-                transformation: { width, height }
-              })
-            ],
-            alignment: AlignmentType.CENTER,
-            ...paraSpacing
-          }));
+        const fullUrl = resolveReportImageUrl(url, req);
+        let buf = imageBufCache.has(fullUrl)
+          ? imageBufCache.get(fullUrl)
+          : (imageBufCache.has(url) ? imageBufCache.get(url) : undefined);
+        if (buf === undefined) {
+          const local = tryReadLocalReportImage(url, req) || tryReadLocalReportImage(fullUrl, req);
+          if (local) {
+            buf = local;
+          } else {
+            const resp = await fetch(fullUrl);
+            if (!resp.ok) return;
+            buf = Buffer.from(await resp.arrayBuffer());
+          }
+          imageBufCache.set(url, buf);
+          imageBufCache.set(fullUrl, buf);
         }
+        if (!buf || !buf.length || buf.length >= 5 * 1024 * 1024) return;
+        const ext = (url.split('.').pop() || 'jpg').toLowerCase().replace(/\?.*$/, '');
+        const type = ['png','jpg','jpeg','gif','bmp'].includes(ext) ? (ext === 'jpg' ? 'jpeg' : ext) : 'jpeg';
+        const isDiagram = opts.role === 'diagram';
+        const maxW = opts.maxWidth ?? (isDiagram ? DIAGRAM_CONTENT_WIDTH : PAGE_CONTENT_WIDTH);
+        const maxH = opts.maxHeight ?? (isDiagram ? DIAGRAM_CONTENT_HEIGHT : PAGE_CONTENT_HEIGHT);
+        // Allow upscale so small library diagrams fill the page; never stretch (uniform scale).
+        const maxUpscale = opts.maxUpscale ?? (isDiagram ? 4 : 2.5);
+        let width = maxW, height = maxH;
+        try {
+          const dims = getImageSize(buf);
+          if (dims && dims.width && dims.height) {
+            const scaleW = maxW / dims.width;
+            const scaleH = maxH / dims.height;
+            const scale = Math.min(scaleW, scaleH, maxUpscale);
+            width = Math.max(50, Math.round(dims.width * scale));
+            height = Math.max(50, Math.round(dims.height * scale));
+          }
+        } catch (_) { /* use defaults */ }
+        parts.push(new Paragraph({
+          children: [
+            new ImageRun({
+              type: type,
+              data: buf,
+              transformation: { width, height }
+            })
+          ],
+          alignment: AlignmentType.CENTER,
+          spacing: {
+            line: LINE_HEIGHT,
+            lineRule: LineRuleType.AUTO,
+            after: isDiagram ? 120 : SPACING_AFTER,
+            before: isDiagram ? 60 : 0
+          }
+        }));
       } catch (err) {
         console.warn('Image fetch failed:', url, err.message);
       }
@@ -673,6 +714,21 @@ async function handleProjectReportWordDownload(req, res) {
         keepNext: true,
         ...paraSpacing
       }));
+    };
+
+    const normalizeCaptionKey = (s) =>
+      String(s || '')
+        .toLowerCase()
+        .replace(/^\d+(\.\d+)*\s*/, '')
+        .replace(/\bdiagram\b/g, '')
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+
+    const isRedundantFigureCaption = (sectionTitle, caption) => {
+      const a = normalizeCaptionKey(sectionTitle);
+      const b = normalizeCaptionKey(caption);
+      if (!a || !b) return false;
+      return a === b || a.includes(b) || b.includes(a);
     };
 
     const addDatatable = (html) => {
@@ -768,6 +824,7 @@ async function handleProjectReportWordDownload(req, res) {
     if (abstractItems.length > 0) {
       let absSubNum = 0;
       let absNextSubFirst = true;
+      let lastSectionTitle = '';
       for (const it of abstractItems) {
         const type = (it.type || '').toString();
         if (type === 'heading') {
@@ -776,12 +833,14 @@ async function handleProjectReportWordDownload(req, res) {
           if (absSubNum > 0) pushSubheadingEndBookmark(0, absSubNum);
           absSubNum = 0;
           absNextSubFirst = true;
+          lastSectionTitle = h;
           addHeading(h, 16, true, { prefix: '', pageBreakBefore: false });
         } else if (type === 'subheading') {
           const s = (it.subheading || '').trim();
           if (!s) continue;
           if (absSubNum > 0) pushSubheadingEndBookmark(0, absSubNum);
           absSubNum++;
+          lastSectionTitle = s;
           addHeading(s, 14, false, {
             pageBreakBefore: !absNextSubFirst,
             prefix: `${absSubNum}. `,
@@ -801,40 +860,61 @@ async function handleProjectReportWordDownload(req, res) {
           addCaption(it.name || 'Screenshot', false);
           if (it.url) await addImage(it.url);
         } else if (type === 'diagram') {
-          addCaption(it.label || it.diagram_type || 'Diagram');
-          if (it.url) await addImage(it.url);
+          const cap = it.label || it.diagram_type || 'Diagram';
+          if (!isRedundantFigureCaption(lastSectionTitle, cap)) addCaption(cap);
+          if (it.url) await addImage(it.url, { role: 'diagram' });
         }
       }
       if (absSubNum > 0) pushSubheadingEndBookmark(0, absSubNum);
       idxAfterAbstract = parts.length;
     }
 
-    // TOC: bookmarks + PAGEREF for real page numbers; must match bookmarkIds on headings in the body loop below.
-    // Built from bodyItems only (Abstract is omitted and precedes the TOC in the document).
+    // TOC page numbers: body starts at page 1 (Introduction). Abstract/TOC are separate unnumbered sections.
+    // Prefer real A4 measurement so Word TOC matches PDF / printed pagination.
+    let tocPageMeta = estimateBodyTocPages(bodyItems);
+    try {
+      const baseUrl =
+        (req.protocol || 'http') + '://' + (req.get('host') || 'localhost:5000');
+      const imageDataUrls = bufferCacheToDataUrlMap(imageBufCache);
+      const browser = await getSharedBrowser();
+      tocPageMeta = await measureBodyTocPages(bodyItems, {
+        baseUrl,
+        browser,
+        imageDataUrls,
+        concurrency: 8
+      });
+    } catch (e) {
+      console.warn('Word TOC measure failed, using estimate:', e.message || e);
+    }
     const tocEntries = [];
     let tocSec = 0;
     let tocSub = 0;
+    let tocMetaIdx = 0;
     for (const it of bodyItems) {
       if (it.type === 'heading' && (it.heading || '').trim()) {
         const chTitle = normalizeMainHeadingTitle(it.heading);
         tocSec++;
         tocSub = 0;
+        const meta = tocPageMeta[tocMetaIdx++] || {};
         tocEntries.push({
           sNo: String(tocSec),
           chapter: chTitle,
           bookmarkId: `PRC_CH_${tocSec}`,
           chapterIdx: tocSec,
-          isMain: true
+          isMain: true,
+          pageLabel: formatTocPageLabel(meta.startPage || tocSec, meta.endPage || meta.startPage || tocSec)
         });
       } else if (it.type === 'subheading' && (it.subheading || '').trim()) {
         tocSub++;
         const sNo = `${tocSec}.${tocSub}`;
+        const meta = tocPageMeta[tocMetaIdx++] || {};
         tocEntries.push({
           sNo,
           chapter: (it.subheading || '').trim(),
           bookmarkId: `PRC_SU_${tocSec}_${tocSub}`,
           endBookmarkId: `PRC_SU_END_${tocSec}_${tocSub}`,
-          isMain: false
+          isMain: false,
+          pageLabel: formatTocPageLabel(meta.startPage || 1, meta.endPage || meta.startPage || 1)
         });
       }
     }
@@ -857,30 +937,23 @@ async function handleProjectReportWordDownload(req, res) {
         }),
         ...tocEntries.map((r) => {
           const b = r.isMain;
-          const pageRunOpts = { font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: b };
-          const pageParaOpts = {
-            alignment: AlignmentType.LEFT,
-            ...paraSpacing
-          };
-          const pageChildren = b
-            ? [
-                tocPagerefRun(r.bookmarkId, pageRunOpts),
-                new TextRun({ text: ' – ', font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: true }),
-                tocPagerefRun(`PRC_CH_END_${r.chapterIdx}`, pageRunOpts)
-              ]
-            : [
-                tocPagerefRun(r.bookmarkId, pageRunOpts),
-                new TextRun({ text: ' – ', font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: false }),
-                tocPagerefRun(r.endBookmarkId, pageRunOpts)
-              ];
           return new TableRow({
             children: [
               new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: r.sNo, font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: b })], ...paraSpacing })] }),
               new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: r.chapter, font: 'Times New Roman', size: TOC_FS, color: BLACK, bold: b })], ...paraSpacing })] }),
               new TableCell({
                 children: [new Paragraph({
-                  ...pageParaOpts,
-                  children: pageChildren
+                  alignment: AlignmentType.LEFT,
+                  ...paraSpacing,
+                  children: [
+                    new TextRun({
+                      text: r.pageLabel || '1',
+                      font: 'Times New Roman',
+                      size: TOC_FS,
+                      color: BLACK,
+                      bold: b
+                    })
+                  ]
                 })]
               })
             ]
@@ -892,15 +965,36 @@ async function handleProjectReportWordDownload(req, res) {
         width: { size: 100, type: WidthType.PERCENTAGE },
         layout: TableLayoutType.AUTOFIT
       }));
-      // Do not insert pageBreakBefore here: the next document section already uses an implicit
-      // next-page section break; an extra break was leaving a nearly blank page before Chapter 1.
       tocBodyStartIndex = parts.length;
     }
 
     let nextSubheadingIsFirst = true;
     let chapterNum = 0;
     let subNum = 0;
-    for (const it of bodyItems) {
+    let lastSectionTitle = '';
+    /** After a blank TOC placeholder, force the next block onto a new page. */
+    let forcePageBreakBeforeNext = false;
+
+    const padBlankPageAfterTitle = () => {
+      parts.push(new Paragraph({
+        spacing: { after: 0, before: 0, line: LINE_HEIGHT, lineRule: LineRuleType.AUTO },
+        children: [new TextRun({ text: '\u00A0', font: 'Times New Roman', size: 24, color: BLACK })]
+      }));
+      forcePageBreakBeforeNext = true;
+    };
+
+    const sectionHasFollowingMedia = (fromIdx) => {
+      for (let j = fromIdx + 1; j < bodyItems.length; j++) {
+        const n = bodyItems[j];
+        if (!n || !n.type) continue;
+        if (n.type === 'heading' || n.type === 'subheading') return false;
+        if (['diagram', 'screenshot', 'db_screenshot', 'db_datatable', 'body'].includes(n.type)) return true;
+      }
+      return false;
+    };
+
+    for (let i = 0; i < bodyItems.length; i++) {
+      const it = bodyItems[i];
       const type = (it.type || '').toString();
       if (type === 'heading') {
         const h = (it.heading || '').trim();
@@ -914,38 +1008,52 @@ async function handleProjectReportWordDownload(req, res) {
         chapterNum++;
         subNum = 0;
         nextSubheadingIsFirst = true;
+        lastSectionTitle = h;
+        const breakBefore = chapterNum > 1 || forcePageBreakBeforeNext;
+        forcePageBreakBeforeNext = false;
         addHeading(h, 16, true, {
           prefix: `Chapter ${chapterNum}: `,
           bookmarkId: `PRC_CH_${chapterNum}`,
-          pageBreakBefore: chapterNum > 1
+          pageBreakBefore: breakBefore
         });
+        if (it.blankPage && !sectionHasFollowingMedia(i)) padBlankPageAfterTitle();
       } else if (type === 'subheading') {
         const s = (it.subheading || '').trim();
         if (!s) continue;
         const subCh = chapterNum;
         if (subNum > 0) pushSubheadingEndBookmark(subCh, subNum);
         subNum++;
+        lastSectionTitle = s;
+        const breakBefore = !nextSubheadingIsFirst || forcePageBreakBeforeNext;
+        forcePageBreakBeforeNext = false;
         addHeading(s, 14, false, {
-          pageBreakBefore: !nextSubheadingIsFirst,
+          pageBreakBefore: breakBefore,
           prefix: chapterNum === 0 ? `${subNum}. ` : `${chapterNum}.${subNum} `,
           bookmarkId: `PRC_SU_${subCh}_${subNum}`
         });
         nextSubheadingIsFirst = false;
         if (it.body) addBody(it.body);
+        else if (it.blankPage && !sectionHasFollowingMedia(i)) padBlankPageAfterTitle();
       } else if (type === 'body') {
+        forcePageBreakBeforeNext = false;
         addBody(it.body);
       } else if (type === 'db_screenshot') {
+        forcePageBreakBeforeNext = false;
         addCaption(it.name || 'Database Screenshot', false);
         if (it.url) await addImage(it.url);
       } else if (type === 'db_datatable') {
+        forcePageBreakBeforeNext = false;
         addCaption(it.name || 'Datatable', false);
         if (it.data_table) addDatatable(it.data_table);
       } else if (type === 'screenshot') {
+        forcePageBreakBeforeNext = false;
         addCaption(it.name || 'Screenshot', false);
         if (it.url) await addImage(it.url);
       } else if (type === 'diagram') {
-        addCaption(it.label || it.diagram_type || 'Diagram');
-        if (it.url) await addImage(it.url);
+        forcePageBreakBeforeNext = false;
+        const cap = it.label || it.diagram_type || 'Diagram';
+        if (!isRedundantFigureCaption(lastSectionTitle, cap)) addCaption(cap);
+        if (it.url) await addImage(it.url, { role: 'diagram' });
       }
     }
     if (chapterNum > 0) {
@@ -1047,7 +1155,7 @@ async function handleProjectReportWordDownload(req, res) {
     });
 
     const buf = await Packer.toBuffer(doc);
-    const filename = (sourceCodeName.replace(/[^\w\s-]/g, '') || 'report') + '.docx';
+    const filename = baseName + '.docx';
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.setHeader('Content-Disposition', 'attachment; filename="' + filename + '"');
     res.send(buf);
@@ -1059,5 +1167,54 @@ async function handleProjectReportWordDownload(req, res) {
 
 router.post('/api/download-word', requirePRCOrAdmin, handleProjectReportWordDownload);
 
+/**
+ * Instant Synopsis / Pre Defined pack download from library (same filters as checkout + sales).
+ * GET /api/source-code/:id/download-pack?plan=synopsis|report&format=docx|pdf
+ */
+router.get('/api/source-code/:id/download-pack', requirePRCOrAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+
+    const planRaw = String(req.query.plan || '').toLowerCase().trim();
+    const plan = planRaw === 'synopsis' ? 'synopsis' : planRaw === 'report' ? 'report' : '';
+    if (!plan) {
+      return res.status(400).json({ ok: false, message: 'plan must be synopsis or report' });
+    }
+    const format = String(req.query.format || 'docx').toLowerCase() === 'pdf' ? 'pdf' : 'docx';
+
+    const scRows = await queryAsync('SELECT id, name FROM source_code WHERE id=? LIMIT 1', [id]);
+    if (!scRows.length) return res.status(404).json({ ok: false, message: 'Source code not found' });
+
+    const lib = await loadPrcLibraryForExport(id);
+    let items = buildFullReportItems({
+      sections: lib.sectionsWithSub,
+      dbScreenshots: lib.dbScreenshots,
+      screenshots: lib.screenshots,
+      diagrams: lib.diagramsList
+    });
+    items = plan === 'synopsis' ? filterSynopsisItems(items) : filterPredefinedReportItems(items);
+    if (!items.length) {
+      return res.status(400).json({ ok: false, message: 'Report content not ready for this project' });
+    }
+
+    const sourceCodeName =
+      (scRows[0].name || 'Report').toString().trim() +
+      (plan === 'synopsis' ? ' Synopsis' : ' Report');
+
+    const prevBody = req.body;
+    try {
+      req.body = { sourceCodeId: id, sourceCodeName, items, format };
+      await handleProjectReportWordDownload(req, res);
+    } finally {
+      req.body = prevBody;
+    }
+  } catch (e) {
+    console.error('PRC download-pack error:', e);
+    if (!res.headersSent) res.status(500).json({ ok: false, message: 'Could not generate file' });
+  }
+});
+
 module.exports = router;
 module.exports.handleProjectReportWordDownload = handleProjectReportWordDownload;
+module.exports.loadPrcLibraryForExport = loadPrcLibraryForExport;

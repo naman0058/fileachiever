@@ -408,7 +408,11 @@
           const wrap = document.createElement('div');
           wrap.className = 'text-center';
           const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener';
-          const img = document.createElement('img'); img.src = url; img.className = 'admin-thumb'; img.alt = ss.name || 'Screenshot';
+          const img = document.createElement('img');
+          var cl = window.fmCloudinary;
+          img.src = cl ? cl.url(url, { width: 144 }) : url;
+          img.className = 'admin-thumb'; img.alt = ss.name || 'Screenshot';
+          img.width = 72; img.height = 52; img.loading = 'lazy'; img.decoding = 'async';
           img.onerror = function(){ this.replaceWith(document.createTextNode('Failed to load')); };
           a.appendChild(img); wrap.appendChild(a);
           if (ss.name) {

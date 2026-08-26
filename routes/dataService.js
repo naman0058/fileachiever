@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const appConfig = require('../config');
 
 
 
@@ -212,14 +213,36 @@ const date_and_time = (req, res, next) => {
       
 
   const CANONICAL_HOST = 'www.filemakr.com';
+  const SITE_BASE = (function () {
+    var base = (appConfig.siteBaseUrl || 'https://www.filemakr.com').replace(/\/$/, '');
+    try {
+      var u = new URL(base);
+      if (u.hostname === 'filemakr.com') u.hostname = CANONICAL_HOST;
+      return u.origin;
+    } catch (e) {
+      return 'https://www.filemakr.com';
+    }
+  })();
   const allCategory = async (req, res, next) => {
     try {
-        const result = await queryAsync('SELECT * FROM category');
+        const result = await queryAsync('SELECT id, name, seo_name FROM category');
         req.categories = result;
-        let host = (req.get('host') || '').toLowerCase().split(':')[0];
-        if (host === 'filemakr.com') host = CANONICAL_HOST;
-        const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').toLowerCase();
-        req.fullUrl = (proto === 'https' ? 'https' : 'http') + '://' + host + (req.originalUrl || req.url);
+        const rawHost = (req.get('host') || '').toLowerCase();
+        const hostname = rawHost.split(':')[0];
+        const portPart = rawHost.includes(':') ? rawHost.split(':').slice(1).join(':') : '';
+        const pathOnly = req.originalUrl || req.url || '/';
+        const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+        const isProduction = hostname === CANONICAL_HOST || hostname === 'filemakr.com';
+
+        if (isProduction || isLocalDev) {
+            req.fullUrl = SITE_BASE + pathOnly;
+        } else {
+            const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').toLowerCase();
+            const hostWithPort = portPart && portPart !== '80' && portPart !== '443'
+                ? hostname + ':' + portPart
+                : hostname;
+            req.fullUrl = (proto === 'https' ? 'https' : 'http') + '://' + hostWithPort + pathOnly;
+        }
         next();
     } catch (err) {
         console.error('Error fetching categories:', err);

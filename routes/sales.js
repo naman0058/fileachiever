@@ -25,6 +25,7 @@ const {
   parsePrmFilters,
   fetchPrmDashboard
 } = require('../utils/prmHelpers');
+const setupSupportService = require('../services/setupSupportService');
 
 // ---------------------------
 // Helpers
@@ -388,6 +389,8 @@ router.get('/', async (req, res) => {
     const role = String(v.user.role || '').trim().toLowerCase();
     if (['admin', 'administrator', 'superadmin'].includes(role)) return res.redirect('/sales/admin/overview');
     if (role === 'setup_support') return res.redirect('/setup-support');
+    if (role === 'report_sales') return res.redirect('/report-sales');
+    if (role === 'report_sales_admin') return res.redirect('/report-sales-admin');
     if (role === 'source_code_manager') return res.redirect('/source-code-manager');
     if (role === 'project_report_manager') return res.redirect('/project-report-manager');
     if (role === 'project_report_creator') return res.redirect('/project-report-creator');
@@ -2169,8 +2172,14 @@ router.post('/api/lead/update', requireLogin, requireAdmin, async (req, res) => 
 // Admin: Setup Support Overview - all requests, filters, assign
 router.get('/admin/setup-support', requireLogin, requireAdmin, async (req, res) => {
   try {
+    await setupSupportService.ensureSchema();
+
     const tab = (req.query.tab === 'done' || req.query.tab === 'pending') ? req.query.tab : 'all';
     const empFilter = req.query.employee ? parseInt(req.query.employee, 10) : 0;
+    const originFilter = (req.query.origin === 'checkout' || req.query.origin === 'manual_lead')
+      ? req.query.origin
+      : '';
+    const q = String(req.query.q || '').trim();
 
     let where = ['1=1'];
     const params = [];
@@ -2183,13 +2192,27 @@ router.get('/admin/setup-support', requireLogin, requireAdmin, async (req, res) 
       where.push(`ss.assigned_to = ?`);
       params.push(empFilter);
     }
+    if (originFilter) {
+      where.push(`ss.origin = ?`);
+      params.push(originFilter);
+    }
+    if (q) {
+      where.push(`(
+        ss.customer_name LIKE ? OR ss.customer_number LIKE ? OR ss.customer_email LIKE ?
+        OR ss.fm_order_id LIKE ? OR ss.product_name LIKE ? OR ss.enquiry LIKE ?
+      )`);
+      const like = '%' + q + '%';
+      params.push(like, like, like, like, like, like);
+    }
 
     const rows = await queryAsync(`
       SELECT ss.*, u.name AS assigned_name
       FROM setup_support ss
       LEFT JOIN crm_users u ON u.id = ss.assigned_to
       WHERE ${where.join(' AND ')}
-      ORDER BY ss.created_at DESC
+      ORDER BY
+        CASE WHEN ss.status IN ('pending','in_progress') THEN 0 ELSE 1 END,
+        ss.created_at DESC
       LIMIT 500
     `, params);
 
@@ -2199,6 +2222,13 @@ router.get('/admin/setup-support', requireLogin, requireAdmin, async (req, res) 
 
     const [pendingCount] = await queryAsync(`SELECT COUNT(*) AS c FROM setup_support WHERE status IN ('pending','in_progress')`);
     const [doneCount] = await queryAsync(`SELECT COUNT(*) AS c FROM setup_support WHERE status = 'done'`);
+    const [totalCount] = await queryAsync(`SELECT COUNT(*) AS c FROM setup_support`);
+    const [unassignedCount] = await queryAsync(
+      `SELECT COUNT(*) AS c FROM setup_support WHERE assigned_to IS NULL AND status IN ('pending','in_progress')`
+    );
+    const [checkoutOpen] = await queryAsync(
+      `SELECT COUNT(*) AS c FROM setup_support WHERE origin='checkout' AND status IN ('pending','in_progress')`
+    );
 
     return res.render('freelancing/sales/setup-support-admin', {
       pageTitle: 'Setup Support',
@@ -2206,13 +2236,61 @@ router.get('/admin/setup-support', requireLogin, requireAdmin, async (req, res) 
       user: req._user,
       rows,
       employees,
-      filters: { tab, employee: empFilter },
+      filters: { tab, employee: empFilter, origin: originFilter, q },
       pendingCount: pendingCount?.c || 0,
-      doneCount: doneCount?.c || 0
+      doneCount: doneCount?.c || 0,
+      totalCount: totalCount?.c || 0,
+      unassignedCount: unassignedCount?.c || 0,
+      checkoutOpen: checkoutOpen?.c || 0,
+      msg: req.query.msg || '',
+      err: req.query.error || ''
     });
   } catch (e) {
     console.error('Setup support admin error:', e);
     res.status(500).send('Failed to load setup support.');
+  }
+});
+
+// Admin: Team performance (monthly KPIs)
+router.get('/admin/setup-support/performance', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
+    const range = monthRange(selectedMonth);
+    const perf = await setupSupportService.getPerformanceBundle(selectedMonth, range);
+    const employees = await queryAsync(
+      `SELECT id, name FROM crm_users WHERE role='setup_support' ORDER BY name`
+    );
+
+    return res.render('freelancing/sales/setup-support-performance', {
+      pageTitle: 'Setup Support Performance',
+      active: 'setupSupportPerformance',
+      user: req._user,
+      months: monthsList(12),
+      selectedMonth,
+      perf,
+      employees
+    });
+  } catch (e) {
+    console.error('Setup support performance error:', e);
+    res.status(500).send('Failed to load performance.');
+  }
+});
+
+// Admin: backfill tickets from historical paid support orders
+router.post('/admin/setup-support/backfill', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const result = await setupSupportService.backfillFromPaidOrders(1000);
+    return res.redirect(
+      '/sales/admin/setup-support?msg=' +
+        encodeURIComponent(
+          `Backfill done: scanned ${result.scanned}, created ${result.created}, skipped ${result.skipped}`
+        )
+    );
+  } catch (e) {
+    console.error('Setup support backfill error:', e);
+    return res.redirect(
+      '/sales/admin/setup-support?error=' + encodeURIComponent(e.message || 'Backfill failed')
+    );
   }
 });
 
@@ -2301,6 +2379,257 @@ router.post('/api/admin/setup-support/:id/status', requireLogin, requireAdmin, a
     return res.json({ ok: true });
   } catch (e) {
     console.error('Admin update setup support status error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// ---------------------------
+// FM Online Orders (fm_orders + fm_payments — payment ops & sales analytics)
+// ---------------------------
+const fmOnline = require('../services/fmOnlineOrdersService');
+
+/**
+ * Test filter:
+ * - test=1 → include dummy/test orders
+ * - test=0 → live only
+ * - omitted → include test when there are no live orders (common while using dummy pay)
+ */
+async function fmIncludeTest(req) {
+  const raw = req.query.test != null ? req.query.test : req.query.includeTest;
+  const v = Array.isArray(raw) ? raw[raw.length - 1] : raw;
+  if (v === '1') return true;
+  if (v === '0') return false;
+  try {
+    const counts = await fmOnline.countTestVsLive();
+    if (counts.live === 0 && counts.test > 0) return true;
+  } catch (_) {
+    /* fall through */
+  }
+  return false;
+}
+
+function fmMoney(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return '—';
+  return '₹' + v.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+}
+
+router.get('/admin/fm-online-orders', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    await fmOnline.ensureSchema();
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
+    const includeTest = await fmIncludeTest(req);
+    const kpis = await fmOnline.getOverviewKpis(selectedMonth, { includeTest });
+    const exceptions = await fmOnline.listExceptions({ includeTest, days: 7 });
+    return res.render('freelancing/sales/fm-online-orders-overview', {
+      pageTitle: 'FM Online Orders',
+      active: 'fmOnlineOrdersOverview',
+      user: req._user,
+      months: monthsList(12),
+      selectedMonth,
+      includeTest,
+      kpis,
+      exceptionCounts: {
+        pending: (exceptions.pendingAging || []).length,
+        failed: (exceptions.failedRecent || []).length,
+        stuck: (exceptions.stuckFulfillment || []).length,
+        mismatch: (exceptions.mismatchEvents || []).length
+      },
+      msg: req.query.msg || '',
+      err: req.query.error || ''
+    });
+  } catch (e) {
+    console.error('fm-online-orders overview:', e);
+    res.status(500).send('Failed to load FM Online Orders.');
+  }
+});
+
+router.get('/admin/fm-online-orders/orders', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    await fmOnline.ensureSchema();
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : '';
+    const includeTest = await fmIncludeTest(req);
+    const range = selectedMonth ? monthRange(selectedMonth) : {};
+    const filters = {
+      status: (req.query.status || '').toString(),
+      fulfillment: (req.query.fulfillment || '').toString(),
+      productType: (req.query.product_type || '').toString(),
+      plan: (req.query.plan || '').toString(),
+      q: (req.query.q || '').toString().trim(),
+      includeTest,
+      start: range.start,
+      end: range.end,
+      limit: 100
+    };
+    const rows = await fmOnline.listOrders(filters);
+    return res.render('freelancing/sales/fm-online-orders-orders', {
+      pageTitle: 'FM Orders',
+      active: 'fmOnlineOrdersOrders',
+      user: req._user,
+      months: monthsList(12),
+      selectedMonth,
+      includeTest,
+      filters,
+      rows,
+      money: fmMoney
+    });
+  } catch (e) {
+    console.error('fm-online-orders orders:', e);
+    res.status(500).send('Failed to load orders.');
+  }
+});
+
+router.get('/admin/fm-online-orders/payments', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    await fmOnline.ensureSchema();
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
+    const includeTest = await fmIncludeTest(req);
+    const range = monthRange(selectedMonth);
+    const filters = {
+      paymentStatus: (req.query.payment_status || '').toString(),
+      gateway: (req.query.gateway || '').toString(),
+      q: (req.query.q || '').toString().trim(),
+      includeTest,
+      start: range.start,
+      end: range.end,
+      limit: 100
+    };
+    const rows = await fmOnline.listPayments(filters);
+    return res.render('freelancing/sales/fm-online-orders-payments', {
+      pageTitle: 'FM Payments',
+      active: 'fmOnlineOrdersPayments',
+      user: req._user,
+      months: monthsList(12),
+      selectedMonth,
+      includeTest,
+      filters,
+      rows,
+      money: fmMoney
+    });
+  } catch (e) {
+    console.error('fm-online-orders payments:', e);
+    res.status(500).send('Failed to load payments.');
+  }
+});
+
+router.get('/admin/fm-online-orders/exceptions', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    await fmOnline.ensureSchema();
+    const includeTest = await fmIncludeTest(req);
+    const data = await fmOnline.listExceptions({ includeTest, days: 14 });
+    return res.render('freelancing/sales/fm-online-orders-exceptions', {
+      pageTitle: 'FM Exceptions',
+      active: 'fmOnlineOrdersExceptions',
+      user: req._user,
+      includeTest,
+      data,
+      money: fmMoney
+    });
+  } catch (e) {
+    console.error('fm-online-orders exceptions:', e);
+    res.status(500).send('Failed to load exceptions.');
+  }
+});
+
+router.get('/admin/fm-online-orders/analytics', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    await fmOnline.ensureSchema();
+    const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
+    const includeTest = await fmIncludeTest(req);
+    const [kpis, analytics] = await Promise.all([
+      fmOnline.getOverviewKpis(selectedMonth, { includeTest }),
+      fmOnline.getAnalyticsBundle(selectedMonth, { includeTest })
+    ]);
+    return res.render('freelancing/sales/fm-online-orders-analytics', {
+      pageTitle: 'FM Sales Analytics',
+      active: 'fmOnlineOrdersAnalytics',
+      user: req._user,
+      months: monthsList(12),
+      selectedMonth,
+      includeTest,
+      kpis,
+      analytics,
+      money: fmMoney
+    });
+  } catch (e) {
+    console.error('fm-online-orders analytics:', e);
+    res.status(500).send('Failed to load analytics.');
+  }
+});
+
+router.get('/admin/fm-online-orders/lookup', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    await fmOnline.ensureSchema();
+    const includeTest = await fmIncludeTest(req);
+    const filters = {
+      name: (req.query.name || '').toString().trim(),
+      phone: (req.query.phone || '').toString().trim(),
+      orderId: (req.query.order_id || '').toString().trim(),
+      trackingId: (req.query.tracking_id || '').toString().trim()
+    };
+    const searched = !!(filters.name || filters.phone || filters.orderId || filters.trackingId);
+    const rows = searched
+      ? await fmOnline.lookupOrders({ ...filters, includeTest, limit: 100 })
+      : [];
+    return res.render('freelancing/sales/fm-online-orders-lookup', {
+      pageTitle: 'FM Order Lookup',
+      active: 'fmOnlineOrdersLookup',
+      user: req._user,
+      includeTest,
+      filters,
+      searched,
+      rows,
+      money: fmMoney
+    });
+  } catch (e) {
+    console.error('fm-online-orders lookup:', e);
+    res.status(500).send('Failed to load lookup.');
+  }
+});
+
+router.get('/admin/fm-online-orders/order/:orderId', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    await fmOnline.ensureSchema();
+    const detail = await fmOnline.getOrderDetail(req.params.orderId);
+    if (!detail) return res.status(404).send('Order not found');
+    return res.render('freelancing/sales/fm-online-orders-detail', {
+      pageTitle: 'Order ' + detail.order.order_id,
+      active: 'fmOnlineOrdersOrders',
+      user: req._user,
+      detail,
+      money: fmMoney,
+      msg: req.query.msg || '',
+      err: req.query.error || ''
+    });
+  } catch (e) {
+    console.error('fm-online-orders detail:', e);
+    res.status(500).send('Failed to load order.');
+  }
+});
+
+router.post('/api/admin/fm-online-orders/:orderId/refund', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const result = await fmOnline.markRefunded(req.params.orderId, {
+      actorName: req._user && req._user.name
+    });
+    if (!result.ok) return res.status(400).json(result);
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('fm refund:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+router.post('/api/admin/fm-online-orders/:orderId/fulfillment', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const status = (req.body.status || '').toString();
+    const result = await fmOnline.updateFulfillment(req.params.orderId, status, {
+      actorName: req._user && req._user.name
+    });
+    if (!result.ok) return res.status(400).json(result);
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('fm fulfillment:', e);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });

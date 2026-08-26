@@ -2,80 +2,121 @@ var express = require('express');
 var router = express.Router();
 var pool = require('./pool');
 var pool2 = require('./pool2');
-const util = require('util');
+const {
+  projectReportUrl,
+  resolveProjectReportSeoSlug,
+  REPORT_CATALOG_DEGREES,
+} = require('./projectReportShared');
 
+const SITE_BASE = 'https://www.filemakr.com';
 
-const queryAsync = (query) => {
-  return new Promise((resolve, reject) => {
-    pool.query(query, (err, results) => {
+const STATIC_PAGES = [
+  { loc: `${SITE_BASE}/`, priority: '1.00' },
+  { loc: `${SITE_BASE}/source-code`, priority: '0.90' },
+  { loc: `${SITE_BASE}/final-year-project-ideas`, priority: '0.90' },
+  { loc: `${SITE_BASE}/blog`, priority: '0.90' },
+  { loc: `${SITE_BASE}/demo`, priority: '0.80' },
+  { loc: `${SITE_BASE}/about-us`, priority: '0.70' },
+  { loc: `${SITE_BASE}/contact-us`, priority: '0.70' },
+  { loc: `${SITE_BASE}/terms-and-conditions`, priority: '0.50' },
+  { loc: `${SITE_BASE}/privacy-policy`, priority: '0.50' },
+  { loc: `${SITE_BASE}/refund-policy`, priority: '0.50' },
+];
+
+const queryAsync = (query, params) =>
+  new Promise((resolve, reject) => {
+    pool.query(query, params || [], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });
   });
-};
 
-const queryAsync2 = (query) => {
-  return new Promise((resolve, reject) => {
-    pool2.query(query, (err, results) => {
+const queryAsync2 = (query, params) =>
+  new Promise((resolve, reject) => {
+    pool2.query(query, params || [], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });
   });
-};
 
-var upload = require('./multer');
-var table = 'project';
-
-// router.get('/', (req, res) =>  res.render(`sitemap`))
-
-// router.get('/',(req,res)=>{
-//     var query = `select * from category;`
-//     var query1 = `SELECT * FROM source_code WHERE category IN ('php', 'node-js', 'python', 'codeigniter');`
-//     // var query1 = `select * from source_code where category = 'php';`
-//     var query2 = `select * from project where er_diagram is not null;`
-//     pool.query(query+query1+query2,(err,result)=>{
-//         if(err) throw err;
-//         else res.render('sitemap',{result, lastupdate: new Date().toISOString().split('T')[0]})
-//     })
-// })
-
-
+function minimalSitemapXml(lastupdate) {
+  const body = STATIC_PAGES.map(
+    (page) =>
+      `<url><loc>${page.loc}</loc><lastmod>${lastupdate}</lastmod><priority>${page.priority}</priority></url>`
+  ).join('');
+  return (
+    '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+    body +
+    '</urlset>'
+  );
+}
 
 router.get('/', async (req, res) => {
+  const lastupdate = new Date().toISOString().split('T')[0];
+
   try {
-    const lastupdate = new Date().toISOString().split('T')[0];
+    const categories = await queryAsync(
+      "SELECT seo_name FROM category WHERE seo_name IS NOT NULL AND seo_name != '' ORDER BY id ASC"
+    ).catch(() => []);
 
-    // Run queries on primary DB
-    const categories = await queryAsync(`SELECT * FROM category`);
     const sourceCodes = await queryAsync(
-      `SELECT * FROM source_code WHERE category IN ('php', 'node-js', 'python', 'codeigniter')`
-    );
-    const projects = await queryAsync(`SELECT * FROM project WHERE er_diagram IS NOT NULL`);
+      "SELECT seo_name FROM source_code WHERE seo_name IS NOT NULL AND seo_name != '' ORDER BY id DESC LIMIT 5000"
+    ).catch(() => []);
 
-    // Run query on secondary DB (blog)
-    const blogs = await queryAsync2(`SELECT * FROM blogs`);
+    let blogs = [];
+    try {
+      blogs = await queryAsync2(
+        `SELECT slug, COALESCE(updated_at, created_at) AS modified
+         FROM blogs
+         WHERE slug IS NOT NULL AND slug != ''
+         ORDER BY id DESC
+         LIMIT 1000`
+      );
+    } catch (blogErr) {
+      console.warn('[Sitemap] blog DB unavailable, skipping blog URLs');
+    }
 
-    // Combine all results
-    const result = [sourceCodes, categories, projects, blogs];
+    let liveDemos = [];
+    try {
+      liveDemos = await queryAsync(
+        `SELECT seo_slug, COALESCE(updated_at, created_at) AS modified
+         FROM live_demo
+         WHERE is_active = 1 AND seo_slug IS NOT NULL AND seo_slug != ''
+         ORDER BY id DESC
+         LIMIT 500`
+      );
+    } catch (demoErr) {
+      console.warn('[Sitemap] live_demo unavailable, skipping demo URLs');
+    }
 
-    // Render sitemap
-    res.set('Content-Type', 'application/xml');
-    res.render('sitemap', { result, lastupdate });
-    // res.json(result)
+    const degreeCatalogs = REPORT_CATALOG_DEGREES.map((degree) => ({
+      loc: `${SITE_BASE}/${degree}-final-year-project-report`,
+      priority: '0.85',
+    }));
 
+    // sitemap.ejs: [0]=source-code categories, [1]=project source pages, [2]=reports, [3]=blogs
+    const result = [categories || [], sourceCodes || [], sourceCodes || [], blogs || []];
+
+    res.set('Content-Type', 'application/xml; charset=utf-8');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.render('sitemap', {
+      result,
+      lastupdate,
+      siteBase: SITE_BASE,
+      staticPages: STATIC_PAGES,
+      degreeCatalogs,
+      reportDegrees: REPORT_CATALOG_DEGREES,
+      liveDemos: liveDemos || [],
+      projectReportUrl,
+      resolveProjectReportSeoSlug,
+    });
   } catch (err) {
     console.error('[Sitemap Error]', err);
-    res.status(500).send('Error generating sitemap');
+    res.set('Content-Type', 'application/xml; charset=utf-8');
+    res.set('Cache-Control', 'public, max-age=600');
+    res.status(200).send(minimalSitemapXml(lastupdate));
   }
 });
-
-
-
-// router.get('/blog',(req,res)=>{
-//     pool2.query(`select * from blog`,(err,result)=>{
-//         if(err) throw err;
-//         else res.json(result)
-//     })
-// })
 
 module.exports = router;

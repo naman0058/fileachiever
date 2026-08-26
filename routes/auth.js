@@ -75,6 +75,18 @@ router.post('/login', async (req, res) => {
         setupSupportLink: true
       });
     }
+    if (role === 'report_sales') {
+      return res.render('freelancing/sales/login', {
+        error: 'This account uses the Report Sales Team portal.',
+        reportSalesLink: true
+      });
+    }
+    if (role === 'report_sales_admin') {
+      return res.render('freelancing/sales/login', {
+        error: 'This account uses the Report Sales Admin portal.',
+        reportSalesAdminLink: true
+      });
+    }
     if (role === 'source_code_manager') {
       return res.render('freelancing/sales/login', {
         error: 'This account uses the Source Code Manager Portal. Please use the link below.',

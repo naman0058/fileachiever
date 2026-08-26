@@ -1,0 +1,1326 @@
+<% include Includes/navbar.ejs %>
+<% include Includes/projectReport.ejs %>
+<link rel="stylesheet" href="/css/home-directory.css?v=57">
+<script src="https://unpkg.com/feather-icons"></script>
+
+<%
+  const thumb = (product.image || '').toString().trim();
+  const planSubtitle = catalog.planLabel || '';
+  const isReport = type === 'report';
+  const isDeferredPrimary = isReport && (plan === 'customized' || plan === 'originality');
+  const addonPlanList = (typeof addonPlans !== 'undefined' && Array.isArray(addonPlans) && addonPlans.length)
+    ? addonPlans
+    : (isReport
+        ? [
+            { id: 'basic', price: 99, title: 'Code Only', sub: 'ZIP · instant download', label: 'Matching Source Code', delivery: 'instant' },
+            { id: 'support', price: 248, title: 'Code + Setup', sub: 'ZIP · 24hr support', label: 'Matching Source Code', delivery: 'instant' }
+          ]
+        : [
+            { id: 'synopsis', price: 49, title: 'Synopsis', sub: 'PDF & Word · instant', label: 'Matching Project Report', delivery: 'instant' },
+            { id: 'report', price: 99, title: 'Project Report', sub: 'PDF & Word · instant', label: 'Matching Project Report', delivery: 'instant' },
+            { id: 'customized', price: 149, title: 'Customized', sub: 'PDF & Word · 24-48 hrs', label: 'Matching Project Report', delivery: 'deferred' },
+            { id: 'originality', price: 299, title: 'Originality', sub: 'PDF & Word · 24-48 hrs', label: 'Matching Project Report', delivery: 'deferred' }
+          ]);
+  const matchAddonOn = typeof addonEnabled !== 'undefined' ? !!addonEnabled : false;
+  const selectedAddonPlan = (typeof addon !== 'undefined' && addon && addon.plan)
+    ? String(addon.plan)
+    : (addonPlanList[0] && addonPlanList[0].id) || '';
+  const matchAddon = (typeof addon !== 'undefined' && addon)
+    ? addon
+    : (addonPlanList.find(function(p){ return p.id === selectedAddonPlan; }) || addonPlanList[0] || null);
+  const displayTotal = typeof totalPrice !== 'undefined' ? Number(totalPrice) : Number(basePrice);
+  const whyBuy = isReport ? [
+    { icon: 'download', color: '#2A47FF', title: isDeferredPrimary ? 'Delivery in 24-48 hours' : 'Instant Download', desc: isDeferredPrimary ? 'PDF & Word sent on WhatsApp or Email' : 'PDF & Word ready after payment' },
+    { icon: 'shield', color: '#16A34A', title: 'Secure Payment', desc: 'CCAvenue encrypted checkout' },
+    { icon: 'award', color: '#F17F23', title: 'College-ready Format', desc: 'Structured report content' },
+    { icon: 'image', color: '#2A47FF', title: 'Diagrams Included', desc: plan === 'synopsis' ? '1 diagram included' : 'ER / DFD & more' },
+    { icon: 'file-text', color: '#7C3AED', title: 'PDF & Word', desc: 'Download as .pdf and .docx' },
+    { icon: 'message-circle', color: '#F17F23', title: 'WhatsApp Help', desc: 'Support when you need it' }
+  ] : [
+    { icon: 'download', color: '#2A47FF', title: 'Instant Download', desc: 'ZIP access right after payment' },
+    { icon: 'shield', color: '#16A34A', title: 'Secure Payment', desc: 'CCAvenue encrypted checkout' },
+    { icon: 'award', color: '#F17F23', title: 'Original & Tested Code', desc: 'Ready for college projects' },
+    { icon: 'database', color: '#2A47FF', title: 'Database Included', desc: 'SQL / DB files bundled' },
+    { icon: 'file-text', color: '#7C3AED', title: 'README Included', desc: 'Setup steps in the package' },
+    { icon: 'settings', color: '#F17F23', title: 'Setup Support (Optional)', desc: plan === 'support' ? 'Included in your plan' : 'Available as upgrade' }
+  ];
+%>
+
+<style>
+:root{
+  --ck-blue:#2A47FF;
+  --ck-orange:#F17F23;
+  --ck-ink:#0E1220;
+  --ck-muted:#64748B;
+  --ck-line:#E8ECF2;
+  --ck-bg:#F5F6FA;
+  --ck-card:#fff;
+  --ck-radius:12px;
+  --ck-green:#16A34A;
+}
+.ckx{
+  background:var(--ck-bg);
+  padding:20px 20px 48px;
+  min-height:60vh;
+  box-sizing:border-box;
+}
+@media (max-width:575.98px){
+  .ckx{
+    padding-left:max(10px, env(safe-area-inset-left));
+    padding-right:max(10px, env(safe-area-inset-right));
+  }
+}
+.ckx-wrap{
+  width:100%;
+  max-width:none;
+  margin:0;
+}
+.ckx-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);
+  gap:20px;
+  align-items:start;
+}
+@media (max-width:900px){
+  .ckx-grid{
+    grid-template-columns:1fr;
+  }
+  .ckx-side{ order:-1; }
+  .ckx-main{ order:1; }
+}
+.ckx-card{
+  background:var(--ck-card);
+  border:1px solid var(--ck-line);
+  border-radius:var(--ck-radius);
+  box-shadow:0 1px 2px rgba(14,18,32,.04);
+}
+.ckx-main{ padding:24px 24px 22px; }
+.ckx-sec{ margin:0; padding:0 0 20px; border-bottom:1px solid var(--ck-line); }
+.ckx-sec + .ckx-sec{ padding-top:20px; }
+.ckx-sec--pay{ border-bottom:0; padding-bottom:16px; }
+.ckx-sec__title{
+  margin:0 0 4px;
+  font-size:18px;
+  font-weight:800;
+  color:var(--ck-ink);
+  letter-spacing:-.01em;
+}
+.ckx-sec__sub{
+  margin:0 0 16px;
+  font-size:13px;
+  font-weight:500;
+  color:#718096;
+  line-height:1.45;
+}
+.ckx-row2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:0 0 12px;
+}
+@media (max-width:640px){
+  .ckx-row2{ grid-template-columns:1fr; }
+}
+.ckx-input{
+  position:relative;
+  display:flex;
+  align-items:center;
+  flex:1;
+  min-width:0;
+}
+.ckx-input__ico{
+  position:absolute;
+  left:12px;
+  width:18px;height:18px;
+  color:#A0AEC0;
+  pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.ckx-input__ico svg{ width:16px;height:16px;stroke-width:2; }
+.ckx-input input{
+  width:100%;
+  height:44px;
+  border:1px solid #E2E8F0;
+  border-radius:8px;
+  padding:0 14px 0 40px;
+  font-size:14px;
+  font-weight:500;
+  color:var(--ck-ink);
+  background:#fff;
+  box-sizing:border-box;
+}
+.ckx-input input::placeholder{ color:#A0AEC0; font-weight:500; }
+.ckx-input input:focus{
+  outline:none;
+  border-color:#6366F1;
+  box-shadow:0 0 0 3px rgba(99,102,241,.12);
+}
+.ckx-phone{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.ckx-phone .ckx-input{ flex:1 1 200px; }
+.ckx-cc{
+  height:44px;
+  min-width:92px;
+  padding:0 10px;
+  border:1px solid #E0E0E0;
+  border-radius:6px;
+  background:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:13.5px;
+  font-weight:700;
+  color:#2c3e50;
+  user-select:none;
+  flex-shrink:0;
+}
+.ckx-cc__flag{
+  width:22px;
+  height:15px;
+  display:block;
+  flex-shrink:0;
+  border-radius:2px;
+  overflow:hidden;
+  box-shadow:0 0 0 1px rgba(0,0,0,.06);
+}
+.ckx-cc__flag svg{ width:100%; height:100%; display:block; }
+.ckx-cc__chev{
+  width:12px;height:12px;
+  color:#A0AEC0;
+  flex-shrink:0;
+}
+.ckx-wa-note{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin:0;
+  font-size:12.5px;
+  font-weight:500;
+  color:#808b96;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.ckx-wa-note__ico{
+  width:18px;height:18px;
+  flex-shrink:0;
+  display:block;
+}
+.ckx-wa-note__ico svg{ width:18px;height:18px; display:block; }
+
+/* Payment methods */
+.ckx-pay{ display:flex; flex-direction:column; gap:10px; }
+.ckx-pay__opt{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 14px;
+  border:1px solid #E2E8F0;
+  border-radius:10px;
+  background:#fff;
+  cursor:pointer;
+  transition:border-color .15s, background .15s, box-shadow .15s;
+}
+.ckx-pay__opt:hover{ border-color:#CBD5E1; }
+.ckx-pay__opt.is-active{
+  border-color:#6366F1;
+  background:#F8F9FF;
+  box-shadow:0 0 0 1px rgba(99,102,241,.2);
+}
+.ckx-pay__radio{
+  width:18px;height:18px;flex-shrink:0;
+  border:2px solid #CBD5E1;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#fff;
+}
+.ckx-pay__opt.is-active .ckx-pay__radio{
+  border-color:#6366F1;
+  background:#6366F1;
+  box-shadow:inset 0 0 0 3px #fff;
+}
+.ckx-pay__body{ flex:1; min-width:0; }
+.ckx-pay__top{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-bottom:2px;
+}
+.ckx-pay__name{
+  font-size:14px;font-weight:800;color:var(--ck-ink);
+}
+.ckx-pay__badge{
+  display:inline-flex;align-items:center;
+  padding:2px 8px;border-radius:999px;
+  background:#DCFCE7;color:#15803D;
+  font-size:11px;font-weight:700;
+}
+.ckx-pay__desc{
+  margin:0;
+  font-size:12px;font-weight:500;color:#718096;
+}
+.ckx-pay__logos{
+  display:flex;align-items:center;gap:8px;flex-wrap:nowrap;
+  flex-shrink:0;margin-left:auto;
+}
+.ckx-pay__logo{
+  height:18px;min-width:0;padding:0;border:0;border-radius:0;
+  background:transparent;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-sizing:border-box;overflow:visible;
+  box-shadow:none;
+}
+.ckx-pay__logo img{
+  display:block;height:18px;width:auto;max-width:52px;
+  object-fit:contain;
+}
+.ckx-pay__logo--sq{
+  width:18px;height:18px;
+}
+.ckx-pay__logo--sq img{ width:18px;height:18px;max-width:18px; }
+.ckx-pay__logo--mc img{ height:18px;max-width:34px; }
+.ckx-pay__logo--visa img{ height:14px;max-width:48px; }
+.ckx-pay__logo--wide img{ height:18px;max-width:52px; }
+.ckx-pay__ico{
+  width:22px;height:22px;flex-shrink:0;margin-left:auto;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:0;background:transparent;border:0;
+  padding:0;overflow:visible;
+  box-shadow:none;
+}
+.ckx-pay__ico img{ width:22px;height:22px;display:block;object-fit:contain; }
+
+/* Wallet apps panel — expands under Wallets option */
+.ckx-wallet-panel{
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  margin:0;
+  padding:0 2px;
+  pointer-events:none;
+  transition:max-height .28s ease, opacity .22s ease, margin .22s ease;
+}
+.ckx-wallet-panel.is-open{
+  max-height:160px;
+  opacity:1;
+  margin:0 0 2px;
+  pointer-events:auto;
+}
+.ckx-pay__apps{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:8px;
+}
+.ckx-pay__app{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  min-height:72px; padding:10px 8px;
+  border:1px solid #E2E8F0; border-radius:10px;
+  background:#fff; cursor:pointer;
+  transition:border-color .15s, box-shadow .15s, background .15s;
+  user-select:none;
+}
+.ckx-pay__app:hover{ border-color:#CBD5E1; }
+.ckx-pay__app.is-active{
+  border-color:#6366F1;
+  background:#F8F9FF;
+  box-shadow:0 0 0 1px rgba(99,102,241,.2);
+}
+.ckx-pay__app img{ height:20px; width:auto; max-width:72px; object-fit:contain; display:block; }
+.ckx-pay__app span{ font-size:11px; font-weight:800; color:#334155; letter-spacing:-.01em; }
+
+.ckx-sec__title--pay{
+  display:inline-flex;align-items:center;gap:8px;
+}
+.ckx-sec__title--pay svg{
+  width:18px;height:18px;color:var(--ck-blue);flex-shrink:0;
+}
+
+
+/* Coupon */
+.ckx-coupon{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px 16px;
+  margin-top:14px;
+  padding:16px 18px;
+  border:1px solid #E0E0E0;
+  border-radius:8px;
+  background:#F8F9FB;
+  box-sizing:border-box;
+}
+.ckx-coupon__label{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-size:14px;
+  font-weight:700;
+  color:#333;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.ckx-coupon__label svg{
+  width:18px;
+  height:18px;
+  color:#3B5998;
+  flex-shrink:0;
+  transform:rotate(-25deg);
+}
+.ckx-coupon__row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex:1 1 240px;
+  justify-content:flex-end;
+  min-width:0;
+}
+.ckx-coupon__row input{
+  flex:1 1 180px;
+  max-width:280px;
+  width:100%;
+  height:40px;
+  border:1px solid #E0E0E0;
+  border-radius:6px;
+  padding:0 14px;
+  font-size:13.5px;
+  font-weight:500;
+  color:#333;
+  background:#fff;
+  box-sizing:border-box;
+}
+.ckx-coupon__row input:focus{
+  outline:none;
+  border-color:#3B5998;
+  box-shadow:0 0 0 3px rgba(59,89,152,.12);
+}
+.ckx-coupon__row input::placeholder{ color:#9AA3AF; font-weight:500; }
+.ckx-coupon__apply{
+  height:40px;
+  padding:0 18px;
+  border:1px solid #3B5998;
+  border-radius:6px;
+  background:#EFF2FF;
+  color:#3B5998;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.ckx-coupon__apply:hover{ background:#E4E9FF; }
+.ckx-coupon__msg{
+  flex:1 1 100%;
+  width:100%;
+  font-size:12px;
+  font-weight:600;
+  margin:0;
+  min-height:0;
+}
+.ckx-coupon__msg:empty{ display:none; }
+@media (max-width:640px){
+  .ckx-sec--pay{ padding-bottom:12px; }
+  .ckx-pay{ gap:8px; }
+  .ckx-pay__opt{
+    flex-wrap:nowrap;
+    gap:10px;
+    padding:10px 10px;
+    border-radius:9px;
+    align-items:center;
+  }
+  .ckx-pay__radio{ width:16px;height:16px; }
+  .ckx-pay__opt.is-active .ckx-pay__radio{ box-shadow:inset 0 0 0 2.5px #fff; }
+  .ckx-pay__name{ font-size:13px; }
+  .ckx-pay__badge{ font-size:10px; padding:1px 6px; }
+  .ckx-pay__desc{ font-size:11px; line-height:1.3; }
+  .ckx-pay__logos{
+    margin-left:auto;
+    width:auto;
+    max-width:48%;
+    gap:6px;
+    flex-wrap:nowrap;
+    justify-content:flex-end;
+  }
+  .ckx-pay__logo{
+    height:16px;border-radius:0;
+  }
+  .ckx-pay__logo img{ height:16px; max-width:44px; }
+  .ckx-pay__logo--sq{ width:16px;height:16px; }
+  .ckx-pay__logo--sq img{ height:16px; width:16px; max-width:16px; }
+  .ckx-pay__logo--mc img{ height:16px; max-width:30px; }
+  .ckx-pay__logo--visa img{ height:12px; max-width:42px; }
+  .ckx-pay__logo--wide img{ height:16px; max-width:44px; }
+  .ckx-pay__ico{
+    width:20px;height:20px;margin-left:auto;border-radius:0;
+  }
+  .ckx-pay__ico img{ width:20px;height:20px; }
+
+  .ckx-coupon{
+    flex-direction:column;
+    align-items:stretch;
+    gap:8px;
+    margin-top:10px;
+    padding:10px 12px;
+  }
+  .ckx-coupon__label{ font-size:12.5px; white-space:normal; }
+  .ckx-coupon__label svg{ width:16px;height:16px; }
+  .ckx-coupon__row{
+    justify-content:stretch;
+    flex:1 1 auto;
+    width:100%;
+    gap:8px;
+  }
+  .ckx-coupon__row input{
+    max-width:none;
+    height:36px;
+    font-size:13px;
+    padding:0 10px;
+  }
+  .ckx-coupon__apply{ height:36px; padding:0 12px; font-size:13px; }
+  .ckx-wa-note{ width:100%; margin-left:0; }
+}
+
+/* CTA */
+.ckx-cta{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;min-height:52px;margin-top:16px;padding:0 18px;
+  border:none;border-radius:10px;
+  background:#FF6B2B;color:#fff;
+  font-size:16px;font-weight:800;cursor:pointer;
+  box-shadow:0 8px 20px rgba(255,107,43,.28);
+}
+.ckx-cta:hover{ filter:brightness(1.04); }
+.ckx-cta:disabled{ opacity:.7;cursor:wait; }
+.ckx-cta svg{ width:18px;height:18px; }
+.ckx-cta--dummy{
+  margin-top:10px;
+  background:#0E1220;
+  box-shadow:0 8px 20px rgba(14,18,32,.18);
+  border:1px dashed #94A3B8;
+}
+.ckx-cta--dummy:hover{ filter:brightness(1.08); }
+.ckx-dummy-note{
+  margin:8px 0 0;
+  text-align:center;
+  font-size:11px;
+  font-weight:600;
+  color:#94A3B8;
+}
+.ckx-legal{
+  margin:12px 0 0;text-align:center;
+  font-size:12px;font-weight:500;color:#718096;line-height:1.5;
+}
+.ckx-legal a{ color:#4F46E5;font-weight:700;text-decoration:none; }
+.ckx-legal a:hover{ text-decoration:underline; }
+
+.ckx-paybar{ margin-top:4px; }
+
+@media (max-width:900px){
+  /* Why buy / trust hidden on mobile checkout */
+  .ckx-why,
+  .ckx-trust{
+    display:none !important;
+  }
+  .ckx{
+    padding-bottom:calc(168px + env(safe-area-inset-bottom, 0px));
+  }
+  .ckx-paybar{
+    position:fixed;
+    left:0;right:0;
+    bottom:0;
+    z-index:10050;
+    margin:0;
+    padding:10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+    background:#fff;
+    border-top:1px solid var(--ck-line);
+    box-shadow:0 -10px 28px rgba(14,18,32,.10);
+  }
+  .ckx-paybar .ckx-cta{ margin-top:0; min-height:48px; font-size:15px; }
+  .ckx-paybar .ckx-cta--dummy{
+    display:flex !important;
+    margin-top:8px;
+    min-height:42px;
+    font-size:13px;
+  }
+  .ckx-paybar .ckx-dummy-note{
+    display:none !important;
+  }
+  .ckx-paybar .ckx-legal{
+    margin:8px 0 0;
+    font-size:11px;
+  }
+}
+
+
+
+/* Sidebar */
+.ckx-side{ display:flex;flex-direction:column;gap:14px; }
+.ckx-sum{ padding:18px 18px 16px; }
+.ckx-sum__title{
+  margin:0 0 14px;font-size:16px;font-weight:800;color:var(--ck-ink);
+}
+.ckx-prod{
+  display:flex;gap:12px;align-items:flex-start;
+  padding-bottom:14px;margin-bottom:12px;
+  border-bottom:1px solid var(--ck-line);
+}
+.ckx-prod__thumb{
+  width:52px;height:52px;flex-shrink:0;border-radius:10px;
+  object-fit:cover;border:1px solid var(--ck-line);background:#F1F5F9;
+}
+.ckx-prod__thumb--ph{
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ck-blue);background:linear-gradient(135deg,#EEF2FF,#FFF7ED);
+}
+.ckx-prod__thumb--ph svg{ width:22px;height:22px; }
+.ckx-prod__meta{ flex:1;min-width:0; }
+.ckx-prod__name{
+  margin:0 0 2px;font-size:14px;font-weight:800;color:var(--ck-ink);line-height:1.35;
+}
+.ckx-prod__plan{
+  margin:0;font-size:12px;font-weight:600;color:var(--ck-muted);
+}
+.ckx-prod__price{
+  font-size:15px;font-weight:800;color:var(--ck-ink);white-space:nowrap;
+}
+.ckx-addon{
+  display:block;
+  margin:0 0 14px;
+  padding:12px;
+  border:1.5px dashed #F0C39A;
+  border-radius:10px;
+  background:#FFF8F1;
+  user-select:none;
+}
+.ckx-addon__head{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  cursor:pointer;
+}
+.ckx-addon__head input{
+  margin-top:3px;
+  width:16px;height:16px;
+  accent-color:var(--ck-orange);
+  flex-shrink:0;
+}
+.ckx-addon__body{ flex:1; min-width:0; }
+.ckx-addon__title{
+  margin:0 0 2px;
+  font-size:13px;font-weight:800;color:var(--ck-ink);line-height:1.3;
+}
+.ckx-addon__sub{
+  margin:0;
+  font-size:11.5px;font-weight:600;color:var(--ck-muted);line-height:1.35;
+}
+.ckx-addon__price{
+  font-size:14px;font-weight:900;color:var(--ck-ink);white-space:nowrap;
+}
+.ckx-addon__plans{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+.ckx-addon__plan{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:2px;
+  width:100%;
+  padding:9px 10px;
+  border:1.5px solid #E8ECF2;
+  border-radius:9px;
+  background:#fff;
+  cursor:pointer;
+  text-align:left;
+  box-sizing:border-box;
+  transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.ckx-addon__plan.is-active{
+  border-color:var(--ck-orange);
+  background:#FFF8F1;
+  box-shadow:0 0 0 1px rgba(241,127,35,.16);
+}
+.ckx-addon__plan.is-disabled{
+  opacity:.45;
+  pointer-events:none;
+}
+.ckx-addon__plan-title{
+  font-size:12.5px;font-weight:800;color:var(--ck-ink);line-height:1.25;
+}
+.ckx-addon__plan-price{
+  font-size:14px;font-weight:900;color:var(--ck-ink);
+}
+.ckx-addon__plan-sub{
+  font-size:10.5px;font-weight:600;color:var(--ck-muted);line-height:1.3;
+}
+.ckx-addon__wa{
+  margin:10px 0 0;
+  padding:9px 10px;
+  border-radius:8px;
+  background:#F8FAFC;
+  border:1px solid #E2E8F0;
+  font-size:11.5px;
+  font-weight:600;
+  color:#475569;
+  line-height:1.4;
+}
+.ckx-addon__wa a{
+  color:#128C7E;
+  font-weight:800;
+  text-decoration:none;
+}
+.ckx-addon__wa a:hover{ text-decoration:underline; }
+.ckx-line--addon span:last-child{ color:var(--ck-ink); font-weight:800; }
+.ckx-lines{ display:flex;flex-direction:column;gap:8px; }
+.ckx-line{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:13px;font-weight:600;color:var(--ck-muted);
+}
+.ckx-line--disc span:last-child{ color:var(--ck-green);font-weight:800; }
+.ckx-total{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:12px;padding-top:12px;border-top:1px solid var(--ck-line);
+  font-size:15px;font-weight:800;color:var(--ck-ink);
+}
+.ckx-total span:last-child{ color:var(--ck-blue);font-size:20px; }
+.ckx-instant{
+  display:flex;align-items:flex-start;gap:8px;
+  margin-top:14px;padding:10px 12px;
+  border-radius:10px;background:#ECFDF5;border:1px solid #BBF7D0;
+  font-size:12.5px;font-weight:700;color:#166534;line-height:1.4;
+}
+.ckx-instant svg{ width:16px;height:16px;flex-shrink:0;margin-top:1px;color:var(--ck-green); }
+
+.ckx-why{ padding:16px 18px 14px; }
+.ckx-why__title{
+  margin:0 0 12px;font-size:15px;font-weight:800;color:var(--ck-ink);
+}
+.ckx-why__list{ list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px; }
+.ckx-why__item{ display:flex;gap:10px;align-items:flex-start; }
+.ckx-why__ico{
+  width:32px;height:32px;flex-shrink:0;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;
+}
+.ckx-why__ico svg{ width:16px;height:16px; }
+.ckx-why__text strong{
+  display:block;font-size:13px;font-weight:800;color:var(--ck-ink);margin-bottom:1px;
+}
+.ckx-why__text span{
+  font-size:11.5px;font-weight:500;color:var(--ck-muted);line-height:1.35;
+}
+
+.ckx-trust{
+  margin-top:18px;
+  padding:14px 12px;
+  background:#fff;
+  border:1px solid var(--ck-line);
+  border-radius:var(--ck-radius);
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+}
+@media (max-width:700px){
+  .ckx-trust{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+.ckx-trust__item{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  text-align:center;padding:6px 4px;
+}
+.ckx-trust__ico{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;
+}
+.ckx-trust__ico svg{ width:18px;height:18px; }
+.ckx-trust__item span{
+  font-size:11px;font-weight:700;color:#475569;line-height:1.3;
+}
+</style>
+
+<div class="ckx">
+  <div class="ckx-wrap">
+    <form id="CheckoutForm" method="POST" action="/checkout/submit" novalidate>
+      <div class="ckx-grid">
+        <div class="ckx-card ckx-main">
+          <section class="ckx-sec" aria-labelledby="ckx-contact-title">
+            <h2 class="ckx-sec__title" id="ckx-contact-title">1. Contact Information</h2>
+            <p class="ckx-sec__sub">Enter your details to receive the download and important updates</p>
+
+            <div class="ckx-row2">
+              <div class="ckx-input">
+                <span class="ckx-input__ico" aria-hidden="true"><i data-feather="user"></i></span>
+                <input type="text" id="billing_name" name="billing_name" placeholder="Full Name" autocomplete="name" required aria-label="Full Name" />
+              </div>
+              <div class="ckx-input">
+                <span class="ckx-input__ico" aria-hidden="true"><i data-feather="mail"></i></span>
+                <input type="email" id="billing_email" name="billing_email" placeholder="Email Address" autocomplete="email" required aria-label="Email Address" />
+              </div>
+            </div>
+
+            <div class="ckx-phone">
+              <div class="ckx-cc" aria-hidden="true">
+                <span class="ckx-cc__flag">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 225 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                    <rect width="225" height="50" y="0" fill="#FF9933"/>
+                    <rect width="225" height="50" y="50" fill="#FFFFFF"/>
+                    <rect width="225" height="50" y="100" fill="#138808"/>
+                    <circle cx="112.5" cy="75" r="16" fill="none" stroke="#000080" stroke-width="2.5"/>
+                    <circle cx="112.5" cy="75" r="2.2" fill="#000080"/>
+                    <g stroke="#000080" stroke-width="1.2" stroke-linecap="round">
+                      <line x1="112.5" y1="59.5" x2="112.5" y2="90.5"/>
+                      <line x1="96.5" y1="75" x2="128.5" y2="75"/>
+                      <line x1="101.2" y1="63.7" x2="123.8" y2="86.3"/>
+                      <line x1="123.8" y1="63.7" x2="101.2" y2="86.3"/>
+                      <line x1="105.5" y1="61" x2="119.5" y2="89"/>
+                      <line x1="119.5" y1="61" x2="105.5" y2="89"/>
+                      <line x1="98.5" y1="68.5" x2="126.5" y2="81.5"/>
+                      <line x1="126.5" y1="68.5" x2="98.5" y2="81.5"/>
+                      <line x1="98.5" y1="81.5" x2="126.5" y2="68.5"/>
+                      <line x1="126.5" y1="81.5" x2="98.5" y2="68.5"/>
+                      <line x1="105.5" y1="89" x2="119.5" y2="61"/>
+                      <line x1="119.5" y1="89" x2="105.5" y2="61"/>
+                    </g>
+                  </svg>
+                </span>
+                +91
+                <svg class="ckx-cc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="ckx-input">
+                <span class="ckx-input__ico" aria-hidden="true"><i data-feather="phone"></i></span>
+                <input type="tel" id="billing_tel" name="billing_tel" inputmode="numeric" pattern="[0-9]{10,}" placeholder="WhatsApp / Mobile Number" autocomplete="tel" required aria-label="WhatsApp / Mobile Number" />
+              </div>
+              <p class="ckx-wa-note">
+                <span class="ckx-wa-note__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path fill="#25D366" d="M12.04 2C6.58 2 2.15 6.4 2.15 11.84c0 1.99.59 3.85 1.61 5.42L2 22l4.9-1.71a9.86 9.86 0 0 0 5.14 1.42h.01c5.46 0 9.89-4.4 9.89-9.84C21.94 6.4 17.5 2 12.04 2zm5.75 13.96c-.24.68-1.4 1.25-1.93 1.33-.5.07-1.13.1-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.26-4.78-4.2-4.93-4.39-.14-.19-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.45.27-.29.59-.36.79-.36h.57c.18 0 .42-.07.66.5.24.58.82 2 .89 2.15.07.15.12.32.02.52-.1.19-.15.32-.3.49-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.76 1.25 1.63 2.02 1.12.99 2.06 1.3 2.35 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.2-.29.4-.24.67-.14.27.1 1.72.81 2.01.96.29.15.49.22.56.34.07.13.07.74-.17 1.42z"/>
+                  </svg>
+                </span>
+                For order updates
+              </p>
+            </div>
+          </section>
+
+          <section class="ckx-sec ckx-sec--pay" aria-labelledby="ckx-pay-title">
+            <h2 class="ckx-sec__title ckx-sec__title--pay" id="ckx-pay-title">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="2.2" stroke="currentColor" stroke-width="1.7"/><path d="M2.5 9.5h19M7 15h3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              2. Choose Payment Method
+            </h2>
+            <p class="ckx-sec__sub">All transactions are secure and encrypted.</p>
+
+            <div class="ckx-pay" role="radiogroup" aria-label="Payment method">
+              <label class="ckx-pay__opt is-active" data-pay="upi">
+                <input type="radio" name="payment_pref" value="upi" checked class="visually-hidden" />
+                <span class="ckx-pay__radio" aria-hidden="true"></span>
+                <span class="ckx-pay__body">
+                  <span class="ckx-pay__top">
+                    <span class="ckx-pay__name">UPI</span>
+                    <span class="ckx-pay__badge">Recommended</span>
+                  </span>
+                  <p class="ckx-pay__desc">Pay securely using any UPI app</p>
+                </span>
+                <span class="ckx-pay__logos" aria-hidden="true">
+                  <span class="ckx-pay__logo ckx-pay__logo--wide"><img src="/images/pay/gpay.svg?v=8" alt="Google Pay" width="52" height="18" loading="lazy" decoding="async"></span>
+                  <span class="ckx-pay__logo ckx-pay__logo--wide"><img src="/images/pay/phonepe.svg?v=8" alt="PhonePe" width="52" height="18" loading="lazy" decoding="async"></span>
+                  <span class="ckx-pay__logo ckx-pay__logo--wide"><img src="/images/pay/paytm.svg?v=8" alt="Paytm" width="52" height="18" loading="lazy" decoding="async"></span>
+                </span>
+              </label>
+
+              <label class="ckx-pay__opt" data-pay="card">
+                <input type="radio" name="payment_pref" value="card" class="visually-hidden" />
+                <span class="ckx-pay__radio" aria-hidden="true"></span>
+                <span class="ckx-pay__body">
+                  <span class="ckx-pay__top">
+                    <span class="ckx-pay__name">Card</span>
+                  </span>
+                  <p class="ckx-pay__desc">Visa, MasterCard, RuPay &amp; more</p>
+                </span>
+                <span class="ckx-pay__logos" aria-hidden="true">
+                  <span class="ckx-pay__logo ckx-pay__logo--visa"><img src="/images/pay/visa.svg?v=8" alt="Visa" width="48" height="18" loading="lazy" decoding="async"></span>
+                  <span class="ckx-pay__logo ckx-pay__logo--mc"><img src="/images/pay/mastercard.svg?v=8" alt="Mastercard" width="34" height="18" loading="lazy" decoding="async"></span>
+                  <span class="ckx-pay__logo ckx-pay__logo--wide"><img src="/images/pay/rupay.svg?v=8" alt="RuPay" width="52" height="18" loading="lazy" decoding="async"></span>
+                </span>
+              </label>
+
+              <label class="ckx-pay__opt" data-pay="netbanking">
+                <input type="radio" name="payment_pref" value="netbanking" class="visually-hidden" />
+                <span class="ckx-pay__radio" aria-hidden="true"></span>
+                <span class="ckx-pay__body">
+                  <span class="ckx-pay__top">
+                    <span class="ckx-pay__name">Net Banking</span>
+                  </span>
+                  <p class="ckx-pay__desc">All major banks supported</p>
+                </span>
+                <span class="ckx-pay__ico" aria-hidden="true"><img src="/images/pay/bank.svg?v=8" alt="" width="22" height="22" loading="lazy" decoding="async"></span>
+              </label>
+
+              <label class="ckx-pay__opt" data-pay="wallet" id="PayWalletOpt">
+                <input type="radio" name="payment_pref" value="wallet" class="visually-hidden" />
+                <span class="ckx-pay__radio" aria-hidden="true"></span>
+                <span class="ckx-pay__body">
+                  <span class="ckx-pay__top">
+                    <span class="ckx-pay__name">Wallets</span>
+                  </span>
+                  <p class="ckx-pay__desc">Pay using popular wallets</p>
+                </span>
+                <span class="ckx-pay__logos" aria-hidden="true">
+                  <span class="ckx-pay__logo ckx-pay__logo--wide"><img src="/images/pay/paytm.svg?v=8" alt="Paytm" width="52" height="18" loading="lazy" decoding="async"></span>
+                  <span class="ckx-pay__logo ckx-pay__logo--wide"><img src="/images/pay/phonepe.svg?v=8" alt="PhonePe" width="52" height="18" loading="lazy" decoding="async"></span>
+                  <span class="ckx-pay__logo ckx-pay__logo--wide"><img src="/images/pay/amazonpay.svg?v=8" alt="Amazon Pay" width="52" height="18" loading="lazy" decoding="async"></span>
+                </span>
+              </label>
+
+              <div class="ckx-wallet-panel" id="WalletPanel" aria-hidden="true">
+                <div class="ckx-pay__apps" role="group" aria-label="Choose wallet app">
+                  <button type="button" class="ckx-pay__app is-active" data-app="gpay" aria-pressed="true">
+                    <img src="/images/pay/gpay.svg?v=8" alt="" width="52" height="18" loading="lazy" decoding="async">
+                    <span>Google Pay</span>
+                  </button>
+                  <button type="button" class="ckx-pay__app" data-app="phonepe" aria-pressed="false">
+                    <img src="/images/pay/phonepe.svg?v=8" alt="" width="52" height="18" loading="lazy" decoding="async">
+                    <span>PhonePe</span>
+                  </button>
+                  <button type="button" class="ckx-pay__app" data-app="paytm" aria-pressed="false">
+                    <img src="/images/pay/paytm.svg?v=8" alt="" width="52" height="18" loading="lazy" decoding="async">
+                    <span>Paytm</span>
+                  </button>
+                </div>
+              </div>
+
+              <input type="hidden" name="payment_app" id="payment_app" value="upi" />
+            </div>
+
+            <div class="ckx-coupon">
+              <span class="ckx-coupon__label">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="7" cy="7" r="1.2" fill="currentColor"/>
+                </svg>
+                Have a coupon code?
+              </span>
+              <div class="ckx-coupon__row">
+                <input type="text" id="coupon_code" placeholder="Enter coupon code" aria-label="Coupon code" />
+                <button type="button" class="ckx-coupon__apply" id="ApplyCoupon">Apply</button>
+              </div>
+              <p class="ckx-coupon__msg" id="CouponMsg"></p>
+            </div>
+          </section>
+
+          <div class="ckx-paybar">
+            <button type="submit" class="ckx-cta" id="PayNow">
+              <i data-feather="lock"></i>
+              <span id="PayNowLabel">Proceed to Payment ₹<%= displayTotal %></span>
+              <i data-feather="arrow-right"></i>
+            </button>
+            <% if (typeof allowDummyPay !== 'undefined' && allowDummyPay) { %>
+            <button type="submit" class="ckx-cta ckx-cta--dummy" id="DummyPay" formaction="/checkout/dummy-pay" formnovalidate>
+              <i data-feather="zap"></i>
+              <span>Dummy Pay (TEST) — skip gateway</span>
+            </button>
+            <p class="ckx-dummy-note">Testing only — jumps straight to success / Word download flow</p>
+            <% } %>
+            <p class="ckx-legal">
+              By proceeding, you agree to our
+              <a href="/terms-and-conditions" target="_blank" rel="noopener">Terms &amp; Conditions</a>
+              and
+              <a href="/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
+            </p>
+          </div>
+        </div>
+
+        <aside class="ckx-side">
+          <div class="ckx-card ckx-sum">
+            <h2 class="ckx-sum__title">Order Summary</h2>
+            <div class="ckx-prod">
+              <% if (thumb) { %>
+                <img class="ckx-prod__thumb" src="<%= cloudinaryUrl(thumb, { width: 104 }) %>" alt="<%= imageAltLabel(product.name, 'product thumbnail') %>" width="52" height="52" loading="lazy" decoding="async" />
+              <% } else { %>
+                <div class="ckx-prod__thumb ckx-prod__thumb--ph" aria-hidden="true"><i data-feather="package"></i></div>
+              <% } %>
+              <div class="ckx-prod__meta">
+                <p class="ckx-prod__name"><%= product.name %></p>
+                <p class="ckx-prod__plan"><%= planSubtitle %></p>
+              </div>
+              <div class="ckx-prod__price" id="sidePrice">₹<%= displayTotal %></div>
+            </div>
+
+            <div class="ckx-addon" id="CheckoutAddonBox">
+              <label class="ckx-addon__head" for="checkout_addon">
+                <input type="checkbox" name="addon" id="checkout_addon" value="1" <%= matchAddonOn ? 'checked' : '' %> />
+                <span class="ckx-addon__body">
+                  <p class="ckx-addon__title">Also add <%= isReport ? 'Matching Source Code' : 'Matching Project Report' %></p>
+                  <p class="ckx-addon__sub"><%= isReport ? 'Choose a source package for the same project' : 'All report packages include PDF & Word format' %></p>
+                </span>
+                <span class="ckx-addon__price" id="AddonPriceTag">+ ₹<%= matchAddon ? matchAddon.price : (addonPlanList[0] && addonPlanList[0].price) || 0 %></span>
+              </label>
+
+              <div class="ckx-addon__plans" id="AddonPlanGroup" role="radiogroup" aria-label="Addon package">
+                <% addonPlanList.forEach(function(opt){ %>
+                  <button
+                    type="button"
+                    class="ckx-addon__plan<%= selectedAddonPlan === opt.id ? ' is-active' : '' %><%= matchAddonOn ? '' : ' is-disabled' %>"
+                    data-addon-plan="<%= opt.id %>"
+                    data-addon-price="<%= opt.price %>"
+                    data-addon-title="<%= opt.title %>"
+                    aria-pressed="<%= selectedAddonPlan === opt.id ? 'true' : 'false' %>"
+                  >
+                    <span class="ckx-addon__plan-title"><%= opt.title %></span>
+                    <span class="ckx-addon__plan-price">₹<%= opt.price %></span>
+                    <span class="ckx-addon__plan-sub"><%= opt.sub %></span>
+                  </button>
+                <% }) %>
+              </div>
+              <input type="hidden" name="addon_plan" id="checkout_addon_plan" value="<%= selectedAddonPlan %>" />
+
+              <% if (isDeferredPrimary) { %>
+                <p class="ckx-addon__wa">PDF &amp; Word delivered within 24-48 hours on your WhatsApp or Email ID after payment.</p>
+              <% } else if (!isReport) { %>
+                <p class="ckx-addon__wa">Customized &amp; Originality report add-ons: PDF &amp; Word delivered within 24-48 hours on WhatsApp or Email.</p>
+              <% } %>
+            </div>
+
+            <div class="ckx-lines">
+              <div class="ckx-line">
+                <span><%= isReport ? 'Report' : 'Source Code' %></span>
+                <span id="baseAmt">₹<%= Number(basePrice).toFixed(0) %></span>
+              </div>
+              <div class="ckx-line ckx-line--addon" id="AddonRow" style="<%= matchAddonOn ? '' : 'display:none' %>">
+                <span id="AddonRowLabel"><%= (matchAddon && (matchAddon.title || matchAddon.label)) || 'Add-on' %></span>
+                <span id="AddonAmt">+ ₹<%= matchAddon ? matchAddon.price : 0 %></span>
+              </div>
+              <div class="ckx-line ckx-line--disc" id="CouponRow">
+                <span>Discount</span>
+                <span id="CouponValue">− ₹0</span>
+              </div>
+            </div>
+            <div class="ckx-total">
+              <span>Total Amount</span>
+              <span id="TotalAmt">₹<%= Number(displayTotal).toFixed(0) %></span>
+            </div>
+            <div class="ckx-instant">
+              <i data-feather="check-circle"></i>
+              <span>Instant access after successful payment.</span>
+            </div>
+          </div>
+
+          <div class="ckx-card ckx-why">
+            <h2 class="ckx-why__title">Why Buy from FileMakr?</h2>
+            <ul class="ckx-why__list">
+              <% whyBuy.forEach(function(item){ %>
+                <li class="ckx-why__item">
+                  <span class="ckx-why__ico" style="color:<%= item.color %>" aria-hidden="true"><i data-feather="<%= item.icon %>"></i></span>
+                  <div class="ckx-why__text">
+                    <strong><%= item.title %></strong>
+                    <span><%= item.desc %></span>
+                  </div>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      <div class="ckx-trust" aria-label="Trust signals">
+        <div class="ckx-trust__item">
+          <span class="ckx-trust__ico" style="color:#2A47FF"><i data-feather="users"></i></span>
+          <span>Trusted by Students</span>
+        </div>
+        <div class="ckx-trust__item">
+          <span class="ckx-trust__ico" style="color:#16A34A"><i data-feather="shield"></i></span>
+          <span>Secure SSL Encrypted</span>
+        </div>
+        <div class="ckx-trust__item">
+          <span class="ckx-trust__ico" style="color:#2A47FF"><i data-feather="lock"></i></span>
+          <span>100% Money Safe</span>
+        </div>
+        <div class="ckx-trust__item">
+          <span class="ckx-trust__ico" style="color:#F17F23"><i data-feather="zap"></i></span>
+          <span>Instant Access</span>
+        </div>
+        <div class="ckx-trust__item">
+          <span class="ckx-trust__ico" style="color:#2A47FF"><i data-feather="headphones"></i></span>
+          <span>24/7 Support</span>
+        </div>
+      </div>
+
+      <input type="hidden" name="type" value="<%= type %>" />
+      <input type="hidden" name="plan" value="<%= plan %>" />
+      <input type="hidden" name="seo_name" value="<%= product.seo_name %>" />
+      <input type="hidden" name="source_code_id" value="<%= product.id %>" />
+      <input type="hidden" name="coupon_code" id="coupon_code_hidden" value="">
+      <input type="hidden" name="final_amount" id="final_amount_hidden" value="<%= Number(displayTotal).toFixed(2) %>">
+      <input type="hidden" name="checkout_csrf" value="<%= typeof checkoutCsrf !== 'undefined' ? checkoutCsrf : '' %>">
+    </form>
+  </div>
+</div>
+
+<style>
+.visually-hidden{
+  position:absolute!important;width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+}
+</style>
+
+<% include Includes/footer.ejs %>
+
+<style>
+/* Must load AFTER fm-footer.css — that file forces .app-nav { display:flex !important } */
+@media (max-width:991.98px){
+  body.ckx-page .app-nav,
+  body.ckx-page .fm-footer,
+  body.ckx-page footer.footer{
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+    height:0 !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+  body.ckx-page{
+    padding-bottom:0 !important;
+  }
+}
+</style>
+<script>
+  document.body.classList.add('ckx-page');
+</script>
+
+<script>
+(function(){
+  if (typeof feather !== 'undefined') feather.replace();
+
+  const PACKAGE_PRICE = <%= Number(basePrice) %>;
+  let addonPrice = <%= Number(matchAddon && matchAddon.price != null ? matchAddon.price : (addonPlanList[0] && addonPlanList[0].price) || 0) %>;
+  const addonToggle = document.getElementById('checkout_addon');
+  const addonRow = document.getElementById('AddonRow');
+  const addonAmt = document.getElementById('AddonAmt');
+  const addonRowLabel = document.getElementById('AddonRowLabel');
+  const addonPriceTag = document.getElementById('AddonPriceTag');
+  const addonPlanHidden = document.getElementById('checkout_addon_plan');
+  const baseAmt = document.getElementById('baseAmt');
+  const totalAmt = document.getElementById('TotalAmt');
+  const sidePrice = document.getElementById('sidePrice');
+  const couponRow = document.getElementById('CouponRow');
+  const couponVal = document.getElementById('CouponValue');
+  const couponInput = document.getElementById('coupon_code');
+  const couponMsg = document.getElementById('CouponMsg');
+  const hiddenCode = document.getElementById('coupon_code_hidden');
+  const hiddenFinal = document.getElementById('final_amount_hidden');
+  const payLabel = document.getElementById('PayNowLabel');
+  const applyBtn = document.getElementById('ApplyCoupon');
+  const form = document.getElementById('CheckoutForm');
+
+  let discountApplied = 0;
+
+  const money = (n) => '₹' + Math.round(Number(n));
+
+  function setAddonPlanEnabled(on) {
+    document.querySelectorAll('.ckx-addon__plan').forEach(function(btn){
+      if (on) btn.classList.remove('is-disabled');
+      else btn.classList.add('is-disabled');
+    });
+  }
+
+  function currentBase(){
+    return PACKAGE_PRICE + (addonToggle && addonToggle.checked ? addonPrice : 0);
+  }
+
+  function recomputeCoupon(){
+    if (hiddenCode && hiddenCode.value && couponMsg && /% off/i.test(couponMsg.textContent || '')) {
+      const pct = parseFloat(String(couponMsg.textContent).replace(/[^\d.]/g, '')) || 0;
+      discountApplied = pct > 0 ? Math.round(currentBase() * pct) / 100 : 0;
+    }
+  }
+
+  function renderTotals(){
+    const base = currentBase();
+    const total = Math.max(0, base - discountApplied);
+    if (baseAmt) baseAmt.textContent = money(PACKAGE_PRICE);
+    if (totalAmt) totalAmt.textContent = money(total);
+    if (sidePrice) sidePrice.textContent = money(base);
+    if (hiddenFinal) hiddenFinal.value = total.toFixed(2);
+    if (payLabel) payLabel.textContent = 'Proceed to Payment ' + money(total);
+    if (couponVal) couponVal.textContent = '− ₹' + Math.round(discountApplied);
+    if (addonRow) addonRow.style.display = (addonToggle && addonToggle.checked) ? '' : 'none';
+    if (addonAmt) addonAmt.textContent = '+ ' + money(addonPrice);
+    if (addonPriceTag) addonPriceTag.textContent = '+ ' + money(addonPrice);
+  }
+  setAddonPlanEnabled(!!(addonToggle && addonToggle.checked));
+  renderTotals();
+
+  document.querySelectorAll('.ckx-addon__plan').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!addonToggle || !addonToggle.checked) {
+        if (addonToggle) {
+          addonToggle.checked = true;
+          setAddonPlanEnabled(true);
+        }
+      }
+      document.querySelectorAll('.ckx-addon__plan').forEach(function(b){
+        b.classList.remove('is-active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-pressed', 'true');
+      addonPrice = Number(btn.getAttribute('data-addon-price')) || 0;
+      if (addonPlanHidden) addonPlanHidden.value = btn.getAttribute('data-addon-plan') || '';
+      if (addonRowLabel) addonRowLabel.textContent = btn.getAttribute('data-addon-title') || 'Add-on';
+      recomputeCoupon();
+      renderTotals();
+    });
+  });
+
+  if (addonToggle) {
+    addonToggle.addEventListener('change', function(){
+      setAddonPlanEnabled(addonToggle.checked);
+      recomputeCoupon();
+      renderTotals();
+    });
+  }
+
+  const payAppHidden = document.getElementById('payment_app');
+  const walletPanel = document.getElementById('WalletPanel');
+
+  function setWalletPanel(open){
+    if (!walletPanel) return;
+    if (open) {
+      walletPanel.classList.add('is-open');
+      walletPanel.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function(){
+        try { walletPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+      });
+    } else {
+      walletPanel.classList.remove('is-open');
+      walletPanel.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  function selectPayMethod(opt){
+    document.querySelectorAll('.ckx-pay__opt').forEach(function(o){ o.classList.remove('is-active'); });
+    opt.classList.add('is-active');
+    const radio = opt.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+    const pref = radio ? radio.value : 'upi';
+    const isWallet = pref === 'wallet';
+    setWalletPanel(isWallet);
+    if (!isWallet && payAppHidden) payAppHidden.value = pref;
+    if (isWallet && payAppHidden) {
+      const activeApp = walletPanel && walletPanel.querySelector('.ckx-pay__app.is-active');
+      payAppHidden.value = (activeApp && activeApp.getAttribute('data-app')) || 'gpay';
+    }
+  }
+
+  document.querySelectorAll('.ckx-pay__opt').forEach(function(opt){
+    opt.addEventListener('click', function(){
+      selectPayMethod(opt);
+    });
+  });
+
+  document.querySelectorAll('.ckx-pay__app').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      document.querySelectorAll('.ckx-pay__app').forEach(function(a){
+        a.classList.remove('is-active');
+        a.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-pressed', 'true');
+      if (payAppHidden) payAppHidden.value = btn.getAttribute('data-app') || 'gpay';
+      const walletOpt = document.getElementById('PayWalletOpt');
+      if (walletOpt) selectPayMethod(walletOpt);
+    });
+  });
+
+  async function verifyCoupon(code){
+    try{
+      const res = await fetch('/api/coupon/validate?code=' + encodeURIComponent(code), {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) throw new Error('Network error');
+      return await res.json();
+    } catch (e) {
+      return { valid: false };
+    }
+  }
+
+  async function applyCoupon(){
+    const raw = (couponInput.value || '').trim();
+    couponMsg.textContent = '';
+    couponMsg.style.color = '';
+    if (!raw) {
+      couponMsg.textContent = 'Enter a coupon code';
+      couponMsg.style.color = '#dc2626';
+      return;
+    }
+    applyBtn.disabled = true;
+    applyBtn.textContent = '…';
+    const data = await verifyCoupon(raw);
+    applyBtn.disabled = false;
+    applyBtn.textContent = 'Apply';
+    if (!data.valid) {
+      discountApplied = 0;
+      hiddenCode.value = '';
+      couponMsg.textContent = 'Invalid or expired coupon';
+      couponMsg.style.color = '#dc2626';
+      renderTotals();
+      return;
+    }
+    const pct = Number(data.discount) || 0;
+    discountApplied = Math.round(currentBase() * pct) / 100;
+    hiddenCode.value = raw;
+    couponMsg.textContent = pct + '% off applied';
+    couponMsg.style.color = '#16a34a';
+    renderTotals();
+  }
+
+  if (applyBtn) applyBtn.addEventListener('click', applyCoupon);
+  if (couponInput) {
+    couponInput.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') { e.preventDefault(); applyCoupon(); }
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', function(e){
+      const submitter = e.submitter || document.activeElement;
+      const isDummy = submitter && submitter.id === 'DummyPay';
+      if (!isDummy && !form.checkValidity()) {
+        e.preventDefault();
+        form.reportValidity();
+        return;
+      }
+      const btn = document.getElementById('PayNow');
+      const dummy = document.getElementById('DummyPay');
+      if (btn) btn.disabled = true;
+      if (dummy) {
+        dummy.disabled = true;
+        if (isDummy) dummy.textContent = 'Testing…';
+      }
+    });
+  }
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'begin_checkout',
+    product_type: <%- JSON.stringify(type) %>,
+    plan: <%- JSON.stringify(plan) %>,
+    ecommerce: {
+      currency: 'INR',
+      value: currentBase(),
+      items: [{
+        item_id: String(<%= product.id %>),
+        item_name: <%- JSON.stringify(product.name) %>,
+        item_category: <%- JSON.stringify(type === 'report' ? 'Project Report' : 'Source Code') %>,
+        item_variant: <%- JSON.stringify(plan) %>,
+        price: PACKAGE_PRICE,
+        quantity: 1
+      }]
+    }
+  });
+})();
+</script>

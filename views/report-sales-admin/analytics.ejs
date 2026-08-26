@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Analytics • Report Sales Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales-admin/prs-admin.css?v=1">
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap"><%- include('partials/sidebar') %></aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div><h1>Analytics</h1><p>Volume &amp; delivery rates · <%= selectedMonth %> · no revenue</p></div>
+        <form method="get" action="/report-sales-admin/analytics">
+          <select name="month" class="ss-select" style="min-width:140px" onchange="this.form.submit()">
+            <% months.forEach(function(m){ %><option value="<%= m %>" <%= m===selectedMonth?'selected':'' %>><%= m %></option><% }) %>
+          </select>
+        </form>
+      </div>
+      <div class="ss-kpis">
+        <div class="ss-kpi ss-kpi--orange"><div class="ss-kpi__label">Created</div><div class="ss-kpi__value"><%= kpis.createdMonth||0 %></div></div>
+        <div class="ss-kpi ss-kpi--ok"><div class="ss-kpi__label">Delivered</div><div class="ss-kpi__value"><%= kpis.deliveredMonth||0 %></div></div>
+        <div class="ss-kpi"><div class="ss-kpi__label">Avg hours</div><div class="ss-kpi__value"><%= kpis.avgHours!=null?kpis.avgHours:'—' %></div></div>
+        <div class="ss-kpi ss-kpi--warn"><div class="ss-kpi__label">Open now</div><div class="ss-kpi__value"><%= kpis.open||0 %></div></div>
+        <div class="ss-kpi ss-kpi--danger"><div class="ss-kpi__label">Overdue</div><div class="ss-kpi__value"><%= kpis.overdue||0 %></div></div>
+        <div class="ss-kpi ss-kpi--blue"><div class="ss-kpi__label">Unassigned</div><div class="ss-kpi__value"><%= kpis.unassigned||0 %></div></div>
+      </div>
+
+      <div class="ss-panel">
+        <div class="ss-panel__head"><h2 class="ss-panel__title">By plan (this month)</h2></div>
+        <div class="ss-table-wrap">
+          <table class="ss-table" style="min-width:0">
+            <thead><tr><th>Plan</th><th>Created</th><th>Delivered</th><th>Open</th><th>Overdue</th></tr></thead>
+            <tbody>
+            <% (byPlan||[]).forEach(function(bp){ %>
+              <tr>
+                <td class="ss-strong"><%= planMeta[bp.plan]||bp.plan %></td>
+                <td><%= bp.created_c||0 %></td>
+                <td><%= bp.done_c||0 %></td>
+                <td><%= bp.open_c||0 %></td>
+                <td><%= bp.overdue_c||0 %></td>
+              </tr>
+            <% }) %>
+            <% if (!(byPlan||[]).length) { %><tr><td colspan="5"><div class="ss-empty">No plan data yet</div></td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <%
+        function bars(rows){
+          var maxC=1; (rows||[]).forEach(function(r){ if(Number(r.c)>maxC) maxC=Number(r.c); });
+          return { rows: rows||[], maxC: maxC };
+        }
+        var created = bars(dailyCreated);
+        var done = bars(dailyDone);
+      %>
+      <div class="ss-panel">
+        <div class="ss-panel__head"><h2 class="ss-panel__title">Daily created</h2></div>
+        <% if (!created.rows.length) { %><div class="ss-empty">No data</div>
+        <% } else { %><div class="ss-bars">
+          <% created.rows.forEach(function(row){ var c=Number(row.c)||0; var pct=Math.max(6,Math.round(c/created.maxC*100)); %>
+          <div class="ss-bar-row"><span><%= row.d?String(row.d).slice(5,10):'—' %></span><div class="ss-bar-track"><div class="ss-bar-fill" style="width:<%= pct %>%"></div></div><span class="ss-strong" style="text-align:right"><%= c %></span></div>
+          <% }) %>
+        </div><% } %>
+      </div>
+      <div class="ss-panel">
+        <div class="ss-panel__head"><h2 class="ss-panel__title">Daily delivered</h2></div>
+        <% if (!done.rows.length) { %><div class="ss-empty">No data</div>
+        <% } else { %><div class="ss-bars">
+          <% done.rows.forEach(function(row){ var c=Number(row.c)||0; var pct=Math.max(6,Math.round(c/done.maxC*100)); %>
+          <div class="ss-bar-row"><span><%= row.d?String(row.d).slice(5,10):'—' %></span><div class="ss-bar-track"><div class="ss-bar-fill" style="width:<%= pct %>%"></div></div><span class="ss-strong" style="text-align:right"><%= c %></span></div>
+          <% }) %>
+        </div><% } %>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,11 +1,20 @@
 <%#
-  module: setupSupport | scm | prm | prc | liveDemo
-  activeTab: overview | employees | list | add
+  module: fmOnlineOrders | setupSupport | scm | prm | prc | liveDemo
+  activeTab: overview | employees | list | add | orders | payments | exceptions | analytics | lookup
 %>
 <%
   const tabs = {
+    fmOnlineOrders: {
+      overview: { href: '/sales/admin/fm-online-orders', label: 'Overview', icon: 'bi-grid-1x2' },
+      orders: { href: '/sales/admin/fm-online-orders/orders', label: 'Orders', icon: 'bi-receipt' },
+      payments: { href: '/sales/admin/fm-online-orders/payments', label: 'Payments', icon: 'bi-credit-card' },
+      exceptions: { href: '/sales/admin/fm-online-orders/exceptions', label: 'Exceptions', icon: 'bi-exclamation-triangle' },
+      analytics: { href: '/sales/admin/fm-online-orders/analytics', label: 'Analytics', icon: 'bi-bar-chart-line' },
+      lookup: { href: '/sales/admin/fm-online-orders/lookup', label: 'Lookup', icon: 'bi-search' }
+    },
     setupSupport: {
       overview: { href: '/sales/admin/setup-support', label: 'Requests', icon: 'bi-inbox' },
+      performance: { href: '/sales/admin/setup-support/performance', label: 'Performance', icon: 'bi-graph-up' },
       employees: { href: '/sales/admin/setup-support/employees', label: 'Team', icon: 'bi-people' }
     },
     scm: {

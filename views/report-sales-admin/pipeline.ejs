@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Pipeline • Report Sales Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales-admin/prs-admin.css?v=1">
+  <style>
+    .prs-board { display:grid; grid-template-columns:repeat(5,minmax(200px,1fr)); gap:12px; overflow:auto; padding-bottom:8px; }
+    .prs-col { background:#fff; border:1px solid var(--ss-line); border-radius:14px; min-height:320px; display:flex; flex-direction:column; }
+    .prs-col__head { padding:12px 14px; border-bottom:1px solid var(--ss-line); font-weight:900; font-size:13px; display:flex; justify-content:space-between; }
+    .prs-col__body { padding:10px; display:flex; flex-direction:column; gap:8px; flex:1; }
+    .prs-card { border:1px solid var(--ss-line); border-radius:10px; padding:10px; background:#FAFBFC; }
+    .prs-card__title { font-weight:800; font-size:13px; }
+    .prs-card__meta { font-size:11px; color:var(--ss-muted); margin-top:4px; }
+    @media (max-width:1100px){ .prs-board { grid-template-columns:repeat(2,minmax(220px,1fr)); } }
+  </style>
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap"><%- include('partials/sidebar') %></aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div><h1>Pipeline</h1><p>Open work by stage · filter by plan</p></div>
+        <form method="get" action="/report-sales-admin/pipeline">
+          <select name="plan" class="ss-select" style="min-width:160px" onchange="this.form.submit()">
+            <option value="">All plans</option>
+            <% Object.keys(planMeta).forEach(function(k){ %><option value="<%= k %>" <%= filters.plan===k?'selected':'' %>><%= planMeta[k] %></option><% }) %>
+          </select>
+        </form>
+      </div>
+      <div class="ss-kpis" style="grid-template-columns:repeat(4,1fr)">
+        <div class="ss-kpi ss-kpi--warn"><div class="ss-kpi__label">Open</div><div class="ss-kpi__value"><%= kpis.open||0 %></div></div>
+        <div class="ss-kpi ss-kpi--blue"><div class="ss-kpi__label">Unassigned</div><div class="ss-kpi__value"><%= kpis.unassigned||0 %></div></div>
+        <div class="ss-kpi ss-kpi--danger"><div class="ss-kpi__label">Overdue</div><div class="ss-kpi__value"><%= kpis.overdue||0 %></div></div>
+        <div class="ss-kpi ss-kpi--orange"><div class="ss-kpi__label">Due soon</div><div class="ss-kpi__value"><%= kpis.dueSoon||0 %></div></div>
+      </div>
+      <% var colOrder = [
+        ['pending','Pending'],
+        ['claimed','Claimed'],
+        ['in_progress','In progress'],
+        ['waiting_customer','Waiting customer'],
+        ['ready_to_deliver','Ready to deliver']
+      ]; %>
+      <div class="prs-board">
+        <% colOrder.forEach(function(col){
+          var key=col[0], label=col[1], list=columns[key]||[];
+        %>
+        <div class="prs-col">
+          <div class="prs-col__head"><span><%= label %></span><span class="ss-muted"><%= list.length %></span></div>
+          <div class="prs-col__body">
+            <% if (!list.length) { %><div class="ss-muted" style="font-size:12px;padding:8px">Empty</div><% } %>
+            <% list.forEach(function(r){ %>
+            <div class="prs-card">
+              <div class="prs-card__title">#<%= r.id %> · <%= planMeta[r.plan]||r.plan %></div>
+              <div class="prs-card__meta"><%= r.customer_name %> · <%= r.fm_order_id||'—' %></div>
+              <div class="prs-card__meta ss-clamp"><%= r.product_name||'—' %></div>
+              <div class="prs-card__meta">
+                <%= r.assignee_name || 'Unassigned' %>
+                <% if (r.delay==='overdue') { %> · <span style="color:#DC2626;font-weight:800">Overdue</span><% } %>
+                <% if (r.delay==='due_soon') { %> · <span style="color:#D97706;font-weight:800">Due soon</span><% } %>
+              </div>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

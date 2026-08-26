@@ -1,181 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Redirecting to secure payment | FileMakr</title>
+  <link rel="icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" />
+  <style>
+    :root{ --ink:#0e1220; --muted:#64748B; --blue:#2A47FF; --orange:#F17F23; }
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; min-height:100%; font-family:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:#fff; color:var(--ink); }
+    .wrap{
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:24px 16px;
+      background:
+        radial-gradient(ellipse 50% 40% at 80% 20%, rgba(167,199,255,.35), transparent 70%),
+        radial-gradient(ellipse 40% 35% at 10% 80%, rgba(255,186,120,.18), transparent 65%),
+        #fff;
+    }
+    .card{
+      width:100%; max-width:420px;
+      padding:28px 24px;
+      border-radius:18px;
+      border:1px solid rgba(42,71,255,.08);
+      box-shadow:0 12px 32px rgba(42,71,255,.08);
+      background:linear-gradient(145deg,#fff 0%,#F7F9FF 100%);
+      text-align:center;
+    }
+    .spin{
+      width:52px; height:52px; margin:0 auto 16px;
+      border-radius:50%;
+      border:3px solid #E8EEFF;
+      border-top-color:var(--blue);
+      animation:spin 0.9s linear infinite;
+    }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+    @media (prefers-reduced-motion:reduce){ .spin{ animation:none; border-top-color:#E8EEFF; } }
+    h1{ margin:0 0 8px; font-size:20px; font-weight:900; letter-spacing:-.02em; }
+    p{ margin:0 0 6px; color:var(--muted); font-size:14px; font-weight:500; line-height:1.5; }
+    .meta{ margin-top:14px; font-size:12px; font-weight:700; color:#475569; }
+    .meta strong{ color:var(--ink); }
+    .lock{
+      margin-top:16px; display:inline-flex; align-items:center; gap:6px;
+      font-size:12px; font-weight:800; color:#16A34A;
+    }
+    noscript p{ color:#b91c1c; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="spin" aria-hidden="true"></div>
+      <h1>Opening secure payment</h1>
+      <p>You are being redirected to CCAvenue. On mobile, your UPI / wallet app can open automatically from the payment page.</p>
+      <% if (typeof orderId !== 'undefined' && orderId) { %>
+        <p class="meta">Order <strong><%= orderId %></strong><% if (typeof amount !== 'undefined' && amount) { %> · ₹<%= amount %><% } %></p>
+      <% } %>
+      <p class="lock" aria-hidden="true">Encrypted checkout · Do not refresh</p>
+      <noscript>
+        <p>JavaScript is required. Use the button below to continue.</p>
+      </noscript>
+    </div>
+  </div>
 
-
-<style>
-    body {
-  background-color: white;
-}
-
-
-#loading-wrapper {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-}
-
-#loading-text {
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  color: #999;
-  width: 100px;
-  height: 30px;
-  margin: -7px 0 0 -45px;
-  text-align: center;
-  font-family: 'PT Sans Narrow', sans-serif;
-  font-size: 20px;
-}
-
-#loading-content {
-  display: block;
-  position: relative;
-  left: 50%;
-  top: 50%;
-  width: 170px;
-  height: 170px;
-  margin: -85px 0 0 -85px;
-  border: 3px solid #F00;
-}
-
-#loading-content:after {
-  content: "";
-  position: absolute;
-  border: 3px solid #0F0;
-  left: 15px;
-  right: 15px;
-  top: 15px;
-  bottom: 15px;
-}
-
-#loading-content:before {
-  content: "";
-  position: absolute;
-  border: 3px solid #00F;
-  left: 5px;
-  right: 5px;
-  top: 5px;
-  bottom: 5px;
-}
-
-#loading-content {
-  border: 3px solid transparent;
-  border-top-color: #4D658D;
-  border-bottom-color: #4D658D;
-  border-radius: 50%;
-  -webkit-animation: loader 2s linear infinite;
-  -moz-animation: loader 2s linear infinite;
-  -o-animation: loader 2s linear infinite;
-  animation: loader 2s linear infinite;
-}
-
-#loading-content:before {
-  border: 3px solid transparent;
-  border-top-color: #D4CC6A;
-  border-bottom-color: #D4CC6A;
-  border-radius: 50%;
-  -webkit-animation: loader 3s linear infinite;
-    -moz-animation: loader 2s linear infinite;
-  -o-animation: loader 2s linear infinite;
-  animation: loader 3s linear infinite;
-}
-
-#loading-content:after {
-  border: 3px solid transparent;
-  border-top-color: #84417C;
-  border-bottom-color: #84417C;
-  border-radius: 50%;
-  -webkit-animation: loader 1.5s linear infinite;
-  animation: loader 1.5s linear infinite;
-    -moz-animation: loader 2s linear infinite;
-  -o-animation: loader 2s linear infinite;
-}
-
-@-webkit-keyframes loaders {
-  0% {
-    -webkit-transform: rotate(0deg);
-    -ms-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    -ms-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes loader {
-  0% {
-    -webkit-transform: rotate(0deg);
-    -ms-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    -ms-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-#content-wrapper {
-  color: #FFF;
-  position: fixed;
-  left: 0;
-  top: 20px;
-  width: 100%;
-  height: 100%;
-}
-
-#header
-{
-  width: 800px;
-  margin: 0 auto;
-  text-align: center;
-  height: 100px;
-  background-color: #666;
-}
-
-#content
-{
-  width: 800px;
-  height: 1000px;
-  margin: 0 auto;
-  text-align: center;
-  background-color: #888;
-}
-</style>
-
-<body onload="document.forms[0].submit()">
-
-
-    <div id="loading-wrapper">
-        <div id="loading-text">LOADING</div>
-        <div id="loading-content"></div>
+  <form id="ccavForm" method="post" name="redirect"
+    action="<%= typeof initiateUrl !== 'undefined' && initiateUrl ? initiateUrl : 'https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction' %>">
+    <input type="hidden" id="encRequest" name="encRequest" value="<%= enccode %>">
+    <input type="hidden" name="access_code" id="access_code" value="<%= accesscode %>">
+    <noscript>
+      <div style="text-align:center;margin:20px;">
+        <button type="submit">Continue to CCAvenue</button>
       </div>
+    </noscript>
+  </form>
 
-
-<form id="nonseamless" method="post" name="redirect"
-    action="https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction" /> <input type="hidden"
-    id="encRequest" name="encRequest" value="<%=enccode%>"> <input type="hidden" name="access_code"
-    id="access_code" value="<%=accesscode%>"> 
-
-<!-- <button type="submit"><%=accesscode%></button> -->
-
-
-
-
-</form>
-
+  <script>
+    (function () {
+      var form = document.getElementById('ccavForm') || document.forms.redirect || document.forms[0];
+      if (form && typeof form.submit === 'function') {
+        form.submit();
+      }
+    })();
+  </script>
 </body>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-<script>
-
-$(function() {
-    document.forms['encRequest'].submit();
-})
-
-</script>
-
-    
+</html>

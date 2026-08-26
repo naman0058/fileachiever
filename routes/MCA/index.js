@@ -42,7 +42,7 @@ router.post('/insert',upload.fields([{ name: 'college_logo', maxCount: 1 }, { na
     })
     }
     else if(!req.body.html){
-res.redirect(`/mca-final-year-project-report-${req.body.seo_name}/edit`)
+res.redirect(`/${req.body.seo_name}-report/edit`)
     }
    
 })

@@ -1,318 +1,185 @@
-<% include Includes/navbar1.ejs %>
+<% include Includes/navbar.ejs %>
 <% include Includes/projectReport.ejs %>
+<% include partials/legal-page-head.ejs %>
 
-<!-- ===== Breadcrumb ===== -->
-<div class="breadcrumb-bar">
-  <div class="container">
-    <nav aria-label="breadcrumb" class="page-breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Terms & Conditions</li>
-      </ol>
-    </nav>
-  </div>
-</div>
+<%
+  const lpCheckIcon = '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 12.2 11 14.7 15.8 9.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-<!-- ===== Hero ===== -->
-<header class="tc-hero">
-  <div class="container tc-hero__wrap">
-    <div class="tc-hero__copy">
-      <span class="tc-badge">Updated T&C</span>
-      <h1>Terms & Conditions</h1>
-      <p class="lead">
-        Welcome to <strong>FileMakr</strong>. These Terms govern your use of our website, downloadable
-        <strong>project reports</strong>, and <strong>source code</strong>. Our products are provided strictly for
-        <strong>academic/educational purposes</strong>. We do <strong>not</strong> sell user data.
-      </p>
-      <ul class="tc-hero__pills">
-        <li><i data-feather="shield"></i> Academic use only</li>
-        <li><i data-feather="file-text"></i> Single-user license</li>
-        <li><i data-feather="lock"></i> Secure checkout</li>
-      </ul>
-    </div>
-    <div class="tc-hero__art" aria-hidden="true">
-      <div class="tc-art">
-        <div class="ring ring-1"></div>
-        <div class="ring ring-2"></div>
-        <div class="ring ring-3"></div>
-        <div class="chip chip-main">
-          <i data-feather="award"></i><span>Trusted by Students</span>
+  lpHeroId = 'lp-terms-hero-title';
+  lpHeroCrumb = 'Terms & Conditions';
+  lpHeroEyebrow = 'Updated T&C';
+  lpHeroTitle = 'Simple Terms<br class="bl-hero__br">Clear Expectations';
+  lpHeroLead = 'Welcome to <strong>FileMakr</strong>. These Terms govern your use of our website, downloadable <strong>project reports</strong>, and <strong>source code</strong>. Products are for <strong>academic/educational purposes</strong> only. We do <strong>not</strong> sell user data.';
+  lpHeroAlt = 'FileMakr terms and conditions — project reports and source code';
+  lpHeroPointsLabel = 'Terms highlights';
+  lpHeroPoints = [
+    { icon: lpCheckIcon, strong: 'Academic use only', small: 'Licensed for learning and submission' },
+    { icon: lpCheckIcon, strong: 'Single-user license', small: 'One student per purchase' },
+    { icon: lpCheckIcon, strong: 'Secure checkout', small: 'Safe encrypted payments' }
+  ];
+%>
+
+<div class="lp-page bl-page">
+  <% include partials/legal-bl-hero.ejs %>
+
+  <main class="lp-body">
+    <div class="lp-wrap">
+      <nav class="lp-toc" aria-label="On-page navigation">
+        <a href="#scope"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" stroke="currentColor" stroke-width="1.8"/></svg> Scope</a>
+        <a href="#license"><svg viewBox="0 0 24 24" fill="none"><path d="M15 7h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3M12 11v6M9 14h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> License</a>
+        <a href="#no-resale"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M5 5l14 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> No Resale</a>
+        <a href="#ip"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v5c0 4.5-3 8.5-7 9-4-.5-7-4.5-7-9V7l7-4z" stroke="currentColor" stroke-width="1.8"/></svg> IP</a>
+        <a href="#payments"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.8"/></svg> Payments</a>
+        <a href="#refunds"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 3-6.7M3 3v6h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Refunds</a>
+        <a href="#conduct"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Conduct</a>
+        <a href="#privacy"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6.5v5.2c0 4.6-3.1 8.8-8 10.3-4.9-1.5-8-5.7-8-10.3V6.5L12 3z" stroke="currentColor" stroke-width="1.8"/></svg> Privacy</a>
+        <a href="#support"><svg viewBox="0 0 24 24" fill="none"><path d="M4 14a8 8 0 0 1 16 0v3a2 2 0 0 1-2 2h-1.2a1.8 1.8 0 0 1-1.8-1.8V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Support</a>
+        <a href="#contact"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4zM4 7l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg> Contact</a>
+      </nav>
+
+      <div class="lp-layout">
+        <section id="scope" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" stroke="currentColor" stroke-width="1.8"/></svg> Scope &amp; Acceptance</h2>
+          <p>
+            By accessing <strong>filemakr.com</strong> and/or purchasing/downloading any FileMakr deliverable
+            (project report, documentation, source code, diagram pack, templates), you agree to these Terms. If you
+            do not agree, please do not use our services.
+          </p>
+        </section>
+
+        <section id="license" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M15 7h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> License &amp; Academic Use</h2>
+          <ul class="lp-list">
+            <li><strong>Academic-only license:</strong> Non-exclusive, non-transferable, single-user license for personal academic learning, practice, and final-year submissions.</li>
+            <li><strong>No commercial use:</strong> You may not use our resources for paid services, productization, or client work.</li>
+            <li><strong>Single-user access:</strong> Sharing login or files outside your immediate academic work is not permitted.</li>
+          </ul>
+        </section>
+
+        <section id="no-resale" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M5 5l14 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> No Resale / No Redistribution</h2>
+          <p>
+            Reselling, repackaging, publicly distributing, publishing, uploading to public repositories, or otherwise
+            making FileMakr content available to others is strictly prohibited. If we find any resale/redistribution:
+          </p>
+          <ul class="lp-list">
+            <li>We will pursue <strong>legal action</strong> and seek <strong>monetary damages</strong>.</li>
+            <li>Your license will be <strong>immediately terminated</strong> without refund.</li>
+          </ul>
+        </section>
+
+        <section id="ip" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v5c0 4.5-3 8.5-7 9-4-.5-7-4.5-7-9V7l7-4z" stroke="currentColor" stroke-width="1.8"/></svg> Intellectual Property</h2>
+          <p>
+            All content, brand assets, templates, diagrams, and source code are owned by FileMakr and/or its licensors.
+            No rights are granted except as expressly stated in these Terms. You may not remove copyright notices or
+            proprietary marks.
+          </p>
+        </section>
+
+        <section id="payments" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.8"/></svg> Payments &amp; Delivery</h2>
+          <ul class="lp-list">
+            <li><strong>Pricing &amp; taxes:</strong> Prices are listed in INR unless stated otherwise. Taxes may apply.</li>
+            <li><strong>Secure checkout:</strong> We use reputable payment gateways. You agree to provide accurate billing details.</li>
+            <li><strong>Instant delivery:</strong> Ready files typically download instantly; we also email/WhatsApp if provided.</li>
+            <li><strong>Access window:</strong> For security, certain links may have expiry; keep your files safe.</li>
+          </ul>
+        </section>
+
+        <section id="refunds" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 3-6.7M3 3v6h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Refunds</h2>
+          <p>
+            Due to the <strong>digital</strong> nature of our products, <strong>all sales are final</strong>.
+            If a file is corrupted or you cannot access a purchased deliverable, contact support; we’ll attempt a prompt replacement.
+            See our <a href="/refund-policy">Refund Policy</a> for full details.
+          </p>
+        </section>
+
+        <section id="conduct" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Prohibited Uses &amp; Academic Integrity</h2>
+          <ul class="lp-list">
+            <li>No reverse engineering of our delivery systems, no attempts to bypass security or link expiries.</li>
+            <li>No uploading, seeding, or public sharing of our paid files/code.</li>
+            <li><strong>Academic integrity:</strong> Use our materials to <em>learn</em> and <em>build</em>. You remain responsible for meeting your institution’s originality and citation standards.</li>
+          </ul>
+        </section>
+
+        <section id="privacy" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6.5v5.2c0 4.6-3.1 8.8-8 10.3-4.9-1.5-8-5.7-8-10.3V6.5L12 3z" stroke="currentColor" stroke-width="1.8"/></svg> Privacy &amp; Data Use</h2>
+          <ul class="lp-list">
+            <li>We collect minimal data required to process orders and support delivery.</li>
+            <li><strong>We do not sell user data.</strong></li>
+            <li>See our <a href="/privacy-policy">Privacy Policy</a> for details on cookies, retention, and security.</li>
+          </ul>
+        </section>
+
+        <section id="support" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M4 14a8 8 0 0 1 16 0v3a2 2 0 0 1-2 2h-1.2a1.8 1.8 0 0 1-1.8-1.8V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Support &amp; Setup</h2>
+          <ul class="lp-list">
+            <li>General queries via WhatsApp at <a href="https://wa.me/918319339945" target="_blank" rel="noopener noreferrer">+91 83193 39945</a>.</li>
+            <li><strong>Code Setup Support</strong> (if purchased) is typically delivered within <strong>24 hours</strong> by our team.</li>
+            <li>Support scope excludes custom feature development unless separately agreed.</li>
+          </ul>
+        </section>
+
+        <section id="warranty" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Warranty, Limitation of Liability</h2>
+          <ul class="lp-list">
+            <li>Materials are provided “as is” for educational use; we do not guarantee fitness for any commercial purpose.</li>
+            <li>To the maximum extent permitted by law, FileMakr is not liable for indirect, incidental, or consequential damages arising from use of our materials.</li>
+          </ul>
+        </section>
+
+        <section id="law" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Governing Law &amp; Dispute Resolution</h2>
+          <p>
+            These Terms are governed by the laws of <strong>India</strong>. Disputes will be subject to the exclusive
+            jurisdiction of competent courts in India.
+          </p>
+        </section>
+
+        <section id="changes" class="lp-section">
+          <h2><svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 3-6.7M3 3v6h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Changes to These Terms</h2>
+          <p>
+            We may update these Terms to reflect improvements, legal requirements, or new services. Changes will be posted
+            here with an updated effective date.
+          </p>
+          <p class="lp-mini">Effective: <strong><%= new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) %></strong></p>
+        </section>
+      </div>
+
+      <% include partials/legal-related-links.ejs %>
+
+      <section id="contact" class="lp-cta">
+        <div>
+          <h3>Questions about these Terms?</h3>
+          <p>We’re here to help. Reach out anytime for project report or source code support.</p>
         </div>
-        <div class="chip chip-2"><i data-feather="code"></i><span>Clean Code</span></div>
-        <div class="chip chip-3"><i data-feather="eye"></i><span>Transparent Terms</span></div>
-      </div>
+        <div class="lp-cta__actions">
+          <a class="lp-btn lp-btn--primary" href="https://wa.me/918319339945" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Chat on WhatsApp
+          </a>
+          <a class="lp-btn lp-btn--ghost" href="/contact-us">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4zM4 7l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            Contact Form
+          </a>
+        </div>
+      </section>
+
     </div>
-  </div>
-</header>
-
-<main class="tc-main">
-  <div class="container">
-
-    <!-- Quick nav -->
-    <nav class="tc-toc" aria-label="On-page navigation">
-      <a href="#scope"><i data-feather="book-open"></i> Scope & Acceptance</a>
-      <a href="#license"><i data-feather="key"></i> License & Academic Use</a>
-      <a href="#no-resale"><i data-feather="slash"></i> No Resale / No Redistribution</a>
-      <a href="#ip"><i data-feather="feather"></i> Intellectual Property</a>
-      <a href="#payments"><i data-feather="credit-card"></i> Payments & Delivery</a>
-      <a href="#refunds"><i data-feather="rotate-ccw"></i> Refunds</a>
-      <a href="#conduct"><i data-feather="alert-triangle"></i> Prohibited Uses & Integrity</a>
-      <a href="#privacy"><i data-feather="shield-off"></i> Privacy & Data</a>
-      <a href="#support"><i data-feather="headphones"></i> Support & Setup</a>
-      <a href="#warranty"><i data-feather="info"></i> Warranty & Liability</a>
-      <a href="#law"><i data-feather="flag"></i> Governing Law</a>
-      <a href="#changes"><i data-feather="refresh-ccw"></i> Changes</a>
-      <a href="#contact"><i data-feather="mail"></i> Contact</a>
-    </nav>
-
-    <!-- Cards -->
-    <section id="scope" class="tc-card">
-      <h2><i data-feather="book-open"></i> Scope & Acceptance</h2>
-      <p>
-        By accessing <strong>filemakr.com</strong> and/or purchasing/downloading any FileMakr deliverable
-        (project report, documentation, source code, diagram pack, templates), you agree to these Terms. If you
-        do not agree, please do not use our services.
-      </p>
-    </section>
-
-    <section id="license" class="tc-card">
-      <h2><i data-feather="key"></i> License & Academic Use</h2>
-      <ul class="tc-bullets">
-        <li><strong>Academic-only license:</strong> You receive a non-exclusive, non-transferable, single-user license to use purchased materials solely for personal academic learning, practice, and final-year submissions.</li>
-        <li><strong>No commercial use:</strong> You may not use our resources for paid services, productization, or client work.</li>
-        <li><strong>Single-user access:</strong> Sharing login or files outside your immediate academic work is not permitted.</li>
-      </ul>
-    </section>
-
-    <section id="no-resale" class="tc-card">
-      <h2><i data-feather="slash"></i> No Resale / No Redistribution</h2>
-      <p>
-        Reselling, repackaging, publicly distributing, publishing, uploading to public repositories, or otherwise
-        making FileMakr content available to others is strictly prohibited. If we find any resale/redistribution:
-      </p>
-      <ul class="tc-bullets">
-        <li>We will pursue <strong>legal action</strong> and seek <strong>monetary damages</strong>.</li>
-        <li>Your license will be <strong>immediately terminated</strong> without refund.</li>
-      </ul>
-    </section>
-
-    <section id="ip" class="tc-card">
-      <h2><i data-feather="feather"></i> Intellectual Property</h2>
-      <p>
-        All content, brand assets, templates, diagrams, and source code are owned by FileMakr and/or its licensors.
-        No rights are granted except as expressly stated in these Terms. You may not remove copyright notices or
-        proprietary marks.
-      </p>
-    </section>
-
-    <section id="payments" class="tc-card">
-      <h2><i data-feather="credit-card"></i> Payments & Delivery</h2>
-      <ul class="tc-bullets">
-        <li><strong>Pricing & taxes:</strong> Prices are listed in INR unless stated otherwise. Taxes may apply.</li>
-        <li><strong>Secure checkout:</strong> We use reputable payment gateways. You agree to provide accurate billing details.</li>
-        <li><strong>Instant delivery:</strong> Ready files typically download instantly; we also email/WhatsApp if provided.</li>
-        <li><strong>Access window:</strong> For security, certain links may have expiry; keep your files safe.</li>
-      </ul>
-    </section>
-
-    <section id="refunds" class="tc-card">
-      <h2><i data-feather="rotate-ccw"></i> Refunds</h2>
-      <p>
-        Due to the <strong>digital</strong> nature of our products, <strong>all sales are final</strong>.
-        If a file is corrupted or you cannot access a purchased deliverable, contact support; we’ll attempt a prompt replacement.
-        For optional <strong>Code Setup Support</strong>, service timelines are as communicated (usually within 24 hours of purchase).
-      </p>
-    </section>
-
-    <section id="conduct" class="tc-card">
-      <h2><i data-feather="alert-triangle"></i> Prohibited Uses & Academic Integrity</h2>
-      <ul class="tc-bullets">
-        <li>No reverse engineering of our delivery systems, no attempts to bypass security or link expiries.</li>
-        <li>No uploading, seeding, or public sharing of our paid files/code.</li>
-        <li><strong>Academic integrity:</strong> Use our materials to <em>learn</em> and <em>build</em>. You remain responsible for meeting your institution’s originality and citation standards.</li>
-      </ul>
-    </section>
-
-    <section id="privacy" class="tc-card">
-      <h2><i data-feather="shield-off"></i> Privacy & Data Use</h2>
-      <ul class="tc-bullets">
-        <li>We collect minimal data required to process orders and support delivery.</li>
-        <li><strong>We do not sell user data.</strong></li>
-        <li>See our <a href="/privacy-policy">Privacy Policy</a> for details on cookies, retention, and security.</li>
-      </ul>
-    </section>
-
-    <section id="support" class="tc-card">
-      <h2><i data-feather="headphones"></i> Support & Setup</h2>
-      <ul class="tc-bullets">
-        <li>General queries via WhatsApp at <a href="https://wa.me/918319339945" target="_blank" rel="noopener">+91 83193 39945</a>.</li>
-        <li><strong>Code Setup Support</strong> (if purchased) is typically delivered within <strong>24 hours</strong> by our team.</li>
-        <li>Support scope excludes custom feature development unless separately agreed.</li>
-      </ul>
-    </section>
-
-    <section id="warranty" class="tc-card">
-      <h2><i data-feather="info"></i> Warranty, Limitation of Liability</h2>
-      <ul class="tc-bullets">
-        <li>Materials are provided “as is” for educational use; we do not guarantee fitness for any commercial purpose.</li>
-        <li>To the maximum extent permitted by law, FileMakr is not liable for indirect, incidental, or consequential damages arising from use of our materials.</li>
-      </ul>
-    </section>
-
-    <section id="law" class="tc-card">
-      <h2><i data-feather="flag"></i> Governing Law & Dispute Resolution</h2>
-      <p>
-        These Terms are governed by the laws of <strong>India</strong>. Disputes will be subject to the exclusive
-        jurisdiction of competent courts in <strong>[Your City]</strong>. (Update the city to your operational base.)
-      </p>
-    </section>
-
-    <section id="changes" class="tc-card">
-      <h2><i data-feather="refresh-ccw"></i> Changes to These Terms</h2>
-      <p>
-        We may update these Terms to reflect improvements, legal requirements, or new services. Changes will be posted
-        here with an updated “Effective” date.
-      </p>
-      <p class="mini">Effective: <strong><%= new Date().toLocaleDateString() %></strong></p>
-    </section>
-
-    <section id="contact" class="tc-cta">
-      <div>
-        <h3>Questions about these Terms?</h3>
-        <p>We’re here to help. Reach out anytime.</p>
-      </div>
-      <div class="tc-cta__actions">
-        <a class="btn btn-brand" href="https://wa.me/918319339945" target="_blank" rel="noopener">
-          <i data-feather="message-circle"></i> Chat on WhatsApp
-        </a>
-        <a class="btn btn-light" href="/contact-us">
-          <i data-feather="mail"></i> Contact Form
-        </a>
-      </div>
-    </section>
-
-  </div>
-</main>
+  </main>
+</div>
 
 <% include Includes/footer.ejs %>
 
-<!-- ===== Scoped Styles ===== -->
-<style>
-:root{
-  --ink:#0e1220; --muted:#6b7280; --bg:#f7f8fc; --card:#fff;
-  --brand:#2A47FF; --accent:#F17F23; --brd:rgba(14,18,32,.10); --ring:rgba(42,71,255,.18);
-  --radius:16px;
-}
-.breadcrumb-bar{ background:#fff; border-bottom:1px solid var(--brd); }
-.page-breadcrumb .breadcrumb{ margin:0; padding:.75rem 0; }
-
-.tc-hero{
-  background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));
-  border-bottom:1px solid var(--brd);
-}
-.tc-hero__wrap{
-  display:grid; gap:20px; grid-template-columns:1.2fr .8fr; align-items:center;
-  padding:28px 0;
-}
-@media(max-width:991.98px){ .tc-hero__wrap{ grid-template-columns:1fr; } }
-
-.tc-badge{
-  display:inline-block; font-weight:800; font-size:12px;
-  padding:6px 10px; border-radius:999px; color:var(--brand);
-  background:rgba(42,71,255,.08); border:1px solid rgba(42,71,255,.2);
-}
-.tc-hero h1{ margin:.4rem 0 .6rem; font-weight:900; color:var(--ink); }
-.tc-hero .lead{ color:#111; font-size:1.05rem; }
-.tc-hero__pills{ list-style:none; padding:0; margin:12px 0 0; display:flex; gap:10px; flex-wrap:wrap; }
-.tc-hero__pills li{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; background:#fff; border:1px solid var(--brd); border-radius:999px; font-weight:700; }
-.tc-hero__pills svg{ width:16px; height:16px; color:var(--brand); }
-
-.tc-hero__art{ display:flex; justify-content:center; }
-.tc-art{
-  position:relative; width:100%; max-width:520px; aspect-ratio:1/1; overflow:hidden;
-  background:#fff; border:1px solid var(--brd); border-radius:20px;
-  box-shadow:0 12px 30px rgba(14,18,32,.06);
-}
-.ring{ position:absolute; border:2px solid rgba(42,71,255,.15); border-radius:50%; animation:pulse 7s linear infinite; }
-.ring-1{ inset:6%; }
-.ring-2{ inset:16%; animation-delay:.6s; }
-.ring-3{ inset:26%; animation-delay:1.2s; }
-
-.chip{
-  position:absolute; display:inline-flex; align-items:center; gap:8px;
-  background:#fff; border:1px solid var(--brd); border-radius:999px; padding:8px 12px; font-weight:700; color:#111;
-  box-shadow:0 8px 20px rgba(14,18,32,.08);
-}
-.chip svg{ width:16px; height:16px; color:var(--brand); }
-.chip-main{ top:50%; left:50%; transform:translate(-50%,-50%); }
-.chip-2{ top:14%; left:12%; }
-.chip-3{ bottom:14%; right:12%; }
-
-@keyframes pulse{
-  0%{ transform:scale(1); opacity:.8; }
-  50%{ transform:scale(1.04); opacity:.45; }
-  100%{ transform:scale(1); opacity:.8; }
-}
-
-.tc-main{ background:var(--bg); padding:24px 0 32px; }
-.tc-toc{
-  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;
-}
-.tc-toc a{
-  display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--brd);
-  background:#fff; border-radius:10px; font-weight:700; color:#111; text-decoration:none;
-}
-.tc-toc a:hover{ box-shadow:0 0 0 4px var(--ring); }
-
-.tc-card{
-  background:#fff; border:1px solid var(--brd); border-radius:16px; padding:16px;
-  box-shadow:0 10px 24px rgba(14,18,32,.06); margin-bottom:12px;
-}
-.tc-card h2{ display:flex; align-items:center; gap:10px; margin:0 0 8px; font-weight:900; color:var(--ink); }
-.tc-card h2 svg{ width:20px; height:20px; color:var(--brand); }
-.tc-card p{ color:#111; margin:0; }
-.tc-bullets{ margin:8px 0 0; padding-left:18px; color:#111; }
-.tc-bullets li{ margin:6px 0; }
-.mini{ color:var(--muted); font-weight:700; font-size:.9rem; }
-
-.tc-cta{
-  margin-top:18px; background:#fff; border:1px solid var(--brd); border-radius:18px; padding:18px;
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  box-shadow:0 12px 30px rgba(14,18,32,.06);
-}
-@media(max-width:991.98px){ .tc-cta{ flex-direction:column; align-items:flex-start; } }
-.tc-cta__actions{ display:flex; gap:10px; flex-wrap:wrap; }
-
-.btn{
-  display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 16px; border-radius:12px; font-weight:900; text-decoration:none; border:1px solid transparent;
-}
-.btn-brand{ background:var(--brand); color:#fff; border-color:var(--brand); box-shadow:0 10px 26px rgba(42,71,255,.15); }
-.btn-brand:hover{ filter:brightness(.98); }
-.btn-light{ background:#fff; color:#111; border:1px solid var(--brd); }
-.btn-light:hover{ box-shadow:0 0 0 4px var(--ring); }
-</style>
-
-<!-- Feather icons init (safe no-op if already loaded) -->
-<script>
-(function(){
-  if (window.feather && typeof window.feather.replace === 'function') {
-    window.feather.replace();
-  } else {
-    var s = document.createElement('script');
-    s.src = 'https://unpkg.com/feather-icons';
-    s.onload = function(){ window.feather && window.feather.replace(); };
-    document.head.appendChild(s);
-  }
-})();
-</script>
-
-<!-- SEO Schema (WebPage) -->
 <script type="application/ld+json">
 {
   "@context":"https://schema.org",
   "@type":"WebPage",
   "name":"Terms & Conditions - FileMakr",
-  "description":"Terms & Conditions for FileMakr project reports and source code. Academic-use only, no resale, no data selling, secure checkout, and support policies.",
+  "description":"Terms & Conditions for FileMakr project reports and source code. Academic-use only, no resale, secure checkout, and support policies.",
   "url":"https://www.filemakr.com/terms-and-conditions"
 }
 </script>

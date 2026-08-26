@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Order lookup • Report Sales Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales-admin/prs-admin.css?v=3">
+  <style>
+    .prs-order-card {
+      border: 1px solid var(--ss-line); border-radius: 14px; padding: 14px 16px; background: #fff;
+      margin: 0 16px 12px; box-shadow: var(--ss-shadow);
+    }
+    .prs-order-card__top { display:flex; flex-wrap:wrap; gap:10px 18px; justify-content:space-between; align-items:flex-start; }
+    .prs-order-card__items { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+    .prs-order-card__actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .prs-order-card__meta { font-size:12px; color:var(--ss-muted); margin-top:4px; }
+  </style>
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap"><%- include('partials/sidebar') %></aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div>
+          <h1>Order lookup</h1>
+          <p>Search by customer name or phone · see full purchase (report / source / setup) · no pricing</p>
+        </div>
+      </div>
+
+      <div class="ss-panel">
+        <form method="get" action="/report-sales-admin/reports" class="ss-filters" style="grid-template-columns:1fr 1fr auto">
+          <div>
+            <label>Customer name</label>
+            <input class="ss-input" type="search" name="name" value="<%= filters.name || '' %>" placeholder="e.g. Test User" autocomplete="off">
+          </div>
+          <div>
+            <label>Phone number</label>
+            <input class="ss-input" type="search" name="phone" value="<%= filters.phone || '' %>" placeholder="e.g. 9999999999" autocomplete="off">
+          </div>
+          <div style="display:flex;align-items:flex-end"><button class="ss-btn ss-btn--primary" type="submit"><i class="bi bi-search"></i> Search</button></div>
+        </form>
+      </div>
+
+      <div class="ss-panel">
+        <div class="ss-panel__head">
+          <div>
+            <h2 class="ss-panel__title">Results</h2>
+            <p class="ss-panel__sub">
+              <% if (!searched) { %>Enter name and/or phone (max 100)<% } else { %><%= rows.length %> order<%= rows.length!==1?'s':'' %> (max 100)<% } %>
+            </p>
+          </div>
+        </div>
+
+        <% if (!searched) { %>
+          <div class="ss-empty"><i class="bi bi-search"></i>Search to load the customer’s complete paid orders.</div>
+        <% } else if (!rows.length) { %>
+          <div class="ss-empty">No matching paid orders.</div>
+        <% } else { %>
+          <div style="padding:8px 0 16px">
+          <% rows.forEach(function(r){ %>
+            <div class="prs-order-card">
+              <div class="prs-order-card__top">
+                <div>
+                  <div class="ss-strong" style="font-size:15px"><%= r.order_id %></div>
+                  <div class="prs-order-card__meta"><%= r.product_name || r.sc_name || '—' %></div>
+                  <div class="prs-order-card__meta"><%= r.plan_label || r.plan %></div>
+                </div>
+                <div style="text-align:right">
+                  <div class="ss-strong"><%= r.billing_name %></div>
+                  <div class="prs-order-card__meta"><%= r.billing_email || '' %></div>
+                  <div class="prs-order-card__meta">
+                    <% if (r.billing_tel) { %>
+                    <%= r.billing_tel %>
+                    <a class="ss-wa" href="https://wa.me/<%= String(r.billing_tel).replace(/\D/g,'') %>" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <div class="prs-order-card__items">
+                <% (r.purchaseItems || []).forEach(function(it){ %>
+                <span class="ss-badge ss-badge--checkout"><%= it %></span>
+                <% }) %>
+                <% if (r.hasReport && r.prs_id) { %>
+                <span class="ss-badge ss-badge--<%= r.prs_status === 'delivered' ? 'done' : 'in_progress' %>">PRS #<%= r.prs_id %> · <%= String(r.prs_status||'').replace(/_/g,' ') %></span>
+                <% } else if (r.hasReport) { %>
+                <span class="ss-badge ss-badge--pending">Report (no ticket yet)</span>
+                <% } %>
+                <span class="ss-badge ss-badge--manual"><%= r.fulfillment_status || r.order_status %></span>
+              </div>
+              <div class="prs-order-card__meta">Paid <%= r.paid_at ? new Date(r.paid_at).toLocaleString() : '—' %></div>
+              <div class="prs-order-card__actions">
+                <% if (r.zipUrl) { %>
+                <a class="ss-btn ss-btn--primary ss-btn--sm" href="<%= r.zipUrl %>" target="_blank" rel="noopener"><i class="bi bi-download"></i> Source ZIP</a>
+                <% } %>
+                <% if (r.hasReport && r.source_code_id && (r.reportPlan === 'customized' || r.reportPlan === 'originality' || r.prs_plan === 'customized' || r.prs_plan === 'originality')) { %>
+                <a class="ss-btn ss-btn--ghost ss-btn--sm" href="/project-report-creator/create/<%= r.source_code_id %>" target="_blank" rel="noopener"><i class="bi bi-file-earmark-plus"></i> Create Report</a>
+                <% } %>
+                <% if (r.prs_id) { %>
+                <a class="ss-btn ss-btn--ghost ss-btn--sm" href="/report-sales-admin?q=<%= encodeURIComponent(r.order_id) %>">Open in overview</a>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

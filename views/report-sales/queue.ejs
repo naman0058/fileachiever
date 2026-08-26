@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= pageTitle %> • Report Sales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales/prs.css?v=1">
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap">
+    <%- include('partials/sidebar') %>
+  </aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div>
+          <h1><%= planMeta[plan].title %></h1>
+          <p><%= planMeta[plan].hint %> · No pricing shown</p>
+        </div>
+        <div class="ss-chip"><i class="bi bi-person-badge"></i> <%= user.name %></div>
+      </div>
+
+      <div class="ss-kpis">
+        <div class="ss-kpi ss-kpi--warn"><div class="ss-kpi__label">My open</div><div class="ss-kpi__value"><%= stats.open || 0 %></div></div>
+        <div class="ss-kpi ss-kpi--blue"><div class="ss-kpi__label">In pipeline</div><div class="ss-kpi__value"><%= stats.inProgress || 0 %></div></div>
+        <div class="ss-kpi ss-kpi--danger"><div class="ss-kpi__label">Overdue</div><div class="ss-kpi__value"><%= stats.overdue || 0 %></div></div>
+        <div class="ss-kpi ss-kpi--orange"><div class="ss-kpi__label">Done month</div><div class="ss-kpi__value"><%= stats.doneMonth || 0 %></div></div>
+        <div class="ss-kpi ss-kpi--ok"><div class="ss-kpi__label">Lifetime done</div><div class="ss-kpi__value"><%= stats.doneLifetime || 0 %></div></div>
+        <div class="ss-kpi"><div class="ss-kpi__label">Claim pool</div><div class="ss-kpi__value"><%= stats.available || 0 %></div></div>
+      </div>
+
+      <div class="ss-panel">
+        <form method="get" action="/report-sales/queue/<%= plan %>" class="ss-filters">
+          <div>
+            <label>Search</label>
+            <input class="ss-input" type="search" name="q" value="<%= filters.q || '' %>" placeholder="Name, phone, order, product…">
+          </div>
+          <div>
+            <label>View</label>
+            <select class="ss-select" name="tab">
+              <option value="all" <%= filters.tab==='all'?'selected':'' %>>Open work</option>
+              <option value="pending" <%= filters.tab==='pending'?'selected':'' %>>Pending</option>
+              <option value="pipeline" <%= filters.tab==='pipeline'?'selected':'' %>>Pipeline</option>
+              <option value="delayed" <%= filters.tab==='delayed'?'selected':'' %>>Delayed</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end"><button class="ss-btn ss-btn--primary" style="width:100%" type="submit">Apply</button></div>
+        </form>
+        <div class="ss-tabs">
+          <a class="ss-tab <%= filters.tab==='all'?'is-active':'' %>" href="/report-sales/queue/<%= plan %>">Open</a>
+          <a class="ss-tab <%= filters.tab==='pipeline'?'is-active is-active--warn':'' %>" href="/report-sales/queue/<%= plan %>?tab=pipeline">Pipeline</a>
+          <a class="ss-tab <%= filters.tab==='delayed'?'is-active':'' %>" href="/report-sales/queue/<%= plan %>?tab=delayed">Delayed</a>
+          <a class="ss-tab" href="/report-sales/delivered?plan=<%= plan %>">Delivered</a>
+        </div>
+      </div>
+
+      <% if (unassigned && unassigned.length) { %>
+      <div class="ss-panel">
+        <div class="ss-panel__head">
+          <div><h2 class="ss-panel__title">Claim pool</h2><p class="ss-panel__sub">Unassigned <%= planMeta[plan].title %> orders</p></div>
+          <span class="ss-chip"><%= unassigned.length %> available</span>
+        </div>
+        <div class="ss-table-wrap">
+          <table class="ss-table">
+            <thead><tr><th>ID</th><th>Order</th><th>Customer</th><th>Phone</th><th>SLA</th><th>Created</th><th></th></tr></thead>
+            <tbody>
+            <% unassigned.forEach(function(r){ %>
+              <tr>
+                <td class="ss-strong">#<%= r.id %></td>
+                <td><div class="ss-strong"><%= r.fm_order_id || '—' %></div><div class="ss-muted ss-clamp"><%= r.product_name || '—' %></div></td>
+                <td class="ss-strong"><%= r.customer_name %></td>
+                <td>
+                  <% if (r.customer_number) { %>
+                  <a href="tel:<%= r.customer_number %>" style="color:inherit;text-decoration:none"><%= r.customer_number %></a>
+                  <a class="ss-wa" href="https://wa.me/<%= String(r.customer_number).replace(/\D/g,'') %>" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+                  <% } else { %>—<% } %>
+                </td>
+                <td>
+                  <% if (r.delay==='overdue') { %><span class="ss-badge ss-badge--cancelled">Overdue</span>
+                  <% } else if (r.delay==='due_soon') { %><span class="ss-badge ss-badge--pending">Due soon</span>
+                  <% } else { %><span class="ss-muted"><%= r.sla_due_at ? new Date(r.sla_due_at).toLocaleString() : '—' %></span><% } %>
+                </td>
+                <td class="ss-muted"><%= r.created_at ? new Date(r.created_at).toLocaleString() : '—' %></td>
+                <td><button type="button" class="ss-btn ss-btn--claim ss-btn--sm claim-btn" data-id="<%= r.id %>"><i class="bi bi-hand-index-thumb"></i> Claim</button></td>
+              </tr>
+            <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="ss-panel">
+        <div class="ss-panel__head">
+          <div><h2 class="ss-panel__title">My queue</h2><p class="ss-panel__sub"><%= rows.length %> ticket<%= rows.length!==1?'s':'' %></p></div>
+        </div>
+        <div class="ss-table-wrap">
+          <table class="ss-table">
+            <thead>
+              <tr>
+                <th>ID</th><th>Order / Product</th><th>Customer</th><th>Phone</th>
+                <th>Status</th><th>SLA</th><th>Notes</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+            <% if (!rows.length) { %>
+              <tr><td colspan="8"><div class="ss-empty"><i class="bi bi-inbox"></i>No tickets in this view. Claim from the pool.</div></td></tr>
+            <% } %>
+            <% rows.forEach(function(r){ %>
+              <tr>
+                <td class="ss-strong">#<%= r.id %></td>
+                <td>
+                  <div class="ss-strong"><%= r.fm_order_id || '—' %></div>
+                  <div class="ss-muted ss-clamp"><%= r.product_name || r.plan_label || '—' %></div>
+                </td>
+                <td>
+                  <div class="ss-strong"><%= r.customer_name || '—' %></div>
+                  <% if (r.customer_email) { %><div class="ss-muted" style="font-size:12px"><%= r.customer_email %></div><% } %>
+                </td>
+                <td>
+                  <% if (r.customer_number) { %>
+                  <a href="tel:<%= r.customer_number %>" style="color:inherit;text-decoration:none"><%= r.customer_number %></a>
+                  <a class="ss-wa" href="https://wa.me/<%= String(r.customer_number).replace(/\D/g,'') %>" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+                  <% } else { %>—<% } %>
+                </td>
+                <td><span class="ss-badge ss-badge--<%= r.status === 'delivered' ? 'done' : (r.status === 'pending' ? 'pending' : 'in_progress') %>"><%= String(r.status||'').replace(/_/g,' ') %></span></td>
+                <td>
+                  <% if (r.delay==='overdue') { %><span class="ss-badge ss-badge--cancelled">Overdue</span>
+                  <% } else if (r.delay==='due_soon') { %><span class="ss-badge ss-badge--pending">Due soon</span>
+                  <% } else { %><span class="ss-muted"><%= r.sla_due_at ? new Date(r.sla_due_at).toLocaleString() : '—' %></span><% } %>
+                </td>
+                <td class="ss-muted ss-clamp" title="<%= (r.notes||'').replace(/"/g,'&quot;') %>"><%= (r.notes||'—').toString().slice(0,60) %></td>
+                <td>
+                  <% var canAssistDownload = isInstant; %>
+                  <% var canEdit = r.status !== 'delivered' && r.status !== 'cancelled'; %>
+                  <% if (canEdit || canAssistDownload) { %>
+                  <div class="ss-actions">
+                    <% if (canEdit) { %>
+                    <select class="ss-select-sm status-select" data-id="<%= r.id %>">
+                      <% ['pending','claimed','in_progress','waiting_customer','ready_to_deliver','delivered','cancelled'].forEach(function(s){ %>
+                      <option value="<%= s %>" <%= r.status===s?'selected':'' %>><%= s.replace(/_/g,' ') %></option>
+                      <% }) %>
+                    </select>
+                    <button type="button" class="ss-btn ss-btn--ghost ss-btn--sm notes-btn" data-id="<%= r.id %>" data-notes="<%= (r.notes||'').replace(/"/g,'&quot;') %>" data-dnote="<%= (r.delivery_note||'').replace(/"/g,'&quot;') %>" data-dlink="<%= (r.delivery_link||'').replace(/"/g,'&quot;') %>">Notes</button>
+                    <% if (!isInstant && r.source_code_id) { %>
+                    <a class="ss-btn ss-btn--primary ss-btn--sm" href="/project-report-creator/create/<%= r.source_code_id %>" target="_blank" rel="noopener" title="Open report creator"><i class="bi bi-file-earmark-plus"></i> Create Report</a>
+                    <% } %>
+                    <% } %>
+                    <% if (canAssistDownload) { %>
+                    <a class="ss-btn ss-btn--ghost ss-btn--sm js-prs-dl" href="/report-sales/api/<%= r.id %>/download-report" rel="noopener" title="Regenerate &amp; share if customer download failed"><i class="bi bi-download"></i> Word</a>
+                    <a class="ss-btn ss-btn--ghost ss-btn--sm js-prs-dl" href="/report-sales/api/<%= r.id %>/download-report?format=pdf" rel="noopener" title="Regenerate PDF"><i class="bi bi-filetype-pdf"></i> PDF</a>
+                    <% } %>
+                  </div>
+                  <% } else { %><span class="ss-muted">—</span><% } %>
+                </td>
+              </tr>
+            <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="ss-modal-backdrop" id="notesModal">
+  <div class="ss-modal">
+    <h3>Update notes / delivery</h3>
+    <p class="ss-muted" style="margin:0 0 8px;font-size:12px">Internal notes. Delivery note/link for customized &amp; originality.</p>
+    <label class="ss-muted" style="font-size:11px;font-weight:800">Notes</label>
+    <textarea id="notesText" style="margin-bottom:10px"></textarea>
+    <label class="ss-muted" style="font-size:11px;font-weight:800">Delivery note</label>
+    <textarea id="dNoteText" style="min-height:60px;margin-bottom:10px"></textarea>
+    <label class="ss-muted" style="font-size:11px;font-weight:800">Delivery link</label>
+    <input id="dLinkText" class="ss-input" style="margin-bottom:8px" placeholder="https://…">
+    <div class="ss-modal__actions">
+      <button type="button" class="ss-btn ss-btn--ghost" id="notesCancel">Cancel</button>
+      <button type="button" class="ss-btn ss-btn--primary" id="notesSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal = document.getElementById('notesModal');
+  var notesId = null;
+  function close(){ modal.classList.remove('is-open'); notesId=null; }
+  document.querySelectorAll('.claim-btn').forEach(function(btn){
+    btn.addEventListener('click', async function(){
+      this.disabled = true;
+      var res = await fetch('/report-sales/api/'+this.dataset.id+'/claim', { method:'POST' });
+      var j = await res.json();
+      if (j.ok) location.reload(); else { this.disabled=false; alert(j.message||'Failed'); }
+    });
+  });
+  document.querySelectorAll('.status-select').forEach(function(sel){
+    sel.addEventListener('change', async function(){
+      var res = await fetch('/report-sales/api/'+this.dataset.id+'/status', {
+        method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:'status='+encodeURIComponent(this.value)
+      });
+      var j = await res.json();
+      if (j.ok) location.reload(); else alert(j.message||'Failed');
+    });
+  });
+  document.querySelectorAll('.notes-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      notesId = this.dataset.id;
+      document.getElementById('notesText').value = this.dataset.notes || '';
+      document.getElementById('dNoteText').value = this.dataset.dnote || '';
+      document.getElementById('dLinkText').value = this.dataset.dlink || '';
+      modal.classList.add('is-open');
+    });
+  });
+  document.getElementById('notesCancel').onclick = close;
+  modal.addEventListener('click', function(e){ if(e.target===modal) close(); });
+  document.getElementById('notesSave').onclick = async function(){
+    if (!notesId) return;
+    var statusEl = document.querySelector('.status-select[data-id="'+notesId+'"]');
+    var status = statusEl ? statusEl.value : 'in_progress';
+    var body = 'status='+encodeURIComponent(status)
+      +'&notes='+encodeURIComponent(document.getElementById('notesText').value||'')
+      +'&delivery_note='+encodeURIComponent(document.getElementById('dNoteText').value||'')
+      +'&delivery_link='+encodeURIComponent(document.getElementById('dLinkText').value||'');
+    var res = await fetch('/report-sales/api/'+notesId+'/status', {
+      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body
+    });
+    var j = await res.json();
+    if (j.ok) location.reload(); else alert(j.message||'Failed');
+  };
+})();
+</script>
+<script src="/js/fm-download-progress.js?v=1"></script>
+<script src="/report-sales/prs-download.js?v=2"></script>
+</body>
+</html>

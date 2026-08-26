@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title><%= pageTitle %> • FileMakr Setup Support</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="/setup-support/support.css?v=20260818">
+</head>
+<body class="support-body">
+
+<div class="support-layout">
+  <aside class="support-sidebar-wrap">
+    <%- include('partials/sidebar', { user, active, filters, buildQuery }) %>
+  </aside>
+
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div>
+          <h1>My performance</h1>
+          <p>Personal throughput for <%= selectedMonth %> — completions, aging, and turnaround.</p>
+        </div>
+        <form method="get" action="/setup-support/performance" style="display:flex;gap:8px;align-items:center;">
+          <label for="month" class="ss-muted" style="font-size:12px;font-weight:800;">Month</label>
+          <select id="month" name="month" class="ss-select" style="min-width:140px;" onchange="this.form.submit()">
+            <% months.forEach(function(m){ %>
+            <option value="<%= m %>" <%= m === selectedMonth ? 'selected' : '' %>><%= m %></option>
+            <% }) %>
+          </select>
+        </form>
+      </div>
+
+      <div class="ss-kpis">
+        <div class="ss-kpi ss-kpi--orange">
+          <div class="ss-kpi__label">Completed</div>
+          <div class="ss-kpi__value"><%= perf.doneMonth || 0 %></div>
+          <div class="ss-kpi__hint">This month</div>
+        </div>
+        <div class="ss-kpi ss-kpi--blue">
+          <div class="ss-kpi__label">Assigned</div>
+          <div class="ss-kpi__value"><%= perf.assignedMonth || 0 %></div>
+          <div class="ss-kpi__hint">Created / assigned in month</div>
+        </div>
+        <div class="ss-kpi">
+          <div class="ss-kpi__label">Avg hours</div>
+          <div class="ss-kpi__value"><%= perf.avgHours != null ? perf.avgHours : '—' %></div>
+          <div class="ss-kpi__hint">Created → completed</div>
+        </div>
+        <div class="ss-kpi ss-kpi--warn">
+          <div class="ss-kpi__label">Open now</div>
+          <div class="ss-kpi__value"><%= perf.openPending || 0 %></div>
+          <div class="ss-kpi__hint"><%= perf.inProgress || 0 %> in progress</div>
+        </div>
+        <div class="ss-kpi ss-kpi--danger">
+          <div class="ss-kpi__label">Aging &gt; 24h</div>
+          <div class="ss-kpi__value"><%= perf.aging24h || 0 %></div>
+          <div class="ss-kpi__hint">Open longer than a day</div>
+        </div>
+        <div class="ss-kpi ss-kpi--ok">
+          <div class="ss-kpi__label">Lifetime done</div>
+          <div class="ss-kpi__value"><%= perf.doneLifetime || 0 %></div>
+          <div class="ss-kpi__hint">All-time completions</div>
+        </div>
+      </div>
+
+      <div class="ss-panel">
+        <div class="ss-panel__head">
+          <div>
+            <h2 class="ss-panel__title">Daily completions</h2>
+            <p class="ss-panel__sub">Tickets marked done each day in <%= selectedMonth %></p>
+          </div>
+          <a class="ss-btn ss-btn--ghost ss-btn--sm" href="/setup-support"><i class="bi bi-arrow-left"></i> Back to queue</a>
+        </div>
+        <%
+          var daily = perf.dailyDone || [];
+          var maxC = 1;
+          daily.forEach(function(row){ if (Number(row.c) > maxC) maxC = Number(row.c); });
+        %>
+        <% if (!daily.length) { %>
+        <div class="ss-empty">
+          <i class="bi bi-bar-chart"></i>
+          No completions recorded for this month yet.
+        </div>
+        <% } else { %>
+        <div class="ss-bars">
+          <% daily.forEach(function(row){
+            var c = Number(row.c) || 0;
+            var pct = Math.max(6, Math.round((c / maxC) * 100));
+            var label = row.d ? String(row.d).slice(0, 10) : '—';
+            if (label.length >= 10) label = label.slice(5);
+          %>
+          <div class="ss-bar-row">
+            <span><%= label %></span>
+            <div class="ss-bar-track"><div class="ss-bar-fill" style="width:<%= pct %>%"></div></div>
+            <span class="ss-strong" style="text-align:right;"><%= c %></span>
+          </div>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+
+      <div class="ss-panel">
+        <div class="ss-panel__head">
+          <div>
+            <h2 class="ss-panel__title">How scores work</h2>
+            <p class="ss-panel__sub">Quick reference for your KPIs</p>
+          </div>
+        </div>
+        <div style="padding:16px 18px;display:grid;gap:10px;">
+          <div class="ss-muted"><span class="ss-strong">Completed</span> — tickets you marked done in the selected month.</div>
+          <div class="ss-muted"><span class="ss-strong">Avg hours</span> — average time from ticket create to completion.</div>
+          <div class="ss-muted"><span class="ss-strong">Aging &gt; 24h</span> — open tickets assigned to you for more than 24 hours.</div>
+          <div class="ss-muted"><span class="ss-strong">Claim pool</span> — unassigned checkout/manual tickets waiting for someone to pick up.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

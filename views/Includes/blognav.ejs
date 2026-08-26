@@ -49,7 +49,7 @@
         <meta name=robots content="all,follow"/>
         <meta name=googlebot content="index, follow"/>
         <meta name=classification content="<%=result[0].meta_keywaords%>"/>
-        <link rel="shortcut icon" type="images/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width:80px;" />
+        <link rel="shortcut icon" type="images/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/f_auto,q_auto,w_64,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width:80px;" />
         <meta name=distribution content=Global />
         <meta name=author content="https://www.filemakr.com"/>
         <meta name=Language content=English />
@@ -84,8 +84,8 @@
           "@type": "Organization",
           "name": "<%=Metatags.title%>",
           "url": "<%=fullUrl%>",
-          "logo": "https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
-          "image": "https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
+          "logo": "https://res.cloudinary.com/dggf8vl9p/image/upload/f_auto,q_auto,w_64,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
+          "image": "https://res.cloudinary.com/dggf8vl9p/image/upload/f_auto,q_auto,w_64,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
           "description": "<%=Metatags.description%>",
           "address": {
             "@type": "PostalAddress",
@@ -133,7 +133,7 @@
         </script>
     
     
-           <link rel="shortcut icon" type="image/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="FileMakr Logo" title="FileMakr Logo">
+           <link rel="shortcut icon" type="image/x-icon" href="https://res.cloudinary.com/dggf8vl9p/image/upload/f_auto,q_auto,w_64,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" alt="FileMakr Logo" title="FileMakr Logo">
     
     
     <link rel="stylesheet" href="/design/css/bootstrap.min.css" defer>
@@ -162,6 +162,8 @@
     
     </style>
     
+    <script>window.FM_CLOUDINARY_CDN_BASE=<%= JSON.stringify(typeof cloudinaryCdnBase !== 'undefined' ? cloudinaryCdnBase : '') %>;window.FM_CLOUDINARY_CDN=<%= JSON.stringify(typeof cloudinaryCdnHost !== 'undefined' ? cloudinaryCdnHost : '') %>;</script>
+    <script src="/js/fm-cloudinary.js?v=6"></script>
     </head>
 <body>
 <%- include('Includes/gtm-body') %>
@@ -273,7 +275,7 @@
             </span>
             </a>
             <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students" class="navbar-brand logo">
-            <!-- <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width: 60px;" class="img-fluid" alt="Logo">
+            <!-- <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/f_auto,q_auto,w_64,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" style="width: 60px;" class="img-fluid" alt="Logo">
              -->
              <!-- FileMakr -->
              <h1>File<span style="color: #F17F23;">Makr</span></h1>
@@ -283,7 +285,7 @@
             <div class="main-menu-wrapper">
             <div class="menu-header">
             <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students" class="menu-logo">
-            <!-- <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" class="img-fluid" alt="Logo"> -->
+            <!-- <img src="https://res.cloudinary.com/dggf8vl9p/image/upload/f_auto,q_auto,w_64,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif" class="img-fluid" alt="Logo"> -->
             <h1>File<span style="color: #F17F23;">Makr</span></h1>
             
             </a>
@@ -328,11 +330,6 @@
                    <% } %>
                   </ul>
                   </li>
-            
-                      <li>
-                <a href="/our-campus-brand-ambassador">Our Campus Brand Ambassador</a>
-              </li>
-            
             <!-- <li class="login-link">
             <a href="login.html">Login / Signup</a>
             </li> -->

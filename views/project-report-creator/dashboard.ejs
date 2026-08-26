@@ -3,24 +3,41 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title><%= pageTitle %> • FileAchiever</title>
+  <title><%= pageTitle %> • FileMakr</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link rel="stylesheet" href="/setup-support/support.css">
+  <link rel="stylesheet" href="/setup-support/prc.css?v=2">
 </head>
-<body class="support-body">
+<body class="support-body prc-app">
+<%
+  var totalProjects = rows.length;
+  var totalSections = 0;
+  var totalShots = 0;
+  var withContent = 0;
+  rows.forEach(function(r){
+    var sc = Number(r.section_count) || 0;
+    var db = Number(r.db_screenshot_count) || 0;
+    var ui = Number(r.screenshot_count) || 0;
+    totalSections += sc;
+    totalShots += db + ui;
+    if (sc > 0) withContent++;
+  });
+%>
 
 <div class="support-layout">
   <aside class="support-sidebar-wrap">
     <div class="support-sidebar">
       <div class="support-sidebar__brand">
-        <div class="support-brand">Project Report Creator</div>
-        <div class="support-sub">Create & download reports</div>
+        <div class="prc-brand-mark"><span></span> FileMakr</div>
+        <div class="support-brand">Report Creator</div>
+        <div class="support-sub">Custom reports &amp; packs</div>
+        <div class="prc-role-chip">Creator portal</div>
       </div>
       <nav class="support-nav">
-        <a class="support-link active" href="/project-report-creator"><i class="bi bi-grid-3x3-gap-fill"></i>Dashboard</a>
+        <a class="support-link active" href="/project-report-creator"><i class="bi bi-grid-3x3-gap-fill"></i>Projects</a>
         <div class="support-nav__sep"></div>
         <a class="support-link danger" href="/project-report-creator/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
       </nav>
@@ -35,69 +52,112 @@
   </aside>
 
   <main class="support-main">
-    <div class="container-fluid px-4 px-lg-5 py-5">
-      <div class="support-page-header mb-5">
-        <div class="support-header-accent"></div>
-        <h1 class="support-page-title">Project Report Creator</h1>
-        <p class="support-page-sub">Select a topic to create a customized report. Choose sections, database screenshots, screenshots, arrange with drag-drop, then download as Word.</p>
+    <div class="prc-shell prc-shell--dash">
+      <div class="prc-topbar">
+        <div>
+          <h1 class="prc-topbar__title">Projects</h1>
+          <p class="prc-topbar__sub">Open the builder for a custom Word report, or download Synopsis / Pre Defined packs instantly.</p>
+        </div>
+        <div class="prc-tip"><i class="bi bi-lightning-charge-fill"></i> Build custom or download packs</div>
       </div>
 
-      <div class="card support-card support-filter-card mb-5">
-        <div class="card-body p-0">
-          <form method="get" action="/project-report-creator" class="support-filters row g-3 align-items-end p-4 px-lg-5">
-            <div class="col-12 col-md-8 col-lg-9">
-              <label class="form-label support-form-label">Search</label>
-              <div class="input-group support-input-group">
-                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                <input type="search" name="q" class="form-control support-input" value="<%= filters.q || '' %>" placeholder="Name, seo_name, description…" autocomplete="off">
-              </div>
-            </div>
-            <div class="col-12 col-md-4 col-lg-3">
-              <button type="submit" class="btn w-100 support-btn-apply"><i class="bi bi-funnel me-2"></i>Apply</button>
-            </div>
-          </form>
+      <div class="prc-kpis">
+        <div class="prc-kpi prc-kpi--orange">
+          <div class="prc-kpi__label">Topics</div>
+          <div class="prc-kpi__value"><%= totalProjects %></div>
+        </div>
+        <div class="prc-kpi prc-kpi--blue">
+          <div class="prc-kpi__label">Sections</div>
+          <div class="prc-kpi__value"><%= totalSections %></div>
+        </div>
+        <div class="prc-kpi">
+          <div class="prc-kpi__label">Screenshots</div>
+          <div class="prc-kpi__value"><%= totalShots %></div>
+        </div>
+        <div class="prc-kpi prc-kpi--ok">
+          <div class="prc-kpi__label">With content</div>
+          <div class="prc-kpi__value"><%= withContent %></div>
         </div>
       </div>
 
-      <div class="card support-card support-data-card">
-        <div class="card-header support-card-header">
-          <h5 class="support-card-title">Source Code List (Topics)</h5>
-          <p class="mb-0 small text-muted">Click "Create Report" to build a customized report with sections, screenshots, and more.</p>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 support-table">
-              <thead class="support-table-head">
-                <tr>
-                  <th class="text-uppercase small fw-bold text-muted" style="width:50px;">ID</th>
-                  <th class="text-uppercase small fw-bold text-muted">Name</th>
-                  <th class="text-uppercase small fw-bold text-muted">Category</th>
-                  <th class="text-uppercase small fw-bold text-muted">Sections</th>
-                  <th class="text-uppercase small fw-bold text-muted">DB Screenshots</th>
-                  <th class="text-uppercase small fw-bold text-muted">Screenshots</th>
-                  <th class="text-uppercase small fw-bold text-muted" style="width:140px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (!rows.length) { %>
-                <tr><td colspan="7" class="py-5 text-center text-muted">No source codes found.</td></tr>
-                <% } %>
-                <% rows.forEach(function(r){ %>
-                <tr>
-                  <td class="fw-semibold">#<%= r.id %></td>
-                  <td><%= r.name || '-' %></td>
-                  <td><span class="badge bg-secondary"><%= r.category || '-' %></span></td>
-                  <td><%= r.section_count || 0 %></td>
-                  <td><%= r.db_screenshot_count || 0 %></td>
-                  <td><%= r.screenshot_count || 0 %></td>
-                  <td>
-                    <a href="/project-report-creator/create/<%= r.id %>" class="btn btn-sm btn-primary"><i class="bi bi-file-earmark-plus me-1"></i>Create Report</a>
-                  </td>
-                </tr>
-                <% }) %>
-              </tbody>
-            </table>
+      <div class="prc-panel-card">
+        <form method="get" action="/project-report-creator" class="prc-search">
+          <div>
+            <label for="prcSearchQ">Search projects</label>
+            <div class="prc-search__field">
+              <span><i class="bi bi-search"></i></span>
+              <input type="search" id="prcSearchQ" name="q" value="<%= filters.q || '' %>" placeholder="Name, SEO slug, or description…" autocomplete="off">
+            </div>
           </div>
+          <button type="submit" class="prc-btn prc-btn--orange"><i class="bi bi-funnel-fill"></i> Apply</button>
+        </form>
+
+        <div class="prc-panel-card__head">
+          <div>
+            <h2 class="prc-panel-card__title">Source code library</h2>
+            <p class="prc-panel-card__sub">Select a topic to assemble chapters, diagrams, and screenshots.</p>
+          </div>
+          <span class="prc-count-chip"><i class="bi bi-collection"></i> Showing <%= rows.length %> project<%= rows.length === 1 ? '' : 's' %></span>
+        </div>
+
+        <div class="prc-table-wrap">
+          <% if (!rows.length) { %>
+          <div class="prc-empty">
+            <i class="bi bi-folder2-open"></i>
+            <strong>No projects match your search</strong>
+            Try a different keyword, or clear the search to see all topics.
+          </div>
+          <% } else { %>
+          <table class="prc-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Category</th>
+                <th>Library</th>
+                <th style="min-width:300px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% rows.forEach(function(r){ %>
+              <tr>
+                <td>
+                  <div class="prc-proj-name"><%= r.name || 'Untitled' %></div>
+                  <div class="prc-proj-id">#<%= r.id %><% if (r.seo_name) { %> · <%= r.seo_name %><% } %></div>
+                </td>
+                <td><span class="prc-cat"><%= r.category || 'Uncategorized' %></span></td>
+                <td>
+                  <div class="prc-metrics">
+                    <span class="prc-metric" title="Sections"><i class="bi bi-journal-text"></i> <%= r.section_count || 0 %></span>
+                    <span class="prc-metric prc-metric--db" title="DB screenshots"><i class="bi bi-database"></i> <%= r.db_screenshot_count || 0 %></span>
+                    <span class="prc-metric prc-metric--ui" title="UI screenshots"><i class="bi bi-window"></i> <%= r.screenshot_count || 0 %></span>
+                  </div>
+                </td>
+                <td>
+                  <div class="prc-actions">
+                    <a href="/project-report-creator/create/<%= r.id %>" class="prc-btn prc-btn--orange prc-btn--sm">
+                      <i class="bi bi-pencil-square"></i> Open builder
+                    </a>
+                    <div class="btn-group btn-group-sm">
+                      <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Synopsis</button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button type="button" class="dropdown-item js-prc-pack-dl" data-id="<%= r.id %>" data-name="<%= (r.name||'Report').replace(/"/g,'&quot;') %>" data-plan="synopsis" data-format="docx"><i class="bi bi-file-earmark-word me-1"></i>Word</button></li>
+                        <li><button type="button" class="dropdown-item js-prc-pack-dl" data-id="<%= r.id %>" data-name="<%= (r.name||'Report').replace(/"/g,'&quot;') %>" data-plan="synopsis" data-format="pdf"><i class="bi bi-filetype-pdf me-1"></i>PDF</button></li>
+                      </ul>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                      <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Pre Defined</button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button type="button" class="dropdown-item js-prc-pack-dl" data-id="<%= r.id %>" data-name="<%= (r.name||'Report').replace(/"/g,'&quot;') %>" data-plan="report" data-format="docx"><i class="bi bi-file-earmark-word me-1"></i>Word</button></li>
+                        <li><button type="button" class="dropdown-item js-prc-pack-dl" data-id="<%= r.id %>" data-name="<%= (r.name||'Report').replace(/"/g,'&quot;') %>" data-plan="report" data-format="pdf"><i class="bi bi-filetype-pdf me-1"></i>PDF</button></li>
+                      </ul>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <% } %>
         </div>
       </div>
     </div>
@@ -105,5 +165,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="/js/fm-download-progress.js?v=1"></script>
+<script src="/setup-support/prc-pack-download.js?v=2"></script>
 </body>
 </html>

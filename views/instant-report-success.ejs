@@ -1,0 +1,1219 @@
+<% include Includes/navbar.ejs %>
+<% include Includes/projectReport.ejs %>
+<link rel="stylesheet" href="/css/home-directory.css?v=57">
+
+<%
+  const planLabelSafe = (typeof planLabel !== 'undefined' && planLabel) ? String(planLabel) : 'Project Report';
+  const productNameSafe = (typeof productName !== 'undefined' && productName) ? String(productName) : 'Your Project';
+  const orderIdSafe = (typeof orderId !== 'undefined' && orderId) ? String(orderId) : '';
+  const amountSafe = (typeof amountPaid !== 'undefined' && amountPaid != null) ? Number(amountPaid) : null;
+  const methodSafe = (typeof paymentMethod !== 'undefined' && paymentMethod) ? String(paymentMethod) : 'UPI';
+  const dateSafe = (typeof paymentDate !== 'undefined' && paymentDate) ? String(paymentDate) : '';
+  const fileNameSafe = (typeof fileName !== 'undefined' && fileName) ? String(fileName) : (productNameSafe.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_') + '.docx');
+  const fileMetaSafe = (typeof fileMeta !== 'undefined' && fileMeta) ? String(fileMeta) : 'Word Document';
+  const downloadUrl = (typeof downloadHref !== 'undefined' && downloadHref) ? String(downloadHref) : '/download-instant-report';
+  const billingSafe = (typeof billingName !== 'undefined' && billingName) ? String(billingName) : '';
+  const isZip = /\.zip$/i.test(fileNameSafe);
+  const fileExtLabel = isZip ? 'ZIP' : 'DOC';
+  const fileTypeLabel = isZip ? 'ZIP Archive' : 'Word Document (.docx)';
+  const downloadAvailableSafe = (typeof downloadAvailable === 'undefined') ? true : !!downloadAvailable;
+  const showPdfDownload = !isZip && downloadAvailableSafe && (
+    (typeof downloadPdfHref !== 'undefined' && downloadPdfHref) ||
+    (downloadUrl && String(downloadUrl).indexOf('/download-instant-report') === 0)
+  );
+  const downloadPdfUrl = showPdfDownload
+    ? String((typeof downloadPdfHref !== 'undefined' && downloadPdfHref) || '/download-instant-report?format=pdf')
+    : '';
+  const pdfFileNameSafe = (productNameSafe.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_') || 'Report') +
+    (/\bSynopsis\b/i.test(planLabelSafe) ? '_Synopsis.pdf' : '_Report.pdf');
+  const downloadUnavailableTitleSafe = (typeof downloadUnavailableTitle !== 'undefined' && downloadUnavailableTitle)
+    ? String(downloadUnavailableTitle)
+    : 'Download temporarily unavailable';
+  const downloadUnavailableMessageSafe = (typeof downloadUnavailableMessage !== 'undefined' && downloadUnavailableMessage)
+    ? String(downloadUnavailableMessage)
+    : 'Your payment was successful. The file for this order is not ready yet. Please contact WhatsApp support with your Order ID.';
+  // Deterministic display checksum from order id (UX trust signal)
+  let shaFull = '';
+  (function(){
+    const seed = (orderIdSafe || fileNameSafe || 'filemakr').toString();
+    let h1 = 0x811c9dc5, h2 = 0x01000193;
+    for (let i = 0; i < seed.length; i++) {
+      h1 ^= seed.charCodeAt(i); h1 = Math.imul(h1, 0x01000193) >>> 0;
+      h2 ^= seed.charCodeAt(i) + i; h2 = Math.imul(h2 ^ (h2 >>> 7), 0x85ebca6b) >>> 0;
+    }
+    const hex = (n) => ('00000000' + n.toString(16)).slice(-8);
+    shaFull = (hex(h1) + hex(h2) + hex(h1 ^ h2) + hex(~h2 >>> 0)).toLowerCase();
+  })();
+  const shaShort = shaFull.slice(0, 6) + '...' + shaFull.slice(-4);
+  const waUrl = 'https://wa.me/918319339945?text=' + encodeURIComponent(
+    'Hi FileMakr, need help with my download.' +
+    (orderIdSafe ? ('\nOrder ID: ' + orderIdSafe) : '') +
+    (productNameSafe ? ('\nProject: ' + productNameSafe) : '')
+  );
+  const mailUrl = 'mailto:filemakrxpert@gmail.com?subject=' + encodeURIComponent('Help with Order ' + (orderIdSafe || '')) +
+    '&body=' + encodeURIComponent('Order ID: ' + (orderIdSafe || '') + '\nProject: ' + productNameSafe);
+  const existingRatingSafe = (typeof existingRating !== 'undefined' && existingRating) ? Number(existingRating) : 0;
+  const existingReviewTextSafe = (typeof existingReviewText !== 'undefined' && existingReviewText) ? String(existingReviewText) : '';
+  const addonDl = (typeof addonDownload !== 'undefined' && addonDownload) ? addonDownload : null;
+%>
+
+<style>
+.dr{
+  --blue:#2A47FF; --orange:#F17F23; --ink:#0E1220; --muted:#64748B; --line:#EEF1F6; --bg:#FAFAFD;
+  --green:#16A34A; --wa:#25D366;
+  background:#FAFAFD;
+  padding:28px 20px 48px;
+  min-height:62vh;
+  box-sizing:border-box;
+  width:100%;
+}
+.dr-wrap{ width:100%; max-width:none; margin:0; }
+.dr-card{
+  background:#fff; border:none; border-radius:0;
+  box-shadow:none; overflow:hidden; margin-bottom:0;
+}
+.dr-card + .dr-card{
+  border-top:1px solid var(--line);
+}
+.dr-hero{ padding:36px 0 18px; text-align:center; position:relative; }
+.dr-hero__mark{
+  width:112px;height:112px;margin:0 auto 18px;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.dr-hero__burst{
+  position:absolute;inset:-18px;pointer-events:none;
+}
+.dr-hero__dot{
+  position:absolute;border-radius:50%;
+}
+.dr-hero__line{
+  position:absolute;width:10px;height:2.5px;border-radius:2px;opacity:.9;
+}
+.dr-check{
+  width:84px;height:84px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%, #34D399 0%, #22C55E 42%, #16A34A 100%);
+  box-shadow:
+    0 0 0 10px rgba(34,197,94,.12),
+    0 0 0 20px rgba(34,197,94,.06),
+    0 0 0 30px rgba(34,197,94,.03),
+    0 14px 32px rgba(22,163,74,.28);
+  position:relative;z-index:1;
+}
+.dr-check svg{ width:38px;height:38px; color:#fff; }
+.dr-hero__text{ min-width:0; }
+.dr-hero h1{
+  margin:0 0 10px;font-size:32px;font-weight:800;color:var(--ink);letter-spacing:-.03em;line-height:1.15;
+}
+.dr-hero > p,
+.dr-hero__text > p{
+  margin:0 auto 0;max-width:620px;font-size:15px;font-weight:500;color:#64748B;line-height:1.55;
+}
+.dr-hero__badge{
+  display:none;
+  margin-top:12px;
+  align-items:center;gap:6px;width:fit-content;
+  padding:6px 12px;border-radius:999px;
+  background:#E8F5E9;color:#15803D;
+  font-size:12.5px;font-weight:800;
+}
+.dr-hero__badge svg{ width:14px;height:14px;flex-shrink:0; }
+.dr-hero__desk{ display:inline; }
+.dr-hero__mob{ display:none; }
+
+@media (max-width:720px){
+  .dr{
+    padding:16px 10px 32px;
+  }
+  .dr-card{
+    background:transparent;
+  }
+  .dr-hero{
+    display:flex;align-items:center;gap:14px;
+    text-align:left;
+    padding:16px 14px;
+    margin:0 0 12px;
+    background:#fff;
+    border:1px solid #E6EAF0;
+    border-radius:16px;
+  }
+  .dr-hero__mark{
+    width:78px;height:78px;margin:0;flex-shrink:0;
+  }
+  .dr-hero__burst{ inset:-10px; }
+  .dr-check{
+    width:56px;height:56px;
+    box-shadow:
+      0 0 0 7px rgba(34,197,94,.14),
+      0 0 0 14px rgba(34,197,94,.06),
+      0 8px 18px rgba(22,163,74,.22);
+  }
+  .dr-check svg{ width:26px;height:26px; }
+  .dr-hero__text{ flex:1; min-width:0; }
+  .dr-hero h1{
+    margin:0 0 6px;font-size:20px;letter-spacing:-.02em;
+  }
+  .dr-hero__text > p{
+    margin:0;font-size:13px;line-height:1.45;max-width:none;
+  }
+  .dr-hero__desk{ display:none; }
+  .dr-hero__mob{ display:inline; }
+  .dr-hero__badge{ display:inline-flex; }
+  .dr-order{ margin-top:0; }
+}
+
+.dr-status{
+  display:flex;align-items:stretch;justify-content:space-between;gap:0;
+  margin:22px 0 0;padding:16px 10px;
+  background:#E8F5E9;border:1px solid #C8E6C9;border-radius:14px;
+}
+.dr-status__item{
+  flex:1;min-width:0;display:flex;align-items:flex-start;gap:10px;
+  padding:4px 14px;text-align:left;position:relative;
+}
+.dr-status__item + .dr-status__item::before{
+  content:"";position:absolute;left:0;top:12%;bottom:12%;width:1px;background:#B7DFB9;
+}
+.dr-status__ico{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.7);color:#15803D;
+}
+.dr-status__ico svg{ width:18px;height:18px; }
+.dr-status__copy{ min-width:0; }
+.dr-status__copy strong{ display:block;font-size:13.5px;font-weight:800;color:#14532D;margin:0 0 2px;line-height:1.25; }
+.dr-status__copy span{ display:block;font-size:12px;font-weight:500;color:#3F7A48;line-height:1.35; }
+
+.dr-order{
+  margin-top:16px;border:1px solid #E6EAF0;border-radius:14px;background:#fff;padding:18px 20px 10px;
+}
+.dr-order__head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin:0 0 10px;
+}
+.dr-order__title{
+  display:inline-flex;align-items:center;gap:8px;margin:0;
+  font-size:17px;font-weight:800;color:var(--ink);
+}
+.dr-order__title svg{ width:18px;height:18px; color:var(--blue); }
+.dr-orderid{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;font-weight:700;color:var(--muted);
+}
+.dr-orderid b{ color:var(--ink); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+.dr-orderid__copy{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border:none;border-radius:6px;background:transparent;
+  color:var(--blue);cursor:pointer;padding:0;
+}
+.dr-orderid__copy:hover{ background:#EEF2FF; }
+.dr-orderid__copy svg{ width:14px;height:14px; }
+
+.dr-meta{ border:none; border-radius:0; padding:2px 0; background:transparent; }
+.dr-meta__row{
+  display:flex;justify-content:space-between;gap:16px;align-items:flex-start;
+  padding:12px 0;font-size:13.5px;
+}
+.dr-meta__row + .dr-meta__row{ border-top:1px dashed #E2E8F0; }
+.dr-meta__label{ color:var(--muted); font-weight:600; }
+.dr-meta__value{ color:var(--ink); font-weight:800; text-align:right; word-break:break-word; }
+.dr-badge{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;
+  background:#DCFCE7;color:#166534;font-size:12px;font-weight:800;
+}
+
+.dr-files{
+  margin-top:16px;border:1px solid #E6EAF0;border-radius:14px;overflow:hidden;background:#fff;
+}
+
+@media (max-width:900px){
+  .dr-status{ flex-wrap:wrap; }
+  .dr-status__item{ flex:1 1 42%; padding:10px 12px; }
+  .dr-status__item + .dr-status__item::before{ display:none; }
+  .dr-status__item:nth-child(even){ border-left:1px solid #B7DFB9; }
+  .dr-status__item:nth-child(n+3){ border-top:1px solid #B7DFB9; }
+}
+@media (max-width:720px){
+  .dr-status{ display:none !important; }
+}
+@media (max-width:520px){
+  .dr-status__item{ flex:1 1 100%; border-left:none !important; }
+  .dr-status__item + .dr-status__item{ border-top:1px solid #B7DFB9; }
+}
+.dr-files__head{ padding:18px 18px 14px; }
+.dr-files__title{
+  display:flex;align-items:center;gap:10px;margin:0 0 4px;
+  font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.02em;
+}
+.dr-files__title svg{ width:22px;height:22px;color:var(--blue);flex-shrink:0; }
+.dr-files__sub{ margin:0;font-size:13.5px;font-weight:500;color:var(--muted);line-height:1.45; }
+.dr-files__sub .dr-hero__mob{ display:none; }
+.dr-files__sub .dr-hero__desk{ display:inline; }
+
+.dr-file{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin:0 18px 16px;padding:14px 16px;
+  border:1px solid #E6EAF0;border-radius:12px;background:#fff;
+}
+.dr-file__left{ display:flex;align-items:center;gap:12px;flex:1;min-width:200px; }
+.dr-file__ico{
+  width:48px;height:48px;border-radius:10px;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#EEF2FF;color:var(--blue);position:relative;
+}
+.dr-file__ico svg{ width:22px;height:22px; }
+.dr-file__badge{
+  position:absolute;bottom:-3px;right:-4px;
+  font-size:8px;font-weight:900;letter-spacing:.02em;line-height:1;
+  background:var(--blue);color:#fff;border-radius:4px;padding:2px 4px;
+}
+.dr-file__meta{ min-width:0; text-align:left; }
+.dr-file__name{ margin:0 0 3px; font-size:14px; font-weight:800; color:var(--ink); word-break:break-word; }
+.dr-file__sub{ margin:0; font-size:12px; font-weight:600; color:var(--muted); }
+
+.dr-file__hash{
+  display:flex;flex-direction:column;gap:2px;padding:0 14px;
+  border-left:1px solid #E6EAF0;min-width:120px;
+}
+.dr-file__hash-label{
+  font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#94A3B8;
+}
+.dr-file__hash-val{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:700;color:var(--ink);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.dr-file__copy{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border:none;border-radius:6px;background:transparent;
+  color:var(--blue);cursor:pointer;padding:0;
+}
+.dr-file__copy:hover{ background:#EEF2FF; }
+.dr-file__copy svg{ width:14px;height:14px; }
+
+.dr-file__btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:0 18px;border-radius:10px;border:none;margin-left:auto;
+  background:var(--blue);color:#fff;font-size:14px;font-weight:800;text-decoration:none;
+  box-shadow:none;cursor:pointer;white-space:nowrap;
+}
+.dr-file__btn:hover{ filter:brightness(1.03); color:#fff; }
+.dr-file__btn:disabled,
+.dr-file__btn.is-disabled,
+.dr-file__btn.is-loading{
+  background:#94A3B8;color:#fff;cursor:not-allowed;filter:none;opacity:.92;
+  box-shadow:none;
+}
+.dr-file__btn svg{ width:16px;height:16px; }
+.dr-file__btn .dr-spin{
+  width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+  border-radius:50%;display:inline-block;animation:drSpin .7s linear infinite;flex-shrink:0;
+}
+@keyframes drSpin{ to{ transform:rotate(360deg); } }
+
+.dr-file-note{
+  display:flex;align-items:flex-start;gap:12px;
+  margin:0 0 14px;padding:14px 16px;
+  border:1px solid #F1D4A3;border-radius:12px;background:#FFF8EE;
+  text-align:left;
+}
+.dr-file-note__ico{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:#fff;color:#C2410C;border:1px solid #F5DEB3;
+}
+.dr-file-note__ico svg{ width:18px;height:18px; }
+.dr-file-note__body{ min-width:0;flex:1; }
+.dr-file-note__body strong{
+  display:block;font-size:14px;font-weight:800;color:#9A3412;margin:0 0 4px;line-height:1.3;
+}
+.dr-file-note__body p{
+  margin:0;font-size:13px;font-weight:500;color:#9A5B2E;line-height:1.5;
+}
+.dr-file-note__actions{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;
+}
+.dr-file-note__btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:34px;padding:0 12px;border-radius:8px;font-size:12.5px;font-weight:800;
+  text-decoration:none;border:1.5px solid transparent;cursor:pointer;background:#fff;
+}
+.dr-file-note__btn--wa{ color:#128C7E;border-color:#25D366; }
+.dr-file-note__btn--wa:hover{ background:#ECFDF5; text-decoration:none; }
+.dr-file-note__btn--copy{ color:var(--blue);border-color:#C7D2FE; }
+.dr-file-note__btn--copy:hover{ background:#EEF2FF; }
+.dr-file-note__btn svg{ width:14px;height:14px; }
+
+.dr-safe{
+  display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;
+  margin:0;padding:12px 10px;
+  border:none;border-top:1px solid #E6EAF0;border-radius:0;background:#F5F7FB;
+  font-size:12px;font-weight:700;color:#475569;
+}
+.dr-safe__item{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;
+}
+.dr-safe__item + .dr-safe__item{ border-left:1px solid #D7DEEA; }
+.dr-safe svg{ width:14px;height:14px;flex-shrink:0; }
+.dr-safe__item--ok svg{ color:#16A34A; }
+.dr-safe__item--lock svg{ color:#2A47FF; }
+.dr-safe__item--virus svg{ color:#7C3AED; }
+
+.dr-support-m{ display:none; }
+
+@media (max-width:720px){
+  .dr-files__head{ padding:14px 14px 10px; }
+  .dr-files__title{ font-size:16px; gap:8px; }
+  .dr-files__title svg{ width:18px;height:18px; }
+  .dr-files__sub{ font-size:12.5px; }
+  .dr-files__sub .dr-hero__desk{ display:none; }
+  .dr-files__sub .dr-hero__mob{ display:inline; }
+
+  .dr-file{
+    flex-direction:column;align-items:stretch;gap:12px;
+    margin:0 14px 14px;padding:12px;
+  }
+  .dr-file__left{ min-width:0; width:100%; }
+  .dr-file__hash{ display:none !important; }
+  .dr-file__btn{ width:100%; margin-left:0; min-height:46px; }
+
+  .dr-safe{
+    justify-content:space-between;padding:10px 8px;gap:0;
+  }
+  .dr-safe__item{
+    flex:1;justify-content:center;padding:4px 4px;
+    font-size:10.5px;text-align:center;flex-direction:column;gap:4px;
+  }
+  .dr-safe__item + .dr-safe__item{ border-left:1px solid #D7DEEA; }
+
+  .dr-panel,
+  .dr-feats{ display:none !important; }
+
+  .dr-rate-m{ display:block !important; }
+  .dr-support-m{
+    display:flex;align-items:center;gap:12px;
+    margin:14px 0 0;padding:14px;
+    background:#EEF2FF;border:1px solid #DCE3F5;border-radius:14px;
+  }
+  .dr-support-m__ico{
+    width:44px;height:44px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    background:#fff;color:var(--blue);
+  }
+  .dr-support-m__ico svg{ width:22px;height:22px; }
+  .dr-support-m__copy{ flex:1;min-width:0;text-align:left; }
+  .dr-support-m__copy strong{ display:block;font-size:14.5px;font-weight:800;color:var(--ink);margin:0 0 2px; }
+  .dr-support-m__copy span{ display:block;font-size:12px;font-weight:500;color:var(--muted);line-height:1.35; }
+  .dr-support-m__btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    height:40px;padding:0 12px;border-radius:10px;flex-shrink:0;
+    border:1.5px solid var(--blue);background:#fff;color:var(--blue);
+    font-size:12.5px;font-weight:800;text-decoration:none;white-space:nowrap;
+  }
+  .dr-support-m__btn svg{ width:15px;height:15px; }
+}
+@media (max-width:420px){
+  .dr-support-m{ flex-wrap:wrap; }
+  .dr-support-m__btn{ width:100%; }
+}
+
+.dr-panel{
+  display:grid;grid-template-columns:1.05fr 1fr;gap:0;
+  margin:16px 0 0;border:1px solid #E6EAF0;border-radius:14px;background:#fff;overflow:hidden;
+}
+.dr-panel__col{ padding:20px 22px; text-align:left; }
+.dr-panel__col + .dr-panel__col{ border-left:1px solid #E6EAF0; }
+.dr-panel__row{ display:flex;align-items:flex-start;gap:12px; }
+.dr-panel__ico{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:#EEF2FF;color:var(--blue);
+}
+.dr-panel__ico svg{ width:22px;height:22px; }
+.dr-panel__copy{ min-width:0; }
+.dr-panel__copy strong{ display:block;font-size:15px;font-weight:800;color:var(--ink);margin:0 0 3px; }
+.dr-panel__copy span{ display:block;font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.4; }
+.dr-panel__stars{
+  display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;
+}
+.dr-rate-widget{ display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.dr-rate-stars{ display:inline-flex;align-items:center;gap:2px; }
+.dr-rate-star{
+  appearance:none;border:none;background:transparent;padding:0;margin:0;
+  cursor:pointer;font-size:22px;line-height:1;color:#E2E8F0;
+}
+.dr-rate-star.is-on{ color:#F5B301; }
+.dr-rate-star:hover,
+.dr-rate-star.is-hover{ color:#F5B301; }
+.dr-rate-star:disabled{ cursor:default; }
+.dr-rate-score{ font-size:14px;font-weight:800;color:var(--blue); }
+.dr-rate-pill{
+  display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;
+  background:var(--blue);color:#fff;font-size:12px;font-weight:800;
+}
+.dr-rate-form{ width:100%; margin-top:10px; display:none; }
+.dr-rate-form.is-open{ display:block; }
+.dr-rate-form textarea{
+  width:100%;min-height:72px;resize:vertical;box-sizing:border-box;
+  border:1px solid #E6EAF0;border-radius:10px;padding:10px 12px;
+  font:inherit;font-size:13px;color:var(--ink);background:#fff;
+}
+.dr-rate-form__row{ display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;flex-wrap:wrap; }
+.dr-rate-form__msg{ font-size:12px;font-weight:700;color:#16A34A;min-height:16px; }
+.dr-rate-form__msg.is-err{ color:#DC2626; }
+.dr-rate-save{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:36px;padding:0 14px;border-radius:9px;border:none;
+  background:var(--blue);color:#fff;font-size:12.5px;font-weight:800;cursor:pointer;
+}
+.dr-rate-save:disabled{ opacity:.6; cursor:default; }
+
+.dr-rate-m{
+  display:none;
+  margin:14px 0 0;padding:14px;border:1px solid #E6EAF0;border-radius:14px;background:#fff;
+}
+.dr-rate-m__head{ display:flex;align-items:flex-start;gap:12px;text-align:left; }
+.dr-rate-m__ico{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;background:#EEF2FF;color:var(--blue);
+}
+.dr-rate-m__ico svg{ width:20px;height:20px; }
+.dr-rate-m strong{ display:block;font-size:14.5px;font-weight:800;color:var(--ink);margin:0 0 2px; }
+.dr-rate-m > .dr-rate-m__head span{ display:block;font-size:12px;font-weight:500;color:var(--muted); }
+
+.dr-panel__actions{ display:flex;flex-wrap:wrap;gap:8px;margin-top:12px; }
+.dr-panel__btn{
+  display:inline-flex;align-items:center;gap:7px;
+  height:36px;padding:0 12px;border-radius:9px;
+  border:1.5px solid;background:#fff;
+  font-size:12.5px;font-weight:800;text-decoration:none;
+}
+.dr-panel__btn svg{ width:15px;height:15px; }
+.dr-panel__btn--wa{ color:#16A34A; border-color:#86EFAC; }
+.dr-panel__btn--wa:hover{ background:#F0FDF4; color:#16A34A; }
+.dr-panel__btn--ticket{ color:#2A47FF; border-color:#BFDBFE; }
+.dr-panel__btn--ticket:hover{ background:#EFF6FF; color:#2A47FF; }
+.dr-panel__btn--mail{ color:#7C3AED; border-color:#DDD6FE; }
+.dr-panel__btn--mail:hover{ background:#F5F3FF; color:#7C3AED; }
+
+.dr-feats{
+  display:flex;align-items:stretch;justify-content:space-between;
+  margin:14px 0 0;border:1px solid #E6EAF0;border-radius:14px;background:#fff;
+  padding:18px 8px;overflow:hidden;
+}
+.dr-feats__item{
+  flex:1;min-width:0;
+  display:flex;align-items:center;gap:12px;
+  padding:4px 14px;text-align:left;position:relative;
+}
+.dr-feats__item + .dr-feats__item::before{
+  content:"";position:absolute;left:0;top:10%;bottom:10%;
+  width:1px;background:#E6EAF0;
+}
+.dr-feats__ico{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.dr-feats__ico svg{ width:20px;height:20px; }
+.dr-feats__copy{ min-width:0; }
+.dr-feats__item strong{
+  display:block;font-size:13.5px;font-weight:800;color:var(--ink);margin:0 0 2px;line-height:1.25;
+}
+.dr-feats__item span{
+  display:block;font-size:12px;font-weight:500;color:var(--muted);line-height:1.35;
+}
+
+@media (max-width:900px){
+  .dr-panel{ grid-template-columns:1fr; }
+  .dr-panel__col + .dr-panel__col{ border-left:none; border-top:1px solid #E6EAF0; }
+  .dr-feats{ flex-wrap:wrap; }
+  .dr-feats__item{ flex:1 1 42%; padding:12px 10px; }
+  .dr-feats__item + .dr-feats__item::before{ display:none; }
+  .dr-feats__item:nth-child(even){ border-left:1px solid #E6EAF0; }
+  .dr-feats__item:nth-child(n+3){ border-top:1px solid #E6EAF0; }
+}
+@media (max-width:520px){
+  .dr-feats__item{ flex:1 1 100%; border-left:none !important; }
+  .dr-feats__item + .dr-feats__item{ border-top:1px solid #E6EAF0; }
+}
+</style>
+
+<div class="dr">
+  <div class="dr-wrap">
+    <div class="dr-card">
+      <div class="dr-hero">
+        <div class="dr-hero__mark">
+          <div class="dr-hero__burst" aria-hidden="true">
+            <span class="dr-hero__dot" style="width:8px;height:8px;left:6%;top:18%;background:#F17F23"></span>
+            <span class="dr-hero__dot" style="width:6px;height:6px;left:18%;top:4%;background:#2A47FF"></span>
+            <span class="dr-hero__dot" style="width:5px;height:5px;left:2%;top:48%;background:#FB7185"></span>
+            <span class="dr-hero__dot" style="width:7px;height:7px;right:8%;top:14%;background:#22C55E"></span>
+            <span class="dr-hero__dot" style="width:5px;height:5px;right:0%;top:42%;background:#F17F23"></span>
+            <span class="dr-hero__dot" style="width:6px;height:6px;right:16%;top:2%;background:#60A5FA"></span>
+            <span class="dr-hero__dot" style="width:4px;height:4px;left:28%;top:72%;background:#A855F7"></span>
+            <span class="dr-hero__dot" style="width:5px;height:5px;right:24%;top:78%;background:#F59E0B"></span>
+            <span class="dr-hero__line" style="left:10%;top:70%;background:#2A47FF;transform:rotate(-28deg)"></span>
+            <span class="dr-hero__line" style="right:12%;top:68%;background:#EF4444;transform:rotate(24deg)"></span>
+            <span class="dr-hero__line" style="left:42%;top:-4%;background:#F17F23;transform:rotate(12deg)"></span>
+          </div>
+          <div class="dr-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7.2 12.2l3.2 3.2 6.4-6.8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="dr-hero__text">
+          <h1><span class="dr-hero__desk">Download Ready!</span><span class="dr-hero__mob">Download Ready</span></h1>
+          <p>
+            <span class="dr-hero__desk">Your payment was successful and your files are ready to download. Thank you for choosing FileMakr.</span>
+            <span class="dr-hero__mob">Your payment was successful and your files are ready to download.</span>
+          </p>
+          <div class="dr-hero__badge" aria-label="Payment Successful">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Payment Successful
+          </div>
+        </div>
+      </div>
+
+      <div class="dr-status" role="list">
+        <div class="dr-status__item" role="listitem">
+          <div class="dr-status__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="dr-status__copy">
+            <strong>Payment Successful</strong>
+            <span>Your payment has been confirmed.</span>
+          </div>
+        </div>
+        <div class="dr-status__item" role="listitem">
+          <div class="dr-status__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7 3.5h7.2L19 8.3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14.2 3.5V8H19M9 12h6M9 15.5h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </div>
+          <div class="dr-status__copy">
+            <strong>Content Processing</strong>
+            <span>Your report is being prepared.</span>
+          </div>
+        </div>
+        <div class="dr-status__item" role="listitem">
+          <div class="dr-status__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="dr-status__copy">
+            <strong>Security Verified</strong>
+            <span>Files scanned and verified.</span>
+          </div>
+        </div>
+        <div class="dr-status__item" role="listitem">
+          <div class="dr-status__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7 17.2a4.8 4.8 0 0 1 .4-9.5 5.6 5.6 0 0 1 10.7 1.6A3.7 3.7 0 0 1 18.2 16.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 11.2v7.2M9.4 15.6L12 18.2l2.6-2.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="dr-status__copy">
+            <% if (downloadAvailableSafe) { %>
+              <strong>Ready for Download</strong>
+              <span>Your files are now available.</span>
+            <% } else { %>
+              <strong>Preparing Delivery</strong>
+              <span>File will be enabled shortly.</span>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <section class="dr-order" aria-labelledby="dr-order-title">
+        <div class="dr-order__head">
+          <h2 class="dr-order__title" id="dr-order-title">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7.2L19 8.3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.8"/><path d="M14.2 3.5V8H19" stroke="currentColor" stroke-width="1.8"/></svg>
+            Order Details
+          </h2>
+          <% if (orderIdSafe) { %>
+            <div class="dr-orderid">
+              Order ID: <b id="DrOrderId"><%= orderIdSafe %></b>
+              <button type="button" class="dr-orderid__copy" id="DrOrderCopy" title="Copy Order ID" aria-label="Copy Order ID">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M6 15.5V6.8A1.8 1.8 0 0 1 7.8 5H15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+          <% } %>
+        </div>
+        <div class="dr-meta">
+          <div class="dr-meta__row">
+            <span class="dr-meta__label">Project Name</span>
+            <span class="dr-meta__value"><%= productNameSafe %></span>
+          </div>
+          <div class="dr-meta__row">
+            <span class="dr-meta__label">Package</span>
+            <span class="dr-meta__value"><%= planLabelSafe %></span>
+          </div>
+          <% if (amountSafe != null && !isNaN(amountSafe)) { %>
+            <div class="dr-meta__row">
+              <span class="dr-meta__label">Amount Paid</span>
+              <span class="dr-meta__value">₹<%= Math.round(amountSafe) %></span>
+            </div>
+          <% } %>
+          <div class="dr-meta__row">
+            <span class="dr-meta__label">Payment Method</span>
+            <span class="dr-meta__value"><%= methodSafe %></span>
+          </div>
+          <div class="dr-meta__row">
+            <span class="dr-meta__label">Payment Status</span>
+            <span class="dr-meta__value"><span class="dr-badge">Paid Successfully</span></span>
+          </div>
+          <% if (dateSafe) { %>
+            <div class="dr-meta__row">
+              <span class="dr-meta__label">Payment Date</span>
+              <span class="dr-meta__value"><%= dateSafe %></span>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <section aria-labelledby="dr-dl-title">
+        <div class="dr-files">
+          <div class="dr-files__head">
+            <h2 class="dr-files__title" id="dr-dl-title">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12M8 11l4 4 4-4M5 19h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Your Files
+            </h2>
+            <p class="dr-files__sub">
+              <% if (downloadAvailableSafe && addonDl && !addonDl.downloadAvailable) { %>
+                <span>Source code is ready to download. Your report will be delivered within 24-48 hours on WhatsApp or Email.</span>
+              <% } else if (downloadAvailableSafe) { %>
+                <span class="dr-hero__desk">Your project files are ready. Click the download button to get started.</span>
+                <span class="dr-hero__mob">Your project files are ready. Click below to download.</span>
+              <% } else { %>
+                <span>Payment confirmed. Your file is being prepared for secure delivery.</span>
+              <% } %>
+            </p>
+          </div>
+
+          <% if (!downloadAvailableSafe) { %>
+            <div class="dr-file-note" role="status" aria-live="polite">
+              <div class="dr-file-note__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v5M12 16.2h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.7"/></svg>
+              </div>
+              <div class="dr-file-note__body">
+                <strong><%= downloadUnavailableTitleSafe %></strong>
+                <p><%= downloadUnavailableMessageSafe %></p>
+                <div class="dr-file-note__actions">
+                  <a class="dr-file-note__btn dr-file-note__btn--wa" href="<%= waUrl %>" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.15 6.4 2.15 11.84c0 1.99.59 3.85 1.61 5.42L2 22l4.9-1.71a9.86 9.86 0 0 0 5.14 1.42h.01c5.46 0 9.89-4.4 9.89-9.84C21.94 6.4 17.5 2 12.04 2zm5.75 13.96c-.24.68-1.4 1.25-1.93 1.33-.5.07-1.13.1-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.26-4.78-4.2-4.93-4.39-.14-.19-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.45.27-.29.59-.36.79-.36h.57c.18 0 .42-.07.66.5.24.58.82 2 .89 2.15.07.15.12.32.02.52-.1.19-.15.32-.3.49-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.76 1.25 1.63 2.02 1.12.99 2.06 1.3 2.35 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.2-.29.4-.24.67-.14.27.1 1.72.81 2.01.96.29.15.49.22.56.34.07.13.07.74-.17 1.42z"/></svg>
+                    WhatsApp Support
+                  </a>
+                  <% if (orderIdSafe) { %>
+                    <button type="button" class="dr-file-note__btn dr-file-note__btn--copy" id="DrUnavailableOrderCopy">
+                      Copy Order ID
+                    </button>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% } %>
+
+          <div class="dr-file<%= downloadAvailableSafe ? '' : ' is-unavailable' %>">
+            <div class="dr-file__left">
+              <div class="dr-file__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M7 3.5h7.2L19 8.3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14.2 3.5V8H19" stroke="currentColor" stroke-width="1.7"/></svg>
+                <span class="dr-file__badge"><%= fileExtLabel %></span>
+              </div>
+              <div class="dr-file__meta">
+                <p class="dr-file__name"><%= fileNameSafe %></p>
+                <p class="dr-file__sub"><%= fileTypeLabel %></p>
+              </div>
+            </div>
+
+            <div class="dr-file__hash">
+              <span class="dr-file__hash-label">SHA256</span>
+              <span class="dr-file__hash-val">
+                <span id="DrShaShort"><%= shaShort %></span>
+                <button type="button" class="dr-file__copy" id="DrShaCopy" title="Copy SHA256" aria-label="Copy SHA256">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M6 15.5V6.8A1.8 1.8 0 0 1 7.8 5H15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </button>
+              </span>
+              <span id="DrShaFull" hidden><%= shaFull %></span>
+            </div>
+
+            <button
+              type="button"
+              class="dr-file__btn<%= downloadAvailableSafe ? '' : ' is-disabled' %>"
+              id="DownloadBtn"
+              data-download-url="<%= downloadAvailableSafe ? downloadUrl : '' %>"
+              <%= downloadAvailableSafe ? '' : 'disabled aria-disabled="true"' %>>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v10M8.5 11.5L12 15l3.5-3.5M5 19h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <%= downloadAvailableSafe ? 'Download Word' : 'Download Unavailable' %>
+            </button>
+          </div>
+
+          <% if (showPdfDownload) { %>
+          <div class="dr-file" style="margin-top:12px">
+            <div class="dr-file__left">
+              <div class="dr-file__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M7 3.5h7.2L19 8.3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14.2 3.5V8H19" stroke="currentColor" stroke-width="1.7"/></svg>
+                <span class="dr-file__badge">PDF</span>
+              </div>
+              <div class="dr-file__meta">
+                <p class="dr-file__name"><%= pdfFileNameSafe %></p>
+                <p class="dr-file__sub">PDF Document · printable</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="dr-file__btn"
+              id="DownloadBtnPdf"
+              data-download-url="<%= downloadPdfUrl %>">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v10M8.5 11.5L12 15l3.5-3.5M5 19h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Download PDF
+            </button>
+          </div>
+          <% } %>
+
+          <% if (addonDl) {
+            const addonAvail = !!addonDl.downloadAvailable;
+            const addonName = String(addonDl.fileName || 'Download');
+            const addonMeta = String(addonDl.fileMeta || '');
+            const addonHref = addonAvail ? String(addonDl.downloadHref || '') : '';
+            const addonIsZip = /\.zip$/i.test(addonName);
+            const addonExt = addonIsZip ? 'ZIP' : 'DOC';
+            const addonNoteTitle = String(addonDl.downloadUnavailableTitle || addonMeta || 'Delivery within 24-48 hours');
+            const addonNoteMsg = String(
+              addonDl.downloadUnavailableMessage ||
+              'Payment successful. Your report will be delivered within 24-48 hours on your WhatsApp or Email ID.'
+            );
+            const addonIsDeferred = !addonAvail && /24-48/i.test(addonNoteTitle + ' ' + addonNoteMsg + ' ' + addonMeta);
+          %>
+          <% if (!addonAvail) { %>
+            <div class="dr-file-note" role="status" aria-live="polite" style="margin-top:12px">
+              <div class="dr-file-note__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v5M12 16.2h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.7"/></svg>
+              </div>
+              <div class="dr-file-note__body">
+                <strong><%= addonNoteTitle %></strong>
+                <p><%= addonNoteMsg %></p>
+                <div class="dr-file-note__actions">
+                  <a class="dr-file-note__btn dr-file-note__btn--wa" href="<%= waUrl %>" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.15 6.4 2.15 11.84c0 1.99.59 3.85 1.61 5.42L2 22l4.9-1.71a9.86 9.86 0 0 0 5.14 1.42h.01c5.46 0 9.89-4.4 9.89-9.84C21.94 6.4 17.5 2 12.04 2zm5.75 13.96c-.24.68-1.4 1.25-1.93 1.33-.5.07-1.13.1-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.26-4.78-4.2-4.93-4.39-.14-.19-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.45.27-.29.59-.36.79-.36h.57c.18 0 .42-.07.66.5.24.58.82 2 .89 2.15.07.15.12.32.02.52-.1.19-.15.32-.3.49-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.76 1.25 1.63 2.02 1.12.99 2.06 1.3 2.35 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.2-.29.4-.24.67-.14.27.1 1.72.81 2.01.96.29.15.49.22.56.34.07.13.07.74-.17 1.42z"/></svg>
+                    WhatsApp Support
+                  </a>
+                  <% if (orderIdSafe) { %>
+                    <button type="button" class="dr-file-note__btn dr-file-note__btn--copy" id="DrAddonUnavailableOrderCopy">
+                      Copy Order ID
+                    </button>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          <div class="dr-file<%= addonAvail ? '' : ' is-unavailable' %>" style="margin-top:<%= addonAvail ? '12px' : '10px' %>">
+            <div class="dr-file__left">
+              <div class="dr-file__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M7 3.5h7.2L19 8.3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14.2 3.5V8H19" stroke="currentColor" stroke-width="1.7"/></svg>
+                <span class="dr-file__badge"><%= addonExt %></span>
+              </div>
+              <div class="dr-file__meta">
+                <p class="dr-file__name"><%= addonName %></p>
+                <p class="dr-file__sub"><%= addonIsDeferred ? 'Delivery within 24-48 hours · WhatsApp / Email' : (addonDl.label || addonMeta) %></p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="dr-file__btn<%= addonAvail ? '' : ' is-disabled' %>"
+              id="DownloadBtnAddon"
+              data-download-url="<%= addonHref %>"
+              <%= addonAvail ? '' : 'disabled aria-disabled="true"' %>>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v10M8.5 11.5L12 15l3.5-3.5M5 19h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <%= addonAvail ? 'Download Now' : (addonIsDeferred ? 'Delivery in 24-48 hrs' : 'Download Unavailable') %>
+            </button>
+          </div>
+          <% } %>
+
+          <div class="dr-safe" role="note">
+            <span class="dr-safe__item dr-safe__item--ok">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Scanned &amp; Verified
+            </span>
+            <span class="dr-safe__item dr-safe__item--lock">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              100% Safe &amp; Secure
+            </span>
+            <span class="dr-safe__item dr-safe__item--virus">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 12.2l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Virus Free
+            </span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="dr-rate-m" data-rate-root>
+      <div class="dr-rate-m__head">
+        <div class="dr-rate-m__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.4l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 14.2 7.8 16.4l.8-4.7-3.4-3.3 4.7-.7L12 3.4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.2 19.2h7.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <strong>Enjoying our service?</strong>
+          <span>Rate your experience with FileMakr and help others.</span>
+        </div>
+      </div>
+      <div class="dr-panel__stars" style="margin-top:12px">
+        <div class="dr-rate-widget">
+          <div class="dr-rate-stars" role="radiogroup" aria-label="Rate your experience">
+            <button type="button" class="dr-rate-star" data-val="1" aria-label="1 star">★</button>
+            <button type="button" class="dr-rate-star" data-val="2" aria-label="2 stars">★</button>
+            <button type="button" class="dr-rate-star" data-val="3" aria-label="3 stars">★</button>
+            <button type="button" class="dr-rate-star" data-val="4" aria-label="4 stars">★</button>
+            <button type="button" class="dr-rate-star" data-val="5" aria-label="5 stars">★</button>
+          </div>
+          <span class="dr-rate-score" data-rate-score><%= existingRatingSafe ? existingRatingSafe.toFixed(1) : '—' %></span>
+          <span class="dr-rate-pill" data-rate-pill style="<%= existingRatingSafe ? '' : 'display:none' %>"><%= existingRatingSafe >= 5 ? 'Excellent' : (existingRatingSafe >= 4 ? 'Very Good' : (existingRatingSafe >= 3 ? 'Good' : (existingRatingSafe >= 2 ? 'Fair' : (existingRatingSafe >= 1 ? 'Poor' : '')))) %></span>
+        </div>
+      </div>
+      <div class="dr-rate-form <%= existingRatingSafe ? 'is-open' : '' %>" data-rate-form>
+        <textarea data-rate-text placeholder="Optional: tell us what went well or what we can improve..." maxlength="1000"><%= existingReviewTextSafe %></textarea>
+        <div class="dr-rate-form__row">
+          <span class="dr-rate-form__msg" data-rate-msg></span>
+          <button type="button" class="dr-rate-save" data-rate-save>Submit Review</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dr-support-m">
+      <div class="dr-support-m__ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M5 13v1.5A3.5 3.5 0 0 0 8.5 18H9v-3.2H6.2A1.2 1.2 0 0 0 5 16v-3zm14 0v1.5A3.5 3.5 0 0 1 15.5 18H15v-3.2h2.8A1.2 1.2 0 0 1 19 16v-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="dr-support-m__copy">
+        <strong>Need any help?</strong>
+        <span>Our support team is always here to help you.</span>
+      </div>
+      <a class="dr-support-m__btn" href="<%= waUrl %>" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 6.5h10a3 3 0 0 1 3 3V14a3 3 0 0 1-3 3H10l-4 3v-3H5a3 3 0 0 1-3-3V9.5a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        Contact Support
+      </a>
+    </div>
+
+    <div class="dr-panel">
+      <div class="dr-panel__col" data-rate-root>
+        <div class="dr-panel__row">
+          <div class="dr-panel__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.4l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 14.2 7.8 16.4l.8-4.7-3.4-3.3 4.7-.7L12 3.4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.2 19.2h7.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </div>
+          <div class="dr-panel__copy">
+            <strong>Enjoying our service?</strong>
+            <span>Rate your experience with FileMakr and help others.</span>
+            <div class="dr-panel__stars">
+              <div class="dr-rate-widget">
+                <div class="dr-rate-stars" role="radiogroup" aria-label="Rate your experience">
+                  <button type="button" class="dr-rate-star" data-val="1" aria-label="1 star">★</button>
+                  <button type="button" class="dr-rate-star" data-val="2" aria-label="2 stars">★</button>
+                  <button type="button" class="dr-rate-star" data-val="3" aria-label="3 stars">★</button>
+                  <button type="button" class="dr-rate-star" data-val="4" aria-label="4 stars">★</button>
+                  <button type="button" class="dr-rate-star" data-val="5" aria-label="5 stars">★</button>
+                </div>
+                <span class="dr-rate-score" data-rate-score><%= existingRatingSafe ? existingRatingSafe.toFixed(1) : '—' %></span>
+                <span class="dr-rate-pill" data-rate-pill style="<%= existingRatingSafe ? '' : 'display:none' %>"><%= existingRatingSafe >= 5 ? 'Excellent' : (existingRatingSafe >= 4 ? 'Very Good' : (existingRatingSafe >= 3 ? 'Good' : (existingRatingSafe >= 2 ? 'Fair' : (existingRatingSafe >= 1 ? 'Poor' : '')))) %></span>
+              </div>
+            </div>
+            <div class="dr-rate-form <%= existingRatingSafe ? 'is-open' : '' %>" data-rate-form>
+              <textarea data-rate-text placeholder="Optional: tell us what went well or what we can improve..." maxlength="1000"><%= existingReviewTextSafe %></textarea>
+              <div class="dr-rate-form__row">
+                <span class="dr-rate-form__msg" data-rate-msg></span>
+                <button type="button" class="dr-rate-save" data-rate-save>Submit Review</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dr-panel__col">
+        <div class="dr-panel__copy">
+          <strong>Need any help?</strong>
+          <span>Our support team is always here to help you.</span>
+        </div>
+        <div class="dr-panel__actions">
+          <a class="dr-panel__btn dr-panel__btn--wa" href="<%= waUrl %>" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.15 6.4 2.15 11.84c0 1.99.59 3.85 1.61 5.42L2 22l4.9-1.71a9.86 9.86 0 0 0 5.14 1.42h.01c5.46 0 9.89-4.4 9.89-9.84C21.94 6.4 17.5 2 12.04 2zm5.75 13.96c-.24.68-1.4 1.25-1.93 1.33-.5.07-1.13.1-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.26-4.78-4.2-4.93-4.39-.14-.19-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.45.27-.29.59-.36.79-.36h.57c.18 0 .42-.07.66.5.24.58.82 2 .89 2.15.07.15.12.32.02.52-.1.19-.15.32-.3.49-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.76 1.25 1.63 2.02 1.12.99 2.06 1.3 2.35 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.2-.29.4-.24.67-.14.27.1 1.72.81 2.01.96.29.15.49.22.56.34.07.13.07.74-.17 1.42z"/></svg>
+            WhatsApp Us
+          </a>
+          <a class="dr-panel__btn dr-panel__btn--ticket" href="<%= waUrl %>" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4.5" y="5.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 10h6M9 13.5h4M14.5 15.5l3-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Raise a Ticket
+          </a>
+          <a class="dr-panel__btn dr-panel__btn--mail" href="<%= mailUrl %>">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Email Us
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="dr-feats" role="list">
+      <div class="dr-feats__item" role="listitem">
+        <div class="dr-feats__ico" style="background:#EEF2FF;color:#2A47FF" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12M8 11l4 4 4-4M5 19h14" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="dr-feats__copy">
+          <strong>Instant Download</strong>
+          <span>Get your files immediately</span>
+        </div>
+      </div>
+      <div class="dr-feats__item" role="listitem">
+        <div class="dr-feats__ico" style="background:#ECFDF5;color:#16A34A" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.8"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="dr-feats__copy">
+          <strong>Secure &amp; Encrypted</strong>
+          <span>256-bit SSL encryption for your safety</span>
+        </div>
+      </div>
+      <div class="dr-feats__item" role="listitem">
+        <div class="dr-feats__ico" style="background:#FFF1E6;color:#F17F23" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.2l1.6 3.4 3.7.5-2.7 2.6.7 3.7L12 11.8 8.7 13.4l.7-3.7-2.7-2.6 3.7-.5L12 3.2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.2 16.2c1.1.9 2.4 1.4 3.8 1.4s2.7-.5 3.8-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="dr-feats__copy">
+          <strong>Original &amp; Verified</strong>
+          <span>Quality checked content</span>
+        </div>
+      </div>
+      <div class="dr-feats__item" role="listitem">
+        <div class="dr-feats__ico" style="background:#F3E8FF;color:#7C3AED" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M5 13v1.5A3.5 3.5 0 0 0 8.5 18H9v-3.2H6.2A1.2 1.2 0 0 0 5 16v-3zm14 0v1.5A3.5 3.5 0 0 1 15.5 18H15v-3.2h2.8A1.2 1.2 0 0 1 19 16v-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="dr-feats__copy">
+          <strong>24/7 Support</strong>
+          <span>We’re here to help you anytime</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<% include Includes/footer.ejs %>
+
+<%- include('Includes/gtm-purchase') %>
+
+<script src="/js/fm-download-progress.js?v=1"></script>
+<script>
+(function(){
+  function copyText(text, btn, okTitle) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){
+        if (btn) {
+          btn.title = okTitle || 'Copied';
+          setTimeout(function(){ btn.title = btn.getAttribute('aria-label') || 'Copy'; }, 1200);
+        }
+      }).catch(function(){});
+    }
+  }
+  var shaBtn = document.getElementById('DrShaCopy');
+  var shaFull = document.getElementById('DrShaFull');
+  if (shaBtn && shaFull) {
+    shaBtn.addEventListener('click', function(){
+      copyText(shaFull.textContent || '', shaBtn, 'Copied');
+    });
+  }
+  var orderBtn = document.getElementById('DrOrderCopy');
+  var orderIdEl = document.getElementById('DrOrderId');
+  if (orderBtn && orderIdEl) {
+    orderBtn.addEventListener('click', function(){
+      copyText(orderIdEl.textContent || '', orderBtn, 'Copied');
+    });
+  }
+
+  // Fetch download with progress % overlay (Word/PDF can take several seconds)
+  function bindIframeDownload(btn) {
+    if (!btn) return;
+    var idleHtml = btn.innerHTML;
+    btn.addEventListener('click', function(){
+      if (btn.disabled || btn.getAttribute('aria-disabled') === 'true') return;
+      if (btn.classList.contains('is-loading')) return;
+      var url = btn.getAttribute('data-download-url');
+      if (!url) return;
+
+      var isPdf = /format=pdf/i.test(url) || /\.pdf(\?|$)/i.test(url);
+      btn.classList.add('is-loading');
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+      btn.innerHTML = '<span class="dr-spin" aria-hidden="true"></span> ' +
+        (isPdf ? 'Preparing PDF…' : 'Preparing file…');
+
+      var run = function () {
+        if (window.FmDownloadProgress && typeof window.FmDownloadProgress.fetchAndSave === 'function') {
+          return window.FmDownloadProgress.fetchAndSave(url, {
+            title: isPdf ? 'Preparing PDF…' : 'Preparing Word…',
+            isPdf: isPdf
+          });
+        }
+        return fetch(url, { credentials: 'same-origin' })
+          .then(function(res){
+            if (!res.ok) throw new Error('Download failed (' + res.status + ')');
+            var cd = res.headers.get('Content-Disposition') || '';
+            var match = /filename\*?=(?:UTF-8''|")?([^\";]+)"?/i.exec(cd);
+            var filename = match ? decodeURIComponent(match[1].replace(/["']/g, '').trim()) : '';
+            if (!filename) filename = isPdf ? 'report.pdf' : 'report.docx';
+            return res.blob().then(function(blob){ return { blob: blob, filename: filename }; });
+          })
+          .then(function(data){
+            var objectUrl = URL.createObjectURL(data.blob);
+            var a = document.createElement('a');
+            a.href = objectUrl;
+            a.download = data.filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function(){ try { URL.revokeObjectURL(objectUrl); } catch (e) {} }, 2000);
+          });
+      };
+
+      run()
+        .catch(function(err){
+          if (!(window.FmDownloadProgress && err)) {
+            alert((err && err.message) ? err.message : 'Download failed. Please try again.');
+          }
+        })
+        .finally(function(){
+          btn.classList.remove('is-loading');
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          btn.innerHTML = idleHtml;
+        });
+    });
+  }
+  bindIframeDownload(document.getElementById('DownloadBtn'));
+  bindIframeDownload(document.getElementById('DownloadBtnPdf'));
+  bindIframeDownload(document.getElementById('DownloadBtnAddon'));
+
+  var unavailCopy = document.getElementById('DrUnavailableOrderCopy');
+  if (unavailCopy && orderIdEl) {
+    unavailCopy.addEventListener('click', function(){
+      copyText(orderIdEl.textContent || '', unavailCopy, 'Copied');
+      var prev = unavailCopy.textContent;
+      unavailCopy.textContent = 'Copied';
+      setTimeout(function(){ unavailCopy.textContent = prev || 'Copy Order ID'; }, 1200);
+    });
+  }
+  var addonUnavailCopy = document.getElementById('DrAddonUnavailableOrderCopy');
+  if (addonUnavailCopy && orderIdEl) {
+    addonUnavailCopy.addEventListener('click', function(){
+      copyText(orderIdEl.textContent || '', addonUnavailCopy, 'Copied');
+      var prev = addonUnavailCopy.textContent;
+      addonUnavailCopy.textContent = 'Copied';
+      setTimeout(function(){ addonUnavailCopy.textContent = prev || 'Copy Order ID'; }, 1200);
+    });
+  }
+
+  var ORDER_ID = <%- JSON.stringify(orderIdSafe) %>;
+  var labels = { 1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent' };
+  var sharedRating = <%= existingRatingSafe || 0 %>;
+
+  function paintStars(root, value, hoverValue) {
+    var stars = root.querySelectorAll('.dr-rate-star');
+    var active = hoverValue || value || 0;
+    for (var i = 0; i < stars.length; i++) {
+      var v = parseInt(stars[i].getAttribute('data-val'), 10);
+      stars[i].classList.toggle('is-on', v <= (value || 0));
+      stars[i].classList.toggle('is-hover', hoverValue ? v <= hoverValue : false);
+    }
+    var score = root.querySelector('[data-rate-score]');
+    var pill = root.querySelector('[data-rate-pill]');
+    if (score) score.textContent = value ? Number(value).toFixed(1) : '—';
+    if (pill) {
+      if (value) {
+        pill.style.display = '';
+        pill.textContent = labels[value] || '';
+      } else {
+        pill.style.display = 'none';
+      }
+    }
+  }
+
+  function syncAll(value) {
+    sharedRating = value;
+    var roots = document.querySelectorAll('[data-rate-root]');
+    for (var i = 0; i < roots.length; i++) paintStars(roots[i], value, 0);
+  }
+
+  function saveReview(root, rating, withText) {
+    var msg = root.querySelector('[data-rate-msg]');
+    var textEl = root.querySelector('[data-rate-text]');
+    var saveBtn = root.querySelector('[data-rate-save]');
+    if (!ORDER_ID) {
+      if (msg) { msg.textContent = 'Order ID missing — refresh the page.'; msg.classList.add('is-err'); }
+      return;
+    }
+    if (saveBtn) saveBtn.disabled = true;
+    if (msg) { msg.textContent = 'Saving...'; msg.classList.remove('is-err'); }
+
+    var body = {
+      order_id: ORDER_ID,
+      rating: rating,
+      // Keep current textarea text on star-only saves so rating updates don't wipe the review
+      review_text: textEl ? (textEl.value || '') : ''
+    };
+
+    fetch('/checkout/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(body)
+    }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+      .then(function(res){
+        if (!res.ok || !res.j || !res.j.ok) {
+          throw new Error((res.j && res.j.error) || 'Could not save');
+        }
+        syncAll(Number(res.j.rating) || rating);
+        // keep textarea values in sync across widgets
+        var texts = document.querySelectorAll('[data-rate-text]');
+        for (var t = 0; t < texts.length; t++) {
+          if (typeof res.j.review_text === 'string') texts[t].value = res.j.review_text;
+        }
+        if (msg) {
+          msg.textContent = withText ? 'Thanks! Review saved.' : 'Thanks! Rating saved.';
+          msg.classList.remove('is-err');
+        }
+      })
+      .catch(function(err){
+        if (msg) {
+          msg.textContent = err.message || 'Save failed';
+          msg.classList.add('is-err');
+        }
+      })
+      .finally(function(){
+        if (saveBtn) saveBtn.disabled = false;
+      });
+  }
+
+  var roots = document.querySelectorAll('[data-rate-root]');
+  for (var r = 0; r < roots.length; r++) {
+    (function(root){
+      paintStars(root, sharedRating, 0);
+      var stars = root.querySelectorAll('.dr-rate-star');
+      var form = root.querySelector('[data-rate-form]');
+      var saveBtn = root.querySelector('[data-rate-save]');
+
+      for (var i = 0; i < stars.length; i++) {
+        stars[i].addEventListener('mouseenter', function(){
+          paintStars(root, sharedRating, parseInt(this.getAttribute('data-val'), 10));
+        });
+        stars[i].addEventListener('mouseleave', function(){
+          paintStars(root, sharedRating, 0);
+        });
+        stars[i].addEventListener('click', function(){
+          var val = parseInt(this.getAttribute('data-val'), 10);
+          syncAll(val);
+          if (form) form.classList.add('is-open');
+          // open all forms
+          var forms = document.querySelectorAll('[data-rate-form]');
+          for (var f = 0; f < forms.length; f++) forms[f].classList.add('is-open');
+          saveReview(root, val, false);
+        });
+      }
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function(){
+          if (!sharedRating) {
+            var msg = root.querySelector('[data-rate-msg]');
+            if (msg) { msg.textContent = 'Please select a star rating first.'; msg.classList.add('is-err'); }
+            return;
+          }
+          saveReview(root, sharedRating, true);
+        });
+      }
+    })(roots[r]);
+  }
+})();
+</script>

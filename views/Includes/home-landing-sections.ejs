@@ -1,0 +1,969 @@
+<%
+  var srcAll = (typeof sourceCode !== 'undefined' && sourceCode && sourceCode.length) ? sourceCode : [];
+  var reports = srcAll;
+  var demos = (typeof liveproject !== 'undefined' && liveproject && liveproject.length) ? liveproject : [];
+  var cats = (typeof category !== 'undefined' && category && category.length) ? category : [];
+
+  function fmText(v, d) { return (v == null || v === '') ? (d || '') : String(v); }
+  function fmAttrEsc(v) {
+    return fmText(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').trim();
+  }
+  function fmAltLabel(v, suffix) {
+    var base = fmText(v).trim() || 'Project';
+    return fmAttrEsc(suffix ? (base + ' ' + suffix) : base);
+  }
+  function fmShort(v, n) {
+    var t = fmText(v).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (t.length <= n) return t;
+    return t.slice(0, n - 1).trim() + '…';
+  }
+  function fmMatchCat(item, re) {
+    var hay = [item.category, item.name, item.description, item.language, item.lang, item.stack].map(function (x) { return fmText(x).toLowerCase(); }).join(' ');
+    return re.test(hay);
+  }
+  function fmCatField(item) {
+    return fmText(item && item.category).toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function fmSeoField(item) {
+    return fmText(item && item.seo_name).toLowerCase();
+  }
+  function fmInTech(item, opts) {
+    var cat = fmCatField(item);
+    var seo = fmSeoField(item);
+    var lang = fmText(item && (item.language || item.lang || item.stack)).toLowerCase();
+    var name = fmText(item && item.name).toLowerCase();
+    var keys = opts.keys || [];
+    var i;
+    for (i = 0; i < keys.length; i++) {
+      var k = keys[i].toLowerCase();
+      if (cat === k || cat.indexOf(k) !== -1) return true;
+      if (seo === k.replace(/\s+/g, '-') || seo.indexOf(k.replace(/\s+/g, '-')) !== -1) return true;
+      if (lang === k || lang.indexOf(k) !== -1) return true;
+    }
+    if (opts.nameRe && opts.nameRe.test(name)) return true;
+    if (opts.strictRe && opts.strictRe.test(cat + ' ' + seo + ' ' + lang)) return true;
+    return false;
+  }
+  var pythonProjects = srcAll.filter(function (s) {
+    return fmInTech(s, {
+      keys: ['python', 'django', 'flask', 'streamlit'],
+      strictRe: /python|django|flask|streamlit/
+    });
+  });
+  var nodeProjects = srcAll.filter(function (s) {
+    return fmInTech(s, {
+      keys: ['nodejs', 'node.js', 'node js', 'express', 'mern'],
+      strictRe: /node\.?js|\bnodejs\b|express|mern/
+    });
+  });
+  var mlProjects = srcAll.filter(function (s) {
+    return fmInTech(s, {
+      keys: ['machine learning', 'machinelearning', 'deep learning', 'artificial intelligence', 'ai ml', 'ai & ml'],
+      nameRe: /machine\s*learning|deep\s*learning|neural\s*network/,
+      strictRe: /machine\s*learning|deep\s*learning|neural\s*network|tensorflow|scikit|sklearn|\bml\b/
+    });
+  });
+  var phpProjects = srcAll.filter(function (s) {
+    return fmInTech(s, {
+      keys: ['php', 'laravel', 'codeigniter'],
+      strictRe: /\bphp\b|laravel|codeigniter/
+    });
+  });
+  var liveDemoProjects = srcAll.filter(function (s) { return !!(s.demo_url); });
+  if (!liveDemoProjects.length && demos.length) liveDemoProjects = demos;
+
+  function fmLatestScore(item) {
+    var id = Number(item && item.id);
+    if (!isNaN(id) && id > 0) return id;
+    var ts = Date.parse(fmText(item && (item.created_at || item.updated_at || item.created || item.date)));
+    return isNaN(ts) ? 0 : ts;
+  }
+  function fmByLatest(list) {
+    return list.slice().sort(function (a, b) { return fmLatestScore(b) - fmLatestScore(a); });
+  }
+  function fmShuffle(list) {
+    var arr = list.slice();
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+    return arr;
+  }
+  function fmPickMix(aList, bList, total) {
+    var aPool = fmShuffle(fmByLatest(aList).slice(0, Math.max(8, total * 2)));
+    var bPool = fmShuffle(fmByLatest(bList).slice(0, Math.max(8, total * 2)));
+    var half = Math.ceil(total / 2);
+    var picked = [];
+    var seen = {};
+    function take(pool, n) {
+      for (var i = 0; i < pool.length && picked.length < total && n > 0; i++) {
+        var key = fmText(pool[i].id || pool[i].seo_name || pool[i].name);
+        if (!key || seen[key]) continue;
+        seen[key] = 1;
+        picked.push(pool[i]);
+        n--;
+      }
+    }
+    take(aPool, half);
+    take(bPool, total - picked.length);
+    take(aPool, total - picked.length);
+    take(bPool, total - picked.length);
+    return fmShuffle(picked).slice(0, total);
+  }
+  function fmStripPick(serverList, fallbackPool, total) {
+    if (serverList && serverList.length) return serverList.slice(0, total);
+    return fmShuffle(fmByLatest(fallbackPool).slice(0, 16)).slice(0, total);
+  }
+  var stripData = (typeof homeStrips !== 'undefined' && homeStrips) ? homeStrips : {};
+  var directoryItems = fmPickMix(pythonProjects, nodeProjects, 6);
+  var popularWeek = fmShuffle(fmByLatest(srcAll).slice(0, 24)).slice(0, 5);
+  var latestProjects = fmByLatest(srcAll).slice(0, 5);
+  var mlStrip = fmStripPick(stripData.ml, mlProjects, 5);
+  var pyStrip = fmStripPick(stripData.python, pythonProjects, 5);
+  var phpStrip = fmStripPick(stripData.php, phpProjects, 5);
+  var demoStrip = fmShuffle(fmByLatest(liveDemoProjects).slice(0, 16)).slice(0, 5);
+  function fmImg(item) {
+    var img = fmText(item && item.image);
+    if (!img) return '';
+    if (/^https?:\/\//i.test(img) || img.charAt(0) === '/') return img;
+    return '/' + img.replace(/^\.?\/+/, '');
+  }
+  function fmLabel(v) {
+    var t = fmText(v).replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    return t.replace(/\b[a-z]/g, function (ch) { return ch.toUpperCase(); });
+  }
+  function fmTechTags(item) {
+    var raw = [item.category, item.language, item.lang, item.stack]
+      .map(function (x) { return fmText(x); })
+      .filter(Boolean)
+      .join(',');
+    var parts = raw.split(/[,|/]+/).map(function (t) { return fmLabel(t); }).filter(Boolean);
+    var seen = {};
+    var out = [];
+    parts.forEach(function (t) {
+      var key = t.toLowerCase();
+      if (seen[key]) return;
+      seen[key] = 1;
+      out.push(t);
+    });
+    return out.slice(0, 3);
+  }
+  var waSetup = 'https://wa.me/918319339945?text=' + encodeURIComponent('Hi FileMakr, I need setup support for my project.');
+  var waHelp = 'https://wa.me/918319339945?text=' + encodeURIComponent('Hi FileMakr, I need help finding a final year project.');
+  var faqs = [
+    ['What is included in a FileMakr project report?', 'FileMakr project reports typically include structured academic documentation such as synopsis-oriented content, chapters, diagrams and formatting suitable for faculty review and viva preparation.'],
+    ['Are FileMakr project reports plagiarism-free?', 'Reports are prepared as plagiarism-free, humanized documentation designed for originality checks. Always follow your college’s citation and submission guidelines.'],
+    ['What does AI-detection reviewed mean?', 'It means documentation is written and reviewed with academic originality and AI-detection review workflows in mind—not a fake score or guaranteed detector result.'],
+    ['Can I purchase only the source code?', 'Yes. You can browse the source code library and purchase only the code package you need.'],
+    ['Can I preview a live demo before buying?', 'Selected projects include live demos so you can evaluate the application in your browser first.'],
+    ['Is source code runnable?', 'Source packages are designed as runnable stacks with README guidance, dependencies and setup instructions.'],
+    ['Does source code include a README?', 'Yes. Projects are structured with setup guidance so you can understand and run the stack.'],
+    ['Do you provide project setup support?', 'Yes. Setup support is available over WhatsApp when you need help running frontend, backend or database.'],
+    ['Which technologies are available?', 'Popular stacks include Python, Java, PHP, Node.js, MERN, React and machine learning categories—browse the technology hub above.'],
+    ['Can I find projects for B.Tech, BCA or MCA?', 'Yes. Use degree pages for B.Tech, BCA, MCA, M.Tech, B.Sc and M.Sc project reports and ideas.'],
+    ['How quickly are project resources delivered?', 'Digital resources are typically available immediately after successful checkout.']
+  ];
+%>
+
+<div class="fm-directory">
+
+  <div class="fm-dir-band">
+    <section class="fm-dir-usp" aria-labelledby="fm-dir-usp-title">
+      <aside class="fm-dir-usp__panel">
+        <div class="fm-dir-usp__visual" aria-hidden="true">
+          <span class="fm-dir-usp__burst"></span>
+          <div class="fm-dir-usp__doc">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <img
+            class="fm-dir-usp__badge"
+            src="https://res.cloudinary.com/dvkuan8my/image/upload/v1785666146/Untitled_design_20_gygo4x.svg"
+            alt="Plagiarism-free and AI-detection reviewed documentation badge"
+            width="52"
+            height="56"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+
+        <div class="fm-dir-usp__mid">
+          <h2 class="fm-dir-usp__title" id="fm-dir-usp-title">
+            <span class="fm-dir-usp__title-accent">AI-Detection Reviewed</span>
+            <span class="fm-dir-usp__title-amp">&amp;</span>
+            Plagiarism-Free Documentation
+          </h2>
+          <p class="fm-dir-usp__desc">
+            Humanized, faculty-aligned project reports structured for originality checks, plagiarism review, AI-detection review, academic evaluation and viva preparation.
+          </p>
+        </div>
+
+        <ul class="fm-dir-usp__list">
+          <li>Plagiarism-Free Reports</li>
+          <li>AI-Detection Reviewed</li>
+          <li>Faculty-Aligned Documentation</li>
+          <li>Viva-Friendly Structure</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- Project directory -->
+    <section class="fm-dir-marketplace" id="project-directory" aria-labelledby="fm-dir-market-title">
+      <div class="fm-dir-market">
+        <aside class="fm-dir-filters" aria-label="Filter projects" id="fmDirFiltersPanel">
+          <h3 class="fm-dir-filters__title">Filter Projects</h3>
+
+          <details class="fm-dir-filters__group" open>
+            <summary>Resource Type</summary>
+            <ul class="fm-dir-filters__checks">
+              <li><label><input type="checkbox" name="fmRes" value="/final-year-project-ideas"> Project Report</label></li>
+              <li><label><input type="checkbox" name="fmRes" value="/source-code"> Source Code</label></li>
+              <li><label><input type="checkbox" name="fmRes" value="/demo"> Live Demo</label></li>
+              <li><label><input type="checkbox" name="fmRes" value="<%= waSetup %>" data-external="1"> Setup Support</label></li>
+            </ul>
+          </details>
+
+          <details class="fm-dir-filters__group" open>
+            <summary>Degree</summary>
+            <ul class="fm-dir-filters__checks">
+              <li><label><input type="checkbox" name="fmDeg" value="/btech-final-year-project-report"> B.Tech</label></li>
+              <li><label><input type="checkbox" name="fmDeg" value="/bca-final-year-project-report"> BCA</label></li>
+              <li><label><input type="checkbox" name="fmDeg" value="/mca-final-year-project-report"> MCA</label></li>
+              <li><label><input type="checkbox" name="fmDeg" value="/mtech-final-year-project-report"> M.Tech</label></li>
+              <li><label><input type="checkbox" name="fmDeg" value="/bsc-final-year-project-report"> B.Sc</label></li>
+              <li><label><input type="checkbox" name="fmDeg" value="/msc-final-year-project-report"> M.Sc</label></li>
+            </ul>
+          </details>
+
+          <details class="fm-dir-filters__group" open>
+            <summary>Technology</summary>
+            <ul class="fm-dir-filters__checks">
+              <% if (cats.length) { cats.slice(0, 9).forEach(function (c) { %>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/<%= c.seo_name %>"> <%= c.name %></label></li>
+              <% }); } else { %>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/python"> Python</label></li>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/java"> Java</label></li>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/php"> PHP</label></li>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/machine-learning"> AI / ML</label></li>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/mern"> MERN</label></li>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/react"> React</label></li>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/python"> Flask</label></li>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/python"> Django</label></li>
+                <li><label><input type="checkbox" name="fmTech" value="/source-code/java"> Spring Boot</label></li>
+              <% } %>
+            </ul>
+          </details>
+
+          <div class="fm-dir-filters__actions">
+            <button type="button" class="fm-dir-filters__apply" id="fmDirApplyFilters">Apply Filters</button>
+            <button type="button" class="fm-dir-filters__reset" id="fmDirResetFilters">Reset</button>
+          </div>
+        </aside>
+
+        <div class="fm-dir-market__main">
+          <header class="fm-dir-sec__head fm-dir-sec__head--market">
+            <div>
+              <h2 id="fm-dir-market-title">Popular Final-Year Projects</h2>
+              <p>Explore project topics students are currently browsing across software development, AI and academic programs.</p>
+            </div>
+            <button type="button" class="fm-dir-filter-toggle" id="fmDirFilterToggle" aria-expanded="false" aria-controls="fmDirFiltersDrawer">
+              Filter projects
+            </button>
+          </header>
+
+          <div class="fm-dir-grid fm-dir-grid--3" id="fmDirGrid">
+            <% if (directoryItems.length) { directoryItems.forEach(function (s) {
+              var codeUrl = s.seo_name ? '/' + s.seo_name + '/source-code' : '/source-code';
+              var hasDemo = !!(s.demo_url);
+              var cover = fmImg(s);
+              var isPython = fmMatchCat(s, /python|django|flask|streamlit/);
+              var isNode = fmMatchCat(s, /node\.?js|nodejs|\bnode\b|express|mern|nest\.?js/);
+              var tags = fmTechTags(s);
+              if (!tags.length) {
+                if (isPython) tags = ['Python'];
+                else if (isNode) tags = ['Node Js'];
+                else tags = [fmLabel(s.category) || 'Project'];
+              }
+              var badge = tags[0] || (isPython ? 'Python' : (isNode ? 'Node Js' : 'Project'));
+              var cardCat = isPython ? 'python' : (isNode ? 'nodejs' : 'project');
+            %>
+              <article class="fm-dir-card fm-dir-card--media" data-category="<%= cardCat %>">
+                <a class="fm-dir-card__media" href="<%= codeUrl %>" tabindex="-1" aria-hidden="true">
+                  <% if (cover) { %>
+                    <img
+                      src="<%= cloudinaryUrl(cover, { width: 480 }) %>"
+                      srcset="<%= cloudinarySrcSet(cover, [640, 960, 1280]) %>"
+                      sizes="(max-width: 640px) 90vw, 480px"
+                      alt="<%= fmAltLabel(s.name, 'final year project preview') %>"
+                      width="480"
+                      height="270"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  <% } else { %>
+                    <span class="fm-dir-card__media-fallback" data-letter="<%= (s.name || 'P').charAt(0).toUpperCase() %>"></span>
+                  <% } %>
+                  <span class="fm-dir-card__badge"><%= badge %></span>
+                </a>
+                <div class="fm-dir-card__body">
+                  <h3 class="fm-dir-card__title"><a href="<%= codeUrl %>"><%= s.name %></a></h3>
+                  <p class="fm-dir-card__desc"><%= fmShort(s.description, 100) || 'Final-year project with structured documentation and runnable source code.' %></p>
+                  <ul class="fm-dir-card__features">
+                    <li>Report</li>
+                    <li>Code</li>
+                    <li<% if (!hasDemo) { %> class="is-muted"<% } %>>Demo</li>
+                  </ul>
+                  <div class="fm-dir-card__foot fm-dir-card__foot--media">
+                    <p class="fm-dir-card__price">Starting from <strong>₹99</strong></p>
+                    <a class="fm-dir-card__cta fm-dir-card__cta--orange" href="<%= codeUrl %>">View Project</a>
+                  </div>
+                </div>
+              </article>
+            <% }); } else { %>
+              <p class="fm-dir-empty">Projects are loading from the library. <a href="/source-code/python">Browse Python</a> or <a href="/source-code/nodejs">Node.js projects</a>.</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Mobile filters drawer -->
+  <div class="fm-dir-drawer" id="fmDirFiltersDrawer" hidden>
+    <div class="fm-dir-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="fmDirDrawerTitle">
+      <div class="fm-dir-drawer__head">
+        <h2 id="fmDirDrawerTitle">Filter projects</h2>
+        <button type="button" class="fm-dir-drawer__close" id="fmDirFilterClose" aria-label="Close filters">&times;</button>
+      </div>
+      <div class="fm-dir-drawer__body">
+        <a href="/source-code">All source code</a>
+        <a href="/final-year-project-ideas">Project reports</a>
+        <a href="/demo">Live demos</a>
+        <a href="/btech-final-year-project-report">B.Tech</a>
+        <a href="/bca-final-year-project-report">BCA</a>
+        <a href="/mca-final-year-project-report">MCA</a>
+        <a href="/source-code/python">Python</a>
+        <a href="/source-code/java">Java</a>
+        <a href="/source-code/php">PHP</a>
+        <a href="/source-code/machine-learning">AI &amp; ML</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technology hub -->
+  <section class="fm-dir-tech fm-dir-tech--hub" aria-labelledby="fm-dir-tech-title">
+    <div class="fm-dir-tech__inner">
+      <header class="fm-dir-tech__head">
+        <h2 id="fm-dir-tech-title">Browse Final-Year Projects by Technology</h2>
+      </header>
+      <div class="fm-dir-tech__row">
+        <%
+          function fmCatCount(cat) {
+            // Avoid full-catalog scans on homepage; CTA label is enough.
+            return 'Browse projects';
+          }
+          function fmTechIconUrl(seo, name) {
+            var key = (fmText(seo) + ' ' + fmText(name)).toLowerCase();
+            var base = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/';
+            if (/python|django|flask|streamlit/.test(key)) return base + 'python/python-original.svg';
+            if (/php|laravel|codeigniter/.test(key)) return base + 'php/php-original.svg';
+            if (/node/.test(key)) return base + 'nodejs/nodejs-original.svg';
+            if (/java(?!script)|spring/.test(key)) return base + 'java/java-original.svg';
+            if (/react/.test(key)) return base + 'react/react-original.svg';
+            if (/angular/.test(key)) return base + 'angularjs/angularjs-original.svg';
+            if (/vue/.test(key)) return base + 'vuejs/vuejs-original.svg';
+            if (/mern|mongo/.test(key)) return base + 'mongodb/mongodb-original.svg';
+            if (/express/.test(key)) return base + 'express/express-original.svg';
+            if (/android|kotlin/.test(key)) return base + 'android/android-original.svg';
+            if (/ios|swift/.test(key)) return base + 'swift/swift-original.svg';
+            if (/dotnet|c#|csharp/.test(key)) return base + 'csharp/csharp-original.svg';
+            if (/c\+\+|cpp/.test(key)) return base + 'cplusplus/cplusplus-original.svg';
+            if (/\bc\b(?!ode|ss)/.test(key)) return base + 'c/c-original.svg';
+            if (/html|css|web/.test(key)) return base + 'html5/html5-original.svg';
+            if (/javascript|js\b/.test(key)) return base + 'javascript/javascript-original.svg';
+            if (/typescript/.test(key)) return base + 'typescript/typescript-original.svg';
+            if (/mysql|sql|database|data.?analytics|data.?science/.test(key)) return base + 'mysql/mysql-original.svg';
+            if (/machine|ml|ai|deep|neural|tensorflow/.test(key)) return base + 'tensorflow/tensorflow-original.svg';
+            if (/flutter/.test(key)) return base + 'flutter/flutter-original.svg';
+            if (/wordpress/.test(key)) return base + 'wordpress/wordpress-original.svg';
+            return '';
+          }
+          var techHub = (cats.length ? cats : [
+            { name: 'PHP', seo_name: 'php' },
+            { name: 'Node.js', seo_name: 'nodejs' },
+            { name: 'Python', seo_name: 'python' },
+            { name: 'CodeIgniter', seo_name: 'codeigniter' },
+            { name: 'Machine Learning', seo_name: 'machine-learning' },
+            { name: 'Data Analytics', seo_name: 'data-analytics' }
+          ]).slice(0, 6).map(function (c) {
+            var seo = fmText(c.seo_name);
+            var name = fmText(c.name) || seo;
+            return {
+              name: /projects?/i.test(name) ? name : (name + ' Projects'),
+              count: fmCatCount(c),
+              href: '/source-code/' + seo,
+              iconUrl: fmTechIconUrl(seo, name),
+              letter: (name.charAt(0) || 'P').toUpperCase()
+            };
+          });
+          techHub.forEach(function (t) {
+        %>
+          <a class="fm-dir-tech__tile" href="<%= t.href %>">
+            <span class="fm-dir-tech__icon" aria-hidden="true">
+              <% if (t.iconUrl) { %>
+                <img src="<%= t.iconUrl %>" alt="<%= fmAltLabel(t.name, 'technology icon') %>" width="24" height="24" loading="lazy" decoding="async" />
+              <% } else { %>
+                <span class="fm-dir-tech__icon-fallback"><%= t.letter %></span>
+              <% } %>
+            </span>
+            <span class="fm-dir-tech__copy">
+              <strong><%= t.name %></strong>
+              <span><%= t.count %></span>
+            </span>
+          </a>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <%
+    var fmStrips = [
+      { id: 'fm-strip-popular', title: 'Popular this week', href: '/source-code', items: popularWeek, cols: 5, showBtn: true },
+      { id: 'fm-strip-ml', title: 'Machine Learning Projects', href: '/source-code/machine-learning', items: mlStrip, cols: 5, showBtn: false },
+      { id: 'fm-strip-py', title: 'Python Final-Year Projects', href: '/source-code/python', items: pyStrip, cols: 5, showBtn: false },
+      { id: 'fm-strip-php', title: 'PHP Final-Year Projects', href: '/source-code/php', items: phpStrip, cols: 5, showBtn: false }
+    ];
+    fmStrips.forEach(function (strip) {
+      if (!strip.items || !strip.items.length) return;
+  %>
+  <section class="fm-dir-strip" aria-labelledby="<%= strip.id %>">
+    <div class="fm-dir-strip__inner">
+      <header class="fm-dir-strip__head">
+        <h2 id="<%= strip.id %>"><%= strip.title %></h2>
+        <a class="fm-dir-strip__all" href="<%= strip.href %>">View all <span aria-hidden="true">→</span></a>
+      </header>
+      <div class="fm-dir-popgrid fm-dir-popgrid--<%= strip.cols %>">
+        <% strip.items.forEach(function (s) {
+          var codeUrl = s.seo_name ? '/' + s.seo_name + '/source-code' : '/source-code';
+          var hasDemo = !!(s.demo_url);
+          var cover = fmImg(s);
+        %>
+          <article class="fm-dir-pop fm-dir-pop--compact">
+            <a class="fm-dir-pop__media" href="<%= codeUrl %>" tabindex="-1" aria-hidden="true">
+              <% if (cover) { %>
+                <img
+                  src="<%= cloudinaryUrl(cover, { width: 640 }) %>"
+                  srcset="<%= cloudinarySrcSet(cover, [640, 960, 1280]) %>"
+                  sizes="(max-width: 640px) 45vw, (max-width: 1100px) 33vw, 280px"
+                  alt="<%= fmAltLabel(s.name, 'project thumbnail') %>"
+                  width="640"
+                  height="360"
+                  loading="lazy"
+                  decoding="async"
+                />
+              <% } else { %>
+                <span class="fm-dir-pop__fallback" data-letter="<%= (s.name || 'P').charAt(0).toUpperCase() %>"></span>
+              <% } %>
+            </a>
+            <div class="fm-dir-pop__body">
+              <h3 class="fm-dir-pop__title"><a href="<%= codeUrl %>"><%= s.name %></a></h3>
+              <ul class="fm-dir-pop__feats" aria-label="Included resources">
+                <li class="is-report">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7.5L19 8v12.5a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14.5 3.5V8H19" stroke="currentColor" stroke-width="1.7"/><path d="M9 12h6M9 15.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                  Report
+                </li>
+                <li class="is-code">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 8L5.5 12 9 16M15 8l3.5 4L15 16M13 7l-2 10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Code
+                </li>
+                <li class="is-demo<%= hasDemo ? '' : ' is-off' %>">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 9.2v5.6L15.2 12 10.5 9.2z" fill="currentColor"/></svg>
+                  Demo
+                </li>
+              </ul>
+              <% if (strip.showBtn) { %>
+                <a class="fm-dir-pop__btn" href="<%= codeUrl %>">View Project</a>
+              <% } %>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+  <% }); %>
+
+  <!-- Reports showcase + resource cards -->
+  <section class="fm-dir-showcase" aria-labelledby="fm-dir-reports-title">
+    <div class="fm-dir-showcase__inner">
+      <article class="fm-dir-reportcard">
+        <header class="fm-dir-reportcard__head">
+          <div>
+            <h2 id="fm-dir-reports-title">Plagiarism-Free Final-Year Project Reports</h2>
+            <p>Well-structured reports following academic standards and evaluation criteria.</p>
+          </div>
+        </header>
+
+        <div class="fm-dir-reportcard__body">
+          <div class="fm-dir-books">
+            <a class="fm-dir-books__all" href="/btech-final-year-project-report">View All Reports <span aria-hidden="true">→</span></a>
+            <%
+              var bookColors = ['#5B8DEF', '#6B7C93', '#8B7CF6', '#2BBBAD'];
+              var bookItems = (reports && reports.length)
+                ? reports.slice(0, 4)
+                : [
+                    { name: 'AI Resume Analyzer', seo_name: '' },
+                    { name: 'Inventory Management System', seo_name: '' },
+                    { name: 'Diabetes Disease Prediction System', seo_name: '' },
+                    { name: 'Online Quiz System', seo_name: '' }
+                  ];
+              bookItems.forEach(function (p, i) {
+                var href = p.seo_name
+                  ? ('/' + String(p.seo_name).trim().toLowerCase() + '-report')
+                  : '/final-year-project-ideas';
+                var bookTitle = String(p.name || '').replace(/\s*project\s*report\s*$/i, '').trim() || p.name;
+            %>
+              <a class="fm-dir-book" href="<%= href %>" style="--fm-book: <%= bookColors[i % bookColors.length] %>">
+                <span class="fm-dir-book__cover">
+                  <span class="fm-dir-book__brand">
+                    <span class="fm-dir-book__mark" aria-hidden="true"></span>
+                    FileMakr
+                  </span>
+                  <span class="fm-dir-book__copy">
+                    <span class="fm-dir-book__title"><%= bookTitle %></span>
+                    <span class="fm-dir-book__meta">Project Report</span>
+                  </span>
+                  <span class="fm-dir-book__wave" aria-hidden="true"></span>
+                </span>
+              </a>
+            <% }); %>
+          </div>
+
+          <div class="fm-dir-reportcard__side">
+            <h3>Every report includes</h3>
+            <ul class="fm-dir-reportcard__list">
+              <li>Introduction</li>
+              <li>Literature Review</li>
+              <li>System Analysis</li>
+              <li>Diagrams</li>
+              <li>Implementation</li>
+              <li>Testing</li>
+              <li>Conclusion</li>
+              <li>References</li>
+            </ul>
+            <div class="fm-dir-reportcard__pills">
+              <span class="fm-dir-pill fm-dir-pill--ok">Plagiarism-Free</span>
+              <span class="fm-dir-pill fm-dir-pill--blue">AI-Detection Reviewed</span>
+              <span class="fm-dir-pill fm-dir-pill--outline">Faculty-Aligned</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="fm-dir-splitpanel">
+        <aside class="fm-dir-review" aria-labelledby="fm-dir-review-title">
+          <header class="fm-dir-review__head">
+            <h3 id="fm-dir-review-title">How FileMakr Reviews Project Documentation</h3>
+            <p>Our workflow focuses on readability, authenticity, originality and documentation quality rather than artificial percentage claims.</p>
+          </header>
+          <ol class="fm-dir-review__steps">
+            <li>
+              <span class="fm-dir-review__icon" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></span>
+              <div>
+                <strong><em>01</em> Documentation Preparation</strong>
+                <span>Structure, formatting and content alignment</span>
+              </div>
+            </li>
+            <li>
+              <span class="fm-dir-review__icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+              <div>
+                <strong><em>02</em> Plagiarism Review</strong>
+                <span>Similarity checks and originality validation</span>
+              </div>
+            </li>
+            <li>
+              <span class="fm-dir-review__icon" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>
+              <div>
+                <strong><em>03</em> AI-Detection Review</strong>
+                <span>AI content patterns and humanization review</span>
+              </div>
+            </li>
+            <li>
+              <span class="fm-dir-review__icon" aria-hidden="true"><i class="fa-solid fa-clipboard-check"></i></span>
+              <div>
+                <strong><em>04</em> Final Documentation Check</strong>
+                <span>Quality, flow and academic readiness verification</span>
+              </div>
+            </li>
+            <li class="fm-dir-review__done">
+              <span class="fm-dir-review__icon" aria-hidden="true"><i class="fa-solid fa-graduation-cap"></i></span>
+              <div>
+                <strong>Ready for Academic Review</strong>
+              </div>
+            </li>
+          </ol>
+        </aside>
+
+        <aside class="fm-dir-ideaspanel" aria-labelledby="fm-dir-ideas-title">
+          <header class="fm-dir-ideaspanel__head">
+            <h3 id="fm-dir-ideas-title">Looking for a Project Idea?</h3>
+            <p>Discover project topics by technology, academic program and development domain before choosing your final project.</p>
+          </header>
+          <div class="fm-dir-ideaspanel__grid">
+            <%
+              var ideaTiles = [
+                { name: 'B.Tech Project Ideas', href: '/btech-final-year-project-report', icon: 'btech' },
+                { name: 'M.Tech Project Ideas', href: '/mtech-final-year-project-report', icon: 'mtech' },
+                { name: 'BCA Project Ideas', href: '/bca-final-year-project-report', icon: 'bca' },
+                { name: 'MCA Project Ideas', href: '/mca-final-year-project-report', icon: 'mca' },
+                { name: 'AIML Project Ideas', href: '/source-code/machine-learning', icon: 'aiml' },
+                { name: 'Python Project Ideas', href: '/source-code/python', icon: 'py' },
+                { name: 'MERN Project Ideas', href: '/source-code/mern', icon: 'mern' },
+                { name: 'PHP Project Ideas', href: '/source-code/php', icon: 'php' },
+                { name: 'Data Analytics Project Ideas', href: '/source-code/data-analytics', icon: 'data' },
+                { name: 'MEAN Project Ideas', href: '/source-code/mean', icon: 'mean' },
+                { name: 'Web Development Ideas', href: '/source-code/php', icon: 'web' },
+                { name: 'Research Project Ideas', href: '/final-year-project-ideas', icon: 'research' }
+              ];
+              ideaTiles.forEach(function (it) {
+            %>
+              <a class="fm-dir-ideacard" href="<%= it.href %>">
+                <span class="fm-dir-ideacard__icon fm-dir-ideacard__icon--<%= it.icon %>" aria-hidden="true"></span>
+                <span class="fm-dir-ideacard__copy">
+                  <strong><%= it.name %></strong>
+                  <em>Explore <span aria-hidden="true">→</span></em>
+                </span>
+              </a>
+            <% }); %>
+          </div>
+          <a class="fm-dir-ideaspanel__cta" href="/final-year-project-ideas">Explore Project Ideas</a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Degree hub (same layout as technology) -->
+  <section class="fm-dir-tech fm-dir-tech--hub" aria-labelledby="fm-dir-degree-title">
+    <div class="fm-dir-tech__inner">
+      <header class="fm-dir-tech__head">
+        <h2 id="fm-dir-degree-title">Browse Final-Year Projects by Degree</h2>
+      </header>
+      <div class="fm-dir-tech__row">
+        <%
+          var degreeHub = [
+            { name: 'B.Tech Projects', label: 'Engineering reports & ideas', href: '/btech-final-year-project-report', letter: 'B' },
+            { name: 'BCA Projects', label: 'Computer applications', href: '/bca-final-year-project-report', letter: 'B' },
+            { name: 'MCA Projects', label: 'PG computer applications', href: '/mca-final-year-project-report', letter: 'M' },
+            { name: 'M.Tech Projects', label: 'Advanced engineering', href: '/mtech-final-year-project-report', letter: 'M' },
+            { name: 'B.Sc CS Projects', label: 'Science & CS reports', href: '/bsc-final-year-project-report', letter: 'B' },
+            { name: 'M.Sc CS Projects', label: 'Postgraduate CS docs', href: '/msc-final-year-project-report', letter: 'M' }
+          ];
+          degreeHub.forEach(function (d) {
+        %>
+          <a class="fm-dir-tech__tile" href="<%= d.href %>">
+            <span class="fm-dir-tech__icon" aria-hidden="true">
+              <span class="fm-dir-tech__icon-fallback"><%= d.letter %></span>
+            </span>
+            <span class="fm-dir-tech__copy">
+              <strong><%= d.name %></strong>
+              <span><%= d.label %></span>
+            </span>
+          </a>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Helpful guides -->
+  <section class="fm-dir-guides" aria-labelledby="fm-dir-guides-title">
+    <div class="fm-dir-guides__inner">
+      <header class="fm-dir-guides__head">
+        <h2 id="fm-dir-guides-title">Helpful Guides for Final-Year Project Students</h2>
+        <a class="fm-dir-strip__all" href="/blog">View all guides <span aria-hidden="true">→</span></a>
+      </header>
+      <div class="fm-dir-guides__row">
+        <%
+          var guideTiles = [
+            {
+              title: 'How to Choose the Best Final Year Project Topic',
+              desc: 'Tips to select the right topic based on interest and skills.',
+              href: '/blog/how-to-choose-the-best-final-year-project-2026',
+              icon: 'topic'
+            },
+            {
+              title: 'How to Write a Final Year Project Report',
+              desc: 'Step-by-step guide to writing professional reports.',
+              href: '/blog/how-to-write-final-year-project-report',
+              icon: 'report'
+            },
+            {
+              title: 'Best Python Project Ideas for Students',
+              desc: 'Top Python projects for final year and skill building.',
+              href: '/blog/50-python-projects-with-source-code',
+              icon: 'python'
+            },
+            {
+              title: 'AI & Machine Learning Project Ideas',
+              desc: 'Explore ML and AI project ideas with real impact.',
+              href: '/source-code/machine-learning',
+              icon: 'ai'
+            },
+            {
+              title: 'Node.js Project Ideas',
+              desc: 'Practical Node.js project ideas for students.',
+              href: '/blog/30-node-js-projects-for-students',
+              icon: 'node'
+            },
+            {
+              title: 'How to Prepare for Your Project Viva',
+              desc: 'Tips to prepare confidently for project viva.',
+              href: '/blog/how-to-prepare-for-final-year-project-viva',
+              icon: 'viva'
+            }
+          ];
+          guideTiles.forEach(function (g) {
+        %>
+          <a class="fm-dir-guidecard" href="<%= g.href %>">
+            <span class="fm-dir-guidecard__icon fm-dir-guidecard__icon--<%= g.icon %>" aria-hidden="true"></span>
+            <span class="fm-dir-guidecard__copy">
+              <strong><%= g.title %></strong>
+              <span><%= g.desc %></span>
+            </span>
+          </a>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why + Testimonials -->
+  <section class="fm-dir-trust" aria-labelledby="fm-dir-why-title">
+    <div class="fm-dir-trust__inner">
+      <aside class="fm-dir-whybox" aria-labelledby="fm-dir-why-title">
+        <h2 id="fm-dir-why-title">Why Students Choose FileMakr</h2>
+        <ul class="fm-dir-whygrid">
+          <li>
+            <span class="fm-dir-whygrid__icon fm-dir-whygrid__icon--search" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <span>
+              <strong>Project Discovery</strong>
+              <em>Search across hundreds of project topics</em>
+            </span>
+          </li>
+          <li>
+            <span class="fm-dir-whygrid__icon fm-dir-whygrid__icon--code" aria-hidden="true"><i class="fa-solid fa-code"></i></span>
+            <span>
+              <strong>Runnable Source Code</strong>
+              <em>Structured projects with README &amp; dependencies</em>
+            </span>
+          </li>
+          <li>
+            <span class="fm-dir-whygrid__icon fm-dir-whygrid__icon--docs" aria-hidden="true"><i class="fa-solid fa-file-signature"></i></span>
+            <span>
+              <strong>Plagiarism-free Docs</strong>
+              <em>Originality checked academic reports</em>
+            </span>
+          </li>
+          <li>
+            <span class="fm-dir-whygrid__icon fm-dir-whygrid__icon--demo" aria-hidden="true"><i class="fa-solid fa-circle-play"></i></span>
+            <span>
+              <strong>Live Demo</strong>
+              <em>Preview selected projects before choosing</em>
+            </span>
+          </li>
+          <li>
+            <span class="fm-dir-whygrid__icon fm-dir-whygrid__icon--ai" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <span>
+              <strong>AI-Detection Review</strong>
+              <em>Documentation prepared with AI workflows</em>
+            </span>
+          </li>
+          <li>
+            <span class="fm-dir-whygrid__icon fm-dir-whygrid__icon--support" aria-hidden="true"><i class="fa-solid fa-headset"></i></span>
+            <span>
+              <strong>Setup Support</strong>
+              <em>Get guidance when you need help running the project</em>
+            </span>
+          </li>
+        </ul>
+
+
+      </aside>
+
+      <aside class="fm-dir-quotes" aria-label="Student testimonials">
+        <article class="fm-dir-quote">
+          <span class="fm-dir-quote__mark" aria-hidden="true">“</span>
+          <p>The live demos and documentation helped me understand the project end-to-end.</p>
+          <footer class="fm-dir-quote__foot">
+            <img class="fm-dir-quote__avatar" src="https://ui-avatars.com/api/?name=Rohit+Verma&background=ECFDF5&color=047857&size=64" alt="Rohit Verma, MCA student testimonial avatar" width="40" height="40" loading="lazy" decoding="async" />
+            <div>
+              <strong>Rohit Verma</strong>
+              <span>MCA, Pune University</span>
+              <span class="fm-dir-quote__stars" aria-label="5 out of 5 stars">★★★★★</span>
+            </div>
+          </footer>
+        </article>
+        <article class="fm-dir-quote">
+          <span class="fm-dir-quote__mark" aria-hidden="true">“</span>
+          <p>Very original content and great support team. Highly recommended!</p>
+          <footer class="fm-dir-quote__foot">
+            <img class="fm-dir-quote__avatar" src="https://ui-avatars.com/api/?name=Neha+Patil&background=FFF7ED&color=C2410C&size=64" alt="Neha Patil, BCA student testimonial avatar" width="40" height="40" loading="lazy" decoding="async" />
+            <div>
+              <strong>Neha Patil</strong>
+              <span>BCA, Mumbai University</span>
+              <span class="fm-dir-quote__stars" aria-label="5 out of 5 stars">★★★★★</span>
+            </div>
+          </footer>
+        </article>
+      </aside>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="fm-dir-faqband" aria-labelledby="fm-dir-faq-title">
+    <div class="fm-dir-faqband__inner">
+      <header class="fm-dir-faqband__head">
+        <h2 id="fm-dir-faq-title">Frequently Asked Questions About Final-Year Projects</h2>
+      </header>
+      <div class="fm-dir-faqgrid" id="fmDirFaq">
+        <% faqs.forEach(function (f, i) { %>
+          <div class="fm-dir-acc">
+            <h3 class="fm-dir-acc__q">
+              <button type="button" aria-expanded="false" aria-controls="fmFaq<%= i %>" id="fmFaqBtn<%= i %>">
+                <%= f[0] %>
+              </button>
+            </h3>
+            <div class="fm-dir-acc__a" id="fmFaq<%= i %>" role="region" aria-labelledby="fmFaqBtn<%= i %>" hidden>
+              <p><%= f[1] %></p>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="fm-dir-ctaband" aria-labelledby="fm-dir-cta-title">
+    <div class="fm-dir-ctaband__panel">
+      <h2 id="fm-dir-cta-title">Your next project is probably already here.</h2>
+      <form class="fm-dir-ctasearch" action="/search" method="get" role="search">
+        <label class="visually-hidden" for="fmDirSearchQ2">Search projects</label>
+        <div class="fm-dir-ctasearch__field">
+          <span class="fm-dir-ctasearch__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+          </span>
+          <input id="fmDirSearchQ2" class="fm-dir-ctasearch__input" type="search" name="q" placeholder="Search 1,200+ projects..." required minlength="2" />
+          <input type="hidden" name="type" value="Source Code" />
+          <button class="fm-dir-ctasearch__btn" type="submit">Search Projects</button>
+        </div>
+      </form>
+      <div class="fm-dir-ctapops">
+        <span class="fm-dir-ctapops__label">Popular searches:</span>
+        <a class="fm-dir-ctapops__chip" href="/source-code/php">PHP project</a>
+        <a class="fm-dir-ctapops__chip" href="/source-code/mern">MERN project</a>
+        <a class="fm-dir-ctapops__chip" href="/source-code/python">Python project</a>
+        <a class="fm-dir-ctapops__chip" href="/source-code/machine-learning">AIML project</a>
+        <a class="fm-dir-ctapops__chip" href="/source-code/data-analytics">Data analytics project</a>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "FileMakr",
+    "url": "https://www.filemakr.com/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.filemakr.com/search?q={search_term_string}&type=Source%20Code",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      <% faqs.forEach(function (f, i) { %>
+      {
+        "@type": "Question",
+        "name": <%- JSON.stringify(f[0]) %>,
+        "acceptedAnswer": { "@type": "Answer", "text": <%- JSON.stringify(f[1]) %> }
+      }<%= i < faqs.length - 1 ? ',' : '' %>
+      <% }); %>
+    ]
+  }
+  </script>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('fmDirFilterToggle');
+  var drawer = document.getElementById('fmDirFiltersDrawer');
+  var closeBtn = document.getElementById('fmDirFilterClose');
+  function openDrawer() {
+    if (!drawer) return;
+    drawer.hidden = false;
+    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    if (!drawer) return;
+    drawer.hidden = true;
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+  if (toggle) toggle.addEventListener('click', openDrawer);
+  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  if (drawer) {
+    drawer.addEventListener('click', function (e) {
+      if (e.target === drawer) closeDrawer();
+    });
+  }
+
+  var filterPanel = document.getElementById('fmDirFiltersPanel');
+  var applyBtn = document.getElementById('fmDirApplyFilters');
+  var resetBtn = document.getElementById('fmDirResetFilters');
+  if (applyBtn && filterPanel) {
+    applyBtn.addEventListener('click', function () {
+      var checked = filterPanel.querySelector('input[type="checkbox"]:checked');
+      if (checked && checked.value) {
+        if (checked.getAttribute('data-external') === '1') {
+          window.open(checked.value, '_blank', 'noopener,noreferrer');
+        } else {
+          window.location.href = checked.value;
+        }
+        return;
+      }
+      window.location.href = '/source-code';
+    });
+  }
+  if (resetBtn && filterPanel) {
+    resetBtn.addEventListener('click', function () {
+      filterPanel.querySelectorAll('input[type="checkbox"]').forEach(function (box) {
+        box.checked = false;
+      });
+    });
+  }
+
+  document.querySelectorAll('#fmDirFaq .fm-dir-acc__q button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var expanded = btn.getAttribute('aria-expanded') === 'true';
+      var panel = document.getElementById(btn.getAttribute('aria-controls'));
+      if (expanded) {
+        btn.setAttribute('aria-expanded', 'false');
+        if (panel) panel.hidden = true;
+        return;
+      }
+      document.querySelectorAll('#fmDirFaq .fm-dir-acc__q button').forEach(function (b) {
+        b.setAttribute('aria-expanded', 'false');
+        var p = document.getElementById(b.getAttribute('aria-controls'));
+        if (p) p.hidden = true;
+      });
+      btn.setAttribute('aria-expanded', 'true');
+      if (panel) panel.hidden = false;
+    });
+  });
+})();
+</script>

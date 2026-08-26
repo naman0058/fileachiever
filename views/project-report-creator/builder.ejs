@@ -3,169 +3,27 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title><%= pageTitle %> • FileAchiever</title>
+  <title><%= pageTitle %> • FileMakr</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link rel="stylesheet" href="/setup-support/support.css">
-  <style>
-    :root {
-      --prc-primary: #2E48FB;
-      --prc-primary-soft: rgba(46, 72, 251, 0.08);
-      --prc-border: #e2e8f0;
-      --prc-text-muted: #64748b;
-      --prc-radius: 12px;
-    }
-    .prc-builder-wrap { max-width: 1400px; margin: 0 auto; }
-    .prc-hero {
-      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-      border: 1px solid var(--prc-border);
-      border-radius: var(--prc-radius);
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.25rem;
-    }
-    .prc-steps { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-    .prc-step {
-      display: inline-flex; align-items: center; gap: 0.35rem;
-      font-size: 0.8rem; font-weight: 600; color: var(--prc-text-muted);
-      background: #fff; border: 1px solid var(--prc-border); border-radius: 999px;
-      padding: 0.35rem 0.85rem;
-    }
-    .prc-step i { color: var(--prc-primary); }
-    .prc-layout {
-      display: grid; grid-template-columns: minmax(320px, 1fr) minmax(380px, 1.1fr);
-      gap: 1.25rem; align-items: start;
-    }
-    @media (max-width: 1100px) { .prc-layout { grid-template-columns: 1fr; } }
-    .prc-panel {
-      background: #fff; border: 1px solid var(--prc-border); border-radius: var(--prc-radius);
-      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06); overflow: hidden;
-    }
-    .prc-panel-header {
-      padding: 1rem 1.25rem; border-bottom: 1px solid var(--prc-border);
-      background: linear-gradient(180deg, #fafbff 0%, #fff 100%);
-    }
-    .prc-panel-header h2 { font-size: 1.05rem; font-weight: 700; margin: 0; color: #0f172a; }
-    .prc-panel-header p { margin: 0.25rem 0 0; font-size: 0.8rem; color: var(--prc-text-muted); }
-    .prc-panel-body { padding: 1rem 1.25rem 1.25rem; }
-    /* Content library: checkbox-only, hierarchical list */
-    .prc-library-bulk-hint {
-      font-size: 0.8125rem; font-weight: 600; color: #475569; margin-bottom: 1rem;
-    }
-    .prc-section-group { margin-bottom: 1.25rem; }
-    .prc-section-group:last-child { margin-bottom: 0; }
-    .prc-section-heading {
-      font-size: 0.95rem; font-weight: 700; color: #0f172a; line-height: 1.35;
-    }
-    .prc-section-heading label { cursor: pointer; }
-    .prc-sub-list { margin: 0.35rem 0 0 0; padding: 0; list-style: none; }
-    .prc-sub-pill {
-      background: #fff; border: 1px solid var(--prc-border); border-radius: 10px;
-      padding: 0.5rem 0.85rem; margin-bottom: 0.4rem; margin-left: 0.5rem;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .prc-sub-pill:hover { border-color: #cbd5e1; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05); }
-    .prc-sub-pill label { cursor: pointer; margin: 0; font-size: 0.875rem; color: #334155; }
-    .prc-lib-option {
-      background: #fff; border: 1px solid var(--prc-border); border-radius: 10px;
-      padding: 0.5rem 0.85rem; margin-bottom: 0.4rem;
-      display: flex; align-items: center; justify-content: space-between; gap: 0.65rem;
-    }
-    .prc-lib-option:hover { border-color: #cbd5e1; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05); }
-    .prc-lib-option label { cursor: pointer; margin: 0; flex: 1; min-width: 0; font-size: 0.875rem; }
-    .prc-lib-type-hint {
-      font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-      color: #94a3b8; flex-shrink: 0;
-    }
-    /* Report outline: compact tree (Heading / Subheading / …) */
-    .report-item {
-      background: #fff; border: 1px solid #e8ecf1; border-radius: 6px;
-      padding: 0.3rem 0.45rem; margin-bottom: 0.2rem;
-      display: grid; grid-template-columns: auto auto 1fr auto; gap: 0.35rem 0.45rem; align-items: start;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .report-item.prc-outline-sub,
-    .report-item.prc-outline-extra {
-      margin-left: 1.1rem;
-      border-left: 3px solid #c7d2fe;
-      padding-left: 0.5rem;
-      background: #fafbff;
-    }
-    .report-item.prc-outline-heading {
-      background: #fff;
-      border-color: #dce3eb;
-      margin-top: 0.35rem;
-    }
-    .report-item.prc-outline-heading:first-child { margin-top: 0; }
-    .report-item:has(.report-outline-select:checked) {
-      border-color: #a5b4fc;
-      background: #f5f7ff !important;
-    }
-    .sortable-selected {
-      border-color: #6366f1 !important;
-      background: #eef2ff !important;
-      box-shadow: inset 3px 0 0 #6366f1;
-    }
-    .report-outline-cb-wrap { align-self: center; line-height: 1; margin-top: 0.2rem; }
-    .report-outline-cb-wrap .form-check-input { margin-top: 0; cursor: pointer; width: 1rem; height: 1rem; }
-    .prc-outline-toolbar .btn { font-size: 0.8125rem; }
-    .report-item-ghost { opacity: 0.45; background: var(--prc-primary-soft) !important; border-style: dashed !important; }
-    .report-item-drag { box-shadow: 0 8px 24px rgba(46, 72, 251, 0.18) !important; }
-    .report-item .drag-handle {
-      color: #94a3b8; cursor: grab; padding: 0.15rem 0.2rem; border-radius: 4px; align-self: center; margin-top: 0.15rem;
-      font-size: 1rem;
-    }
-    .report-item .drag-handle:active { cursor: grabbing; }
-    .report-item .drag-handle:hover { background: #f1f5f9; color: var(--prc-primary); }
-    .report-item .btn-remove { align-self: center; margin-top: 0.15rem; }
-    .report-item-main { min-width: 0; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .report-item .prc-outline-input {
-      border: 1px solid transparent; background: transparent;
-      font-size: 0.9rem; padding: 0.2rem 0.35rem; flex: 1; min-width: 120px;
-    }
-    .report-item .prc-outline-input:hover { border-color: #e2e8f0; background: #fff; }
-    .report-item .prc-outline-input:focus {
-      border-color: var(--prc-primary); background: #fff; box-shadow: 0 0 0 2px var(--prc-primary-soft);
-    }
-    .report-item.prc-outline-heading .prc-outline-input {
-      font-weight: 700; font-size: 0.95rem; color: #0f172a;
-    }
-    .report-item.prc-outline-sub .prc-outline-input { font-size: 0.875rem; color: #334155; }
-    .report-item.prc-outline-extra .prc-outline-input { font-size: 0.875rem; color: #475569; }
-    .prc-outline-kind {
-      font-size: 0.68rem; font-weight: 600; color: #94a3b8; white-space: nowrap;
-      text-transform: none; letter-spacing: 0.01em;
-    }
-    .report-items-list {
-      min-height: 100px; padding: 0.25rem; border-radius: 8px; background: #f1f5f9;
-      border: 1px solid var(--prc-border);
-    }
-    .prc-outline-help {
-      font-size: 0.78rem; color: var(--prc-text-muted); line-height: 1.4;
-      background: #f8fafc; border: 1px solid var(--prc-border); border-radius: 8px; padding: 0.5rem 0.65rem; margin-bottom: 0.5rem;
-    }
-    .report-empty-hint {
-      text-align: center; padding: 2rem 1rem; color: var(--prc-text-muted); font-size: 0.9rem;
-      border: 2px dashed #e2e8f0; border-radius: 10px; background: #fff;
-    }
-    .accordion-button:not(.collapsed) { background: var(--prc-primary-soft); color: #1e293b; box-shadow: none; }
-    .accordion-button:focus { box-shadow: 0 0 0 2px rgba(46, 72, 251, 0.25); }
-    .prc-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
-    .prc-hint-pill {
-      display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem;
-      color: var(--prc-text-muted); background: #f1f5f9; border-radius: 8px; padding: 0.35rem 0.65rem;
-    }
-  </style>
+  <link rel="stylesheet" href="/setup-support/prc.css?v=2">
 </head>
-<body class="support-body">
+<body class="support-body prc-app">
 <div class="support-layout">
   <aside class="support-sidebar-wrap">
     <div class="support-sidebar">
       <div class="support-sidebar__brand">
+        <div class="prc-brand-mark"><span></span> FileMakr</div>
         <div class="support-brand">Report Creator</div>
         <div class="support-sub"><%= sc.name %></div>
+        <div class="prc-role-chip">Builder</div>
       </div>
       <nav class="support-nav">
-        <a class="support-link" href="/project-report-creator"><i class="bi bi-grid-3x3-gap-fill"></i>Dashboard</a>
+        <a class="support-link" href="/project-report-creator"><i class="bi bi-grid-3x3-gap-fill"></i>Projects</a>
+        <a class="support-link active" href="/project-report-creator/create/<%= sc.id %>"><i class="bi bi-pencil-square"></i>Builder</a>
         <div class="support-nav__sep"></div>
         <a class="support-link danger" href="/project-report-creator/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
       </nav>
@@ -173,55 +31,73 @@
         <div class="support-user__avatar"><i class="bi bi-person-circle"></i></div>
         <div class="support-user__info">
           <div class="support-user__name"><%= user.name %></div>
-          <div class="support-user__meta">Report Creator</div>
+          <div class="support-user__meta">Project Report Creator</div>
         </div>
       </div>
     </div>
   </aside>
 
   <main class="support-main">
-    <div class="container-fluid px-4 py-4 prc-builder-wrap">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-        <h1 class="support-page-title mb-0">Create Report: <%= sc.name %></h1>
-        <a href="/project-report-creator" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
-      </div>
-
-      <div class="prc-hero">
-        <div class="prc-steps mb-2">
-          <span class="prc-step"><i class="bi bi-1-circle-fill"></i> Pick content</span>
-          <span class="prc-step"><i class="bi bi-2-circle-fill"></i> Add to report</span>
-          <span class="prc-step"><i class="bi bi-3-circle-fill"></i> Reorder &amp; edit titles</span>
-          <span class="prc-step"><i class="bi bi-4-circle-fill"></i> Download Word</span>
+    <div class="prc-shell">
+      <div class="prc-builder-top">
+        <div class="prc-builder-top__meta">
+          <div class="prc-crumb">
+            <a href="/project-report-creator">Dashboard</a>
+            <span class="prc-crumb__sep">/</span>
+            <span>Create</span>
+            <span class="prc-crumb__sep">/</span>
+            <span class="prc-crumb__current" title="<%= sc.name %>"><%= sc.name %></span>
+          </div>
+          <h1 class="prc-topbar__title" style="font-size:22px;margin:0;">Create report</h1>
         </div>
-        <p class="mb-0 small text-secondary">
-          <strong>Simple steps:</strong> (1) Tick items in the library → <strong>Add to report</strong>. (2) Use <strong>Add main title</strong> / <strong>Add subtitle</strong> for chapter names, then drag rows so each section sits above its screens and diagrams. (3) Drag <strong>⋮⋮</strong> to reorder; <kbd>Shift</kbd>+click to move several lines. (4) <strong>Download Word</strong> when ready.
-        </p>
+        <div class="prc-builder-top__actions">
+          <span class="prc-live-count"><strong id="prcLiveItemCount">0</strong> items in outline</span>
+          <a href="/project-report-creator" class="prc-btn prc-btn--ghost prc-btn--sm"><i class="bi bi-arrow-left"></i> Back</a>
+        </div>
       </div>
 
-      <div class="card mb-3 border-primary" style="border-width: 2px;">
-        <div class="card-body py-3">
-          <h3 class="h6 fw-bold mb-2 text-primary"><i class="bi bi-image me-2"></i>Table of contents image (OCR)</h3>
-          <p class="small text-muted mb-2 mb-md-3">
-            Upload a clear photo or screenshot of a table of contents. The server runs <strong>on-device OCR</strong> (Tesseract) to read chapter lines—no OpenAI or other cloud AI. We then <strong>load the entire content library into your report</strong>, add <strong>missing chapters or subtitles</strong> that match numbered lines in the image but not in the library, and insert a simple <strong>Conclusion Summary placeholder</strong> you can replace with your own text. Best results: high contrast, straight text, visible numbers like <code>1 Introduction</code> and <code>1.1 Background</code>.
-          </p>
-          <div class="d-flex flex-wrap align-items-center gap-2">
-            <input type="file" id="prcTocImageInput" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control form-control-sm" style="max-width: min(100%, 320px);">
-            <button type="button" class="btn btn-sm btn-primary" id="btnTocFromImage">
-              <i class="bi bi-stars me-1"></i>Analyze TOC &amp; fill report
+      <section class="prc-toc-studio" aria-label="Paste table of contents">
+        <div class="prc-toc-studio__main">
+          <h2 class="prc-toc-studio__label"><i class="bi bi-clipboard-plus"></i> Paste table of content</h2>
+          <p class="prc-toc-studio__hint">Paste your TOC, generate a matched outline from this project’s library, then download Word. Missing titles become blank pages.</p>
+          <textarea id="prcTocPasteText" rows="8" placeholder="1 Introduction&#10;1.1 Background of the Project&#10;2 System Architecture&#10;3 Data Flow Diagram (Level 0)&#10;4 Use Case Diagram&#10;5 Database Schema&#10;6 Table Structures&#10;7 Results and Discussion&#10;8 Conclusion"></textarea>
+          <div class="prc-toc-actions">
+            <button type="button" class="prc-btn prc-btn--blue" id="btnTocFromText">
+              <i class="bi bi-magic"></i> Generate report from TOC
             </button>
+            <span id="prcTocGenerateNote" class="d-none"></span>
           </div>
         </div>
-      </div>
+        <aside class="prc-toc-studio__aside">
+          <p class="prc-aside-title">Auto-match rules</p>
+          <ul class="prc-match-list">
+            <li><i class="bi bi-diagram-3"></i> “Data Flow Diagram” → Zero / First / Second Level DFDs (0 same page)</li>
+            <li><i class="bi bi-share"></i> Entity-Relationship Diagram → ER diagram</li>
+            <li><i class="bi bi-book"></i> Bibliography / References → content only (no 11.1 subheading)</li>
+            <li><i class="bi bi-diagram-3"></i> Architecture, UML, ER → diagrams only</li>
+            <li><i class="bi bi-database"></i> Database Schema / Data Dictionary → DB screenshots</li>
+            <li><i class="bi bi-table"></i> Table Structures → data tables</li>
+            <li><i class="bi bi-window-stack"></i> Results &amp; Discussion → UI screenshots</li>
+            <li><i class="bi bi-file-earmark"></i> Unmatched titles → blank page with heading</li>
+          </ul>
+          <div class="prc-how">
+            <details>
+              <summary>Manual build tips</summary>
+              Tick library items → Add to report. Use Add main title / subtitle, drag to reorder, then Download Word from the bar below.
+            </details>
+          </div>
+        </aside>
+      </section>
 
-      <div class="prc-layout mb-4">
+      <div class="prc-layout">
         <div class="prc-panel">
           <div class="prc-panel-header">
-            <h2><i class="bi bi-collection me-2 text-primary"></i>Content library</h2>
-            <p>Select items with checkboxes — no drag-and-drop here.</p>
+            <h2><i class="bi bi-collection me-2"></i>Content library</h2>
+            <p>Select items with checkboxes, then add them to the outline.</p>
           </div>
           <div class="prc-panel-body">
             <div class="accordion accordion-flush" id="libraryAccordion">
-              <div class="accordion-item border rounded mb-2 overflow-hidden">
+              <div class="accordion-item">
                 <h2 class="accordion-header">
                   <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSections" aria-expanded="true">
                     <i class="bi bi-journal-text me-2"></i>Sections &amp; subheadings
@@ -233,7 +109,7 @@
                   </div>
                 </div>
               </div>
-              <div class="accordion-item border rounded mb-2 overflow-hidden">
+              <div class="accordion-item">
                 <h2 class="accordion-header">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDiagrams">
                     <i class="bi bi-diagram-3 me-2"></i>Diagrams
@@ -245,7 +121,7 @@
                   </div>
                 </div>
               </div>
-              <div class="accordion-item border rounded mb-2 overflow-hidden">
+              <div class="accordion-item">
                 <h2 class="accordion-header">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDbDt">
                     <i class="bi bi-table me-2"></i>Datatables
@@ -257,7 +133,7 @@
                   </div>
                 </div>
               </div>
-              <div class="accordion-item border rounded mb-2 overflow-hidden">
+              <div class="accordion-item">
                 <h2 class="accordion-header">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDbShot">
                     <i class="bi bi-images me-2"></i>Database screenshots
@@ -269,7 +145,7 @@
                   </div>
                 </div>
               </div>
-              <div class="accordion-item border rounded overflow-hidden">
+              <div class="accordion-item">
                 <h2 class="accordion-header">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseScr">
                     <i class="bi bi-window-stack me-2"></i>UI screenshots
@@ -284,37 +160,61 @@
             </div>
             <div class="prc-toolbar">
               <button type="button" class="btn btn-primary" id="btnAddSelected"><i class="bi bi-plus-lg me-1"></i>Add to report</button>
-              <span class="prc-hint-pill"><i class="bi bi-check2-square"></i> Tick any rows, then add — repeat as needed</span>
+              <span class="prc-hint-pill"><i class="bi bi-check2-square"></i> Tick rows, then add</span>
             </div>
           </div>
         </div>
 
         <div class="prc-panel">
           <div class="prc-panel-header">
-            <h2><i class="bi bi-list-nested me-2 text-primary"></i>Your report list</h2>
-            <p class="mb-0">Build chapters in order: use <strong>Add main title</strong> / <strong>Add subtitle</strong> for Word sections, then drag them above the pictures or pages they belong to. Content lines stay indented; drag ⋮⋮ to reorder.</p>
+            <h2><i class="bi bi-list-nested me-2"></i>Report outline</h2>
+            <p>Edit titles, drag to reorder, then export from the bar below.</p>
           </div>
           <div class="prc-panel-body">
-            <div class="prc-outline-help mb-2">
-              <strong>Chapters:</strong> add titles with the green buttons, type the name, then drag the row where you need it. <strong>Quick tools:</strong> tick boxes for <strong>Put at top</strong> / <strong>bottom</strong> or <strong>Remove ticked</strong>.
+            <div class="prc-outline-help">
+              <strong>Chapters:</strong> Add main title / subtitle, then drag above related media. Tick rows for bulk move or remove.
             </div>
-            <div class="prc-outline-toolbar d-flex flex-wrap align-items-center gap-2 mb-2">
-              <button type="button" class="btn btn-sm btn-success" id="btnAddOutlineHeading" title="Inserts a main chapter title (Word: Chapter 1, 2, …)"><i class="bi bi-bookmark-plus me-1"></i>Add main title</button>
-              <button type="button" class="btn btn-sm btn-outline-success" id="btnAddOutlineSubheading" title="Inserts a subtitle under the current chapter (Word: 1.1, 1.2, …)"><i class="bi bi-bookmark me-1"></i>Add subtitle</button>
+            <div class="prc-outline-toolbar">
+              <button type="button" class="btn btn-sm btn-success" id="btnAddOutlineHeading" title="Inserts a main chapter title"><i class="bi bi-bookmark-plus me-1"></i>Add main title</button>
+              <button type="button" class="btn btn-sm btn-outline-success" id="btnAddOutlineSubheading" title="Inserts a subtitle"><i class="bi bi-bookmark me-1"></i>Add subtitle</button>
               <span class="border-start mx-1 align-self-stretch d-none d-sm-block" style="min-height:1.5rem;"></span>
-              <button type="button" class="btn btn-sm btn-outline-primary" id="btnOutlineMoveEnd" title="Selected lines move to the bottom, in the same order"><i class="bi bi-arrow-down-circle me-1"></i>Put at bottom</button>
-              <button type="button" class="btn btn-sm btn-outline-primary" id="btnOutlineMoveStart" title="Selected lines move to the top"><i class="bi bi-arrow-up-circle me-1"></i>Put at top</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="btnOutlineMoveEnd"><i class="bi bi-arrow-down-circle me-1"></i>Put at bottom</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="btnOutlineMoveStart"><i class="bi bi-arrow-up-circle me-1"></i>Put at top</button>
               <button type="button" class="btn btn-sm btn-outline-secondary" id="btnOutlineClearSel">Clear ticks</button>
               <button type="button" class="btn btn-sm btn-outline-danger" id="btnOutlineRemoveSel"><i class="bi bi-trash me-1"></i>Remove ticked</button>
             </div>
             <div id="reportItems" class="report-items-list"></div>
-            <div class="report-empty-hint mt-2" id="reportEmptyMsg">Nothing in your list yet. Pick items in the library on the left, then click <strong>Add to report</strong>.</div>
-            <div class="d-flex flex-wrap gap-2 mt-3">
-              <button type="button" class="btn btn-success" id="btnDownloadWord"><i class="bi bi-download me-2"></i>Download Word document</button>
-              <button type="button" class="btn btn-outline-danger" id="btnClearReport">Clear whole list</button>
-            </div>
+            <div class="report-empty-hint mt-2" id="reportEmptyMsg">Nothing in your list yet. Generate from TOC above, or pick library items and click <strong>Add to report</strong>.</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="prc-export-bar" role="region" aria-label="Export actions">
+      <div class="prc-export-bar__left">
+        Outline ready: <strong id="prcExportItemCount">0</strong> item(s)
+      </div>
+      <div class="prc-export-bar__actions">
+        <button type="button" class="prc-btn prc-btn--orange" id="btnDownloadWord"><i class="bi bi-download"></i> Download Word</button>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-journal-text me-1"></i>Synopsis
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><button type="button" class="dropdown-item js-prc-pack-dl" data-id="<%= sc.id %>" data-name="<%= (sc.name||'Report').replace(/"/g,'&quot;') %>" data-plan="synopsis" data-format="docx"><i class="bi bi-file-earmark-word me-1"></i>Word</button></li>
+            <li><button type="button" class="dropdown-item js-prc-pack-dl" data-id="<%= sc.id %>" data-name="<%= (sc.name||'Report').replace(/"/g,'&quot;') %>" data-plan="synopsis" data-format="pdf"><i class="bi bi-filetype-pdf me-1"></i>PDF</button></li>
+          </ul>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-file-earmark-ruled me-1"></i>Pre Defined
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><button type="button" class="dropdown-item js-prc-pack-dl" data-id="<%= sc.id %>" data-name="<%= (sc.name||'Report').replace(/"/g,'&quot;') %>" data-plan="report" data-format="docx"><i class="bi bi-file-earmark-word me-1"></i>Word</button></li>
+            <li><button type="button" class="dropdown-item js-prc-pack-dl" data-id="<%= sc.id %>" data-name="<%= (sc.name||'Report').replace(/"/g,'&quot;') %>" data-plan="report" data-format="pdf"><i class="bi bi-filetype-pdf me-1"></i>PDF</button></li>
+          </ul>
+        </div>
+        <button type="button" class="btn btn-outline-danger" id="btnClearReport">Clear list</button>
       </div>
     </div>
   </main>
@@ -758,6 +658,14 @@ function restoreOutlineSelection(uidSet) {
   });
 }
 
+function updatePrcLiveCounts() {
+  var n = reportItems.length;
+  var elTop = document.getElementById('prcLiveItemCount');
+  var elBar = document.getElementById('prcExportItemCount');
+  if (elTop) elTop.textContent = String(n);
+  if (elBar) elBar.textContent = String(n);
+}
+
 function renderReportItems() {
   const el = document.getElementById('reportItems');
   const emptyMsg = document.getElementById('reportEmptyMsg');
@@ -770,6 +678,7 @@ function renderReportItems() {
     el.appendChild(div);
   });
   emptyMsg.style.display = reportItems.length ? 'none' : 'block';
+  updatePrcLiveCounts();
   mountReportSortable();
 }
 
@@ -916,24 +825,28 @@ document.getElementById('btnClearReport').onclick = function() {
   }
 };
 
-document.getElementById('btnTocFromImage').onclick = async function () {
-  const inp = document.getElementById('prcTocImageInput');
-  const f = inp.files && inp.files[0];
-  if (!f) {
-    alert('Choose an image of your table of contents first (JPEG, PNG, WebP, or GIF).');
+document.getElementById('btnTocFromText').onclick = async function () {
+  const ta = document.getElementById('prcTocPasteText');
+  const text = (ta && ta.value) ? ta.value.trim() : '';
+  if (!text) {
+    alert('Paste your table of contents text first.');
     return;
   }
   const btn = this;
   const prev = btn.innerHTML;
+  const noteEl = document.getElementById('prcTocGenerateNote');
+  if (noteEl) {
+    noteEl.classList.add('d-none');
+    noteEl.textContent = '';
+  }
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Working…';
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Generating…';
   try {
-    const fd = new FormData();
-    fd.append('tocImage', f);
-    const res = await fetch('/project-report-creator/api/source-code/' + scId + '/toc-from-image', {
+    const res = await fetch('/project-report-creator/api/source-code/' + scId + '/toc-from-text', {
       method: 'POST',
-      body: fd,
-      credentials: 'same-origin'
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ text: text })
     });
     const ct = (res.headers.get('Content-Type') || '').toLowerCase();
     if (!res.ok) {
@@ -954,10 +867,25 @@ document.getElementById('btnTocFromImage').onclick = async function () {
     renderReportItems();
     var lines = [];
     if (data.notes) lines.push(data.notes);
-    if (data.addedLabels && data.addedLabels.length) lines.push('Added from TOC: ' + data.addedLabels.join('; '));
-    alert(lines.length ? lines.join('\n\n') : 'Report list updated from your TOC and full content library.');
+    if (data.matchedLabels && data.matchedLabels.length) {
+      lines.push('Matched: ' + data.matchedLabels.slice(0, 12).join('; ') + (data.matchedLabels.length > 12 ? '…' : ''));
+    }
+    if (data.missingLabels && data.missingLabels.length) {
+      lines.push('Blank placeholders: ' + data.missingLabels.slice(0, 12).join('; ') + (data.missingLabels.length > 12 ? '…' : ''));
+    }
+    lines.push('Report built — click Download Word when ready.');
+    if (noteEl) {
+      noteEl.textContent = 'Report built — click Download Word.';
+      noteEl.classList.remove('d-none');
+    }
+    const dl = document.getElementById('btnDownloadWord');
+    if (dl) {
+      dl.classList.add('btn-success');
+      dl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    alert(lines.join('\n\n'));
   } catch (err) {
-    alert(err.message || 'Could not analyze the image.');
+    alert(err.message || 'Could not generate report from TOC.');
   } finally {
     btn.disabled = false;
     btn.innerHTML = prev;
@@ -980,31 +908,43 @@ document.getElementById('btnDownloadWord').onclick = async function() {
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating…';
   try {
     const itemsToSend = reportItems.map(({ _uid, _scrType, ...rest }) => rest);
-    const res = await fetch('/project-report-creator/api/download-word', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        sourceCodeId: scId,
-        sourceCodeName: scName,
-        items: itemsToSend
-      })
-    });
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.message || 'Download failed');
+    const payload = {
+      sourceCodeId: scId,
+      sourceCodeName: scName,
+      items: itemsToSend
+    };
+    const fname = (scName || 'report').replace(/[^\w\s-]/g, '') + '.docx';
+    if (window.FmDownloadProgress && typeof window.FmDownloadProgress.postAndSave === 'function') {
+      await window.FmDownloadProgress.postAndSave(
+        '/project-report-creator/api/download-word',
+        payload,
+        { title: 'Preparing Word…', filename: fname }
+      );
+    } else {
+      const res = await fetch('/project-report-creator/api/download-word', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.message || 'Download failed');
+      }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fname;
+      a.click();
+      URL.revokeObjectURL(a.href);
     }
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = (scName || 'report').replace(/[^\w\s-]/g, '') + '.docx';
-    a.click();
-    URL.revokeObjectURL(a.href);
   } catch (err) {
-    alert(err.message || 'Failed to download.');
+    if (!(window.FmDownloadProgress && err)) {
+      alert(err.message || 'Failed to download.');
+    }
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-download me-2"></i>Download Word document';
+    btn.innerHTML = '<i class="bi bi-download me-2"></i>Download Word';
   }
 };
 
@@ -1027,5 +967,7 @@ function bootBuilder() {
 }
 window.addEventListener('prc-sortable-ready', bootBuilder, { once: true });
 </script>
+<script src="/js/fm-download-progress.js?v=1"></script>
+<script src="/setup-support/prc-pack-download.js?v=2"></script>
 </body>
 </html>

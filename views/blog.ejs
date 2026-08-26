@@ -1,443 +1,432 @@
-<% include Includes/navbar1.ejs %>
+<% include Includes/navbar.ejs %>
 <% include Includes/projectReport.ejs %>
 
-<!-- ===== Breadcrumb ===== -->
-<nav class="breadcrumb-bar" aria-label="Breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-ite"><a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Top Final Year Project Ideas</li>
-    </ol>
-  </div>
-</nav>
+<link rel="stylesheet" href="/css/home-directory.css?v=57">
+<link rel="stylesheet" href="/css/blog-page.css?v=18">
 
-<!-- ===== Hero ===== -->
-<header class="blog-hero" role="banner">
-  <div class="container blog-hero__grid">
-    <div class="blog-hero__copy">
-      <span class="pill">Insights & Tutorials</span>
-      <h1>Final-Year Project Ideas & Guides</h1>
-      <p class="lead">Explore curated ideas, documentation tips, and runnable code guidance for <strong>B.Tech, M.Tech, BE, ME, BCA, MCA, BSc, MSc</strong> students.</p>
-      <ul class="checks">
-        <li><i data-feather="target"></i> Topic selection & scope</li>
-        <li><i data-feather="layers"></i> Architecture & diagrams</li>
-        <li><i data-feather="award"></i> Faculty-ready documentation</li>
-      </ul>
-    </div>
-
-    <!-- Brandy illustration -->
- 
-  </div>
-</header>
-
-<!-- ===== Toolbar ===== -->
-<section class="blog-toolbar" aria-label="Search and filters">
-  <div class="container">
-    <form class="toolbar-row" method="GET" action="/blog">
-      <h2 class="h2">Our Blogs</h2>
-      <div class="toolbar-actions">
-
-        <!-- Optional category (keep hidden until you wire categories) -->
-        <!--
-        <select name="category" class="select" aria-label="Filter by category">
-          <option value="">All topics</option>
-          <option value="ideas" <%= filters.cat==='ideas'?'selected':'' %>>Ideas</option>
-          <option value="documentation" <%= filters.cat==='documentation'?'selected':'' %>>Documentation</option>
-          <option value="source-code" <%= filters.cat==='source-code'?'selected':'' %>>Source Code</option>
-          <option value="setup" <%= filters.cat==='setup'?'selected':'' %>>Setup</option>
-        </select>
-        -->
-
-        <select name="sort" class="select" aria-label="Sort">
-          <option value="new" <%= filters.order==='new'?'selected':'' %>>Newest</option>
-          <option value="old" <%= filters.order==='old'?'selected':'' %>>Oldest</option>
-          <option value="alpha" <%= filters.order==='alpha'?'selected':'' %>>A–Z</option>
-        </select>
-
-        <div class="search">
-          <i data-feather="search" aria-hidden="true"></i>
-          <input name="q" id="Search" type="search" class="input" placeholder="Search topics (e.g., MERN, UML, Library)" value="<%= filters.q || '' %>" aria-label="Search blog">
-          <input type="hidden" name="page" value="1">
-        </div>
-
-        <button class="btn btn-light" type="submit">Search</button>
-      </div>
-    </form>
-  </div>
-</section>
-
-<!-- ===== Grid ===== -->
-<main class="blog-main" id="maincontent">
-  <div class="container">
-    <div id="Grid" class="grid">
-      <% if (Array.isArray(result) && result.length) { %>
-        <% result.forEach(function(blog){ %>
-          <article class="card"
-                   data-name="<%= (blog.meta_title || blog.title || '').replace(/"/g,'&quot;') %>"
-                   data-desc="<%= (blog.meta_description || '').replace(/"/g,'&quot;') %>"
-                   data-url="/blog/<%= blog.slug %>">
-            <a class="card__media" href="/blog/<%= blog.slug %>" title="<%= blog.meta_title %>">
-              <img
-                src="<%= blog.thumbnail_url %>"
-                alt="<%= blog.meta_title %> thumbnail"
-                loading="lazy"
-                width="640" height="360">
-            </a>
-
-            <div class="card__body">
-              <a class="card__title" href="/blog/<%= blog.slug %>" title="<%= blog.meta_title %>">
-                <h3><%= blog.meta_title %></h3>
-              </a>
-
-              <p class="card__desc"><%= blog.meta_description %></p>
-
-              <div class="card__meta">
-                <span class="meta"><i data-feather="calendar"></i><%= blog.created_at ? new Date(blog.created_at).toLocaleDateString() : '—' %></span>
-                <span class="dot">•</span>
-                <span class="meta"><i data-feather="clock"></i><%= blog.read_time || '3' %> min read</span>
-              </div>
-            </div>
-          </article>
-        <% }); %>
-      <% } else { %>
-        <div class="empty">
-          <div class="empty__box">
-            <i data-feather="search"></i>
-            <h3>No results</h3>
-            <p>Try different keywords or browse all posts.</p>
-            <a class="btn btn-light" href="/blog">Reset</a>
-          </div>
-        </div>
-      <% } %>
-    </div>
-
-    <!-- ===== Pagination ===== -->
-    <!-- ===== Pagination (fixed) ===== -->
-<% if (pagination && pagination.totalPages > 1) { %>
-  <% 
-    // Helper to build URLs without referencing request/query directly
-    function pageUrl(p) {
-      const params = [];
-      if (filters && filters.q) params.push('q=' + encodeURIComponent(filters.q));
-      if (filters && filters.cat) params.push('category=' + encodeURIComponent(filters.cat));
-      if (filters && filters.order) params.push('sort=' + encodeURIComponent(filters.order));
-      params.push('page=' + encodeURIComponent(p));
-      return pagination.baseUrl + '?' + params.join('&');
-    }
-
-    const win = 2; // window size around current page
-    const start = Math.max(1, pagination.page - win);
-    const end   = Math.min(pagination.totalPages, pagination.page + win);
-  %>
-
-  <nav class="pager" role="navigation" aria-label="Pagination">
-    <ul class="pager__list">
-      <li>
-        <a class="pager__btn <%= pagination.hasPrev ? '' : 'disabled' %>"
-           href="<%= pagination.hasPrev ? pageUrl(pagination.page - 1) : '#' %>"
-           aria-disabled="<%= pagination.hasPrev ? 'false' : 'true' %>"
-           rel="prev">‹ Prev</a>
-      </li>
-
-      <% for (let p = start; p <= end; p++) { %>
-        <li>
-          <a class="pager__num <%= p === pagination.page ? 'is-active' : '' %>"
-             href="<%= pageUrl(p) %>"
-             aria-current="<%= p === pagination.page ? 'page' : 'false' %>"><%= p %></a>
-        </li>
-      <% } %>
-
-      <li>
-        <a class="pager__btn <%= pagination.hasNext ? '' : 'disabled' %>"
-           href="<%= pagination.hasNext ? pageUrl(pagination.page + 1) : '#' %>"
-           aria-disabled="<%= pagination.hasNext ? 'false' : 'true' %>"
-           rel="next">Next ›</a>
-      </li>
-    </ul>
-
-
-  </nav>
-<% } %>
-
-  </div>
-</main>
-
-<!-- ===== CTA ===== -->
-<section class="blog-cta" aria-labelledby="cta-title">
-  <div class="container cta-box">
-    <div class="cta-copy">
-      <span class="cta-pill">For Final-Year Students</span>
-      <h3 id="cta-title">Need a project file or source code to go with your idea?</h3>
-      <p>
-        Browse ready-to-use
-        <a href="/source-code" class="link-strong">source code</a>
-        and
-        <a href="/final-year-project-ideas" class="link-strong">project ideas</a>
-        tailored for college submissions.
-      </p>
-    </div>
-
-    <div class="cta-actions" role="group" aria-label="Primary actions">
-      <a class="btn btn-brand" href="/source-code">
-        <i data-feather="code" aria-hidden="true"></i>
-        Explore Code
-      </a>
-      <a class="btn btn-light" href="/btech-final-year-project-report">
-        <i data-feather="file-text" aria-hidden="true"></i>
-        B.Tech Project Reports
-      </a>
-    </div>
-  </div>
-</section>
-
+<script>
+  window.FM_CLOUDINARY_CDN_BASE=<%= JSON.stringify(typeof cloudinaryCdnBase !== 'undefined' ? cloudinaryCdnBase : '') %>;
+  window.FM_CLOUDINARY_CDN=<%= JSON.stringify(typeof cloudinaryCdnHost !== 'undefined' ? cloudinaryCdnHost : '') %>;
+</script>
+<script src="/js/fm-cloudinary.js?v=6"></script>
 
 <style>
-  :root{
-  --ink:#0e1220; --muted:#616a7d; --card:#fff; --bg:#f6f8ff;
-  --brand:#2A47FF; --ring:rgba(42,71,255,.22); --brd:rgba(14,18,32,.08);
-  --radius:16px;
-}
-
-/* Section */
-.blog-cta{
-  padding: 28px 0;
-  background: linear-gradient(135deg, rgba(42,71,255,.06), rgba(241,127,35,.05));
-  border-top:1px solid var(--brd);
-  border-bottom:1px solid var(--brd);
-}
-
-/* Card */
-.cta-box{
-  display:grid;
-  gap:16px;
-  grid-template-columns: 1.2fr .8fr;
-  align-items:center;
-  background:var(--card);
-  border:1px solid var(--brd);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: 0 14px 34px rgba(14,18,32,.08);
-}
-
-/* Copy */
-.cta-copy h3{
-  margin:.3rem 0 .4rem;
-  color:var(--ink);
-  font-weight:900;
-  line-height:1.15;
-}
-.cta-copy p{
-  margin:0;
-  color:#111;
-  font-weight:600;
-}
-.cta-pill{
-  display:inline-block;
-  font-size:.8rem;
-  font-weight:800;
-  color:var(--brand);
-  background:rgba(42,71,255,.08);
-  border:1px solid rgba(42,71,255,.18);
-  border-radius:999px;
-  padding:.35rem .6rem;
-  margin-bottom:.4rem;
-}
-.link-strong{
-  color:var(--brand);
-  text-decoration: none;
-  border-bottom:1px dashed rgba(42,71,255,.35);
-}
-.link-strong:hover{ border-bottom-color: transparent; }
-
-/* Actions */
-.cta-actions{
-  display:flex;
-  gap:10px;
-  justify-content:flex-end;
-  align-items:center;
-  flex-wrap:wrap;
-}
-.btn{
-  display:inline-flex; align-items:center; gap:8px;
-  height:44px; padding:0 16px;
-  border-radius:12px; border:1px solid transparent;
-  font-weight:900; text-decoration:none; white-space:nowrap;
-}
-.btn i{ width:18px; height:18px; }
-.btn-brand{
-  background:var(--brand); color:#fff; border-color:var(--brand);
-  box-shadow:0 10px 26px rgba(42,71,255,.15);
-}
-.btn-brand:hover{ filter:brightness(.98); }
-.btn-light{
-  background:#fff; color:#111; border:1px solid var(--brd);
-}
-.btn-light:hover{ box-shadow:0 0 0 4px var(--ring); }
-
-/* Mobile-first polish */
-@media (max-width: 991.98px){
-  .cta-box{
-    grid-template-columns: 1fr;
-    text-align:left;          /* no centered “marketing” look on mobile */
-    padding: 16px;
-  }
-  .cta-actions{
-    justify-content:stretch;
-    flex-direction:column;
-    align-items:stretch;
-  }
-  .btn{ width:100%; }
-}
-@media (max-width: 480px){
-  .cta-copy h3{ font-size:1.25rem; }
-  .cta-copy p{ font-size:.98rem; }
-}
-
+  body { background: #fff !important; }
 </style>
+
+<%
+  const blogs = Array.isArray(result) ? result : [];
+  const pg = pagination || {};
+  const flt = filters || {};
+
+  function blPageUrl(p) {
+    const params = [];
+    if (flt.q) params.push('q=' + encodeURIComponent(flt.q));
+    if (flt.cat) params.push('category=' + encodeURIComponent(flt.cat));
+    if (flt.order && flt.order !== 'new') params.push('sort=' + encodeURIComponent(flt.order));
+    if (p > 1) params.push('page=' + encodeURIComponent(p));
+    const base = (pg.baseUrl || '/blog').split('?')[0];
+    return params.length ? (base + '?' + params.join('&')) : base;
+  }
+
+  function blCategoryUrl(cat) {
+    const params = [];
+    if (cat) params.push('category=' + encodeURIComponent(cat));
+    if (flt.q) params.push('q=' + encodeURIComponent(flt.q));
+    if (flt.order && flt.order !== 'new') params.push('sort=' + encodeURIComponent(flt.order));
+    return params.length ? '/blog?' + params.join('&') : '/blog';
+  }
+
+  function blFormatDate(value) {
+    if (!value) return '—';
+    try {
+      return new Date(value).toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (_) {
+      return '—';
+    }
+  }
+
+  function blReadMins(blog) {
+    const text = String(
+      (blog && (blog.content || blog.meta_description || blog.meta_title || blog.title)) || ''
+    );
+    const words = text.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(3, Math.ceil(words / 200));
+  }
+
+  function blThumb(blog) {
+    return String((blog && blog.thumbnail_url) || '').trim();
+  }
+
+  function blTitle(blog) {
+    if (typeof blogPostHeading === 'function') {
+      return blogPostHeading(blog);
+    }
+    return String((blog && (blog.title || blog.meta_title)) || 'Blog post').trim();
+  }
+
+  function blDesc(blog) {
+    if (typeof blogPostExcerpt === 'function') {
+      return blogPostExcerpt(blog, 140);
+    }
+    return String((blog && blog.meta_description) || '').trim();
+  }
+
+  function blCategory(blog) {
+    const raw = String((blog && blog.category) || '').trim();
+    if (!raw || /^null$/i.test(raw)) return 'Guide';
+    return raw
+      .replace(/[-_]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, function (ch) { return ch.toUpperCase(); })
+      .replace(/\bJs\b/g, 'JS')
+      .replace(/\bAi\b/g, 'AI')
+      .replace(/\bPhp\b/g, 'PHP');
+  }
+
+  function blCategoryBadge(blog) {
+    return blCategory(blog).toUpperCase();
+  }
+
+  function blCategorySlug(raw) {
+    return String(raw || '').trim();
+  }
+
+  function blAuthor(blog) {
+    return String(
+      (blog && (blog.author_name || blog.author || blog.created_by_name)) ||
+      'FileMakr Team'
+    ).trim();
+  }
+
+  function blCdnImage(url, width) {
+    if (typeof cloudinaryUrl === 'function') {
+      return cloudinaryUrl(url, { width: width || 640 });
+    }
+    return url;
+  }
+
+  function blCdnSrcSet(url) {
+    if (typeof cloudinarySrcSet === 'function') {
+      return cloudinarySrcSet(url, [320, 640, 960]);
+    }
+    return '';
+  }
+
+  const blHeroRaw = 'https://res.cloudinary.com/npuap6la/image/upload/v1787657312/Untitled_4.webp';
+  const blHeroSrc = typeof cloudinaryUrl === 'function'
+    ? cloudinaryUrl(blHeroRaw, { width: 720 })
+    : blHeroRaw;
+
+  const popularList = Array.isArray(popularPosts) ? popularPosts : blogs.slice(0, 25);
+%>
+
+<div class="bl-page">
+
+  <!-- Hero — same layout as 404 (copy left, illustration right) -->
+  <section class="bl-hero" aria-labelledby="bl-hero-title">
+    <div class="bl-hero__wrap">
+      <div class="bl-hero__grid">
+
+        <div class="bl-hero__copy">
+          <p class="bl-hero__eyebrow">FILEMAKR BLOG</p>
+
+          <h1 id="bl-hero-title" class="bl-hero__title">
+            Insights, Guides &amp;<br class="bl-hero__br">
+            Resources for Students
+          </h1>
+
+          <span class="bl-hero__rule" aria-hidden="true"></span>
+
+          <p class="bl-hero__lead">
+            Explore in-depth guides, project ideas, technical tutorials and career
+            resources to help you build better projects and advance your skills.
+          </p>
+
+          <ul class="bl-hero__points" aria-label="Blog highlights">
+            <li>
+              <span class="bl-hero__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 20h9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                  <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5z"
+                    stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span>
+                <strong>Expert Insights</strong>
+                <small>Well-researched and practical</small>
+              </span>
+            </li>
+
+            <li>
+              <span class="bl-hero__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                    stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                  <path d="M8 7h8M8 11h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>
+                <strong>Student Focused</strong>
+                <small>Created for final year success</small>
+              </span>
+            </li>
+
+            <li>
+              <span class="bl-hero__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"
+                    stroke="currentColor" stroke-width="1.7"
+                    stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span>
+                <strong>Updated Regularly</strong>
+                <small>Fresh content on trending topics</small>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bl-hero__media">
+          <img
+            src="<%= blHeroSrc %>"
+            srcset="<%= typeof cloudinarySrcSet === 'function'
+              ? cloudinarySrcSet(blHeroRaw, [480, 720, 960])
+              : blHeroSrc %>"
+            sizes="(max-width: 991px) calc(100vw - 20px), 520px"
+            alt="FileMakr blog — project guides and student resources"
+            width="720"
+            height="540"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          >
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="bl-page__body">
+    <div class="bl-shell">
+
+      <div class="bl-layout">
+
+        <!-- LEFT: POSTS -->
+        <main id="bl-posts" class="bl-posts" aria-label="Blog posts">
+          <% if (blogs.length) { %>
+            <% blogs.forEach(function (blog, index) {
+              const href = '/blog/' + encodeURIComponent(blog.slug || '');
+              const cover = blThumb(blog);
+              const title = blTitle(blog);
+              const desc = blDesc(blog);
+              const readMins = blReadMins(blog);
+              const category = blCategory(blog);
+              const author = blAuthor(blog);
+              const letter = title.charAt(0).toUpperCase() || 'B';
+            %>
+              <article class="bl-post">
+                <a class="bl-post__media" href="<%= href %>" tabindex="-1" aria-hidden="true">
+                  <% if (cover) { %>
+                    <img
+                      src="<%= blCdnImage(cover, 720) %>"
+                      srcset="<%= blCdnSrcSet(cover) %>"
+                      sizes="(max-width: 767px) 100vw, 280px"
+                      alt="<%= imageAltLabel(title, 'blog cover image') %>"
+                      width="720"
+                      height="405"
+                      loading="<%= index < 2 ? 'eager' : 'lazy' %>"
+                      decoding="async"
+                    >
+                  <% } else { %>
+                    <span class="bl-post__fallback" data-letter="<%= letter %>"><%= letter %></span>
+                  <% } %>
+                </a>
+
+                <div class="bl-post__body">
+                  <h2 class="bl-post__title">
+                    <a href="<%= href %>"><%= title %></a>
+                  </h2>
+
+                  <% if (desc) { %>
+                    <p class="bl-post__desc"><%= desc %></p>
+                  <% } %>
+
+                  <div class="bl-post__footer">
+                    <div class="bl-post__author">
+                      <span class="bl-post__avatar" aria-hidden="true"><%= author.charAt(0).toUpperCase() %></span>
+                      <span>
+                        <strong><%= author %></strong>
+                        <small><%= blFormatDate(blog.created_at) %> &nbsp;•&nbsp; <%= readMins %> min read</small>
+                      </span>
+                    </div>
+
+                    <a class="bl-post__read" href="<%= href %>">
+                      Read More <span aria-hidden="true">→</span>
+                    </a>
+                  </div>
+                </div>
+              </article>
+            <% }) %>
+          <% } else { %>
+            <div class="bl-empty">
+              <div class="bl-empty__box">
+                <h2>No posts found</h2>
+                <p><%= flt.q ? 'Try different keywords or reset your search.' : 'Check back soon for new articles.' %></p>
+                <a class="bl-empty__btn" href="/blog">View all posts</a>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- pagination -->
+          <% if (pg.totalPages > 1) {
+            const win = 2;
+            let start = Math.max(1, pg.page - win);
+            let end = Math.min(pg.totalPages, pg.page + win);
+
+            if (end - start < win * 2) {
+              if (start === 1) end = Math.min(pg.totalPages, start + win * 2);
+              else if (end === pg.totalPages) start = Math.max(1, end - win * 2);
+            }
+          %>
+            <nav class="bl-pager" role="navigation" aria-label="Blog pagination">
+              <a
+                class="bl-pager__edge <%= pg.hasPrev ? '' : 'is-disabled' %>"
+                href="<%= pg.hasPrev ? blPageUrl(pg.page - 1) : '#' %>"
+                rel="prev"
+                aria-disabled="<%= pg.hasPrev ? 'false' : 'true' %>"
+              >
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="m14 6-6 6 6 6" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Previous
+              </a>
+
+              <div class="bl-pager__pages">
+                <% if (start > 1) { %>
+                  <a class="bl-pager__num" href="<%= blPageUrl(1) %>">1</a>
+                  <% if (start > 2) { %>
+                    <span class="bl-pager__ellipsis">…</span>
+                  <% } %>
+                <% } %>
+
+                <% for (let p = start; p <= end; p++) { %>
+                  <a
+                    class="bl-pager__num <%= p === pg.page ? 'is-active' : '' %>"
+                    href="<%= blPageUrl(p) %>"
+                    aria-current="<%= p === pg.page ? 'page' : 'false' %>"
+                  ><%= p %></a>
+                <% } %>
+
+                <% if (end < pg.totalPages) { %>
+                  <% if (end < pg.totalPages - 1) { %>
+                    <span class="bl-pager__ellipsis">…</span>
+                  <% } %>
+                  <a class="bl-pager__num" href="<%= blPageUrl(pg.totalPages) %>"><%= pg.totalPages %></a>
+                <% } %>
+              </div>
+
+              <a
+                class="bl-pager__edge <%= pg.hasNext ? '' : 'is-disabled' %>"
+                href="<%= pg.hasNext ? blPageUrl(pg.page + 1) : '#' %>"
+                rel="next"
+                aria-disabled="<%= pg.hasNext ? 'false' : 'true' %>"
+              >
+                Next
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="m10 6 6 6-6 6" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </nav>
+          <% } %>
+        </main>
+
+        <!-- RIGHT: SIDEBAR -->
+        <aside class="bl-sidebar" aria-label="Blog sidebar">
+
+          <section class="bl-side-card">
+            <h2 class="bl-side-card__title">Popular Posts</h2>
+            <div class="bl-popular">
+              <% if (popularList.length) { %>
+                <% popularList.forEach(function (post) {
+                  const href = '/blog/' + encodeURIComponent(post.slug || '');
+                  const cover = blThumb(post);
+                  const title = blTitle(post);
+                %>
+                  <article class="bl-popular__item">
+                    <a class="bl-popular__thumb" href="<%= href %>" tabindex="-1" aria-hidden="true">
+                      <% if (cover) { %>
+                        <img
+                          src="<%= blCdnImage(cover, 220) %>"
+                          alt="<%= imageAltLabel(title, 'blog thumbnail') %>"
+                          width="220"
+                          height="124"
+                          loading="lazy"
+                          decoding="async"
+                        >
+                      <% } else { %>
+                        <span><%= title.charAt(0).toUpperCase() %></span>
+                      <% } %>
+                    </a>
+                    <div>
+                      <h3><a href="<%= href %>"><%= title %></a></h3>
+                      <small><%= blFormatDate(post.created_at) %></small>
+                    </div>
+                  </article>
+                <% }) %>
+              <% } else { %>
+                <p class="bl-side-card__empty">Popular articles will appear here.</p>
+              <% } %>
+            </div>
+          </section>
+
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
 
 <% include Includes/footer.ejs %>
 
-<!-- ===== Styles (scoped) ===== -->
-<style>
-:root{
-  --ink:#0e1220; --muted:#6b7280; --bg:#f7f8fc; --card:#fff; --brd:rgba(14,18,32,.10);
-  --brand:#2A47FF; --accent:#F17F23; --ring:rgba(42,71,255,.16); --radius:16px;
-}
-*{box-sizing:border-box}
-html,body{overflow-x:hidden}
-.container{max-width:1180px;margin:0 auto;padding:0 16px}
-
-/* Breadcrumb */
-.breadcrumb-bar{background:#fff;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd)}
-.breadcrumb{display:flex;gap:8px;list-style:none;margin:0;padding:10px 0}
-.breadcrumb a{text-decoration:none;color:#111;font-weight:800}
-
-/* Hero */
-.blog-hero{background:linear-gradient(135deg,rgba(42,71,255,.06),rgba(241,127,35,.06));border-bottom:1px solid var(--brd);}
-.blog-hero__grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;padding:24px 0;}
-@media(max-width:991.98px){.blog-hero__grid{grid-template-columns:1fr}}
-.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(42,71,255,.08);border:1px solid rgba(42,71,255,.2);color:var(--brand);font-weight:900;font-size:12px;margin-left: 10px;}
-.blog-hero h1{margin:.5rem 0 .4rem;font-weight:900;color:var(--ink);margin-left: 10px;}
-.lead{color:#111;font-size:1.05rem;margin-left: 10px;}
-.checks{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}
-.checks li{display:flex;gap:8px;align-items:flex-start;font-weight:700;margin-left:10px}
-.checks svg{width:18px;height:18px;color:var(--brand);margin-top:2px}
-
-/* Hero art */
-.blog-hero__art{display:flex;align-items:center;justify-content:center}
-.art{position:relative;width:min(100%, 520px);aspect-ratio:5/4;background:#fff;border:1px solid var(--brd);border-radius:20px;box-shadow:0 12px 30px rgba(14,18,32,.06)}
-.ring{position:absolute;border-radius:50%;inset:14% 20% 22% 16%;pointer-events:none}
-.r1{box-shadow:0 0 0 10px rgba(42,71,255,.08),0 0 0 24px rgba(241,127,35,.08)}
-.r2{inset:20% 16% 18% 22%;box-shadow:0 0 0 10px rgba(42,71,255,.08)}
-.badge{position:absolute;left:14px;bottom:14px;display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:12px;background:#fff;border:1px solid var(--brd);font-weight:800}
-.badge svg{width:16px;height:16px;color:var(--brand)}
-.badge.b2{right:14px;left:auto;top:14px;bottom:auto}
-
-/* Toolbar */
-.blog-toolbar{background:#fff;border-bottom:1px solid var(--brd)}
-.toolbar-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;flex-wrap:wrap}
-.h2{margin:0;color:var(--ink);font-weight:900}
-.toolbar-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.select{height:40px;border:1px solid var(--brd);border-radius:10px;padding:0 12px;font-weight:800;background:#fff}
-.search{position:relative}
-.search .input{height:40px;border:1px solid var(--brd);border-radius:10px;padding:0 12px 0 36px;font-weight:800;min-width:260px}
-.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
-
-/* Grid */
-.blog-main{background:var(--bg);padding:18px 0}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media(max-width:991.98px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:575.98px){.grid{grid-template-columns:1fr}}
-
-.card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--brd);border-radius:16px;overflow:hidden;box-shadow:0 10px 24px rgba(14,18,32,.06)}
-.card__media img{width:100%;height:220px;object-fit:cover;aspect-ratio:16/9;display:block}
-.card__body{padding:14px}
-.card__title{text-decoration:none;color:inherit}
-.card__title h3{margin:0 0 6px;font-size:18px;line-height:1.2;font-weight:900;color:var(--ink)}
-.card__desc{margin:0;color:#111;font-size:14px;line-height:1.5;max-height:3em;overflow:hidden}
-.card__meta{display:flex;gap:8px;align-items:center;margin-top:10px;color:var(--muted);font-weight:700}
-.meta{display:inline-flex;gap:6px;align-items:center}
-.card__meta svg{width:16px;height:16px;color:var(--brand)}
-.dot{opacity:.7}
-
-/* Pagination */
-.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0 0}
-.pager__list{display:flex;gap:8px;list-style:none;margin:0;padding:0}
-.pager__btn,.pager__num{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--brd);background:#fff;font-weight:900;text-decoration:none;color:#111}
-.pager__num.is-active{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 0 0 4px var(--ring)}
-.pager__btn.disabled{opacity:.5;pointer-events:none}
-.pager__meta{color:#111;font-weight:800}
-
-/* CTA */
-.blog-cta{background:#fff;border-top:1px solid var(--brd);padding:22px 0}
-.cta-box{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--brd);border-radius:16px;background:#fff;padding:16px;box-shadow:0 10px 24px rgba(14,18,32,.06)}
-.cta-actions{display:flex;gap:10px;flex-wrap:wrap}
-
-.btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;text-decoration:none;font-weight:900}
-.btn-brand{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 10px 26px rgba(42,71,255,.15)}
-.btn-brand:hover{filter:brightness(.98)}
-.btn-light{background:#fff;color:#111;border:1px solid var(--brd)}
-.btn-light:hover{box-shadow:0 0 0 4px var(--ring)}
-</style>
-
-<!-- ===== Scripts ===== -->
-<script>
-  // Feather
-  (function(){
-    if (window.feather && typeof window.feather.replace === 'function') {
-      window.feather.replace();
-    } else {
-      const s = document.createElement('script');
-      s.src = 'https://unpkg.com/feather-icons';
-      s.onload = () => window.feather && window.feather.replace();
-      document.head.appendChild(s);
-    }
-  })();
-
-  // Debounce search submit (big-brand feel)
-  (function(){
-    const form  = document.querySelector('.blog-toolbar form');
-    const input = document.getElementById('Search');
-    if (!form || !input) return;
-    let t;
-    input.addEventListener('input', () => {
-      clearTimeout(t);
-      t = setTimeout(() => {
-        // Always reset to page 1 on new search
-        const pageField = form.querySelector('input[name="page"]');
-        if (pageField) pageField.value = '1';
-        form.requestSubmit();
-      }, 300);
-    });
-  })();
-</script>
-
-<!-- Structured data (Blog listing) -->
 <script type="application/ld+json">
 {
-  "@context":"https://schema.org",
-  "@type":"Blog",
-  "name":"FileMakr Blog",
-  "url":"https://www.filemakr.com/blog",
-  "description":"Ideas, guides, and documentation tips for final-year projects with runnable source code.",
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "FileMakr Blog",
+  "url": "https://www.filemakr.com/blog",
+  "description": "Ideas, guides, and documentation tips for final-year projects with runnable source code.",
   "blogPost": [
-    <% if (Array.isArray(result)) { %>
-      <% result.forEach(function(b, idx){ %>
-        {
-          "@type":"BlogPosting",
-          "headline": "<%- (b.meta_title || '').replace(/"/g,'\\"') %>",
-          "url": "https://www.filemakr.com/blog/<%- b.slug %>",
-          "image": "<%- b.thumbnail_url %>",
-          "datePublished": "<%- b.created_at ? new Date(b.created_at).toISOString() : '' %>",
-          "description": "<%- (b.meta_description || '').replace(/"/g,'\\"') %>"
-        }<%= idx < result.length - 1 ? ',' : '' %>
-      <% }) %>
-    <% } %>
+    <% blogs.forEach(function (b, idx) {
+      const headline = blTitle(b).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      const desc = blDesc(b).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      const img = blCdnImage(blThumb(b), 640).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    %>
+    {
+      "@type": "BlogPosting",
+      "headline": "<%- headline %>",
+      "url": "https://www.filemakr.com/blog/<%- b.slug %>",
+      "image": "<%- img %>",
+      "datePublished": "<%- b.created_at ? new Date(b.created_at).toISOString() : '' %>",
+      "description": "<%- desc %>"
+    }<%= idx < blogs.length - 1 ? ',' : '' %>
+    <% }) %>
   ],
-  "publisher":{
-    "@type":"Organization",
-    "name":"FileMakr",
-    "logo":{"@type":"ImageObject","url":"https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif"}
+  "publisher": {
+    "@type": "Organization",
+    "name": "FileMakr",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto:best,w_300,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif"
+    }
   }
 }
 </script>

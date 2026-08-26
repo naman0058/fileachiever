@@ -3,8 +3,8 @@
  * Safety net for templates that omit Includes/gtm-head or Includes/gtm-body.
  */
 function createGtmInjectMiddleware(gtmContainerId) {
-  const gtmId = gtmContainerId || 'GTM-T6C299QC';
-  if (!gtmId) {
+  const gtmId = String(gtmContainerId || '').trim() || 'GTM-T6C299QC';
+  if (!gtmId || !/^GTM-[A-Z0-9]+$/i.test(gtmId)) {
     return (req, res, next) => next();
   }
 

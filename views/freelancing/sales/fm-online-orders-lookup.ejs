@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/admin-head', { pageTitle: 'FM Order Lookup' }) %></head>
+<body class="agent-crm admin-crm">
+<div class="agent-shell">
+  <div class="agent-sidebar-wrap"><%- include('partials/admin-sidebar', { user, active }) %></div>
+  <main class="agent-main">
+    <header class="agent-page-header">
+      <div>
+        <h1>Order lookup</h1>
+        <p>Find any checkout order by name, phone, order ID, or gateway tracking ID</p>
+      </div>
+    </header>
+    <%- include('partials/admin-module-tabs', { module: 'fmOnlineOrders', activeTab: 'lookup' }) %>
+
+    <div class="agent-panel mb-3">
+      <form method="get" action="/sales/admin/fm-online-orders/lookup" class="p-3 d-flex flex-wrap gap-2 align-items-end">
+        <div>
+          <label class="small fw-semibold text-muted">Name</label>
+          <input class="form-control form-control-sm" name="name" value="<%= filters.name||'' %>" placeholder="Customer name">
+        </div>
+        <div>
+          <label class="small fw-semibold text-muted">Phone</label>
+          <input class="form-control form-control-sm" name="phone" value="<%= filters.phone||'' %>" placeholder="Phone">
+        </div>
+        <div>
+          <label class="small fw-semibold text-muted">Order ID</label>
+          <input class="form-control form-control-sm" name="order_id" value="<%= filters.orderId||'' %>" placeholder="FMK-…">
+        </div>
+        <div>
+          <label class="small fw-semibold text-muted">Tracking ID</label>
+          <input class="form-control form-control-sm" name="tracking_id" value="<%= filters.trackingId||'' %>" placeholder="CCAvenue tracking">
+        </div>
+        <label class="small mb-2 d-flex align-items-center gap-1">
+          <input type="hidden" name="test" value="0">
+          <input type="checkbox" name="test" value="1" <%= includeTest?'checked':'' %>> Test
+        </label>
+        <button type="submit" class="agent-btn agent-btn--primary agent-btn--sm">Search</button>
+      </form>
+    </div>
+
+    <div class="agent-panel">
+      <div class="agent-panel__head">
+        <h2 class="agent-panel__title mb-0">
+          <% if (!searched) { %>Enter a search<% } else { %><%= rows.length %> result<%= rows.length!==1?'s':'' %><% } %>
+        </h2>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Paid</th></tr></thead>
+          <tbody>
+          <% if (!searched) { %>
+            <tr><td colspan="6" class="text-muted text-center py-4">Search to resolve payment / order queries</td></tr>
+          <% } else if (!rows.length) { %>
+            <tr><td colspan="6" class="text-muted text-center py-4">No matches</td></tr>
+          <% } %>
+          <% rows.forEach(function(r){ %>
+            <tr>
+              <td><a class="fw-semibold" href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(r.order_id) %>"><%= r.order_id %></a></td>
+              <td><div class="fw-semibold"><%= r.billing_name %></div><div class="small text-muted"><%= r.billing_tel %> · <%= r.billing_email %></div></td>
+              <td class="small"><%= r.plan_label || (r.product_type+'/'+r.plan) %></td>
+              <td><%= money(r.final_amount) %></td>
+              <td><%= r.order_status %> / <%= r.fulfillment_status %></td>
+              <td class="small text-muted"><%= r.paid_at ? new Date(r.paid_at).toLocaleString() : '—' %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

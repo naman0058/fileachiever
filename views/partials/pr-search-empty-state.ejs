@@ -1,0 +1,103 @@
+<%
+  var catalogEmptyKind = (typeof emptyKind !== 'undefined' && emptyKind) ? String(emptyKind) : 'source-code';
+  var isIdeasEmpty = catalogEmptyKind === 'ideas';
+  var prefilledTopic = '';
+  if (typeof searchQ !== 'undefined' && searchQ) {
+    prefilledTopic = String(searchQ);
+  } else if (typeof searchQuery !== 'undefined' && searchQuery) {
+    prefilledTopic = String(searchQuery);
+  }
+  var productLabel = isIdeasEmpty ? 'project ideas' : 'source code projects';
+  var showEmptyInitially = (typeof result !== 'undefined' && result && result.length === 0);
+%>
+<div id="EmptyState" class="pr-search-empty" data-empty-kind="<%= catalogEmptyKind %>"<%= showEmptyInitially ? '' : ' hidden' %> role="region" aria-labelledby="PrSearchEmptyTitle">
+  <div class="pr-search-empty__art" aria-hidden="true">
+    <div class="pr-search-empty__glow"></div>
+    <span class="pr-search-empty__spark pr-search-empty__spark--1"></span>
+    <span class="pr-search-empty__spark pr-search-empty__spark--2"></span>
+    <span class="pr-search-empty__spark pr-search-empty__spark--3"></span>
+    <span class="pr-search-empty__spark pr-search-empty__spark--4"></span>
+    <span class="pr-search-empty__spark pr-search-empty__spark--5">+</span>
+    <span class="pr-search-empty__spark pr-search-empty__spark--6">+</span>
+    <div class="pr-search-empty__illus">
+      <i class="feather-folder"></i>
+      <i class="feather-search pr-search-empty__illus-search"></i>
+    </div>
+  </div>
+
+  <h2 class="pr-search-empty__title" id="PrSearchEmptyTitle">No matching projects found</h2>
+  <p class="pr-search-empty__lead-line">
+    FileMakr couldn&rsquo;t find any <%= productLabel %> for <strong id="PrSearchEmptyQuery">&ldquo;<%= prefilledTopic || 'your search' %>&rdquo;</strong>.
+  </p>
+  <p class="pr-search-empty__lead-sub">
+    But don&rsquo;t worry &mdash; we can help you build or arrange a custom project that fits your exact needs.
+  </p>
+
+  <div class="pr-search-empty__cta">
+    <div class="pr-search-empty__cta-copy">
+      <span class="pr-search-empty__cta-star" aria-hidden="true">
+        <i class="feather-star"></i>
+      </span>
+      <div class="pr-search-empty__cta-text">
+        <p class="pr-search-empty__cta-title">Have a custom project in mind?</p>
+        <p class="pr-search-empty__cta-sub">Share your requirements and we&rsquo;ll take care of the rest.</p>
+      </div>
+    </div>
+    <div class="pr-search-empty__cta-action">
+      <label class="pr-search-empty__input">
+        <span class="visually-hidden">Project topic</span>
+        <i class="feather-list" aria-hidden="true"></i>
+        <input id="EmptyTopicInput" type="text" value="<%= prefilledTopic %>" placeholder="<%= isIdeasEmpty ? 'Describe your project idea…' : 'Describe your project…' %>" autocomplete="off" />
+      </label>
+      <a id="WhatsAppEmpty" class="pr-search-empty__wa" href="#" aria-label="Request custom project on WhatsApp">
+        <i class="fab fa-whatsapp" aria-hidden="true"></i>
+        Request on WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <ul class="pr-search-empty__links">
+    <li>
+      <a href="/source-code">
+        <i class="feather-code" aria-hidden="true"></i>
+        Browse Source Code
+      </a>
+    </li>
+    <li>
+      <a href="/final-year-project-ideas">
+        <i class="far fa-lightbulb" aria-hidden="true"></i>
+         Project Ideas
+      </a>
+    </li>
+    <li>
+      <a href="/contact-us">
+        <i class="feather-headphones" aria-hidden="true"></i>
+        Talk to Support
+      </a>
+    </li>
+  </ul>
+
+  <ul class="pr-search-empty__trust" aria-label="Service guarantees">
+    <li>
+      <span class="pr-search-empty__trust-ico" aria-hidden="true"><i class="feather-shield"></i></span>
+      <div class="pr-search-empty__trust-body">
+        <p class="pr-search-empty__trust-head">100% Safe &amp; Secure</p>
+        <p class="pr-search-empty__trust-desc">Your data and requirements are fully protected.</p>
+      </div>
+    </li>
+    <li>
+      <span class="pr-search-empty__trust-ico" aria-hidden="true"><i class="feather-zap"></i></span>
+      <div class="pr-search-empty__trust-body">
+        <p class="pr-search-empty__trust-head">Fast Response</p>
+        <p class="pr-search-empty__trust-desc">We typically reply within 15 minutes.</p>
+      </div>
+    </li>
+    <li>
+      <span class="pr-search-empty__trust-ico" aria-hidden="true"><i class="feather-users"></i></span>
+      <div class="pr-search-empty__trust-body">
+        <p class="pr-search-empty__trust-head">Expert Guidance</p>
+        <p class="pr-search-empty__trust-desc">Get support from experienced project experts.</p>
+      </div>
+    </li>
+  </ul>
+</div>

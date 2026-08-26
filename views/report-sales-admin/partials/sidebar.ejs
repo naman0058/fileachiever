@@ -1,0 +1,40 @@
+<aside class="support-sidebar">
+  <div class="support-sidebar__brand">
+    <div class="support-brand">FileMakr</div>
+    <div class="support-sub">Report Sales Admin</div>
+  </div>
+  <nav class="support-nav">
+    <a class="support-link <%= active === 'overview' ? 'active' : '' %>" href="/report-sales-admin">
+      <i class="bi bi-grid-1x2"></i> Overview
+    </a>
+    <a class="support-link <%= active === 'pipeline' ? 'active' : '' %>" href="/report-sales-admin/pipeline">
+      <i class="bi bi-kanban"></i> Pipeline
+    </a>
+    <a class="support-link <%= active === 'delivered' ? 'active' : '' %>" href="/report-sales-admin/delivered">
+      <i class="bi bi-check2-circle"></i> Delivered
+    </a>
+    <a class="support-link <%= active === 'source' ? 'active' : '' %>" href="/report-sales-admin/source-orders">
+      <i class="bi bi-file-zip"></i> Source code
+    </a>
+    <a class="support-link <%= active === 'reports' ? 'active' : '' %>" href="/report-sales-admin/reports">
+      <i class="bi bi-search"></i> Order lookup
+    </a>
+    <a class="support-link <%= active === 'analytics' ? 'active' : '' %>" href="/report-sales-admin/analytics">
+      <i class="bi bi-bar-chart-line"></i> Analytics
+    </a>
+    <a class="support-link <%= active === 'performance' ? 'active' : '' %>" href="/report-sales-admin/performance">
+      <i class="bi bi-trophy"></i> Performance
+    </a>
+    <a class="support-link <%= active === 'employees' ? 'active' : '' %>" href="/report-sales-admin/employees">
+      <i class="bi bi-people"></i> Team
+    </a>
+    <div class="support-nav__sep"></div>
+    <a class="support-link danger" href="/report-sales-admin/logout">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+  </nav>
+  <div class="support-user">
+    <div class="support-user__name"><%= user && user.name ? user.name : 'Admin' %></div>
+    <div class="support-user__meta">Report Sales Admin</div>
+  </div>
+</aside>

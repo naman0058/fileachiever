@@ -445,16 +445,57 @@ router.post('/dashboard/blogs/add',upload.single('image'), async (req, res) => {
 
 
 
-router.post('/dashboard/upload/data', sourceCodeUploadMiddleware, (req, res) => {
-  console.log('req.body', req.body);
-  applySourceCodeUploadedFilenames(req);
-  pool.query('UPDATE source_code SET ? WHERE id = ?', [req.body, req.body.id], (err, result) => {
-      if (err) {
-          console.error('Error updating data:', err);
-          return res.status(500).json({ msg: 'error' });
-      }
-      res.json({ msg: 'success' });
-  });
+router.post('/dashboard/upload/data', sourceCodeUploadMiddleware, async (req, res) => {
+  try {
+    applySourceCodeUploadedFilenames(req);
+
+    const id = parseInt(req.body.id, 10);
+    const name = (req.body.name || '').toString().trim();
+    const category = (req.body.category || '').toString().trim();
+    const seo_name = (req.body.seo_name || '').toString().trim().toLowerCase();
+
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ msg: 'error', message: 'Invalid record id.' });
+    }
+    if (!name || !category || !seo_name) {
+      return res.status(400).json({ msg: 'error', message: 'Title, language, and SEO slug are required.' });
+    }
+
+    const duplicate = await queryAsync(
+      'SELECT id FROM source_code WHERE seo_name = ? AND id != ? LIMIT 1',
+      [seo_name, id]
+    );
+    if (duplicate.length) {
+      return res.json({ msg: 'exists', message: 'SEO slug is already used by another project.' });
+    }
+
+    const updateData = {
+      name,
+      category,
+      seo_name,
+      description: req.body.description,
+      admin_features: req.body.admin_features,
+      user_features: req.body.user_features,
+      other_features: req.body.other_features,
+      how_to_run: req.body.how_to_run,
+      credentials: req.body.credentials,
+      meta_desc: req.body.meta_desc,
+      meta_abstract: req.body.meta_abstract,
+      meta_keywords: req.body.meta_keywords,
+      status: req.body.status
+    };
+
+    if (req.body.source_code) updateData.source_code = req.body.source_code;
+    if (req.body.readme_file) updateData.readme_file = req.body.readme_file;
+    if (req.body.schema_file) updateData.schema_file = req.body.schema_file;
+    if (req.body.sql_file) updateData.sql_file = req.body.sql_file;
+
+    await queryAsync('UPDATE source_code SET ? WHERE id = ?', [updateData, id]);
+    return res.json({ msg: 'success' });
+  } catch (err) {
+    console.error('Error updating data:', err);
+    return res.status(500).json({ msg: 'error', message: 'Failed to update data.' });
+  }
 });
 
 

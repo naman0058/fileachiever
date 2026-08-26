@@ -1,135 +1,977 @@
-<% include Includes/projectReportNavbar.ejs %>
+<% include Includes/navbar.ejs %>
 <% include Includes/projectReport.ejs %>
+<link rel="stylesheet" href="/css/home-directory.css?v=59">
+<link rel="stylesheet" href="/css/pr-mobile-gutters.css?v=1">
+<script>window.FM_CLOUDINARY_CDN_BASE=<%= JSON.stringify(typeof cloudinaryCdnBase !== 'undefined' ? cloudinaryCdnBase : '') %>;window.FM_CLOUDINARY_CDN=<%= JSON.stringify(typeof cloudinaryCdnHost !== 'undefined' ? cloudinaryCdnHost : '') %>;</script>
+<script src="/js/fm-cloudinary.js?v=6"></script>
 
 <style>
-  /* Project report listing — scoped polish (mobile-first) */
+  /* Project report listing — full-bleed hero like homepage */
+  body {
+    background: #fff !important;
+  }
+
   .pr-page {
-    padding-bottom: 1.5rem;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background: #fff;
+  }
+
+  /* Everything below hero stays solid white with 20px gutters */
+  .pr-page__body {
+    background: #fff;
+    padding: 8px 20px 2.5rem;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   @media (max-width: 575.98px) {
-    .pr-page.container {
-      padding-left: max(12px, env(safe-area-inset-left));
-      padding-right: max(12px, env(safe-area-inset-right));
+    .pr-page__body {
+      padding-left: max(20px, env(safe-area-inset-left));
+      padding-right: max(20px, env(safe-area-inset-right));
     }
   }
 
-  .pr-page .pr-breadcrumb {
-    margin-bottom: 0.75rem;
+  /* ---- Full-width hero (edge-to-edge like homepage) ---- */
+  .pr-hero {
+    --pr-orange: #F17F23;
+    --pr-blue: #2A47FF;
+    --pr-ink: #0E1220;
+    --pr-muted: #64748B;
+    --pr-line: #E2E8F0;
+    --pr-bg: #F7F8FC;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    background: var(--pr-bg);
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    box-sizing: border-box;
   }
 
-  .pr-page .pr-breadcrumb .breadcrumb {
-    margin-bottom: 0;
+  .pr-hero__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 1.28fr);
+    gap: 24px 28px;
+    padding: clamp(20px, 3.2vw, 36px) 20px 24px;
+    align-items: start;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 575.98px) {
+    .pr-hero__top {
+      padding-left: max(20px, env(safe-area-inset-left));
+      padding-right: max(20px, env(safe-area-inset-right));
+    }
+  }
+
+  .pr-hero__crumb {
+    display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 0;
-    font-size: 0.8125rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(14, 18, 32, 0.06);
-    border-radius: 12px;
+    gap: 6px;
+    align-items: center;
+    margin: 0 0 14px;
+    padding: 0;
+    list-style: none;
+    font-size: 12.5px;
+    color: var(--pr-muted);
   }
 
-  @media (min-width: 576px) {
-    .pr-page .pr-breadcrumb .breadcrumb {
-      font-size: 0.875rem;
-      padding: 0.5rem 1rem;
-    }
+  .pr-hero__crumb a {
+    color: var(--pr-muted);
+    text-decoration: none;
   }
 
-  .pr-page .page-hero {
-    padding: clamp(1rem, 4vw, 1.375rem) clamp(1rem, 4vw, 1.25rem);
-    border-radius: clamp(14px, 3vw, 20px);
+  .pr-hero__crumb a:hover { color: var(--pr-blue); }
+
+  .pr-hero__crumb li:not(:last-child)::after {
+    content: '/';
+    margin-left: 6px;
+    color: #94A3B8;
   }
 
-  .pr-page .page-hero h1 {
-    font-size: clamp(1.35rem, 4.2vw, 1.85rem);
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.5rem;
+  .pr-hero__eyebrow {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pr-orange);
   }
 
-  .pr-page .hero-lead {
-    font-size: clamp(0.9rem, 2.4vw, 1rem);
+  .pr-hero__title {
+    margin: 0 0 12px;
+    font-size: clamp(1.85rem, 4.2vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    color: var(--pr-ink);
+  }
+
+  .pr-hero__title br {
+    display: block;
+  }
+
+  .pr-hero__lead {
+    margin: 0 0 16px;
+    max-width: 54ch;
+    font-size: 15px;
     line-height: 1.55;
-    max-width: 62ch;
+    color: var(--pr-muted);
   }
 
-  .pr-page .hero-features {
+  .pr-hero__badges {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 14px;
-    list-style: none;
+    margin: 0 0 18px;
     padding: 0;
-    margin-bottom: 0;
+    list-style: none;
   }
 
-  .pr-page .hero-features li {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    padding: 6px 11px;
+  .pr-hero__badges li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border-radius: 10px;
+    border: 1px solid var(--pr-line);
+    background: #fff;
+    font-size: 12px;
+    font-weight: 650;
+    color: var(--pr-ink);
+    line-height: 1.2;
+  }
+
+  .pr-hero__check {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: #16A34A;
+  }
+
+  .pr-hero__search {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 0 0 12px;
+    max-width: 560px;
+    background: #fff;
+    border: 1.5px solid #F3C9A4;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(14, 18, 32, 0.04);
+  }
+
+  .pr-hero__search:focus-within {
+    border-color: var(--pr-orange);
+    box-shadow: 0 0 0 3px rgba(241, 127, 35, 0.18);
+  }
+
+  .pr-hero__search input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    padding: 13px 14px;
+    font-size: 14.5px;
+    color: var(--pr-ink);
+  }
+
+  .pr-hero__search input::placeholder { color: #94A3B8; }
+
+  .pr-hero__search-btn {
+    flex: 0 0 auto;
+    width: 52px;
+    border: 0;
+    background: var(--pr-orange);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .pr-hero__search-btn:hover { filter: brightness(1.05); }
+
+  .pr-hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+
+  .pr-hero__chip {
+    appearance: none;
+    border: 1px solid var(--pr-line);
+    background: #fff;
+    color: #334155;
+    font-size: 12.5px;
+    font-weight: 650;
+    padding: 6px 12px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(14, 18, 32, 0.08);
-    color: var(--ink, #0e1220);
+    cursor: pointer;
+    line-height: 1.2;
   }
 
-  .pr-page .cta-strip {
-    margin-top: 14px;
-    padding: 12px 14px;
-    gap: 10px;
+  .pr-hero__chip:hover,
+  .pr-hero__chip.is-active {
+    border-color: rgba(42, 71, 255, 0.35);
+    color: var(--pr-blue);
+    background: #F5F7FF;
   }
 
-  @media (max-width: 575.98px) {
-    .pr-page .cta-strip {
-      flex-direction: column;
-      align-items: stretch;
-      text-align: center;
-      padding: 14px 14px;
-    }
-
-    .pr-page .cta-strip > span {
-      line-height: 1.45;
-    }
-
-    .pr-page .cta-btn {
-      margin-left: 0 !important;
-      width: 100%;
-      justify-content: center;
-      min-height: 48px;
-      border-radius: 12px;
-    }
+  .pr-hero__wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    font-size: 13.5px;
+    color: #475569;
+    text-decoration: none;
   }
 
-  .pr-page .md-wrap {
-    margin-top: 1rem;
+  /* Mobile already has sticky WhatsApp CTA — hide duplicate hero link */
+  @media (max-width: 991.98px) {
+    .pr-hero__wa { display: none !important; }
   }
 
-  .pr-page .md-wrap .section-title {
-    align-items: flex-start;
-  }
+  .pr-hero__wa strong { color: #16A34A; font-weight: 800; }
 
-  .pr-page .md-wrap .section-title > i {
-    margin-top: 0.2rem;
+  .pr-hero__wa-icon {
+    width: 20px;
+    height: 20px;
+    color: #25D366;
     flex-shrink: 0;
   }
 
-  .pr-page .section-title h3 {
-    font-size: clamp(1.05rem, 3vw, 1.2rem);
+  .pr-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
-  .pr-page .section-sub {
-    margin: 0.35rem 0 0;
-    font-size: 0.8125rem;
-    color: var(--muted);
-    line-height: 1.4;
-    max-width: 48ch;
+  .pr-hero__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 750;
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+  }
+
+  .pr-hero__btn--primary {
+    background: var(--pr-blue);
+    color: #fff;
+  }
+
+  .pr-hero__btn--primary:hover {
+    color: #fff;
+    filter: brightness(1.05);
+  }
+
+  .pr-hero__btn--ghost {
+    background: #fff;
+    color: var(--pr-blue);
+    border-color: rgba(42, 71, 255, 0.45);
+  }
+
+  .pr-hero__btn--ghost:hover {
+    background: #F5F7FF;
+    color: var(--pr-blue);
+  }
+
+  /* Preview card — wider to balance left copy */
+  .pr-hero__visual {
+    position: relative;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: stretch;
+    padding: 8px 0;
+    width: 100%;
+  }
+
+  .pr-hero__deck {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: 28px; /* space so back pages aren't clipped */
+    padding-bottom: 28px; /* room for downward page offset */
+  }
+
+  @media (min-width: 1200px) {
+    .pr-hero__deck {
+      max-width: 720px;
+      margin-right: 20px;
+    }
+  }
+
+  .pr-hero__page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 28px);
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid #E6EAF2;
+    box-shadow: 0 10px 28px rgba(14, 18, 32, 0.07);
+    pointer-events: none;
+  }
+
+  .pr-hero__page--mid {
+    z-index: 1;
+    transform: translate(18px, 12px);
+  }
+
+  .pr-hero__page--back {
+    z-index: 0;
+    transform: translate(36px, 24px);
+  }
+
+  /* Faint “text lines” on peeking pages */
+  .pr-hero__page::before {
+    content: '';
+    position: absolute;
+    top: 56px;
+    right: 16px;
+    bottom: 56px;
+    width: 26px;
+    border-radius: 2px;
+    background:
+      linear-gradient(#E8ECF3 0 0) 0 0 / 100% 6px,
+      linear-gradient(#E8ECF3 0 0) 0 14px / 78% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 28px / 100% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 42px / 62% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 56px / 90% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 70px / 70% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 84px / 100% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 98px / 55% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 112px / 88% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 126px / 66% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 140px / 94% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 154px / 50% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 168px / 80% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 182px / 100% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 196px / 60% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 210px / 86% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 224px / 72% 5px,
+      linear-gradient(#E8ECF3 0 0) 0 238px / 95% 5px;
+    background-repeat: no-repeat;
+    opacity: 0.95;
+  }
+
+  .pr-hero__preview {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #E5E9F0;
+    border-radius: 18px;
+    box-shadow: 0 18px 42px rgba(14, 18, 32, 0.12);
+    padding: 22px 28px 18px;
+  }
+
+  .pr-hero__preview-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin: -22px -28px 14px;
+  }
+
+  .pr-hero__preview-tabs span {
+    width: 64px;
+    height: 8px;
+    border-radius: 0 0 8px 8px;
+  }
+
+  .pr-hero__preview-tabs span:first-child { background: var(--pr-orange); }
+  .pr-hero__preview-tabs span:last-child { background: var(--pr-blue); }
+
+  .pr-hero__preview-kicker {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--pr-blue);
+  }
+
+  .pr-hero__preview-title {
+    margin: 0 0 4px;
+    font-size: clamp(16px, 1.6vw, 19px);
+    font-weight: 800;
+    color: var(--pr-ink);
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .pr-hero__preview-sub {
+    margin: 0;
+    font-size: 13px;
+    color: var(--pr-muted);
+    text-align: center;
+  }
+
+  .pr-hero__preview-rule {
+    width: 72px;
+    height: 1px;
+    margin: 12px auto 2px;
+    background: #E5E9F0;
+  }
+
+  .pr-hero__toc {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pr-hero__toc li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 6px;
+    border-bottom: 1px solid #EEF1F6;
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--pr-ink);
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .pr-hero__toc li:last-child { border-bottom: 0; }
+
+  .pr-hero__toc-num {
+    width: 24px;
+    height: auto;
+    border-radius: 0;
+    display: inline;
+    font-size: 13px;
+    font-weight: 800;
+    background: transparent;
+    color: var(--pr-blue);
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .pr-hero__toc-label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pr-hero__toc-ico {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: #94A3B8;
+  }
+
+  .pr-hero__toc li.is-diagram .pr-hero__toc-ico {
+    color: var(--pr-orange);
+  }
+
+  .pr-hero__preview-more {
+    margin: 10px 0 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #94A3B8;
+  }
+
+  .pr-hero__preview-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 14px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid #EEF1F6;
+  }
+
+  .pr-hero__preview-foot > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #64748B;
+    line-height: 1.2;
+  }
+
+  .pr-hero__preview-foot > span + span {
+    padding-left: 10px;
+    border-left: 1px solid #E5E9F0;
+  }
+
+  .pr-hero__dot-check {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #22C55E;
+    color: #fff;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .pr-hero__dot-check svg {
+    width: 8px;
+    height: 8px;
+    display: block;
+  }
+
+  .pr-hero__preview-note {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: #94A3B8;
+    text-align: center;
+  }
+
+  .pr-hero__bar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--pr-line);
+    border-bottom: 1px solid var(--pr-line);
+    background: #fff;
+  }
+
+  .pr-hero__bar-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pr-blue);
+    border-right: 1px solid var(--pr-line);
+  }
+
+  .pr-hero__bar-item:last-child { border-right: 0; }
+
+  .pr-hero__bar-item svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 991.98px) {
+    .pr-hero__top {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .pr-hero__visual {
+      display: none !important;
+    }
+
+    .pr-hero__bar {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .pr-hero__bar-item:nth-child(2) { border-right: 0; }
+    .pr-hero__bar-item:nth-child(1),
+    .pr-hero__bar-item:nth-child(2) {
+      border-bottom: 1px solid var(--pr-line);
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .pr-hero__actions { flex-direction: column; }
+    .pr-hero__btn { width: 100%; }
+    .pr-hero__bar-item {
+      flex-direction: column;
+      text-align: center;
+      font-size: 12px;
+      gap: 6px;
+      padding: 12px 8px;
+    }
   }
 
   .pr-page .toolbar {
-    margin-top: 1rem;
-    padding: clamp(10px, 2.5vw, 14px);
+    margin: 0 0 14px;
+    padding: clamp(12px, 2.5vw, 16px);
+    background: #F8FAFC;
+    border: 1px solid #E8ECF2;
+    border-radius: 14px;
+  }
+
+  /* Homepage-style strips on report page */
+  .pr-page .fm-dir-strip {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .pr-page .fm-dir-strip__titles {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .pr-page .fm-dir-strip__head {
+    align-items: flex-start;
+  }
+
+  .pr-explore .fm-dir-strip__head {
+    margin-bottom: 6px;
+  }
+
+  .pr-page .fm-dir-strip__all {
+    margin-top: 4px;
+  }
+
+  .pr-page .fm-dir-strip__sub {
+    margin: 6px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+      line-height: 1.45;
+    color: #64748B;
+    max-width: 54ch;
+  }
+
+  .pr-explore .fm-dir-strip__sub {
+    max-width: none;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 767.98px) {
+    .pr-explore .fm-dir-strip__sub {
+      white-space: normal;
+      max-width: none;
+    }
+  }
+
+  .pr-page .fm-dir-strip + .fm-dir-strip {
+    padding-top: 20px;
+  }
+
+  .pr-explore .fm-dir-popgrid {
+    margin-top: 2px;
+  }
+
+  .pr-explore__bar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0;
+      width: 100%;
+    padding: 4px 0 6px;
+    box-sizing: border-box;
+  }
+
+  .pr-toolbar-sticky-wrap {
+    position: sticky;
+    top: var(--offerBarH, 52px);
+    z-index: 900;
+    margin: 0 0 16px;
+    padding: 0;
+    background: #fff;
+  }
+  body.pr-toolbar-stuck .pr-toolbar-sticky-wrap {
+    top: 0;
+    padding-top: 10px;
+  }
+  .pr-toolbar-sticky-wrap.is-stuck {
+    z-index: 1025;
+    box-shadow: 0 10px 28px rgba(14, 18, 32, 0.06);
+  }
+  body.pr-toolbar-stuck #OfferBar {
+    display: none !important;
+  }
+  body:has(.pr-page) #OfferBar {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    width: 100%;
+  }
+
+  @media (max-width: 991.98px) {
+    .pr-toolbar-sticky-wrap {
+      top: var(--offerBarH, 52px);
+      z-index: 9980;
+      width: 100vw;
+      max-width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-right: calc(50% - 50vw);
+      margin-top: 0;
+      margin-bottom: 12px;
+      padding: 0;
+      background: #fff;
+    }
+    body.pr-toolbar-stuck .pr-toolbar-sticky-wrap {
+      top: 0;
+      padding-top: 0;
+    }
+    .pr-toolbar-sticky-wrap.is-stuck {
+      box-shadow: 0 6px 20px rgba(14, 18, 32, 0.08);
+    }
+    .pr-toolbar-sticky-wrap .pr-explore__bar {
+      margin: 0;
+      padding: 10px 16px 10px;
+      border-bottom: 1px solid rgba(14, 18, 32, 0.07);
+      background: #fff;
+      box-sizing: border-box;
+    }
+    .pr-toolbar-sticky-wrap.is-stuck .pr-explore__bar {
+      padding-top: 12px;
+    }
+  }
+
+  .pr-explore__count {
+    margin: 0;
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 650;
+    color: #0E1220;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .pr-explore__count strong {
+    color: #0E1220;
+    font-weight: 800;
+  }
+
+  .pr-explore__tools {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+    margin-left: auto;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+  }
+
+  .pr-explore__search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    width: 260px;
+    min-width: 200px;
+    max-width: 280px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    background: #fff;
+    box-sizing: border-box;
+  }
+
+  /* When sticky: search expands to fill remaining width */
+  .pr-toolbar-sticky-wrap.is-stuck .pr-explore__tools {
+    flex: 1 1 auto;
+    margin-left: 0;
+  }
+  .pr-toolbar-sticky-wrap.is-stuck .pr-explore__search {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .pr-explore__search:focus-within {
+    border-color: #93A4FF;
+    box-shadow: 0 0 0 3px rgba(42, 71, 255, 0.12);
+  }
+
+  .pr-explore__search svg {
+    width: 16px;
+    height: 16px;
+    color: #94A3B8;
+    flex-shrink: 0;
+  }
+
+  .pr-explore__search input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    border: 0 !important;
+    outline: none;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    height: auto !important;
+    font-size: 13.5px;
+    color: #0E1220;
+  }
+
+  .pr-explore__search input::placeholder {
+    color: #94A3B8;
+  }
+
+  .pr-explore__tech {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: auto !important;
+    min-width: 148px;
+    max-width: 180px;
+    height: 38px !important;
+    padding: 0 34px 0 14px !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    background-color: #fff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%2364748B' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #0E1220 !important;
+    line-height: 36px !important;
+    cursor: pointer;
+    box-shadow: none !important;
+  }
+
+  .pr-explore__tech:focus {
+    outline: none;
+    border-color: #93A4FF !important;
+    box-shadow: 0 0 0 3px rgba(42, 71, 255, 0.12) !important;
+  }
+
+  @media (max-width: 767.98px) {
+    .pr-explore__bar {
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .pr-explore__count {
+      width: 100%;
+      white-space: normal;
+    }
+
+    .pr-explore__tools {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    .pr-explore__search {
+      flex: 1 1 auto;
+      width: auto;
+      min-width: 0;
+      max-width: none;
+    }
+
+    .pr-explore__tech {
+      flex: 0 0 auto;
+      min-width: 132px;
+    }
+  }
+
+  /* Explore shows all items — don't clip like homepage "Popular this week" */
+  @media (max-width: 991.98px) {
+    .pr-explore .fm-dir-popgrid--5 > .fm-dir-pop:nth-child(n + 5) {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .pr-explore .fm-dir-popgrid--5 {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .pr-page .fm-dir-pop.is-filter-hidden,
+  .pr-page .fm-dir-pop[hidden] {
+    display: none !important;
+  }
+
+  .pr-explore__more {
+    display: flex;
+    align-items: center;
+      justify-content: center;
+    gap: 10px;
+      min-height: 48px;
+    margin: 18px 0 4px;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+  .pr-explore__more[hidden] { display: none !important; }
+  .pr-explore__more-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #F17F23;
+    animation: prExplorePulse 1s ease-in-out infinite;
+  }
+  .pr-explore__more-dot:nth-child(2) { animation-delay: 0.15s; }
+  .pr-explore__more-dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes prExplorePulse {
+    0%, 100% { opacity: 0.35; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  .pr-page .fm-dir-pop__feats li.is-diagram {
+    color: #1D4ED8;
+  }
+
+  .pr-page .fm-dir-pop__feats li.is-diagram svg {
+    color: #3B82F6;
+  }
+
+  .pr-page .fm-dir-pop__media-wrap {
+    position: relative;
+  }
+
+  .pr-page .fm-dir-pop__pill {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    max-width: calc(100% - 20px);
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 0;
+    background: #fff;
+    color: #0E1220;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 4px 14px rgba(14, 18, 32, 0.12);
+    pointer-events: none;
+  }
+
+  .pr-page .fm-dir-pop__feats li.is-plagiarism {
+    color: #15803D;
+  }
+
+  .pr-page .fm-dir-pop__feats li.is-plagiarism svg {
+    color: #22C55E;
+  }
+
+  .pr-page .fm-dir-pop__feats li.is-synopsis {
+    color: #15803D;
+  }
+
+  .pr-page .fm-dir-pop__feats li.is-synopsis svg {
+    color: #22C55E;
   }
 
   .pr-page .toolbar-meta {
@@ -138,9 +980,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(14, 18, 32, 0.06);
+    margin-bottom: 0;
   }
 
   .pr-page .toolbar-meta strong {
@@ -255,108 +1095,430 @@
     font-size: 0.875rem;
     line-height: 1.55;
   }
+
+  /* Mobile sticky WhatsApp CTA — above app nav */
+  :root {
+    --prStickyDockH: 88px;
+  }
+  .pr-sticky-sentinel {
+    height: 1px;
+    width: 100%;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .pr-list-sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--fm-app-nav-h, 64px) + env(safe-area-inset-bottom, 0px));
+    z-index: 9997;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    border-top: 1px solid rgba(14, 18, 32, 0.08);
+    box-shadow: 0 -4px 16px rgba(14, 18, 32, 0.08);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(110%);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .pr-list-sticky.is-visible {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .pr-list-sticky__wa {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 52px;
+    padding: 8px 12px;
+    border-radius: 16px;
+    background: #25D366;
+    color: #fff !important;
+    text-decoration: none !important;
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.32);
+    transition: filter 0.2s;
+  }
+  .pr-list-sticky__wa:hover,
+  .pr-list-sticky__wa:focus-visible {
+    filter: brightness(0.98);
+    color: #fff !important;
+  }
+  .pr-list-sticky__wa-icon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pr-list-sticky__wa-icon svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+  .pr-list-sticky__wa-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    text-align: left;
+  }
+  .pr-list-sticky__wa-text strong {
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.25;
+  }
+  .pr-list-sticky__wa-text span {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.92;
+    line-height: 1.3;
+  }
+  @media (max-width: 991.98px) {
+    body.pr-report-sticky-active {
+      padding-bottom: calc(var(--fm-app-nav-h, 64px) + var(--prStickyDockH) + env(safe-area-inset-bottom, 0px)) !important;
+    }
+  }
+  @media (min-width: 992px) {
+    .pr-list-sticky { display: none !important; }
+  }
 </style>
 
-<div class="container pr-page">
-  <div class="brand-accent"></div>
+<div class="pr-page">
 
-  <nav aria-label="breadcrumb" class="page-breadcrumb pr-breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="<%= typeof homeUrl !== 'undefined' ? homeUrl : '/' %>" title="FileMakr: Project Report and Source Code for Final Year College Students">Home</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page"><%= graduation_type_send %> Project Reports</li>
+  <section class="pr-hero" aria-labelledby="pr-hero-heading">
+    <div class="pr-hero__top">
+      <div class="pr-hero__copy">
+        <nav aria-label="Breadcrumb">
+          <ol class="pr-hero__crumb">
+            <li><a href="/">Home</a></li>
+            <li><a href="/final-year-project-ideas">Project Reports</a></li>
+            <li aria-current="page"><%= graduation_type_send %> Project Reports</li>
     </ol>
   </nav>
 
-  <section class="page-hero" aria-labelledby="pr-hero-heading">
-    <h1 id="pr-hero-heading"><%= graduation_type_send %> Final Year Project Reports</h1>
-    <p class="hero-lead">Download premium <%= graduation_type_send %> final year project report PDFs with complete documentation, source code, PPT & synopsis — IEEE format, ER/DFD, Gantt, test cases, output screens. Affordable, ready-to-submit topics: ERP, Real Estate, Vehicle Rental, Expense Tracker & more.</p>
+        <p class="pr-hero__eyebrow"><%= graduation_type_send %> Project Reports</p>
+        <h1 class="pr-hero__title" id="pr-hero-heading"><%= graduation_type_send %> Final Year<br>Project Reports</h1>
+        <p class="pr-hero__lead">
+          Explore structured <%= graduation_type_send %> final-year project reports with complete documentation, diagrams, synopsis and viva-ready formatting — designed for academic review and originality checks.
+        </p>
 
-    <ul class="hero-features" aria-label="What’s included">
-      <li>IEEE-ready PDF</li>
-      <li>Diagrams &amp; test cases</li>
-      <li>PPT &amp; synopsis</li>
-      <li>Source add-ons</li>
+        <ul class="pr-hero__badges" aria-label="Report quality highlights">
+          <li>
+            <svg class="pr-hero__check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M6.2 10.2l2.3 2.3 5.3-5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Plagiarism-Free Reports
+          </li>
+          <li>
+            <svg class="pr-hero__check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M6.2 10.2l2.3 2.3 5.3-5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            AI-Detection Reviewed
+          </li>
+          <li>
+            <svg class="pr-hero__check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M6.2 10.2l2.3 2.3 5.3-5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            IEEE-Ready Format
+          </li>
+         
     </ul>
 
-    <div class="cta-strip">
-      <span><strong>Need a Custom Report?</strong> Get it on WhatsApp.</span>
-      <a id="WhatsAppHero" class="cta-btn" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
-        <i class="feather-message-circle" aria-hidden="true"></i> Chat on WhatsApp
-      </a>
-    </div>
-  </section>
+        <form class="pr-hero__search" role="search" aria-label="Search <%= graduation_type_send %> project reports" onsubmit="return false;">
+          <label class="visually-hidden" for="Search">Search project reports</label>
+          <input id="Search" type="search" inputmode="search" enterkeyhint="search" placeholder="Search <%= graduation_type_send %> project reports..." autocomplete="off" />
+          <button type="button" class="pr-hero__search-btn" id="prHeroSearchBtn" aria-label="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </form>
 
-  <section class="md-wrap md-app">
-    <div class="section-title">
-      <i class="feather-trending-up" style="color:var(--brandOrange)" aria-hidden="true"></i>
-      <div>
-        <h3>Most Demanding Reports</h3>
-        <p class="section-sub">Popular picks students open first — swipe on mobile.</p>
+        <div class="pr-hero__chips" aria-label="Popular topics">
+          <button type="button" class="pr-hero__chip" data-pr-chip="PHP">PHP</button>
+          <button type="button" class="pr-hero__chip" data-pr-chip="Node.js">Node Js</button>
+          <button type="button" class="pr-hero__chip" data-pr-chip="Python">Python</button>
+          <button type="button" class="pr-hero__chip" data-pr-chip="Machine Learning">Machine Learning</button>
+          <button type="button" class="pr-hero__chip" data-pr-chip="Data Analytics">Data analytics</button>
+        </div>
+
+        <a id="WhatsAppHero" class="pr-hero__wa" href="#" target="_blank" rel="noopener noreferrer">
+          <svg class="pr-hero__wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Need a custom report? Chat with us on <strong>WhatsApp</strong>
+        </a>
+
+        <div class="pr-hero__actions">
+          <a class="pr-hero__btn pr-hero__btn--primary" href="#Grid">Browse <%= graduation_type_send %> Reports <span aria-hidden="true">→</span></a>
+          <a class="pr-hero__btn pr-hero__btn--ghost" href="https://wa.me/918319339945?text=<%= encodeURIComponent('Hi FileMakr, I need a custom ' + graduation_type_send + ' project report.') %>" target="_blank" rel="noopener noreferrer">Request Custom Report</a>
+    </div>
       </div>
-    </div>
-    <div class="h-scroll" id="MostDemanding" aria-label="Popular reports"></div>
-  </section>
 
-  <section class="toolbar" aria-label="Search and sort reports">
-    <div class="toolbar-meta">
-      <p class="mb-0"><strong id="ResultCount"><%= result.length %></strong> <span>reports in this list</span></p>
-      <span class="d-none d-sm-inline">Refine with search or sort</span>
+      <div class="pr-hero__visual" aria-hidden="true">
+        <div class="pr-hero__deck">
+          <div class="pr-hero__page pr-hero__page--back"></div>
+          <div class="pr-hero__page pr-hero__page--mid"></div>
+          <div class="pr-hero__preview">
+          <div class="pr-hero__preview-tabs"><span></span><span></span></div>
+          <p class="pr-hero__preview-kicker">Project Report Preview</p>
+          <p class="pr-hero__preview-title"><%= graduation_type_send %> Final Year Project Report</p>
+          <p class="pr-hero__preview-sub">Complete Academic Documentation</p>
+          <div class="pr-hero__preview-rule"></div>
+          <ul class="pr-hero__toc">
+            <li>
+              <span class="pr-hero__toc-num">01</span>
+              <span class="pr-hero__toc-label">Introduction</span>
+              <svg class="pr-hero__toc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </li>
+            <li>
+              <span class="pr-hero__toc-num">02</span>
+              <span class="pr-hero__toc-label">Literature Review</span>
+              <svg class="pr-hero__toc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </li>
+            <li>
+              <span class="pr-hero__toc-num">03</span>
+              <span class="pr-hero__toc-label">System Analysis</span>
+              <svg class="pr-hero__toc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </li>
+            <li>
+              <span class="pr-hero__toc-num">04</span>
+              <span class="pr-hero__toc-label">System Design</span>
+              <svg class="pr-hero__toc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </li>
+            <li>
+              <span class="pr-hero__toc-num">05</span>
+              <span class="pr-hero__toc-label">Implementation</span>
+              <svg class="pr-hero__toc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </li>
+            <li class="is-diagram">
+              <span class="pr-hero__toc-num">06</span>
+              <span class="pr-hero__toc-label">UML Diagrams</span>
+              <svg class="pr-hero__toc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="2.5" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.7"/><rect x="2.5" y="16.5" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.7"/><rect x="15.5" y="16.5" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5v4.5M12 12H5.5v4.5M12 12h6.5v4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </li>
+            <li class="is-diagram">
+              <span class="pr-hero__toc-num">07</span>
+              <span class="pr-hero__toc-label">Output Screenshots</span>
+              <svg class="pr-hero__toc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="5" r="2.5" stroke="currentColor" stroke-width="1.7"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="1.7"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5v3.5M12 11H5.5v5M12 11h6.5v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </li>
+          </ul>
+          <p class="pr-hero__preview-more">… More sections below …</p>
+          <div class="pr-hero__preview-foot">
+            <span><span class="pr-hero__dot-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Plagiarism-Free</span>
+            <span><span class="pr-hero__dot-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>AI-Detection Reviewed</span>
+            <span><span class="pr-hero__dot-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Diagrams Included</span>
+      </div>
+          <p class="pr-hero__preview-note">Structured for academic review &amp; viva preparation</p>
     </div>
-    <div class="row g-2 g-md-3 align-items-stretch align-items-lg-center">
-      <div class="col-12 col-lg-9">
-        <div class="search-group">
-          <i class="feather-search" aria-hidden="true"></i>
-          <label for="Search" class="visually-hidden">Search project reports</label>
-          <input id="Search" class="form-control search-input" type="search" inputmode="search" enterkeyhint="search" placeholder="Search… e.g., ERP, Real Estate, expense tracker" autocomplete="off" />
         </div>
       </div>
-      <div class="col-12 col-lg-3 text-lg-end">
-        <label for="Sort" class="visually-hidden">Sort results</label>
-        <select id="Sort" class="form-select sort-select" aria-label="Sort results">
-          <option value="relevance">Sort: Relevance</option>
-          <option value="alpha">Sort: A → Z</option>
-          <option value="alphaDesc">Sort: Z → A</option>
-        </select>
+    </div>
+
+    <div class="pr-hero__bar" aria-label="What’s included">
+      <div class="pr-hero__bar-item">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5M8 13h8M8 17h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        Complete Report
+    </div>
+      <div class="pr-hero__bar-item">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17h4v4H4v-4zm6-7h4v11h-4V10zm6-6h4v17h-4V4z" stroke="currentColor" stroke-width="1.7"/></svg>
+        Diagrams &amp; Test Cases
+        </div>
+      <div class="pr-hero__bar-item">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Plagiarism-Free Report
+      </div>
+      <div class="pr-hero__bar-item">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5M13 5l-2 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Source Code Add-ons
       </div>
     </div>
   </section>
 
-  <section class="course-content mt-3">
-    <div class="row">
-      <div class="col-lg-9 pr-main">
-        <div class="row g-3" id="Grid" role="list">
-          <% for (let i = 0; i < result.length; i++) { %>
-            <div class="col-12 col-md-6 col-xl-4 target" role="listitem"
-                 data-name="<%= result[i].name %>"
-                 data-desc="<%= result[i].short_description %>"
-                 data-url="<%= original %>-final-year-project-report-<%= result[i].seo_name %>">
-              <article class="course-box h-100 d-flex flex-column">
-                <h2>
-                  <a href="<%= original %>-final-year-project-report-<%= result[i].seo_name %>"
-                     title="<%= result[i].name %> | PDF for <%= graduation_type_send %> Final Year">
-                    <%= result[i].name %>
-                  </a>
-                </h2>
-                <p><%= result[i].short_description %></p>
-                <div class="mt-auto d-flex justify-content-between align-items-center pt-1">
-                  <a class="link-arrow" href="<%= original %>-final-year-project-report-<%= result[i].seo_name %>">Get project report <span aria-hidden="true">→</span></a>
+  <div id="PrStickySentinel" class="pr-sticky-sentinel" aria-hidden="true"></div>
+
+  <div class="pr-page__body">
+  <%
+    const allReports = (typeof result !== 'undefined' && result && result.length) ? result : [];
+    // Most Demanding: 5 random reports each load
+    const demandingReports = (function (list) {
+      var copy = list.slice();
+      for (var i = copy.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = tmp;
+      }
+      return copy.slice(0, 5);
+    })(allReports);
+
+    function prItemUrl(seo) {
+      var slug = String(seo || '').trim().toLowerCase();
+      if (!slug) return '/' + original + '-final-year-project-report';
+      return '/' + slug + '-report-' + original;
+    }
+    function prItemImg(item) {
+      var img = String((item && item.image) || '').trim();
+      if (!img) return '';
+      if (/^https?:\/\//i.test(img) || img.charAt(0) === '/') return img;
+      return '/' + img.replace(/^\.?\/+/, '');
+    }
+    function prItemCats(item) {
+      var raw = String((item && item.category) || '').trim();
+      if (!raw) return [];
+      var seen = {};
+      var out = [];
+      raw.split(/[,|/]+/).forEach(function (part) {
+        var t = String(part || '').replace(/[-_.]+/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!t) return;
+        t = t.replace(/\b[a-z]/g, function (ch) { return ch.toUpperCase(); });
+        // Keep common product casing
+        t = t.replace(/\bJs\b/g, 'JS').replace(/\bPhp\b/g, 'PHP').replace(/\bAi\b/g, 'AI').replace(/\bMl\b/g, 'ML');
+        var key = t.toLowerCase();
+        if (seen[key]) return;
+        seen[key] = 1;
+        out.push(t);
+      });
+      return out.slice(0, 3);
+    }
+    function prItemDesc(item) {
+      return String((item && (item.description || item.short_description)) || '').trim();
+    }
+  %>
+
+  <section class="fm-dir-strip" aria-labelledby="pr-demanding-title">
+    <div class="fm-dir-strip__inner">
+      <header class="fm-dir-strip__head">
+        <div class="fm-dir-strip__titles">
+          <h2 id="pr-demanding-title">Most Demanding <%= graduation_type_send %> Project Reports</h2>
+          <p class="fm-dir-strip__sub">Popular project reports students explore first.</p>
+        </div>
+      </header>
+      <div class="fm-dir-popgrid fm-dir-popgrid--5">
+        <% demandingReports.forEach(function (item) {
+          var href = prItemUrl(item.seo_name);
+          var cover = prItemImg(item);
+          var cats = prItemCats(item);
+          var letter = String(item.name || 'P').charAt(0).toUpperCase();
+        %>
+          <article class="fm-dir-pop fm-dir-pop--compact">
+            <div class="fm-dir-pop__media-wrap">
+              <a class="fm-dir-pop__media" href="<%= href %>" tabindex="-1" aria-hidden="true">
+                <% if (cover) { %>
+                  <img
+                    src="<%= cloudinaryUrl(cover, { width: 640 }) %>"
+                    srcset="<%= cloudinarySrcSet(cover, [640, 960, 1280]) %>"
+                    sizes="(max-width: 640px) 45vw, (max-width: 1100px) 33vw, 280px"
+                    alt="<%= imageAltLabel(item.name, 'project report preview') %>"
+                    width="640"
+                    height="360"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                <% } else { %>
+                  <span class="fm-dir-pop__fallback" data-letter="<%= letter %>"></span>
+                <% } %>
+              </a>
+              <% if (cats.length) { %>
+                <span class="fm-dir-pop__pill"><%= cats[0] %></span>
+              <% } %>
+            </div>
+            <div class="fm-dir-pop__body">
+              <h3 class="fm-dir-pop__title"><a href="<%= href %>"><%= item.name %></a></h3>
+              <ul class="fm-dir-pop__feats" aria-label="Included resources">
+                <li class="is-report">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7.5L19 8v12.5a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14.5 3.5V8H19" stroke="currentColor" stroke-width="1.7"/><path d="M9 12h6M9 15.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                  Report
+                </li>
+                <li class="is-diagram">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17h4v4H4v-4zm6-7h4v11h-4V10zm6-6h4v17h-4V4z" stroke="currentColor" stroke-width="1.7"/></svg>
+                  Diagrams
+                </li>
+                <li class="is-plagiarism">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Plagiarism-Free
+                </li>
+              </ul>
+              <a class="fm-dir-pop__btn" href="<%= href %>">View Report</a>
                 </div>
               </article>
+        <% }) %>
             </div>
-          <% } %>
+    </div>
+  </section>
+
+  <section class="fm-dir-strip pr-explore" aria-labelledby="pr-explore-title">
+    <div class="fm-dir-strip__inner">
+      <header class="fm-dir-strip__head">
+        <div class="fm-dir-strip__titles">
+          <h2 id="pr-explore-title">Explore <%= graduation_type_send %> Project Reports</h2>
+          <p class="fm-dir-strip__sub">Browse project documentation by technology, project domain and resource availability.</p>
+        </div>
+      </header>
+
+      <%
+        var techOptions = [];
+        var techSeen = {};
+        allReports.forEach(function (item) {
+          prItemCats(item).forEach(function (c) {
+            var key = String(c).toLowerCase();
+            if (techSeen[key]) return;
+            techSeen[key] = 1;
+            techOptions.push(c);
+          });
+        });
+        techOptions.sort(function (a, b) { return a.localeCompare(b); });
+      %>
+
+      <div id="PrToolbarSentinel" class="pr-sticky-sentinel pr-sticky-sentinel--toolbar" aria-hidden="true"></div>
+      <div class="pr-toolbar-sticky-wrap" id="PrToolbarWrap">
+      <div class="pr-explore__bar" id="PrToolbar">
+        <p class="pr-explore__count">
+          <strong id="ExploreCount"><%= allReports.length %></strong> <%= graduation_type_send %> Project Reports
+        </p>
+        <div class="pr-explore__tools">
+          <div class="pr-explore__search">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <label class="visually-hidden" for="ExploreSearch">Search reports</label>
+            <input id="ExploreSearch" type="search" placeholder="Search reports..." autocomplete="off" />
+          </div>
+          <label class="visually-hidden" for="TechFilter">Technology</label>
+          <select id="TechFilter" class="pr-explore__tech" aria-label="Filter by technology">
+            <option value="">Technology</option>
+            <% techOptions.forEach(function (opt) { %>
+              <option value="<%= opt %>"><%= opt %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      </div>
+
+      <%
+        var prCatalog = allReports.map(function (item) {
+          return {
+            n: String(item.name || ''),
+            s: String(item.seo_name || '').trim().toLowerCase(),
+            c: String(item.category || ''),
+            i: prItemImg(item),
+            d: prItemDesc(item)
+          };
+        });
+        var prCatalogJson = JSON.stringify(prCatalog).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+      %>
+
+      <div class="fm-dir-popgrid fm-dir-popgrid--5" id="Grid" role="list" data-pr-catalog="1" data-pr-original="<%= original %>" aria-busy="true"></div>
+      <div id="ExploreMore" class="pr-explore__more" hidden aria-hidden="true">
+        <span class="pr-explore__more-dot" aria-hidden="true"></span>
+        <span class="pr-explore__more-dot" aria-hidden="true"></span>
+        <span class="pr-explore__more-dot" aria-hidden="true"></span>
+        <span>Loading more reports…</span>
         </div>
 
         <div id="EmptyState" class="empty empty-app mt-3" style="display:none;">
           <div class="empty-topbar"></div>
-
           <div class="empty-head">
             <div class="icon-wrap-sm"><i class="feather-search" aria-hidden="true"></i></div>
             <h3 class="empty-title">Didn't find it?</h3>
             <p class="empty-subtitle">Send your topic—we'll share the report on WhatsApp.</p>
           </div>
-
           <div class="empty-action">
             <div class="empty-field">
               <i class="feather-type" aria-hidden="true"></i>
@@ -369,39 +1531,342 @@
           </div>
         </div>
       </div>
-
-      <aside class="col-lg-3 pr-side" aria-label="Quick links and info">
-        <div class="sticky-side">
-          <div class="side-card">
-            <div class="side-title"><i class="feather-zap" aria-hidden="true"></i><h4>Quick actions</h4></div>
-            <div class="qa-list">
-              <a class="qa-item" href="<%= typeof codeUrl !== 'undefined' ? codeUrl : '/source-code' %>">
-                <i class="feather-code" aria-hidden="true"></i>
-                <div class="qa-text"><strong>Browse Source Code</strong><span>Working projects with docs</span></div>
-              </a>
-              <a class="qa-item" href="<%= typeof demoUrl !== 'undefined' ? demoUrl : '/demo' %>">
-                <i class="feather-play-circle" aria-hidden="true"></i>
-                <div class="qa-text"><strong>See Live Demos</strong><span>Preview before you choose</span></div>
-              </a>
-              <a class="qa-item" href="<%= typeof blogUrl !== 'undefined' ? blogUrl : '/blog' %>">
-                <i class="feather-book-open" aria-hidden="true"></i>
-                <div class="qa-text"><strong>Guides &amp; Blogs</strong><span>Tips, checklists &amp; more</span></div>
-              </a>
-              <a class="qa-item" id="WhatsAppSide" href="#">
-                <i class="feather-message-circle" aria-hidden="true"></i>
-                <div class="qa-text"><strong>Request Custom Report</strong><span>Fast reply on WhatsApp</span></div>
-              </a>
+  </section>
             </div>
           </div>
 
-          <div class="side-card">
-            <div class="side-title"><i class="feather-info" aria-hidden="true"></i><h4>What we provide</h4></div>
-            <p class="mb-0" style="color:var(--muted)">Project reports, source code, and PPTs tailored for final-year students. Explore, or message us for a custom build.</p>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </section>
+<script>
+window.__PR_CATALOG = <%- prCatalogJson %>;
+window.__PR_ORIGINAL = <%- JSON.stringify(original) %>;
+</script>
+<script>
+(function () {
+  var BATCH = 24;
+  var items = Array.isArray(window.__PR_CATALOG) ? window.__PR_CATALOG : [];
+  var original = String(window.__PR_ORIGINAL || '');
+  var grid = document.getElementById('Grid');
+  var moreEl = document.getElementById('ExploreMore');
+  var countEl = document.getElementById('ExploreCount');
+  var emptyEl = document.getElementById('EmptyState');
+  var heroSearch = document.getElementById('Search');
+  var exploreSearch = document.getElementById('ExploreSearch');
+  var techFilter = document.getElementById('TechFilter');
+  var btn = document.getElementById('prHeroSearchBtn');
+
+  if (!grid || !grid.getAttribute('data-pr-catalog')) return;
+
+  var q = '';
+  var activeTech = '';
+  var filtered = items.slice();
+  var cursor = 0;
+  var timer = null;
+  var observer = null;
+
+  function altLabel(name, suffix) {
+    var base = String(name || '').trim() || 'Project';
+    return esc(base + ' ' + suffix);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function normalize(s) {
+    return String(s || '').toLowerCase();
+  }
+
+  function normalizeCat(s) {
+    return String(s || '')
+      .toLowerCase()
+      .replace(/[,|/]+/g, ' ')
+      .replace(/[-_.]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function compactCat(s) {
+    return normalizeCat(s).replace(/\s+/g, '');
+  }
+
+  function categoryMatches(cardCat, selectedTech) {
+    if (!selectedTech) return true;
+    var nc = normalizeCat(cardCat);
+    var nt = normalizeCat(selectedTech);
+    if (!nt) return true;
+    if (nc === nt || nc.indexOf(nt) !== -1) return true;
+    if (compactCat(cardCat).indexOf(compactCat(selectedTech)) !== -1) return true;
+    var cardTokens = nc.split(' ').filter(Boolean);
+    var techTokens = nt.split(' ').filter(Boolean);
+    if (techTokens.length && techTokens.every(function (t) { return cardTokens.indexOf(t) !== -1; })) return true;
+    return false;
+  }
+
+  function firstCat(raw) {
+    var parts = String(raw || '').split(/[,|/]+/);
+    for (var i = 0; i < parts.length; i++) {
+      var t = String(parts[i] || '').replace(/[-_.]+/g, ' ').replace(/\s+/g, ' ').trim();
+      if (!t) continue;
+      t = t.replace(/\b[a-z]/g, function (ch) { return ch.toUpperCase(); });
+      t = t.replace(/\bJs\b/g, 'JS').replace(/\bPhp\b/g, 'PHP').replace(/\bAi\b/g, 'AI').replace(/\bMl\b/g, 'ML');
+      return t;
+    }
+    return '';
+  }
+
+  function itemHref(seo) {
+    return seo
+      ? ('/' + seo + '-report-' + original)
+      : ('/' + original + '-final-year-project-report');
+  }
+
+  function cardHtml(item) {
+    var name = String(item.n || '');
+    var seo = String(item.s || '');
+    var href = itemHref(seo);
+    var cover = String(item.i || '');
+    var cat = firstCat(item.c);
+    var letter = (name.charAt(0) || 'P').toUpperCase();
+    var media;
+    if (cover) {
+      var cl = window.fmCloudinary;
+      var src = cl ? cl.url(cover, { width: 640 }) : cover;
+      var srcset = cl ? cl.srcSet(cover, [640, 960, 1280]) : '';
+      media =
+        '<img src="' + esc(src) + '"' +
+        (srcset ? ' srcset="' + esc(srcset) + '" sizes="(max-width: 640px) 45vw, (max-width: 1100px) 33vw, 280px"' : '') +
+        ' alt="' + altLabel(name, 'project report preview') + '" width="640" height="360" loading="lazy" decoding="async" />';
+    } else {
+      media = '<span class="fm-dir-pop__fallback" data-letter="' + esc(letter) + '"></span>';
+    }
+    var pill = cat ? '<span class="fm-dir-pop__pill">' + esc(cat) + '</span>' : '';
+
+    return (
+      '<article class="fm-dir-pop fm-dir-pop--compact target" role="listitem"' +
+        ' data-name="' + esc(name) + '"' +
+        ' data-desc="' + esc(item.d || '') + '"' +
+        ' data-category="' + esc(item.c || '') + '"' +
+        ' data-url="' + esc(seo) + '-report">' +
+        '<div class="fm-dir-pop__media-wrap">' +
+          '<a class="fm-dir-pop__media" href="' + esc(href) + '" tabindex="-1" aria-hidden="true">' + media + '</a>' +
+          pill +
+        '</div>' +
+        '<div class="fm-dir-pop__body">' +
+          '<h3 class="fm-dir-pop__title"><a href="' + esc(href) + '">' + esc(name) + '</a></h3>' +
+          '<ul class="fm-dir-pop__feats" aria-label="Included resources">' +
+            '<li class="is-report"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7.5L19 8v12.5a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14.5 3.5V8H19" stroke="currentColor" stroke-width="1.7"/><path d="M9 12h6M9 15.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Report</li>' +
+            '<li class="is-diagram"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17h4v4H4v-4zm6-7h4v11h-4V10zm6-6h4v17h-4V4z" stroke="currentColor" stroke-width="1.7"/></svg>Diagrams</li>' +
+            '<li class="is-plagiarism"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Plagiarism-Free</li>' +
+          '</ul>' +
+          '<a class="fm-dir-pop__btn" href="' + esc(href) + '">View Report</a>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function setMoreVisible(on) {
+    if (!moreEl) return;
+    moreEl.hidden = !on;
+    moreEl.setAttribute('aria-hidden', on ? 'false' : 'true');
+  }
+
+  function updateCount() {
+    if (countEl) countEl.textContent = String(filtered.length);
+    var empty = filtered.length === 0;
+    if (emptyEl) emptyEl.style.display = empty ? '' : 'none';
+    grid.setAttribute('aria-busy', cursor < filtered.length ? 'true' : 'false');
+  }
+
+  function renderMore() {
+    if (cursor >= filtered.length) {
+      setMoreVisible(false);
+      updateCount();
+      return;
+    }
+    var end = Math.min(cursor + BATCH, filtered.length);
+    var html = '';
+    for (var i = cursor; i < end; i++) html += cardHtml(filtered[i]);
+    grid.insertAdjacentHTML('beforeend', html);
+    cursor = end;
+    setMoreVisible(cursor < filtered.length);
+    updateCount();
+  }
+
+  function resetAndRender() {
+    cursor = 0;
+    grid.innerHTML = '';
+    renderMore();
+    // If viewport is tall, keep filling until scrollable or done
+    var guard = 0;
+    while (cursor < filtered.length && guard < 8) {
+      var docH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+      if (docH > window.innerHeight + 240) break;
+      renderMore();
+      guard++;
+    }
+  }
+
+  function applyFilter() {
+    var nq = normalize(q);
+    var nqCompact = nq.replace(/\s+/g, '');
+    filtered = items.filter(function (item) {
+      var name = normalize(item.n);
+      var desc = normalize(item.d);
+      var cat = normalizeCat(item.c);
+      var matchText = !nq || name.indexOf(nq) !== -1 || desc.indexOf(nq) !== -1 || cat.indexOf(nq) !== -1 || compactCat(item.c).indexOf(nqCompact) !== -1;
+      var matchTech = categoryMatches(item.c, activeTech);
+      return matchText && matchTech;
+    });
+    resetAndRender();
+  }
+
+  function setQuery(val, opts) {
+    q = String(val || '');
+    if (heroSearch && heroSearch.value !== q) heroSearch.value = q;
+    if (exploreSearch && exploreSearch.value !== q) exploreSearch.value = q;
+    clearTimeout(timer);
+    var delay = (opts && opts.immediate) ? 0 : 140;
+    timer = setTimeout(applyFilter, delay);
+  }
+
+  function focusGrid() {
+    if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  if (heroSearch) {
+    heroSearch.addEventListener('input', function (e) { setQuery(e.target.value || ''); });
+  }
+  if (exploreSearch) {
+    exploreSearch.addEventListener('input', function (e) { setQuery(e.target.value || ''); });
+  }
+  if (techFilter) {
+    techFilter.addEventListener('change', function () {
+      activeTech = techFilter.value || '';
+      applyFilter();
+    });
+  }
+  if (btn && heroSearch) {
+    btn.addEventListener('click', function () {
+      setQuery(heroSearch.value || '', { immediate: true });
+      focusGrid();
+    });
+  }
+  document.querySelectorAll('[data-pr-chip]').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      if (!heroSearch) return;
+      var v = chip.getAttribute('data-pr-chip') || '';
+      document.querySelectorAll('[data-pr-chip]').forEach(function (c) {
+        c.classList.toggle('is-active', c === chip);
+      });
+      setQuery(v, { immediate: true });
+      focusGrid();
+    });
+  });
+
+  if ('IntersectionObserver' in window && moreEl) {
+    observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) renderMore();
+      });
+    }, { rootMargin: '480px 0px' });
+    observer.observe(moreEl);
+  } else {
+    window.addEventListener('scroll', function () {
+      if (cursor >= filtered.length) return;
+      var rect = moreEl ? moreEl.getBoundingClientRect() : null;
+      if (rect && rect.top < window.innerHeight + 400) renderMore();
+    }, { passive: true });
+  }
+
+  applyFilter();
+})();
+</script>
+
+<div class="pr-list-sticky" id="PrListSticky" aria-hidden="true">
+  <a id="WhatsAppSticky" class="pr-list-sticky__wa" href="#" target="_blank" rel="noopener noreferrer" aria-label="Request custom project report on WhatsApp">
+    <span class="pr-list-sticky__wa-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" focusable="false">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </span>
+    <span class="pr-list-sticky__wa-text">
+      <strong>Need custom project report?</strong>
+      <span>Chat on WhatsApp · We reply in ~15 minutes</span>
+    </span>
+  </a>
 </div>
 
 <% include Includes/footer.ejs %>
+
+<script>
+(function () {
+  var sticky = document.getElementById('PrListSticky');
+  var sentinel = document.getElementById('PrStickySentinel');
+  var waSticky = document.getElementById('WhatsAppSticky');
+  if (!sticky || !sentinel) return;
+  if (window.matchMedia('(min-width: 992px)').matches) return;
+
+  if (waSticky && typeof waLink === 'function') {
+    waSticky.setAttribute('href', waLink('Need custom project report'));
+  }
+
+  function setStickyVisible(show) {
+    sticky.classList.toggle('is-visible', show);
+    sticky.setAttribute('aria-hidden', show ? 'false' : 'true');
+    document.body.classList.toggle('pr-report-sticky-active', show);
+  }
+
+  var io = new IntersectionObserver(function (entries) {
+    setStickyVisible(!entries[0].isIntersecting);
+  }, { threshold: 0 });
+  io.observe(sentinel);
+})();
+</script>
+
+<script>
+(function initOfferSticky() {
+  if (!document.querySelector('.pr-page')) return;
+  var offer = document.getElementById('OfferBar');
+  if (!offer) return;
+  var cachedOfferH = offer.offsetHeight || 52;
+  function syncOfferH() {
+    if (offer.offsetHeight > 0) cachedOfferH = offer.offsetHeight;
+    document.documentElement.style.setProperty('--offerBarH', cachedOfferH + 'px');
+  }
+  syncOfferH();
+  window.addEventListener('resize', syncOfferH);
+  window.addEventListener('load', syncOfferH);
+})();
+
+(function initStickyToolbar() {
+  var wrap = document.getElementById('PrToolbarWrap');
+  var toolbar = document.getElementById('PrToolbar');
+  var sentinel = document.getElementById('PrToolbarSentinel');
+  if (!wrap || !toolbar || !sentinel) return;
+
+  var stuck = false;
+  var UNSTICK_BUFFER = 12;
+
+  function setToolbarStuck(next) {
+    if (next === stuck) return;
+    stuck = next;
+    wrap.classList.toggle('is-stuck', stuck);
+    document.body.classList.toggle('pr-toolbar-stuck', stuck);
+  }
+
+  function updateStuckState() {
+    var top = sentinel.getBoundingClientRect().top;
+    if (!stuck && top <= 0) setToolbarStuck(true);
+    else if (stuck && top > UNSTICK_BUFFER) setToolbarStuck(false);
+  }
+
+  window.addEventListener('resize', updateStuckState);
+  window.addEventListener('load', updateStuckState);
+  window.addEventListener('scroll', updateStuckState, { passive: true });
+  updateStuckState();
+})();
+</script>

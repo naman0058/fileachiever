@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>My Performance • Report Sales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/report-sales/prs.css?v=1">
+</head>
+<body class="support-body">
+<div class="support-layout">
+  <aside class="support-sidebar-wrap"><%- include('partials/sidebar') %></aside>
+  <main class="support-main">
+    <div class="ss-shell">
+      <div class="ss-topbar">
+        <div><h1>My performance</h1><p>Throughput for <%= selectedMonth %> · no pricing</p></div>
+        <form method="get" action="/report-sales/performance" style="display:flex;gap:8px;align-items:center">
+          <select name="month" class="ss-select" style="min-width:140px" onchange="this.form.submit()">
+            <% months.forEach(function(m){ %><option value="<%= m %>" <%= m===selectedMonth?'selected':'' %>><%= m %></option><% }) %>
+          </select>
+        </form>
+      </div>
+      <div class="ss-kpis">
+        <div class="ss-kpi ss-kpi--orange"><div class="ss-kpi__label">Delivered</div><div class="ss-kpi__value"><%= stats.doneMonth||0 %></div></div>
+        <div class="ss-kpi ss-kpi--blue"><div class="ss-kpi__label">Claimed</div><div class="ss-kpi__value"><%= stats.claimedMonth||0 %></div></div>
+        <div class="ss-kpi"><div class="ss-kpi__label">Avg hours</div><div class="ss-kpi__value"><%= stats.avgHours!=null?stats.avgHours:'—' %></div></div>
+        <div class="ss-kpi ss-kpi--warn"><div class="ss-kpi__label">Open</div><div class="ss-kpi__value"><%= stats.open||0 %></div></div>
+        <div class="ss-kpi ss-kpi--danger"><div class="ss-kpi__label">Overdue</div><div class="ss-kpi__value"><%= stats.overdue||0 %></div></div>
+        <div class="ss-kpi ss-kpi--ok"><div class="ss-kpi__label">Lifetime</div><div class="ss-kpi__value"><%= stats.doneLifetime||0 %></div></div>
+      </div>
+      <div class="ss-panel">
+        <div class="ss-panel__head"><div><h2 class="ss-panel__title">Daily deliveries</h2></div>
+          <a class="ss-btn ss-btn--ghost ss-btn--sm" href="/report-sales">Back to queues</a></div>
+        <% var daily = stats.dailyDone||[]; var maxC=1; daily.forEach(function(r){ if(Number(r.c)>maxC) maxC=Number(r.c); }); %>
+        <% if (!daily.length) { %><div class="ss-empty"><i class="bi bi-bar-chart"></i>No deliveries this month yet.</div>
+        <% } else { %><div class="ss-bars">
+          <% daily.forEach(function(row){ var c=Number(row.c)||0; var pct=Math.max(6,Math.round(c/maxC*100)); var label=row.d?String(row.d).slice(5,10):'—'; %>
+          <div class="ss-bar-row"><span><%= label %></span><div class="ss-bar-track"><div class="ss-bar-fill" style="width:<%= pct %>%"></div></div><span class="ss-strong" style="text-align:right"><%= c %></span></div>
+          <% }) %>
+        </div><% } %>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

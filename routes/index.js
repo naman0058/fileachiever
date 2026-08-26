@@ -22,9 +22,10 @@ router.use((req, res, next) => {
 // ========== Auth ==========
 router.use('/auth', require('./auth'));
 
-// ========== Additional core pages (before main core) ==========
-router.use('/index1', require('./index1'));
-router.use('/index2', require('./index2'));
+// ========== Legacy homepage URLs → canonical `/` ==========
+router.get(['/index1', '/index1/', '/index2', '/index2/'], (req, res) => {
+  res.redirect(301, '/');
+});
 
 // ========== Backoffice (admin) - /admin redirects for legacy bookmarks ==========
 router.get(/^\/admin\/?(.*)$/, (req, res) => res.redirect('/backoffice' + (req.params[0] ? '/' + req.params[0] : '')));
@@ -77,6 +78,10 @@ router.use('/final-year-projects-source-code', require('./source_code'));
 
 // ========== API ==========
 router.use('/api', require('./api'));
+
+// ========== Report Sales (Team + Admin) — separate from Freelancing Sales / PRM / PRC ==========
+router.use('/report-sales', require('./report-sales'));
+router.use('/report-sales-admin', require('./report-sales-admin'));
 
 // ========== Setup Support Portal (dedicated login + panel) ==========
 router.use('/setup-support', require('./setup-support'));

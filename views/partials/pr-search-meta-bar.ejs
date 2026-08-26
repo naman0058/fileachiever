@@ -1,0 +1,34 @@
+<%
+  var isIdeasMeta = typeof searchTypeVal !== 'undefined'
+    ? /project\s*report/i.test(String(searchTypeVal))
+    : false;
+  var initialCount = (typeof result !== 'undefined' && result && result.length) ? result.length : 0;
+  var countLabel = isIdeasMeta ? 'Project Ideas' : 'Source Code Projects';
+%>
+<div class="pr-search-meta" id="PrSearchMeta">
+  <div class="pr-search-meta__left">
+    <span class="pr-search-meta__icon" aria-hidden="true">
+      <i class="feather-folder"></i>
+    </span>
+    <div class="pr-search-meta__copy">
+      <p class="pr-search-meta__count">
+        <strong id="ExploreCount"><%= initialCount %></strong> <%= countLabel %>
+      </p>
+      <p class="pr-search-meta__sub" id="PrSearchZeroSub"<%= initialCount > 0 ? ' hidden' : '' %>>We couldn&rsquo;t find any projects matching your search.</p>
+    </div>
+  </div>
+  <div class="pr-search-meta__tools">
+    <label class="pr-search-meta__search">
+      <i class="feather-search" aria-hidden="true"></i>
+      <span class="visually-hidden" for="ExploreSearch">Search within results</span>
+      <input id="ExploreSearch" type="search" placeholder="Search within results…" autocomplete="off" />
+    </label>
+    <label class="visually-hidden" for="TechFilter">Technology</label>
+    <select id="TechFilter" class="pr-search-meta__tech" aria-label="Filter by technology">
+      <option value="">All Technology</option>
+      <% if (typeof techOptions !== 'undefined') { techOptions.forEach(function (opt) { %>
+        <option value="<%= opt %>"><%= opt %></option>
+      <% }); } %>
+    </select>
+  </div>
+</div>
