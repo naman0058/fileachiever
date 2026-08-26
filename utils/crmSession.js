@@ -24,14 +24,29 @@ function buildSessionUser(row) {
 }
 
 async function fetchUserSessionState(userId) {
-  const rows = await queryAsync(
-    `SELECT id, name, role, is_active, session_token
-     FROM crm_users
-     WHERE id = ?
-     LIMIT 1`,
-    [userId]
-  );
-  return rows[0] || null;
+  try {
+    const rows = await queryAsync(
+      `SELECT id, name, role, is_active, session_token
+       FROM crm_users
+       WHERE id = ?
+       LIMIT 1`,
+      [userId]
+    );
+    return rows[0] || null;
+  } catch (e) {
+    if (e && e.code === 'ER_BAD_FIELD_ERROR' && /session_token/i.test(String(e.message || ''))) {
+      const rows = await queryAsync(
+        `SELECT id, name, role, is_active
+         FROM crm_users
+         WHERE id = ?
+         LIMIT 1`,
+        [userId]
+      );
+      if (!rows[0]) return null;
+      return { ...rows[0], session_token: 1 };
+    }
+    throw e;
+  }
 }
 
 async function validateSessionUser(sessionUser) {

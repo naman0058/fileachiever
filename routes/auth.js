@@ -13,6 +13,7 @@ const {
 // Login page (msg from query = e.g. redirect from requireAdmin)
 router.get('/login', (req, res) => {
   const msg = (req.query.msg || '').toString().trim();
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.render('freelancing/sales/login', { error: msg });
 });
 
@@ -59,7 +60,18 @@ router.post('/login', async (req, res) => {
        WHERE email=? AND password=?
        LIMIT 1`,
       [email, password]
-    );
+    ).catch(async (e) => {
+      if (e && e.code === 'ER_BAD_FIELD_ERROR' && /session_token/i.test(String(e.message || ''))) {
+        return queryAsync(
+          `SELECT id, name, role, is_active
+           FROM crm_users
+           WHERE email=? AND password=?
+           LIMIT 1`,
+          [email, password]
+        );
+      }
+      throw e;
+    });
 
     if (!rows.length) {
       return res.render('freelancing/sales/login', { error: 'Invalid credentials.' });
@@ -106,9 +118,13 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    req.session.user = buildSessionUser(rows[0]);
+    req.session.user = buildSessionUser({
+      ...rows[0],
+      session_token: rows[0].session_token != null ? rows[0].session_token : 1
+    });
+    req.session.crm_login_at = Date.now();
 
-    return res.redirect('/sales');
+    return res.redirect(303, '/sales');
   } catch (e) {
     console.error('Login error:', e);
     return res.render('freelancing/sales/login', { error: 'Server error.' });
