@@ -341,10 +341,40 @@ async function createCheckoutOrder(input) {
 }
 
 function amountsMatch(expected, actual) {
-  const a = Math.round(Number(expected) * 100);
-  const b = Math.round(Number(actual) * 100);
+  const a = parseFloat(String(expected == null ? '' : expected).replace(/,/g, ''));
+  const b = parseFloat(String(actual == null ? '' : actual).replace(/,/g, ''));
   if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
-  return a === b;
+  if (Math.abs(a - b) < 0.02) return true;
+  return Math.round(a * 100) === Math.round(b * 100);
+}
+
+/** Paid order row, or sync from fm_payments when gateway success was recorded. */
+async function findOrderForDownloadRestore(orderId) {
+  const id = String(orderId || '').trim();
+  if (!id) return null;
+  await ensureTables();
+
+  let order = await findByOrderId(id);
+  if (!order) return null;
+  if (String(order.order_status) === 'paid') return order;
+
+  const payRows = await queryAsync(
+    `SELECT id FROM fm_payments
+     WHERE order_id = ? AND payment_status = 'success'
+     ORDER BY id DESC LIMIT 1`,
+    [id]
+  );
+  if (!payRows || !payRows.length) return null;
+
+  await queryAsync(
+    `UPDATE fm_orders SET
+      order_status = 'paid',
+      fulfillment_status = IF(fulfillment_status IN ('pending',''), 'ready', fulfillment_status),
+      paid_at = COALESCE(paid_at, NOW())
+     WHERE id = ? AND order_status <> 'paid'`,
+    [order.id]
+  );
+  return findByOrderId(id);
 }
 
 async function recordGatewayResponse(order, decrypted) {
@@ -496,6 +526,48 @@ async function markDelivered(orderId) {
   return findByOrderId(orderId);
 }
 
+/** Rebuild GET /checkout URL from a stored order (payment cancel / failure redirect). */
+function checkoutUrlFromOrder(order, opts = {}) {
+  if (!order) return '/';
+  const seo = String(order.seo_name || '').trim();
+  if (!seo) return '/';
+
+  const payType = String(order.payment_type || '').toLowerCase();
+  const productType = String(order.product_type || '').toLowerCase();
+
+  let type = 'source';
+  let plan = String(order.plan || 'basic').toLowerCase();
+
+  if (
+    payType === 'synopsis' ||
+    payType === 'project_report' ||
+    payType === 'customized_report' ||
+    payType === 'originality_report' ||
+    productType === 'report'
+  ) {
+    type = 'report';
+    if (payType === 'synopsis' || plan === 'synopsis') plan = 'synopsis';
+    else if (payType === 'customized_report' || plan === 'customized') plan = 'customized';
+    else if (payType === 'originality_report' || plan === 'originality') plan = 'originality';
+    else plan = 'report';
+  } else {
+    type = 'source';
+    plan = plan === 'support' ? 'support' : 'basic';
+  }
+
+  const params = new URLSearchParams();
+  params.set('type', type);
+  params.set('plan', plan);
+  params.set('seo', seo);
+  if (order.addon_plan) {
+    params.set('addon', '1');
+    params.set('addon_plan', String(order.addon_plan));
+  }
+  if (opts.cancelled) params.set('cancelled', '1');
+  if (opts.failed) params.set('failed', '1');
+  return `/checkout?${params.toString()}`;
+}
+
 function formatPaymentDate(dateLike) {
   const d = dateLike ? new Date(dateLike) : new Date();
   if (Number.isNaN(d.getTime())) return '';
@@ -608,11 +680,13 @@ module.exports = {
   ensureTables,
   generatePublicOrderId,
   findByOrderId,
+  findOrderForDownloadRestore,
   createCheckoutOrder,
   recordGatewayResponse,
   markDelivered,
   addEvent,
   formatPaymentDate,
   findReviewByOrderId,
-  saveOrderReview
+  saveOrderReview,
+  checkoutUrlFromOrder
 };

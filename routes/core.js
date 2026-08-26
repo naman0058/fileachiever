@@ -243,6 +243,83 @@ function setPaidCheckoutSession(req, opts) {
   }
 }
 
+function resolvePaidAddonFromOrder(order) {
+  if (!order) return null;
+  const label = String(order.plan_label || '');
+  if (order.addon_plan) {
+    if (String(order.product_type) === 'report') {
+      return resolveCheckoutAddon('report', '1', order.addon_plan);
+    }
+    return resolveCheckoutAddon('source', '1', order.addon_plan);
+  }
+  if (/\+\s*source code/i.test(label)) return resolveCheckoutAddon('report', '1');
+  if (/\+\s*(pre defined project report|synopsis|customized|originality)/i.test(label)) {
+    return resolveCheckoutAddon('source', '1');
+  }
+  return null;
+}
+
+function reportReadyRedirectUrl(orderId) {
+  const id = String(orderId || '').trim();
+  if (!id) return '/checkout/report-ready';
+  return '/checkout/report-ready?order=' + encodeURIComponent(id);
+}
+
+async function restoreCheckoutSessionFromPaidOrder(req, orderId) {
+  const id = String(orderId || '').trim();
+  if (!id) return null;
+  try {
+    const order = await checkoutOrders.findOrderForDownloadRestore(id);
+    if (!order) return null;
+
+    const payType = String(order.payment_type || 'source_code').toLowerCase();
+    const isReport =
+      payType === 'synopsis' ||
+      payType === 'project_report' ||
+      payType === 'customized_report' ||
+      payType === 'originality_report' ||
+      String(order.product_type || '').toLowerCase() === 'report';
+
+    let zipFileName = '';
+    try {
+      const zipRows = await queryAsync(
+        'SELECT source_code FROM source_code WHERE id = ? LIMIT 1',
+        [order.source_code_id]
+      );
+      zipFileName = (zipRows && zipRows[0] && zipRows[0].source_code) || '';
+    } catch (_) {}
+
+    const paidAddon = resolvePaidAddonFromOrder(order);
+    const reportPlan = normalizeReportPlan(order.plan || payType);
+    const amountNum = parseFloat(order.final_amount) || 0;
+
+    setPaidCheckoutSession(req, {
+      orderId: order.order_id,
+      sourceCodeId: order.source_code_id,
+      plan: isReport
+        ? reportPlan
+        : String(order.plan || '').toLowerCase() === 'support' || amountNum > 200
+          ? 'support'
+          : 'basic',
+      productType: isReport ? 'report' : 'source',
+      billingName: order.billing_name || '',
+      billingEmail: order.billing_email || '',
+      amount: order.final_amount || '',
+      method: order.payment_pref || 'UPI',
+      productName: order.product_name || '',
+      paymentDate: checkoutOrders.formatPaymentDate(order.paid_at || new Date()),
+      zipFileName,
+      addon: paidAddon
+    });
+    req.session.type = order.payment_type;
+    req.session.checkout_plan = order.plan;
+    return order;
+  } catch (e) {
+    console.error('restoreCheckoutSessionFromPaidOrder:', e.message || e);
+    return null;
+  }
+}
+
 async function resolveCheckoutDownloadAvailability({ isSource, sourceId, plan, zipFileName }) {
   const result = {
     downloadAvailable: false,
@@ -448,6 +525,24 @@ function assertCheckoutCsrf(req) {
   return true;
 }
 
+async function redirectCheckoutAfterPaymentDrop(request, response, opts = {}) {
+  const orderId =
+    request.session.fm_order_id ||
+    (request.body && (request.body.orderNo || request.body.order_id)) ||
+    '';
+  if (orderId) {
+    try {
+      const order = await checkoutOrders.findByOrderId(String(orderId));
+      if (order) {
+        return response.redirect(checkoutOrders.checkoutUrlFromOrder(order, opts));
+      }
+    } catch (e) {
+      console.error('redirectCheckoutAfterPaymentDrop:', e.message || e);
+    }
+  }
+  return response.redirect('/');
+}
+
 // const nodeCCAvenue = require('node-ccavenue');
 // const ccav = new nodeCCAvenue.Configure({
 //   merchant_id: '1760015',
@@ -641,10 +736,24 @@ body['final_amount'] = request.body.final_amount || '99.00';
 // })
 
 
+router.get('/ccavResponseHandler', dataService.allCategory, async (request, response) => {
+  return redirectCheckoutAfterPaymentDrop(request, response, { cancelled: true });
+});
+
 router.post('/ccavResponseHandler', dataService.allCategory, async (request, response) => {
   console.log('routes call');
-  const { encResp } = request.body;
-  let decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
+  const encResp = request.body && request.body.encResp;
+  if (!encResp) {
+    return redirectCheckoutAfterPaymentDrop(request, response, { cancelled: true });
+  }
+
+  let decryptedJsonResponse;
+  try {
+    decryptedJsonResponse = ccave.redirectResponseToJson(encResp);
+  } catch (decErr) {
+    console.error('CCAvenue decrypt error:', decErr.message || decErr);
+    return redirectCheckoutAfterPaymentDrop(request, response, { cancelled: true });
+  }
 
   decryptedJsonResponse.type = request.session.type || 'source_code';
   decryptedJsonResponse.typeid = request.session.source_code_id;
@@ -663,17 +772,8 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
       const gatewayStatus = String(decryptedJsonResponse.order_status || '');
 
       if (gatewayStatus === 'Aborted' || gatewayStatus === 'Failure') {
-        if (
-          payType === 'synopsis' ||
-          payType === 'project_report' ||
-          payType === 'customized_report' ||
-          payType === 'originality_report'
-        ) {
-          return response.redirect(
-            `https://www.filemakr.com${projectReportShared.projectReportUrl(order.seo_name || '')}`
-          );
-        }
-        return response.redirect(`https://www.filemakr.com/${order.seo_name}/source-code`);
+        const dropOpts = gatewayStatus === 'Aborted' ? { cancelled: true } : { failed: true };
+        return response.redirect(checkoutOrders.checkoutUrlFromOrder(order, dropOpts));
       }
 
       if (gatewayStatus === 'Success') {
@@ -685,16 +785,12 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
             gateway_amount: decryptedJsonResponse.amount,
             expected_amount: order.final_amount
           });
-          return response.status(400).render('error', {
-            message: 'Payment could not be verified. If money was deducted, contact support with your Order ID: ' + order.order_id,
-            error: { status: 400, stack: '' },
-            Metatags: onPageSeo.errorPage,
-            CommonMetaTags: onPageSeo.commonMetaTags,
-            category: request.categories || [],
-            fullUrl: request.fullUrl,
-            graduation_type_send: '',
-            active: ''
-          });
+          const restored = await checkoutOrders.findOrderForDownloadRestore(order.order_id);
+          if (restored) {
+            order = restored;
+          } else {
+            return response.redirect(reportReadyRedirectUrl(order.order_id));
+          }
         }
 
         const paidAddon =
@@ -754,7 +850,9 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
                     : reportPlan === 'originality'
                       ? 'Originality Reviewed Report'
                       : 'Project Report');
-              const dl = 'https://www.filemakr.com/checkout/report-ready';
+              const dl =
+                'https://www.filemakr.com/checkout/report-ready?order=' +
+                encodeURIComponent(order.order_id);
               const subject = deferred
                 ? `Payment received — ${planLabel} delivery in 24-48 hours | FileMakr`
                 : `Your ${planLabel}${paidAddon ? ' + Source Code' : ''} is ready — FileMakr`;
@@ -768,7 +866,7 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
             }
           });
 
-          return response.redirect('/checkout/report-ready');
+          return response.redirect(reportReadyRedirectUrl(order.order_id));
         }
 
         pool.query(
@@ -830,13 +928,22 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
               }
             });
 
-            return response.redirect('/checkout/report-ready');
+              return response.redirect(reportReadyRedirectUrl(order.order_id));
           }
         );
         return;
       }
 
       return response.json(decryptedJsonResponse);
+    }
+
+    // Gateway success but order row missing — try order id from decrypted payload
+    if (String(decryptedJsonResponse.order_status || '') === 'Success' && gatewayOrderId) {
+      const lateOrder = await checkoutOrders.findOrderForDownloadRestore(gatewayOrderId);
+      if (lateOrder) {
+        await restoreCheckoutSessionFromPaidOrder(request, lateOrder.order_id);
+        return response.redirect(reportReadyRedirectUrl(lateOrder.order_id));
+      }
     }
   } catch (fmErr) {
     console.error('fm_orders gateway handler error:', fmErr);
@@ -878,35 +985,68 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
           decryptedJsonResponse.order_status === 'Aborted' ||
           decryptedJsonResponse.order_status === 'Failure'
         ) {
+          const legacyOrderId =
+            decryptedJsonResponse.order_id || request.body.orderNo || request.session.fm_order_id || '';
           pool.query(
             `SELECT * FROM payment_request WHERE order_id = ?`,
-            [request.body.orderNo],
-            (err, result) => {
+            [legacyOrderId],
+            async (err, result) => {
               if (err) {
                 console.error('Error retrieving payment request:', err);
-                throw err;
-              } else {
-                const pay = result[0] || {};
-                const payType = String(pay.type || 'source_code');
-                if (payType === 'synopsis' || payType === 'project_report') {
-                  return response.redirect(
-                    `https://www.filemakr.com${projectReportShared.projectReportUrl(pay.seo_name || '')}`
-                  );
-                }
-                response.redirect(`https://www.filemakr.com/${pay.seo_name}/source-code`);
+                return redirectCheckoutAfterPaymentDrop(request, response, { cancelled: true });
               }
+              const pay = (result && result[0]) || {};
+              if (pay.seo_name) {
+                const dropOpts =
+                  decryptedJsonResponse.order_status === 'Aborted' ? { cancelled: true } : { failed: true };
+                const legacyOrder = {
+                  seo_name: pay.seo_name,
+                  payment_type: pay.type || 'source_code',
+                  product_type: pay.type === 'source_code' ? 'source' : 'report',
+                  plan:
+                    pay.plan ||
+                    (pay.type === 'synopsis'
+                      ? 'synopsis'
+                      : pay.type === 'project_report'
+                        ? 'report'
+                        : 'basic'),
+                  addon_plan: null
+                };
+                return response.redirect(checkoutOrders.checkoutUrlFromOrder(legacyOrder, dropOpts));
+              }
+              return redirectCheckoutAfterPaymentDrop(request, response, { cancelled: true });
             }
           );
+          return;
         } else if (decryptedJsonResponse.order_status === 'Success') {
-          pool.query(
+          const legacyOrderId =
+            decryptedJsonResponse.order_id || request.body.orderNo || request.session.fm_order_id || '';
+
+          checkoutOrders
+            .findOrderForDownloadRestore(legacyOrderId)
+            .then(async (fmPaid) => {
+              if (fmPaid) {
+                await restoreCheckoutSessionFromPaidOrder(request, fmPaid.order_id);
+                response.redirect(reportReadyRedirectUrl(fmPaid.order_id));
+                return true;
+              }
+              return false;
+            })
+            .catch((legacyFmErr) => {
+              console.error('legacy Success fm_orders fallback:', legacyFmErr.message || legacyFmErr);
+              return false;
+            })
+            .then((handled) => {
+              if (handled) return;
+              pool.query(
             `update payment_request set status = 'success' where order_id = ?`,
-            [request.body.orderNo],
+            [legacyOrderId],
             (err, result) => {
               if (err) throw err;
               else {
                 pool.query(
                   `SELECT * FROM payment_request WHERE order_id = ?`,
-                  [request.body.orderNo],
+                  [legacyOrderId],
                   (err, payRows) => {
                     if (err) {
                       console.error('Error retrieving payment request:', err);
@@ -915,11 +1055,24 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
                       const pay = payRows[0] || {};
                       const payType = String(pay.type || 'source_code');
 
-                      if (payType === 'synopsis' || payType === 'project_report') {
+                      if (
+                        payType === 'synopsis' ||
+                        payType === 'project_report' ||
+                        payType === 'customized_report' ||
+                        payType === 'originality_report'
+                      ) {
                         request.session.ispayment = 'done';
                         request.session.paid_source_code_id = pay.source_code_id;
-                        request.session.paid_plan = payType === 'synopsis' ? 'synopsis' : 'report';
-                        request.session.paid_order_id = pay.order_id || request.body.orderNo;
+                        request.session.paid_plan =
+                          payType === 'synopsis'
+                            ? 'synopsis'
+                            : payType === 'customized_report'
+                              ? 'customized'
+                              : payType === 'originality_report'
+                                ? 'originality'
+                                : 'report';
+                        request.session.paid_product_type = 'report';
+                        request.session.paid_order_id = pay.order_id || legacyOrderId;
                         request.session.paid_billing_name =
                           decryptedJsonResponse.billing_name || pay.billing_name || '';
                         request.session.paid_billing_email =
@@ -956,7 +1109,13 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
                           }
                         });
 
-                        return response.redirect('/checkout/report-ready');
+                        return response.redirect(
+                          reportReadyRedirectUrl(pay.order_id || legacyOrderId)
+                        );
+                      }
+
+                      if (!pay.source_code_id) {
+                        return response.redirect(reportReadyRedirectUrl(legacyOrderId));
                       }
 
                       pool.query(
@@ -965,9 +1124,12 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
                         async (err, result) => {
                           if (err) {
                             console.error('Error retrieving source code:', err);
-                            throw err;
-                          } else {
-                            console.log('source code', result);
+                            return response.redirect(reportReadyRedirectUrl(legacyOrderId));
+                          }
+                          if (!result || !result[0]) {
+                            return response.redirect(reportReadyRedirectUrl(legacyOrderId));
+                          }
+                          console.log('source code', result);
                             let project_link = verify.generateSignedUrl(
                               `https://filemakr.com/images/${result[0].source_code}`,
                               result[0].source_code
@@ -1047,7 +1209,6 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
                                 console.error('Background task error (email):', backgroundErr);
                               }
                             });
-                          }
                         }
                       );
                     }
@@ -1056,6 +1217,7 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
               }
             }
           );
+            });
         } else {
           response.json(decryptedJsonResponse);
         }
@@ -1546,6 +1708,10 @@ pool.query(`update payment_request set status = 'success' where order_id = '${re
 
 
 router.get('/download-project-report', async (req, res) => {
+    const paidOrderId = String(req.session.paid_order_id || req.session.fm_order_id || '').trim();
+    if (req.session.ispayment === 'done' && paidOrderId && !req.session.roll_number) {
+        return res.redirect(reportReadyRedirectUrl(paidOrderId));
+    }
     console.log('download-project-report session', req.session.ispayment, req.session.roll_number, req.session.project_report_table);
     if (!req.session.roll_number || !req.session.ispayment) {
         return res.redirect('/');
@@ -2551,7 +2717,7 @@ router.post('/checkout/dummy-pay', dataService.allCategory, async (req, res) => 
       addon: addon || null
     });
 
-    return res.redirect('/checkout/report-ready');
+    return res.redirect(reportReadyRedirectUrl(orderId));
   } catch (err) {
     console.error('POST /checkout/dummy-pay error:', err);
     res.status(500).send('Dummy payment failed: ' + (err.message || 'server error'));
@@ -2559,6 +2725,11 @@ router.post('/checkout/dummy-pay', dataService.allCategory, async (req, res) => 
 });
 
 router.get('/checkout/report-ready', dataService.allCategory, async (req, res) => {
+  const qOrder = String(req.query.order || req.query.order_id || '').trim();
+  if (qOrder && (req.session.ispayment !== 'done' || !req.session.paid_source_code_id)) {
+    await restoreCheckoutSessionFromPaidOrder(req, qOrder);
+  }
+
   if (req.session.ispayment !== 'done' || !req.session.paid_source_code_id) {
     return res.status(403).render('instant-report-status', {
       kind: 'error',
@@ -2584,7 +2755,7 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
   }
 
   let fmOrder = null;
-  const lookupOrderId = req.session.fm_order_id || req.session.paid_order_id;
+  const lookupOrderId = req.session.fm_order_id || req.session.paid_order_id || qOrder;
   if (lookupOrderId) {
     try {
       fmOrder = await checkoutOrders.findByOrderId(lookupOrderId);
@@ -2660,6 +2831,8 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
     .replace(/\s+/g, '_');
 
   const reportDeferred = !isSource && isDeferredReportPlan(plan);
+  const renderOrderId =
+    (fmOrder && fmOrder.order_id) || req.session.paid_order_id || qOrder || '';
 
   let fileName;
   let fileMeta;
@@ -2671,7 +2844,7 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
     // Always production CDN — localhost /images will 404
     downloadHref = zipFileName
       ? 'https://filemakr.com/images/' + encodeURIComponent(path.basename(String(zipFileName).trim()))
-      : '/download-instant-source';
+      : '/download-instant-source' + (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '');
   } else if (reportDeferred) {
     fileName = safeName + (plan === 'customized' ? '_Customized_Report.docx' : '_Originality_Report.docx');
     fileMeta = 'Delivery within 24-48 hours';
@@ -2679,7 +2852,7 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
   } else {
     fileName = safeName + (plan === 'synopsis' ? '_Synopsis.docx' : '_Report.docx');
     fileMeta = 'Microsoft Word · .docx';
-    downloadHref = '/download-instant-report';
+    downloadHref = '/download-instant-report' + (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '');
   }
 
   const paidAddon =
@@ -2703,7 +2876,8 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
     const addonZip = zipFileName || req.session.paid_zip_file || '';
     let addonHref = addonZip
       ? 'https://filemakr.com/images/' + encodeURIComponent(path.basename(String(addonZip).trim()))
-      : '/download-instant-source';
+      : '/download-instant-source' +
+        (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '');
     const addonAvail = await resolveCheckoutDownloadAvailability({
       isSource: true,
       sourceId,
@@ -2745,7 +2919,9 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
         label: paidAddon.title || 'Matching Project Report',
         fileName: safeName + (addonPlan === 'synopsis' ? '_Synopsis.docx' : '_Report.docx'),
         fileMeta: 'Microsoft Word · .docx',
-        downloadHref: addonAvail.downloadAvailable ? '/download-instant-report' : '',
+        downloadHref: addonAvail.downloadAvailable
+          ? '/download-instant-report' + (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '')
+          : '',
         downloadAvailable: addonAvail.downloadAvailable,
         downloadUnavailableTitle: addonAvail.downloadUnavailableTitle,
         downloadUnavailableMessage: addonAvail.downloadUnavailableMessage
@@ -2768,7 +2944,6 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
   };
 
   let existingReview = null;
-  const renderOrderId = (fmOrder && fmOrder.order_id) || req.session.paid_order_id || '';
   if (renderOrderId) {
     try {
       existingReview = await checkoutOrders.findReviewByOrderId(renderOrderId);
@@ -2809,7 +2984,8 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
     downloadHref: availability.downloadAvailable ? downloadHref : '',
     downloadPdfHref:
       !isSource && !reportDeferred && availability.downloadAvailable
-        ? '/download-instant-report?format=pdf'
+        ? '/download-instant-report?format=pdf' +
+          (renderOrderId ? '&order=' + encodeURIComponent(renderOrderId) : '')
         : '',
     downloadAvailable: availability.downloadAvailable,
     downloadUnavailableTitle: availability.downloadUnavailableTitle,
@@ -2880,6 +3056,11 @@ router.post('/checkout/review', async (req, res) => {
 });
 
 router.get('/download-instant-report', dataService.allCategory, async (req, res) => {
+  const qOrder = String(req.query.order || req.query.order_id || '').trim();
+  if (qOrder && (req.session.ispayment !== 'done' || !req.session.paid_source_code_id)) {
+    await restoreCheckoutSessionFromPaidOrder(req, qOrder);
+  }
+
   const renderStatus = (status, extras) => {
     const plan = req.session.paid_plan === 'synopsis' ? 'synopsis' : 'report';
     return res.status(status).render('instant-report-status', {
@@ -3011,6 +3192,11 @@ router.get('/download-instant-report', dataService.allCategory, async (req, res)
 });
 
 router.get('/download-instant-source', dataService.allCategory, async (req, res) => {
+  const qOrder = String(req.query.order || req.query.order_id || '').trim();
+  if (qOrder && (req.session.ispayment !== 'done' || !req.session.paid_source_code_id)) {
+    await restoreCheckoutSessionFromPaidOrder(req, qOrder);
+  }
+
   const renderStatus = (status, extras) => {
     return res.status(status).render('instant-report-status', {
       kind: extras.kind || 'error',
