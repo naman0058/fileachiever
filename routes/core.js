@@ -510,19 +510,44 @@ const ccave = new nodeCCAvenue.Configure({
   working_key: ccavConfig.workingKey
 });
 
+const CHECKOUT_CSRF_TTL_MS = 45 * 60 * 1000;
+
+function checkoutCsrfSecret() {
+  return String(process.env.SESSION_KEYS || 'naman').split(',')[0].trim() || 'naman';
+}
+
 function issueCheckoutCsrf(req) {
-  const token = crypto.randomBytes(24).toString('hex');
-  req.session.checkout_csrf = token;
+  const nonce = crypto.randomBytes(18).toString('hex');
+  const exp = String(Date.now() + CHECKOUT_CSRF_TTL_MS);
+  const payload = nonce + '.' + exp;
+  const sig = crypto.createHmac('sha256', checkoutCsrfSecret()).update(payload).digest('hex');
+  const token = payload + '.' + sig;
+  req.session.checkout_csrf = nonce;
   return token;
 }
 
 function assertCheckoutCsrf(req) {
-  const expected = String(req.session.checkout_csrf || '');
-  const got = String(req.body.checkout_csrf || '');
-  if (!expected || !got || expected.length < 16 || got !== expected) {
-    return false;
+  const got = String(req.body.checkout_csrf || '').trim();
+  if (!got) return false;
+
+  const parts = got.split('.');
+  if (parts.length === 3) {
+    const nonce = parts[0];
+    const expMs = parseInt(parts[1], 10);
+    const sig = parts[2];
+    if (nonce && nonce.length >= 16 && Number.isFinite(expMs) && Date.now() <= expMs) {
+      const payload = nonce + '.' + parts[1];
+      const expectedSig = crypto
+        .createHmac('sha256', checkoutCsrfSecret())
+        .update(payload)
+        .digest('hex');
+      if (sig === expectedSig) return true;
+    }
   }
-  return true;
+
+  // Backward compat: session-stored token (older checkout pages)
+  const expected = String(req.session.checkout_csrf || '');
+  return !!(expected && expected.length >= 16 && got === expected);
 }
 
 async function redirectCheckoutAfterPaymentDrop(request, response, opts = {}) {
@@ -2454,6 +2479,9 @@ router.get('/checkout', dataService.allCategory, async (req, res) => {
 
     const addonPrice = addon ? addon.price : 0;
     const checkoutCsrf = issueCheckoutCsrf(req);
+
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
 
     res.render('checkout', {
       product,
