@@ -243,20 +243,53 @@ function setPaidCheckoutSession(req, opts) {
   }
 }
 
+function reportAddonPlanFromLabel(label) {
+  const l = String(label || '');
+  if (/customized/i.test(l)) return 'customized';
+  if (/originality/i.test(l)) return 'originality';
+  if (/synopsis/i.test(l)) return 'synopsis';
+  if (/pre defined project report/i.test(l)) return 'report';
+  return '';
+}
+
 function resolvePaidAddonFromOrder(order) {
   if (!order) return null;
   const label = String(order.plan_label || '');
+  const productType = String(order.product_type || '').toLowerCase();
+
   if (order.addon_plan) {
-    if (String(order.product_type) === 'report') {
+    if (productType === 'report') {
       return resolveCheckoutAddon('report', '1', order.addon_plan);
     }
     return resolveCheckoutAddon('source', '1', order.addon_plan);
   }
   if (/\+\s*source code/i.test(label)) return resolveCheckoutAddon('report', '1');
-  if (/\+\s*(pre defined project report|synopsis|customized|originality)/i.test(label)) {
-    return resolveCheckoutAddon('source', '1');
+  const reportPlan = reportAddonPlanFromLabel(label);
+  if (reportPlan && /\+/i.test(label)) {
+    return resolveCheckoutAddon('source', '1', reportPlan);
   }
   return null;
+}
+
+function resolvePaidAddonForCheckout(req, fmOrder) {
+  const fromOrder = resolvePaidAddonFromOrder(fmOrder);
+  const fromSession =
+    req.session && req.session.paid_addon && req.session.paid_addon.type
+      ? req.session.paid_addon
+      : null;
+
+  if (!fromOrder) return fromSession;
+  if (!fromSession) return fromOrder;
+
+  const orderPlan = normalizeReportPlan(fromOrder.plan || '');
+  const sessionPlan = normalizeReportPlan(fromSession.plan || '');
+  if (fromOrder.type === 'report' && fromSession.type === 'report' && orderPlan !== sessionPlan) {
+    return fromOrder;
+  }
+  if (isDeferredReportPlan(orderPlan) && !isDeferredReportPlan(sessionPlan)) {
+    return fromOrder;
+  }
+  return fromSession;
 }
 
 function reportReadyRedirectUrl(orderId) {
@@ -821,14 +854,7 @@ router.post('/ccavResponseHandler', dataService.allCategory, async (request, res
         const paidAddon =
           (request.session.checkout_addon && request.session.checkout_addon.type
             ? request.session.checkout_addon
-            : null) ||
-          (/\+\s*source code/i.test(String(order.plan_label || ''))
-            ? resolveCheckoutAddon('report', '1')
-            : /\+\s*(pre defined project report|synopsis|customized|originality)/i.test(
-                  String(order.plan_label || '')
-                )
-              ? resolveCheckoutAddon('source', '1')
-              : null);
+            : null) || resolvePaidAddonFromOrder(order);
 
         if (
           payType === 'synopsis' ||
@@ -2881,21 +2907,12 @@ router.get('/checkout/report-ready', dataService.allCategory, async (req, res) =
     downloadHref = '/download-instant-report' + (renderOrderId ? '?order=' + encodeURIComponent(renderOrderId) : '');
   }
 
-  const paidAddon =
-    (req.session.paid_addon && req.session.paid_addon.type
-      ? req.session.paid_addon
-      : null) ||
-    (fmOrder && /\+\s*source code/i.test(String(fmOrder.plan_label || ''))
-      ? resolveCheckoutAddon('report', '1')
-      : fmOrder && /\+\s*originality/i.test(String(fmOrder.plan_label || ''))
-        ? resolveCheckoutAddon('source', '1', 'originality')
-        : fmOrder && /\+\s*customized/i.test(String(fmOrder.plan_label || ''))
-          ? resolveCheckoutAddon('source', '1', 'customized')
-          : fmOrder && /\+\s*synopsis/i.test(String(fmOrder.plan_label || ''))
-            ? resolveCheckoutAddon('source', '1', 'synopsis')
-            : fmOrder && /\+\s*pre defined project report/i.test(String(fmOrder.plan_label || ''))
-              ? resolveCheckoutAddon('source', '1', 'report')
-              : null);
+  const paidAddon = resolvePaidAddonForCheckout(req, fmOrder);
+  if (paidAddon) {
+    req.session.paid_addon = paidAddon;
+  } else if (req.session && req.session.paid_addon) {
+    delete req.session.paid_addon;
+  }
 
   let addonDownload = null;
   if (paidAddon && paidAddon.type === 'source') {

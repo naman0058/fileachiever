@@ -23,7 +23,8 @@
     (typeof downloadPdfHref !== 'undefined' && downloadPdfHref) ||
     (downloadUrl && String(downloadUrl).indexOf('/download-instant-report') === 0)
   );
-  const showPdfDownload = showPrimaryPdf || !!addonPdfUrl;
+  const addonAvailEarly = addonDl && !!addonDl.downloadAvailable;
+  const showPdfDownload = showPrimaryPdf || (addonAvailEarly && !!addonPdfUrl);
   const downloadPdfUrl = showPrimaryPdf
     ? String((typeof downloadPdfHref !== 'undefined' && downloadPdfHref) || '/download-instant-report?format=pdf')
     : addonPdfUrl;
