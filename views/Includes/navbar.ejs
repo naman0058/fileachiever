@@ -4,56 +4,10 @@
 
 
 <head>
-<%- include('Includes/gtm-head') %>
-
-
-  <script>
-    window.addEventListener('load', function() {
-        var timing = window.performance.timing;
-        if (timing.loadEventEnd >= timing.navigationStart) {
-            var loadTime = timing.loadEventEnd - timing.navigationStart;
-            console.log("Page load time: " + loadTime + " milliseconds");
-        } else {
-            console.log("Invalid timing values. Page load time cannot be calculated.");
-        }
-    });
-</script>
-
-  <!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1189449807922713');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1189449807922713&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
-
-<!-- Begin Inspectlet Asynchronous Code -->
-<script type="text/javascript">
-  (function() {
-  window.__insp = window.__insp || [];
-  __insp.push(['wid', 1605242972]);
-  var ldinsp = function(){
-  if(typeof window.__inspld != "undefined") return; window.__inspld = 1; var insp = document.createElement('script'); insp.type = 'text/javascript'; insp.async = true; insp.id = "inspsync"; insp.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://cdn.inspectlet.com/inspectlet.js?wid=1605242972&r=' + Math.floor(new Date().getTime()/3600000); var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(insp, x); };
-  setTimeout(ldinsp, 0);
-  })();
-  </script>
-  <!-- End Inspectlet Asynchronous Code -->
-
-
-
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<% var fmHomeLite = (typeof homeLite !== 'undefined' && homeLite) || (typeof active !== 'undefined' && active === 'home'); %>
+<%- include('Includes/gtm-head') %>
 <title><%=Metatags.title%></title>
 <meta name="description" content="<%=Metatags.description%>"/>
 <meta name="abstract" content="<%=Metatags.abstract%>"/>
@@ -113,12 +67,18 @@ src="https://www.facebook.com/tr?id=1189449807922713&ev=PageView&noscript=1"
 <meta name="robots" content="index, follow">
 
 <link rel="stylesheet" href="/design/css/bootstrap.min.css">
-
+<% if (!fmHomeLite) { %>
 <link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
+<% } %>
 <link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css">
 <link rel="stylesheet" href="/design/plugins/feather/feather.css">
+<link rel="preload" href="/css/fm-header.css?v=25" as="style">
+<link rel="stylesheet" href="/css/fm-header.css?v=25">
+<% if (fmHomeLite) { %>
+<link rel="preload" href="/css/fm-footer.css?v=20" as="style">
+<link rel="stylesheet" href="/css/fm-footer.css?v=20">
+<% } %>
 
-<% var fmHomeLite = (typeof homeLite !== 'undefined' && homeLite) || (typeof active !== 'undefined' && active === 'home'); %>
 <% if (!fmHomeLite) { %>
 <link rel="stylesheet" href="/design/css/owl.carousel.min.css">
 <link rel="stylesheet" href="/design/css/owl.theme.default.min.css">
@@ -132,7 +92,9 @@ src="https://www.facebook.com/tr?id=1189449807922713&ev=PageView&noscript=1"
 <link href="https://fonts.googleapis.com/css2?family=Alice&display=swap" rel="stylesheet">
 <% } %>
 
+<% if (!fmHomeLite) { %>
 <link rel="stylesheet" href="/design/css/style.css">
+<% } %>
 
 <% if (!fmHomeLite) { %>
 <style>
@@ -327,7 +289,7 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
   } catch (e) {}
 })();
 </script>
-<script src="/js/fm-cloudinary.js?v=6"></script>
+<script src="/js/fm-cloudinary.js?v=6" defer></script>
 </head>
 
 <body>
@@ -523,10 +485,35 @@ html.menu-opened header.fm-header.header-fixed{
 })();
 </script>
 
-<link rel="stylesheet" href="/css/fm-header.css?v=20">
-
 <style id="fm-header-mobile-fix">
 @media (max-width: 991.98px) {
+  .fm-header #mobile_btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 6px;
+    margin: 0;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  .fm-header .bar-icon {
+    display: inline-block;
+    width: 22px;
+    line-height: 0;
+  }
+  .fm-header .bar-icon span {
+    display: block;
+    width: 22px;
+    height: 3px;
+    margin-bottom: 5px;
+    background-color: #F17F23;
+    border-radius: 2px;
+  }
+  .fm-header .bar-icon span:nth-child(2) { width: 14px; }
+  .fm-header .bar-icon span:nth-child(3) { margin-bottom: 0; }
   .fm-header .main-menu-wrapper {
     position: fixed !important;
     top: 0 !important;
@@ -547,6 +534,18 @@ html.menu-opened header.fm-header.header-fixed{
   html.menu-opened .fm-header .main-menu-wrapper,
   .menu-opened .fm-header .main-menu-wrapper {
     transform: translate3d(0, 0, 0) !important;
+  }
+  html:not(.menu-opened) .fm-header .main-menu-wrapper {
+    transform: translate3d(-105%, 0, 0) !important;
+    pointer-events: none !important;
+  }
+  .fm-header .main-menu-wrapper .main-nav > li > ul,
+  .fm-header .main-menu-wrapper .main-nav > li .submenu {
+    display: none !important;
+  }
+  .fm-header .main-menu-wrapper .main-nav > li > a.submenu + ul,
+  .fm-header .main-menu-wrapper .main-nav > li > a.submenu + .submenu {
+    display: block !important;
   }
   .fm-header .menu-header {
     position: relative !important;
@@ -597,7 +596,7 @@ html.menu-opened header.fm-header.header-fixed{
     padding-left: 20px !important;
     text-align: left !important;
   }
-  .sidebar-overlay.opened {
+  html.menu-opened .sidebar-overlay.opened {
     display: block !important;
     z-index: 19999 !important;
   }
@@ -617,13 +616,13 @@ html.menu-opened header.fm-header.header-fixed{
             </span>
             </a>
             <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students" class="navbar-brand logo">
-            <img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 440 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_440/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="220" height="72" class="fm-header-logo" alt="FileMakr">
+            <img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 440 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_440/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="220" height="72" class="fm-header-logo" alt="FileMakr" fetchpriority="high" decoding="async">
             </a>
             </div>
             <div class="main-menu-wrapper">
             <div class="menu-header">
             <a href="/" title="FileMakr: Project Report and Source Code for Final Year College Students" class="menu-logo">
-            <img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 440 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_440/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="220" height="72" class="fm-header-logo" alt="FileMakr">
+            <img src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif', { width: 440 }) : 'https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto,w_440/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif' %>" width="220" height="72" class="fm-header-logo" alt="FileMakr" loading="lazy" decoding="async">
             </a>
             <a id="menu_close" class="menu-close" href="javascript:void(0);">
             <i class="fas fa-times"></i>

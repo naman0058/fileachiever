@@ -180,11 +180,11 @@
           </div>
           <img
             class="fm-dir-usp__badge"
-            src="https://res.cloudinary.com/dvkuan8my/image/upload/v1785666146/Untitled_design_20_gygo4x.svg"
+            src="<%= typeof cloudinaryUrl === 'function' ? cloudinaryUrl('https://res.cloudinary.com/dvkuan8my/image/upload/v1785666146/Untitled_design_20_gygo4x.svg', { width: 104 }) : 'https://res.cloudinary.com/dvkuan8my/image/upload/f_auto,q_auto,w_104/v1785666146/Untitled_design_20_gygo4x.svg' %>"
             alt="Plagiarism-free and AI-detection reviewed documentation badge"
             width="52"
             height="56"
-            loading="eager"
+            loading="lazy"
             decoding="async"
           />
         </div>

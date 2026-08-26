@@ -21,8 +21,8 @@ html.menu-opened header.header.header-fixed.fm-header {
 .fm-header.header,
 .fm-header.header-page {
   background: #ffffff !important;
-  border-bottom: 1px solid #e8ebf0;
-  box-shadow: 0 1px 0 rgba(14, 18, 32, 0.03) !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
   height: auto !important;
   min-height: 0 !important;
   overflow: visible !important;
@@ -32,6 +32,8 @@ html.menu-opened header.header.header-fixed.fm-header {
 .fm-header .header-nav {
   background: #ffffff !important;
   margin-top: 0 !important;
+  border: 0 !important;
+  border-bottom: 0 !important;
   height: 88px !important;
   min-height: 88px !important;
   max-height: none !important;
@@ -98,35 +100,147 @@ html.menu-opened header.header.header-fixed.fm-header {
   gap: 0;
   margin: 0;
   padding: 0;
+  list-style: none !important;
 }
 
-.fm-header .main-nav > li > a {
+.fm-header .main-nav li a,
+.fm-header .main-nav > li > a,
+.fm-header .main-nav > li > a:link,
+.fm-header .main-nav > li > a:visited {
+  display: block;
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
-  color: #1f2937 !important;
+  color: #26292c !important;
   padding: 6px 9px !important;
   white-space: nowrap;
   letter-spacing: -0.01em;
-  border-radius: 6px;
+  border-radius: 0;
   line-height: 1.2 !important;
-  transition: color 0.15s, background 0.15s;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
 }
 
-.fm-header .main-nav > li > a:hover {
-  color: #2a47ff !important;
-  background: #f5f7ff !important;
-}
-
-.fm-header .main-nav > li.active > a {
+.fm-header .main-nav > li > a:hover,
+.fm-header .main-nav > li > a:focus {
   color: #2a47ff !important;
   background: transparent !important;
+  text-decoration: none !important;
+}
+
+.fm-header .main-nav > li.active > a,
+.fm-header .main-nav > li.has-submenu.active > a {
+  color: #2a47ff !important;
+  background: transparent !important;
+  text-decoration: none !important;
 }
 
 .fm-header .main-nav > li > a i {
   font-size: 9px;
   margin-left: 4px;
   opacity: 0.6;
+}
+
+/* Hide mobile drawer chrome on desktop only (home skips style.css) */
+@media (min-width: 992px) {
+  .fm-header .menu-header {
+    display: none !important;
+  }
+
+  .fm-header #mobile_btn {
+    display: none !important;
+  }
+}
+
+.fm-header .sidebar-overlay {
+  display: none;
+}
+
+html.menu-opened .fm-header .sidebar-overlay.opened {
+  display: block;
+}
+
+/* Desktop dropdown nav (style.css rules used on other pages) */
+@media (min-width: 992px) {
+  .fm-header .main-menu-wrapper {
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    background: transparent !important;
+    flex-direction: row !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .fm-header .main-nav > li {
+    position: relative;
+    margin-right: 15px;
+  }
+
+  .fm-header .main-nav > li:last-child {
+    margin-right: 0;
+  }
+
+  .fm-header .main-nav li > ul,
+  .fm-header .main-nav > li .submenu {
+    display: block !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: auto !important;
+    width: auto !important;
+    min-width: 200px;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    background: #fff !important;
+    border-radius: 5px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    z-index: 1000;
+  }
+
+  .fm-header .main-nav li.has-submenu:hover > .submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .fm-header .main-nav > li .submenu > li {
+    position: relative;
+  }
+
+  .fm-header .main-nav > li .submenu li a {
+    display: block !important;
+    padding: 10px 15px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #26292c !important;
+    border-top: 1px solid #f0f0f0;
+    white-space: nowrap;
+    background: transparent !important;
+    border-radius: 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  .fm-header .main-nav > li .submenu li:first-child a {
+    border-top: 0;
+  }
+
+  .fm-header .main-nav > li .submenu li a:hover {
+    color: #f17f23 !important;
+    padding-left: 20px !important;
+    background: transparent !important;
+  }
 }
 
 /* Always show right actions (theme hides them under 991px) */
@@ -247,18 +361,28 @@ html.menu-opened header.header.header-fixed.fm-header {
     flex: 0 0 auto;
     z-index: 3;
     line-height: 1;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 6px;
+    order: -1;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   .fm-header .bar-icon {
     width: 22px;
-    display: block;
+    display: inline-block;
+    line-height: 0;
   }
 
   .fm-header .bar-icon span {
+    display: block;
     width: 22px;
-    height: 2px;
+    height: 3px;
     margin-bottom: 5px;
-    background-color: #0e1220;
+    background-color: #F17F23;
+    border-radius: 2px;
+    float: none;
   }
 
   .fm-header .bar-icon span:nth-child(2) {
@@ -317,12 +441,18 @@ html.menu-opened header.header.header-fixed.fm-header {
     display: flex !important;
     flex-direction: column !important;
     visibility: visible !important;
-    pointer-events: auto !important;
+    pointer-events: none !important;
   }
 
   html.menu-opened .fm-header .main-menu-wrapper,
   .menu-opened .fm-header .main-menu-wrapper {
     transform: translate3d(0, 0, 0) !important;
+    pointer-events: auto !important;
+  }
+
+  html:not(.menu-opened) .fm-header .main-menu-wrapper {
+    transform: translate3d(-105%, 0, 0) !important;
+    pointer-events: none !important;
   }
 
   .fm-header .menu-header {
@@ -457,6 +587,7 @@ html.menu-opened header.header.header-fixed.fm-header {
   .fm-header .main-menu-wrapper .main-nav ul,
   .fm-header .main-menu-wrapper .main-nav > li > ul,
   .fm-header .main-menu-wrapper .main-nav > li .submenu {
+    display: none !important;
     background: #f8f9fc !important;
     border: 0 !important;
     box-shadow: none !important;
@@ -475,6 +606,11 @@ html.menu-opened header.header.header-fixed.fm-header {
     padding: 6px 12px 10px 12px !important;
     list-style: none !important;
     box-sizing: border-box !important;
+  }
+
+  .fm-header .main-menu-wrapper .main-nav > li > a.submenu + ul,
+  .fm-header .main-menu-wrapper .main-nav > li > a.submenu + .submenu {
+    display: block !important;
   }
 
   .fm-header .main-menu-wrapper .main-nav li .submenu::before {
@@ -533,6 +669,10 @@ html.menu-opened header.header.header-fixed.fm-header {
 }
 
 /* Overlay behind drawer — full viewport, above page, under panel */
+html.menu-opened body {
+  overflow: hidden;
+}
+
 .sidebar-overlay {
   background-color: rgba(14, 18, 32, 0.48) !important;
   z-index: 19999 !important;
@@ -540,10 +680,10 @@ html.menu-opened header.header.header-fixed.fm-header {
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  display: none;
+  display: none !important;
 }
 
-.sidebar-overlay.opened {
+html.menu-opened .sidebar-overlay.opened {
   display: block !important;
 }
 

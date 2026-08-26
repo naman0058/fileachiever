@@ -1,4 +1,5 @@
 <% const navActive = (typeof active !== 'undefined' && active) ? active : ''; %>
+<% const fmHomeLiteFooter = (typeof homeLite !== 'undefined' && homeLite) || (typeof active !== 'undefined' && active === 'home'); %>
 
 <!-- Bottom App Navigation (mobile only — styled in fm-footer.css) -->
 <nav class="app-nav" role="navigation" aria-label="Mobile primary">
@@ -316,8 +317,9 @@
 </script>
 
 
-
-<link rel="stylesheet" href="/css/fm-footer.css?v=19">
+<% if (!fmHomeLiteFooter) { %>
+<link rel="stylesheet" href="/css/fm-footer.css?v=20">
+<% } %>
 
 <footer class="footer fm-footer" role="contentinfo" itemscope itemtype="https://schema.org/Organization">
 	<meta itemprop="name" content="FileMakr">
@@ -460,7 +462,12 @@
 </script>
 <script>document.getElementById('fm-footer-year')&&(document.getElementById('fm-footer-year').textContent=new Date().getFullYear());</script>
 								</div>
-								<script src="/javascripts/all.js"></script>
+								<% if (fmHomeLiteFooter) { %>
+								<script src="/js/home-lite.js?v=3" defer></script>
+								<% } else { %>
+								<script src="/javascripts/all.js" defer></script>
+								<% } %>
+								<%- include('Includes/analytics-deferred') %>
 								
 							</body>
 							<!-- Mirrored from dreamslms.dreamguystech.com/html/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:03:33 GMT -->
@@ -488,6 +495,8 @@
 }
 						</style>
 			
+						<% if (!fmHomeLiteFooter) { %>
 						<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+						<% } %>
 
 

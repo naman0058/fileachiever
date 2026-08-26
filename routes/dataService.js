@@ -223,10 +223,18 @@ const date_and_time = (req, res, next) => {
       return 'https://www.filemakr.com';
     }
   })();
+
+  let categoryCache = { rows: null, at: 0 };
+  const CATEGORY_CACHE_MS = 10 * 60 * 1000;
+
   const allCategory = async (req, res, next) => {
     try {
-        const result = await queryAsync('SELECT id, name, seo_name FROM category');
-        req.categories = result;
+        const now = Date.now();
+        if (!categoryCache.rows || now - categoryCache.at > CATEGORY_CACHE_MS) {
+          categoryCache.rows = await queryAsync('SELECT id, name, seo_name FROM category');
+          categoryCache.at = now;
+        }
+        req.categories = categoryCache.rows;
         const rawHost = (req.get('host') || '').toLowerCase();
         const hostname = rawHost.split(':')[0];
         const portPart = rawHost.includes(':') ? rawHost.split(':').slice(1).join(':') : '';
