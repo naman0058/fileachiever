@@ -90,7 +90,7 @@ function resolveCheckoutCatalog(type, plan) {
         paymentType: 'customized_report',
         planLabel: 'Customized Report (PDF & Word)',
         delivery: 'deferred',
-        includes: ['College-format customization', 'Personalized content', 'PDF & Word · delivery within 24-48 hours']
+        includes: ['College documentation format support', 'Project-specific customized documentation', 'PDF & Word · delivery within 24-48 hours']
       };
     }
     if (rp === 'originality') {
@@ -99,9 +99,9 @@ function resolveCheckoutCatalog(type, plan) {
         plan: 'originality',
         price: CHECKOUT_PRICES.report.originality,
         paymentType: 'originality_report',
-        planLabel: 'Originality Reviewed Report (PDF & Word)',
+        planLabel: 'Customized Plagiarism-Free Report (PDF & Word)',
         delivery: 'deferred',
-        includes: ['AI detection reviewed', 'Plagiarism-free rewrite', 'PDF & Word · delivery within 24-48 hours']
+        includes: ['Plagiarism-free project content', 'Natural & readable documentation', 'PDF & Word · delivery within 24-48 hours']
       };
     }
     return {

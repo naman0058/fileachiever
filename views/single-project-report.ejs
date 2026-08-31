@@ -33,7 +33,7 @@
 <% const reportPreviewUrl = 'https://online.visual-paradigm.com/share/book/sample-project-report-1uzumhkivv'; %>
 <% const waCustom = 'https://wa.me/918319339945?text=' + encodeURIComponent('Hi FileMakr, I want a Customized Report for: ' + displayName); %>
 <% const waSynopsis = 'https://wa.me/918319339945?text=' + encodeURIComponent('Hi FileMakr, I want Synopsis for: ' + displayName); %>
-<% const waOriginal = 'https://wa.me/918319339945?text=' + encodeURIComponent('AI Detection & Plagiarism-Free Report for ' + displayName); %>
+<% const waOriginal = 'https://wa.me/918319339945?text=' + encodeURIComponent('Customized Plagiarism-Free Project Report for ' + displayName); %>
 <% const stackLabel = (prod.category || 'php').toUpperCase(); %>
 <% const hasDemo = !!(prod.demo_url); %>
 <% const hasScreenshots = false; %>
@@ -4092,8 +4092,8 @@ a.sc-phero__kicker:hover {
 
       <h1 class="sc-phero__title" id="pr-hero-heading" itemprop="name"><%= pageHeading %></h1>
       <p class="sc-phero__lead" itemprop="description">
-        Complete <%= hasDegree ? (degreeLabel + ' ') : '' %>final-year project report with documentation, diagrams and viva-ready structure.
-        Instant PDF &amp; Word download — plagiarism-free and faculty-aligned.
+        Get structured <%= displayName %> Final Year Project Report and Documentation with project objectives, methodology, system design, diagrams, implementation details, testing and complete project explanations.
+        Suitable as a learning, documentation and project-presentation resource for students working on related final year projects.
       </p>
 
       <% if (showTechSnapshot && techSnapshot) { %>
@@ -4226,7 +4226,7 @@ a.sc-phero__kicker:hover {
           <p class="pr-hero__preview-more">… More sections below …</p>
           <div class="pr-hero__preview-foot">
             <span><span class="pr-hero__dot-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Plagiarism-Free</span>
-            <span><span class="pr-hero__dot-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>AI-Detection Reviewed</span>
+            <span><span class="pr-hero__dot-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Natural Writing</span>
             <span><span class="pr-hero__dot-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Diagrams Included</span>
     </div>
           <p class="pr-hero__preview-note">Structured for academic review &amp; viva preparation</p>
@@ -5080,29 +5080,29 @@ a.sc-report-banner__price:focus-visible {
       <span class="sc-included-bar__ico" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
-      <p class="sc-included-bar__name">Plagiarism-Free</p>
-      <p class="sc-included-bar__desc">Human-style writing reviewed for academic use.</p>
+      <p class="sc-included-bar__name">Plagiarism-Free Content</p>
+      <p class="sc-included-bar__desc">Original, project-specific content.</p>
     </li>
     <li class="sc-included-bar__item">
       <span class="sc-included-bar__ico" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="11" r="1.5" fill="currentColor"/><path d="M3 16l4.5-4 3.5 3 4-4.5L21 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
       <p class="sc-included-bar__name">Screenshots</p>
-      <p class="sc-included-bar__desc">Output screens for implementation chapter.</p>
+      <p class="sc-included-bar__desc">Output screens included.</p>
   </li>
     <li class="sc-included-bar__item">
       <span class="sc-included-bar__ico" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none"><path d="M9.5 12.5l2 2 4-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/></svg>
       </span>
       <p class="sc-included-bar__name">Test Cases</p>
-      <p class="sc-included-bar__desc">Testing chapter with sample cases included.</p>
+      <p class="sc-included-bar__desc">Testing chapter included.</p>
   </li>
     <li class="sc-included-bar__item">
       <span class="sc-included-bar__ico" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="2.8" stroke="currentColor" stroke-width="1.8"/><circle cx="16.2" cy="9" r="2.2" stroke="currentColor" stroke-width="1.8"/><path d="M3.8 18.5c1.2-2.8 3.3-4.2 5.2-4.2s4 1.4 5.2 4.2M14.2 14.8c1.1-.5 2.4-.7 3.6-.4 1.5.4 2.7 1.5 3.4 3.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </span>
-      <p class="sc-included-bar__name">Viva Ready</p>
-      <p class="sc-included-bar__desc">Structured for college review and viva prep.</p>
+      <p class="sc-included-bar__name">Viva Preparation</p>
+      <p class="sc-included-bar__desc">Structured for review and editing .</p>
   </li>
   </ul>
 </section>
@@ -5176,15 +5176,15 @@ a.sc-report-banner__price:focus-visible {
 
   <div class="sc-pack__grid" id="PricingCards">
     <article class="sc-pack-card">
-      <p class="sc-pack-card__index">01 Synopsis</p>
+      <p class="sc-pack-card__index">01 Project Synopsis</p>
       <div class="sc-pack-card__price">₹<%= synopsisPrice %></div>
       <p class="sc-pack-card__once">One-time Payment</p>
       <ul class="sc-pack-card__list">
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>PDF &amp; Word both included</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Up to 30 pages</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Only 1 diagram included</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Problem statement &amp; objectives</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Ready for college submission</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>PDF &amp; Word Formats</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Project Introduction &amp; Objectives</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Problem Statement &amp; Methodology</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>System Architecture Diagram included</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Structured for Review &amp; Customization</li>
       </ul>
       <button type="button" class="sc-pack-card__toc-chip" data-pack-toc="synopsis" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7.2L19 8.3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.8"/><path d="M14.2 3.5V8H19M9 12h6M9 15.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -5198,15 +5198,15 @@ a.sc-report-banner__price:focus-visible {
 
     <article class="sc-pack-card sc-pack-card--rec">
       <span class="sc-pack-card__badge">Best Value</span>
-      <p class="sc-pack-card__index">02 Pre Defined Project Report</p>
+      <p class="sc-pack-card__index">02 Detailed Project Report</p>
       <div class="sc-pack-card__price">₹<%= basicPrice %></div>
       <p class="sc-pack-card__once">One-time Payment</p>
       <ul class="sc-pack-card__list">
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>PDF &amp; Word both included</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Up to 70 pages</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>ER Diagram &amp; DFD Diagrams</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Up to 8 diagrams included</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Instant download</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>PDF &amp; Word Formats</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Structured Project Chapters</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>UML / DFD / Technical Diagrams</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Methodology, Implementation &amp; Testing</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Structured chapters & technical diagrams</li>
       </ul>
       <button type="button" class="sc-pack-card__toc-chip" data-pack-toc="report" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7.2L19 8.3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.8"/><path d="M14.2 3.5V8H19M9 12h6M9 15.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -5219,14 +5219,14 @@ a.sc-report-banner__price:focus-visible {
     </article>
 
     <article class="sc-pack-card">
-      <p class="sc-pack-card__index">03 Customized Report</p>
+      <p class="sc-pack-card__index">03 Customized Project Report</p>
       <div class="sc-pack-card__price">₹<%= customPrice %></div>
       <p class="sc-pack-card__once">One-time Payment</p>
       <ul class="sc-pack-card__list">
         <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>PDF &amp; Word both included</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Tailored to your college format</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Personalized content</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Faculty-aligned structure</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Customized to your college documentation format</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Project-specific customized documentation</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Structured chapters &amp; technical diagrams</li>
         <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Delivery within 24-48 hours</li>
       </ul>
       <a class="sc-pack-card__btn sc-pack-card__btn--outline" href="<%= checkoutCustomUrl %>">
@@ -5236,14 +5236,14 @@ a.sc-report-banner__price:focus-visible {
     </article>
 
     <article class="sc-pack-card">
-      <p class="sc-pack-card__index">04 Originality Reviewed</p>
+      <p class="sc-pack-card__index">04 Customized Plagiarism-Free Report</p>
       <div class="sc-pack-card__price">₹<%= originalityPrice %></div>
       <p class="sc-pack-card__once">One-time Payment</p>
       <ul class="sc-pack-card__list">
         <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>PDF &amp; Word both included</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>AI detection reviewed</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Plagiarism-free rewrite</li>
-        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Human-style writing</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Plagiarism-free project content</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Original &amp; project-specific writing</li>
+        <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Clear, natural &amp; readable documentation</li>
         <li><span class="sc-pack-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 12.5l3.2 3.2 7.8-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Delivery within 24-48 hours</li>
       </ul>
       <a class="sc-pack-card__btn sc-pack-card__btn--outline" href="<%= checkoutOriginalityUrl %>">
@@ -6036,7 +6036,7 @@ window.dataLayer.push({
       </a>
       <a class="sc-sticky-feat" href="<%= checkoutOriginalityUrl %>">
         <span class="sc-sticky-feat__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5.5c0 4.2-2.8 8-7 9.5-4.2-1.5-7-5.3-7-9.5V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 12l2.1 2.1 4-4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <span class="sc-sticky-feat__text"><span class="sc-sticky-feat__name">Originality</span><span class="sc-sticky-feat__desc">PDF &amp; Word · ₹<%= originalityPrice %></span></span>
+        <span class="sc-sticky-feat__text"><span class="sc-sticky-feat__name">Plagiarism-Free</span><span class="sc-sticky-feat__desc">PDF &amp; Word · ₹<%= originalityPrice %></span></span>
       </a>
       <a class="sc-sticky-feat sc-sticky-feat--demo" href="<%= reportPreviewUrl %>" target="_blank" rel="noopener">
         <span class="sc-sticky-feat__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 9.2v5.6L15.2 12 10.5 9.2z" fill="currentColor"/></svg></span>
