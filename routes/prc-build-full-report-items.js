@@ -203,7 +203,7 @@ const SYNOPSIS_SLOTS = [
   {
     id: 'conclusion',
     title: 'Conclusion',
-    match: /^(conclusion|summary)\b/i,
+    match: /^conclusions?\b/i,
     diagramOnly: false
   },
   {
