@@ -6,6 +6,13 @@
 const debug = require('debug')('my-store:server');
 const { app, server, setupSocketIoAdapter } = require('../app'); // use server from app.js (Socket.IO attached)
 
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] uncaughtException:', err && err.stack ? err.stack : err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[FATAL] unhandledRejection:', reason && reason.stack ? reason.stack : reason);
+});
+
 /**
  * Get port from environment and store in Express.
  */
@@ -19,8 +26,8 @@ app.set('port', port);
   try {
     await setupSocketIoAdapter();
   } catch (e) {
-    console.error('Socket.IO adapter setup failed:', e);
-    process.exit(1);
+    // Do not exit — Redis blips would take the whole site offline (nginx 522).
+    console.error('[socket.io] Redis adapter setup failed (continuing with in-memory adapter):', e.message);
   }
   // Avoid stale keep-alive sockets (common cause of intermittent 522 via nginx/Cloudflare).
   server.keepAliveTimeout = Number(process.env.SERVER_KEEPALIVE_MS) || 65_000;
