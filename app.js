@@ -570,9 +570,12 @@ app.use((req, res, next) => {
 });
 
 app.use(async (err, req, res, next) => {
-  console.error(err);
-
   const status = err.status || 500;
+  if (status >= 500) {
+    console.error(err);
+  } else if (process.env.LOG_404 === '1') {
+    console.warn(`[${status}] ${req.method} ${req.originalUrl || req.url}`);
+  }
   const onPageSeo = require('./routes/onPageSeo');
   let category = Array.isArray(req.categories) ? req.categories : [];
   if (!category.length) {
