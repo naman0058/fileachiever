@@ -44,27 +44,36 @@ attachPoolHandlers(pool, 'main');
 const pool2 = mysql.createPool({ ...poolOptions, database: 'automate_blog' });
 attachPoolHandlers(pool2, 'automate_blog');
 
-// Legacy DB (fileachiever) - uses DB1_* or DB_* fallbacks
-const pool1Ssl =
-  process.env.DB1_SSL_MODE === 'required'
-    ? process.env.DB1_SSL_CA_PATH
-      ? { ca: fs.readFileSync(process.env.DB1_SSL_CA_PATH) }
-      : { rejectUnauthorized: false }
-    : undefined;
+// Legacy remote DB — only when LEGACY_DB_ENABLED=1 (old /api real-estate routes).
+// FileMakr site uses `pool` (DB_*). api.js now uses main pool too.
+const legacyDbEnabled =
+  process.env.LEGACY_DB_ENABLED === '1' || process.env.LEGACY_DB_ENABLED === 'true';
 
-const pool1 = mysql.createPool({
-  host: process.env.DB1_HOST || process.env.DB_HOST || 'localhost',
-  user: process.env.DB1_USER || process.env.DB_USER || 'root',
-  password: process.env.DB1_PASSWORD || process.env.DB_PASSWORD || '',
-  database: process.env.DB1_NAME || 'fileachiever',
-  port: Number(process.env.DB1_PORT || process.env.DB_PORT || 3306),
-  multipleStatements: true,
-  connectTimeout,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 5_000,
-  ssl: pool1Ssl,
-});
-attachPoolHandlers(pool1, 'legacy');
+let pool1;
+if (legacyDbEnabled) {
+  const pool1Ssl =
+    process.env.DB1_SSL_MODE === 'required'
+      ? process.env.DB1_SSL_CA_PATH
+        ? { ca: fs.readFileSync(process.env.DB1_SSL_CA_PATH) }
+        : { rejectUnauthorized: false }
+      : undefined;
+
+  pool1 = mysql.createPool({
+    host: process.env.DB1_HOST || process.env.DB_HOST || 'localhost',
+    user: process.env.DB1_USER || process.env.DB_USER || 'root',
+    password: process.env.DB1_PASSWORD || process.env.DB_PASSWORD || '',
+    database: process.env.DB1_NAME || 'fileachiever',
+    port: Number(process.env.DB1_PORT || process.env.DB_PORT || 3306),
+    multipleStatements: true,
+    connectTimeout,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 5_000,
+    ssl: pool1Ssl,
+  });
+  attachPoolHandlers(pool1, 'legacy');
+} else {
+  pool1 = pool;
+}
 
 function attachPoolHandlers(p, name) {
   p.on('connection', (conn) => {
