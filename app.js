@@ -101,6 +101,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// Lightweight probe for Cloudflare/nginx/PM2 — no session, DB, or HTML middleware.
+app.get('/healthz', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.status(200).type('text/plain').send('ok');
+});
+
 // ======================================================
 // MIDDLEWARES
 // ======================================================

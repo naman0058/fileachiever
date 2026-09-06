@@ -22,6 +22,11 @@ app.set('port', port);
     console.error('Socket.IO adapter setup failed:', e);
     process.exit(1);
   }
+  // Avoid stale keep-alive sockets (common cause of intermittent 522 via nginx/Cloudflare).
+  server.keepAliveTimeout = Number(process.env.SERVER_KEEPALIVE_MS) || 65_000;
+  server.headersTimeout = Number(process.env.SERVER_HEADERS_TIMEOUT_MS) || 66_000;
+  server.requestTimeout = Number(process.env.SERVER_REQUEST_TIMEOUT_MS) || 120_000;
+
   server.listen(port);
   server.on('error', onError);
   server.on('listening', onListening);
