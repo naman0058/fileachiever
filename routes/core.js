@@ -26,6 +26,7 @@ const {
 } = require('./project-report-creator');
 const { buildFullReportItems, filterSynopsisItems, filterPredefinedReportItems } = require('./prc-build-full-report-items');
 const checkoutOrders = require('../services/checkoutOrderService');
+const checkoutFunnel = require('../services/checkoutFunnelService');
 const fs = require('fs');
 const path = require('path');
 
@@ -2478,6 +2479,58 @@ router.get('/api/coupon/validate', (req, res) => {
   });
 });
 
+function funnelFieldsFromBody(body) {
+  const b = body || {};
+  return {
+    funnel_id: String(b.checkout_funnel_id || b.funnel_id || '').trim().slice(0, 64),
+    product_type: String(b.type || '').toLowerCase().slice(0, 16) || null,
+    plan: String(b.plan || '').toLowerCase().slice(0, 32) || null,
+    seo_name: String(b.seo_name || '').trim().toLowerCase().slice(0, 255) || null,
+    source_code_id: b.source_code_id != null ? b.source_code_id : null,
+    billing_name: String(b.billing_name || '').trim().slice(0, 255) || null,
+    billing_email: String(b.billing_email || '').trim().toLowerCase().slice(0, 255) || null,
+    billing_tel: String(b.billing_tel || '').replace(/\D/g, '').slice(0, 32) || null,
+    payment_pref: String(b.payment_pref || '').trim().toLowerCase().slice(0, 32) || null,
+    payment_app: String(b.payment_app || '').trim().toLowerCase().slice(0, 32) || null,
+    final_amount: b.final_amount != null ? b.final_amount : null
+  };
+}
+
+router.post('/api/checkout/funnel', express.json({ limit: '32kb' }), async (req, res) => {
+  try {
+    const eventName = String(req.body.event_name || '').trim();
+    if (!checkoutFunnel.CLIENT_EVENTS.has(eventName)) {
+      return res.status(400).json({ ok: false, error: 'invalid_event' });
+    }
+    const meta = checkoutFunnel.reqMeta(req);
+    await checkoutFunnel.trackEvent({
+      event_name: eventName,
+      funnel_id: req.body.funnel_id,
+      session_id: meta.session_id,
+      product_type: req.body.product_type,
+      plan: req.body.plan,
+      seo_name: req.body.seo_name,
+      source_code_id: req.body.source_code_id,
+      billing_name: req.body.billing_name,
+      billing_email: req.body.billing_email,
+      billing_tel: req.body.billing_tel,
+      payment_pref: req.body.payment_pref,
+      payment_app: req.body.payment_app,
+      final_amount: req.body.final_amount,
+      validation_errors: req.body.validation_errors,
+      meta: req.body.meta,
+      page_url: req.body.page_url,
+      referrer: req.body.referrer,
+      ip_address: meta.ip_address,
+      user_agent: meta.user_agent
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /api/checkout/funnel error:', err.message);
+    res.status(500).json({ ok: false });
+  }
+});
+
 // ── Shared checkout (source + report / synopsis) ─────────────────────────────
 router.get('/checkout', dataService.allCategory, async (req, res) => {
   try {
@@ -2587,7 +2640,22 @@ router.post('/checkout/submit', dataService.date_and_time, async (req, res) => {
     const billing_name = String(req.body.billing_name || '').trim().slice(0, 120);
     const billing_email = String(req.body.billing_email || '').trim().slice(0, 180).toLowerCase();
     const billing_tel = String(req.body.billing_tel || '').replace(/\D/g, '').slice(0, 15);
+    const funnelCtx = funnelFieldsFromBody(req.body);
     if (!billing_name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing_email) || billing_tel.length < 10) {
+      if (funnelCtx.funnel_id) {
+        const validation_errors = [];
+        if (!billing_name) validation_errors.push('billing_name');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing_email)) validation_errors.push('billing_email');
+        if (billing_tel.length < 10) validation_errors.push('billing_tel');
+        checkoutFunnel.trackFromRequest(req, 'validation_failed', {
+          ...funnelCtx,
+          billing_name,
+          billing_email,
+          billing_tel,
+          validation_errors,
+          meta: { source: 'server', reason: 'invalid_billing' }
+        }).catch(() => {});
+      }
       return res.status(400).send('Please fill name, a valid email and a valid mobile number.');
     }
 
@@ -2647,6 +2715,22 @@ router.post('/checkout/submit', dataService.date_and_time, async (req, res) => {
     });
 
     req.session.fm_order_id = created.orderId;
+
+    if (funnelCtx.funnel_id) {
+      const paidFields = {
+        ...funnelCtx,
+        billing_name,
+        billing_email,
+        billing_tel,
+        payment_pref: paymentPref,
+        payment_app: paymentApp,
+        final_amount: finalAmount,
+        order_id: created.orderId,
+        meta: { list_amount: listAmount, coupon_code: coupon_code || null, addon: addon ? addon.planLabel : null }
+      };
+      checkoutFunnel.trackFromRequest(req, 'payment_request_created', paidFields).catch(() => {});
+      checkoutFunnel.trackFromRequest(req, 'ccavenue_redirect_started', paidFields).catch(() => {});
+    }
 
     if (catalog.paymentType === 'source_code') {
       const title_case_name = String(product.seo_name || '')

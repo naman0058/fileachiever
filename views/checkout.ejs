@@ -507,6 +507,10 @@
   font-weight:600;
   color:#94A3B8;
 }
+.ckx-cta-note{
+  margin:10px 0 0;text-align:center;
+  font-size:12px;font-weight:600;color:#475569;line-height:1.45;
+}
 .ckx-legal{
   margin:12px 0 0;text-align:center;
   font-size:12px;font-weight:500;color:#718096;line-height:1.5;
@@ -912,9 +916,10 @@
           <div class="ckx-paybar">
             <button type="submit" class="ckx-cta" id="PayNow">
               <i data-feather="lock"></i>
-              <span id="PayNowLabel">Proceed to Payment ₹<%= displayTotal %></span>
+              <span id="PayNowLabel">Pay ₹<%= displayTotal %> Securely →</span>
               <i data-feather="arrow-right"></i>
             </button>
+            <p class="ckx-cta-note" id="CtaNote">Secure CCAvenue checkout · UPI, card &amp; net banking · Instant download after payment</p>
             <% if (typeof allowDummyPay !== 'undefined' && allowDummyPay) { %>
             <button type="submit" class="ckx-cta ckx-cta--dummy" id="DummyPay" formaction="/checkout/dummy-pay" formnovalidate>
               <i data-feather="zap"></i>
@@ -1053,6 +1058,7 @@
       <input type="hidden" name="coupon_code" id="coupon_code_hidden" value="">
       <input type="hidden" name="final_amount" id="final_amount_hidden" value="<%= Number(displayTotal).toFixed(2) %>">
       <input type="hidden" name="checkout_csrf" value="<%= typeof checkoutCsrf !== 'undefined' ? checkoutCsrf : '' %>">
+      <input type="hidden" name="checkout_funnel_id" id="checkout_funnel_id" value="">
     </form>
   </div>
 </div>
@@ -1113,6 +1119,81 @@
   const payLabel = document.getElementById('PayNowLabel');
   const applyBtn = document.getElementById('ApplyCoupon');
   const form = document.getElementById('CheckoutForm');
+  const funnelHidden = document.getElementById('checkout_funnel_id');
+  const nameInput = document.getElementById('billing_name');
+  const emailInput = document.getElementById('billing_email');
+  const telInput = document.getElementById('billing_tel');
+  const payAppHidden = document.getElementById('payment_app');
+
+  const FUNNEL_ID = (function(){
+    try {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+    } catch (e) {}
+    return 'f-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  })();
+  if (funnelHidden) funnelHidden.value = FUNNEL_ID;
+
+  const fieldTracked = { name: false, email: false, mobile: false };
+
+  function funnelSnapshot() {
+    const payPrefEl = form && form.querySelector('input[name="payment_pref"]:checked');
+    return {
+      funnel_id: FUNNEL_ID,
+      product_type: <%- JSON.stringify(type) %>,
+      plan: <%- JSON.stringify(plan) %>,
+      seo_name: <%- JSON.stringify(product.seo_name || '') %>,
+      source_code_id: <%= product.id %>,
+      billing_name: nameInput ? (nameInput.value || '').trim() : '',
+      billing_email: emailInput ? (emailInput.value || '').trim() : '',
+      billing_tel: telInput ? (telInput.value || '').trim() : '',
+      payment_pref: payPrefEl ? payPrefEl.value : 'upi',
+      payment_app: payAppHidden ? payAppHidden.value : 'upi',
+      final_amount: hiddenFinal ? hiddenFinal.value : '',
+      page_url: window.location.href,
+      referrer: document.referrer || ''
+    };
+  }
+
+  function trackFunnel(eventName, extra) {
+    const payload = Object.assign({}, funnelSnapshot(), { event_name: eventName }, extra || {});
+    const body = JSON.stringify(payload);
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/checkout/funnel', new Blob([body], { type: 'application/json' }));
+        return;
+      }
+    } catch (e) {}
+    fetch('/api/checkout/funnel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body,
+      keepalive: true
+    }).catch(function(){});
+  }
+
+  trackFunnel('checkout_opened');
+
+  if (nameInput) {
+    nameInput.addEventListener('blur', function(){
+      if (fieldTracked.name || !(nameInput.value || '').trim()) return;
+      fieldTracked.name = true;
+      trackFunnel('name_entered');
+    });
+  }
+  if (emailInput) {
+    emailInput.addEventListener('blur', function(){
+      if (fieldTracked.email || !(emailInput.value || '').trim()) return;
+      fieldTracked.email = true;
+      trackFunnel('email_entered');
+    });
+  }
+  if (telInput) {
+    telInput.addEventListener('blur', function(){
+      if (fieldTracked.mobile || !(telInput.value || '').trim()) return;
+      fieldTracked.mobile = true;
+      trackFunnel('mobile_entered');
+    });
+  }
 
   let discountApplied = 0;
 
@@ -1143,7 +1224,7 @@
     if (totalAmt) totalAmt.textContent = money(total);
     if (sidePrice) sidePrice.textContent = money(base);
     if (hiddenFinal) hiddenFinal.value = total.toFixed(2);
-    if (payLabel) payLabel.textContent = 'Proceed to Payment ' + money(total);
+    if (payLabel) payLabel.textContent = 'Pay ' + money(total) + ' Securely →';
     if (couponVal) couponVal.textContent = '− ₹' + Math.round(discountApplied);
     if (addonRow) addonRow.style.display = (addonToggle && addonToggle.checked) ? '' : 'none';
     if (addonAmt) addonAmt.textContent = '+ ' + money(addonPrice);
@@ -1182,7 +1263,6 @@
     });
   }
 
-  const payAppHidden = document.getElementById('payment_app');
   const walletPanel = document.getElementById('WalletPanel');
 
   function setWalletPanel(open){
@@ -1212,6 +1292,7 @@
       const activeApp = walletPanel && walletPanel.querySelector('.ckx-pay__app.is-active');
       payAppHidden.value = (activeApp && activeApp.getAttribute('data-app')) || 'gpay';
     }
+    trackFunnel('payment_method_selected', { meta: { payment_pref: pref, payment_app: payAppHidden ? payAppHidden.value : pref } });
   }
 
   document.querySelectorAll('.ckx-pay__opt').forEach(function(opt){
@@ -1289,8 +1370,20 @@
     form.addEventListener('submit', function(e){
       const submitter = e.submitter || document.activeElement;
       const isDummy = submitter && submitter.id === 'DummyPay';
+      if (!isDummy) {
+        trackFunnel('proceed_clicked');
+      }
       if (!isDummy && !form.checkValidity()) {
         e.preventDefault();
+        const validation_errors = [];
+        ['billing_name', 'billing_email', 'billing_tel'].forEach(function(id){
+          const el = document.getElementById(id);
+          if (el && !el.validity.valid) validation_errors.push(id);
+        });
+        trackFunnel('validation_failed', {
+          validation_errors,
+          meta: { source: 'client_html5' }
+        });
         form.reportValidity();
         return;
       }
