@@ -2496,31 +2496,48 @@ function funnelFieldsFromBody(body) {
   };
 }
 
-router.post('/api/checkout/funnel', express.json({ limit: '32kb' }), async (req, res) => {
+function parseCheckoutFunnelBody(req, res, next) {
+  if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+    return next();
+  }
+  express.raw({ type: '*/*', limit: '32kb' })(req, res, function onRaw(err) {
+    if (err) return next(err);
+    try {
+      const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : String(req.body || '');
+      req.body = raw.trim() ? JSON.parse(raw) : {};
+    } catch (e) {
+      req.body = {};
+    }
+    next();
+  });
+}
+
+router.post('/api/checkout/funnel', parseCheckoutFunnelBody, async (req, res) => {
   try {
-    const eventName = String(req.body.event_name || '').trim();
+    const body = req.body && typeof req.body === 'object' ? req.body : {};
+    const eventName = String(body.event_name || '').trim();
     if (!checkoutFunnel.CLIENT_EVENTS.has(eventName)) {
       return res.status(400).json({ ok: false, error: 'invalid_event' });
     }
     const meta = checkoutFunnel.reqMeta(req);
     await checkoutFunnel.trackEvent({
       event_name: eventName,
-      funnel_id: req.body.funnel_id,
+      funnel_id: body.funnel_id,
       session_id: meta.session_id,
-      product_type: req.body.product_type,
-      plan: req.body.plan,
-      seo_name: req.body.seo_name,
-      source_code_id: req.body.source_code_id,
-      billing_name: req.body.billing_name,
-      billing_email: req.body.billing_email,
-      billing_tel: req.body.billing_tel,
-      payment_pref: req.body.payment_pref,
-      payment_app: req.body.payment_app,
-      final_amount: req.body.final_amount,
-      validation_errors: req.body.validation_errors,
-      meta: req.body.meta,
-      page_url: req.body.page_url,
-      referrer: req.body.referrer,
+      product_type: body.product_type,
+      plan: body.plan,
+      seo_name: body.seo_name,
+      source_code_id: body.source_code_id,
+      billing_name: body.billing_name,
+      billing_email: body.billing_email,
+      billing_tel: body.billing_tel,
+      payment_pref: body.payment_pref,
+      payment_app: body.payment_app,
+      final_amount: body.final_amount,
+      validation_errors: body.validation_errors,
+      meta: body.meta,
+      page_url: body.page_url,
+      referrer: body.referrer,
       ip_address: meta.ip_address,
       user_agent: meta.user_agent
     });
@@ -2569,6 +2586,17 @@ router.get('/checkout', dataService.allCategory, async (req, res) => {
 
     const addonPrice = addon ? addon.price : 0;
     const checkoutCsrf = issueCheckoutCsrf(req);
+    const checkoutFunnelId = checkoutGuid();
+
+    checkoutFunnel.trackFromRequest(req, 'checkout_opened', {
+      funnel_id: checkoutFunnelId,
+      product_type: type,
+      plan: catalog.plan,
+      seo_name: product.seo_name || seo,
+      source_code_id: product.id,
+      final_amount: Number(catalog.price) + addonPrice,
+      meta: { source: 'server', query_plan: plan, query_addon: req.query.addon || null }
+    }).catch((err) => console.error('checkout_opened track:', err.message));
 
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
@@ -2586,6 +2614,7 @@ router.get('/checkout', dataService.allCategory, async (req, res) => {
       totalPrice: Number(catalog.price) + addonPrice,
       backUrl,
       checkoutCsrf,
+      checkoutFunnelId,
       allowDummyPay: !!ccavConfig.allowDummyPay,
       Metatags: {
         title: `Checkout — ${product.name} | FileMakr`,

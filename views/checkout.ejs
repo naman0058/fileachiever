@@ -1124,12 +1124,13 @@
   const telInput = document.getElementById('billing_tel');
   const payAppHidden = document.getElementById('payment_app');
 
-  const FUNNEL_ID = (function(){
-    try {
-      if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-    } catch (e) {}
-    return 'f-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
-  })();
+  const FUNNEL_ID = <%- JSON.stringify(typeof checkoutFunnelId !== 'undefined' ? checkoutFunnelId : '') %>
+    || (function(){
+      try {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+      } catch (e) {}
+      return 'f-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+    })();
   if (funnelHidden) funnelHidden.value = FUNNEL_ID;
 
   const fieldTracked = { name: false, email: false, mobile: false };
@@ -1156,21 +1157,21 @@
   function trackFunnel(eventName, extra) {
     const payload = Object.assign({}, funnelSnapshot(), { event_name: eventName }, extra || {});
     const body = JSON.stringify(payload);
-    try {
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon('/api/checkout/funnel', new Blob([body], { type: 'application/json' }));
-        return;
-      }
-    } catch (e) {}
     fetch('/api/checkout/funnel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body,
-      keepalive: true
-    }).catch(function(){});
+      keepalive: true,
+      credentials: 'same-origin'
+    }).catch(function(){
+      try {
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/checkout/funnel', new Blob([body], { type: 'application/json' }));
+        }
+      } catch (e) {}
+    });
   }
-
-  trackFunnel('checkout_opened');
+  /* checkout_opened saved server-side on GET /checkout — same funnel_id below */
 
   if (nameInput) {
     nameInput.addEventListener('blur', function(){
