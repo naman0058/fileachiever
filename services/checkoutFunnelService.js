@@ -6,6 +6,7 @@
 
 const util = require('util');
 const pool = require('../routes/pool');
+const { resolveBotInfo } = require('../utils/botDetection');
 const queryAsync = util.promisify(pool.query).bind(pool);
 
 const CLIENT_EVENTS = new Set([
@@ -25,6 +26,135 @@ const SERVER_EVENTS = new Set([
 ]);
 
 let ensurePromise = null;
+
+/** Dedupe + circuit breaker — burst = suppress tracking, NOT unlimited bypass. */
+const recentFunnelEvents = new Map();
+const funnelBurstWindows = new Map();
+const suppressedFunnels = new Map();
+const DEDUPE_MS = 3000;
+const BURST_WINDOW_MS = 10_000;
+const BURST_EVENT_THRESHOLD = 8;
+const BURST_FUNNEL_THRESHOLD = 25;
+const SUPPRESS_MS = 60_000;
+const FUNNEL_SESSION_TTL_MS = 4 * 60 * 60 * 1000;
+const MAX_FUNNELS_PER_SESSION = 8;
+
+function pruneSessionFunnels(session) {
+  if (!session || !session.checkoutFunnels) return;
+  const now = Date.now();
+  for (const [id, ts] of Object.entries(session.checkoutFunnels)) {
+    if (now - Number(ts) > FUNNEL_SESSION_TTL_MS) delete session.checkoutFunnels[id];
+  }
+  const ids = Object.keys(session.checkoutFunnels);
+  if (ids.length <= MAX_FUNNELS_PER_SESSION) return;
+  ids
+    .sort((a, b) => Number(session.checkoutFunnels[a]) - Number(session.checkoutFunnels[b]))
+    .slice(0, ids.length - MAX_FUNNELS_PER_SESSION)
+    .forEach((id) => delete session.checkoutFunnels[id]);
+}
+
+function registerSessionFunnel(session, funnelId) {
+  if (!session || !funnelId) return;
+  if (!session.checkoutFunnels) session.checkoutFunnels = Object.create(null);
+  session.checkoutFunnels[String(funnelId)] = Date.now();
+  pruneSessionFunnels(session);
+}
+
+function isFunnelBoundToSession(session, funnelId) {
+  const fid = String(funnelId || '').trim();
+  if (!fid || !session || !session.checkoutFunnels) return false;
+  const ts = session.checkoutFunnels[fid];
+  if (!ts) return false;
+  if (Date.now() - Number(ts) > FUNNEL_SESSION_TTL_MS) {
+    delete session.checkoutFunnels[fid];
+    return false;
+  }
+  return true;
+}
+
+function guardClientFunnelEvent(funnelId, eventName) {
+  const fid = String(funnelId || '').trim();
+  const ev = String(eventName || '').trim();
+  if (!fid || !ev) {
+    return { accept: false, duplicate: false, suppressed: true, shouldLogBurst: false };
+  }
+
+  const now = Date.now();
+
+  let sup = suppressedFunnels.get(fid);
+  if (sup && now < sup.until) {
+    sup.suppressedCount += 1;
+    sup.lastSeen = now;
+    return {
+      accept: false,
+      duplicate: false,
+      suppressed: true,
+      shouldLogBurst: false,
+      suppressed_count: 1
+    };
+  }
+  if (sup && now >= sup.until) {
+    suppressedFunnels.delete(fid);
+  }
+
+  const eventKey = `${fid}:${ev}`;
+  const last = recentFunnelEvents.get(eventKey);
+  if (last && now - last < DEDUPE_MS) {
+    return { accept: false, duplicate: true, suppressed: false, shouldLogBurst: false };
+  }
+
+  let evBurst = funnelBurstWindows.get(eventKey);
+  if (!evBurst || now - evBurst.start > BURST_WINDOW_MS) {
+    evBurst = { count: 0, start: now };
+  }
+  evBurst.count += 1;
+  funnelBurstWindows.set(eventKey, evBurst);
+
+  const funnelKey = `f:${fid}`;
+  let fnBurst = funnelBurstWindows.get(funnelKey);
+  if (!fnBurst || now - fnBurst.start > BURST_WINDOW_MS) {
+    fnBurst = { count: 0, start: now };
+  }
+  fnBurst.count += 1;
+  funnelBurstWindows.set(funnelKey, fnBurst);
+
+  const burstTriggered =
+    evBurst.count > BURST_EVENT_THRESHOLD || fnBurst.count >= BURST_FUNNEL_THRESHOLD;
+
+  if (burstTriggered) {
+    suppressedFunnels.set(fid, {
+      until: now + SUPPRESS_MS,
+      suppressedCount: 1,
+      firstSeen: now,
+      lastSeen: now
+    });
+    return {
+      accept: false,
+      duplicate: false,
+      suppressed: true,
+      burst: true,
+      shouldLogBurst: true,
+      suppressed_count: 1,
+      burst_count: fnBurst.count
+    };
+  }
+
+  recentFunnelEvents.set(eventKey, now);
+  return { accept: true, duplicate: false, suppressed: false, shouldLogBurst: false };
+}
+
+function noteBurstSuppression(req, funnelId, guard) {
+  const rateLimitLog = require('./rateLimitLogService');
+  const { getClientIp, getSessionKey } = require('../utils/botDetection');
+  rateLimitLog.logBurstSuppression({
+    funnel_id: funnelId,
+    ip_address: getClientIp(req),
+    session_key: getSessionKey(req),
+    user_agent: req.get('user-agent'),
+    reason: 'funnel_burst',
+    suppressed_count: guard.suppressed_count || 1
+  }).catch(() => {});
+}
 
 async function ensureTables() {
   if (ensurePromise) return ensurePromise;
@@ -52,15 +182,32 @@ async function ensureTables() {
         referrer VARCHAR(512) NULL,
         ip_address VARCHAR(64) NULL,
         user_agent VARCHAR(512) NULL,
+        is_bot TINYINT(1) NOT NULL DEFAULT 0,
+        bot_name VARCHAR(64) NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         KEY idx_cfe_funnel (funnel_id),
         KEY idx_cfe_event_created (event_name, created_at),
         KEY idx_cfe_session (session_id),
         KEY idx_cfe_email (billing_email),
-        KEY idx_cfe_order (order_id)
+        KEY idx_cfe_order (order_id),
+        KEY idx_cfe_bot (is_bot, created_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+
+    for (const ddl of [
+      'ALTER TABLE checkout_funnel_events ADD COLUMN is_bot TINYINT(1) NOT NULL DEFAULT 0 AFTER user_agent',
+      'ALTER TABLE checkout_funnel_events ADD COLUMN bot_name VARCHAR(64) NULL AFTER is_bot',
+      'ALTER TABLE checkout_funnel_events ADD KEY idx_cfe_bot (is_bot, created_at)'
+    ]) {
+      try {
+        await queryAsync(ddl);
+      } catch (e) {
+        if (!(e && (e.code === 'ER_DUP_FIELDNAME' || e.code === 'ER_DUP_KEYNAME' || /Duplicate/i.test(String(e.message || ''))))) {
+          throw e;
+        }
+      }
+    }
   })().catch((err) => {
     ensurePromise = null;
     throw err;
@@ -125,7 +272,9 @@ async function trackEvent(input) {
     page_url: pickStr(input.page_url, 512),
     referrer: pickStr(input.referrer, 512),
     ip_address: pickStr(input.ip_address, 64),
-    user_agent: pickStr(input.user_agent, 512)
+    user_agent: pickStr(input.user_agent, 512),
+    is_bot: input.is_bot ? 1 : 0,
+    bot_name: pickStr(input.bot_name, 64)
   };
 
   await queryAsync('INSERT INTO checkout_funnel_events SET ?', [row]);
@@ -134,6 +283,8 @@ async function trackEvent(input) {
 
 async function trackFromRequest(req, eventName, fields) {
   const meta = reqMeta(req);
+  const bot = await resolveBotInfo(req);
+  req.botInfo = bot;
   return trackEvent({
     event_name: eventName,
     funnel_id: fields.funnel_id,
@@ -154,7 +305,9 @@ async function trackFromRequest(req, eventName, fields) {
     page_url: fields.page_url || req.originalUrl,
     referrer: fields.referrer || req.get('referer'),
     ip_address: meta.ip_address,
-    user_agent: meta.user_agent
+    user_agent: meta.user_agent,
+    is_bot: bot.is_bot,
+    bot_name: bot.bot_name
   });
 }
 
@@ -162,6 +315,10 @@ module.exports = {
   CLIENT_EVENTS,
   SERVER_EVENTS,
   ensureTables,
+  registerSessionFunnel,
+  isFunnelBoundToSession,
+  guardClientFunnelEvent,
+  noteBurstSuppression,
   trackEvent,
   trackFromRequest,
   reqMeta

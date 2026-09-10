@@ -63,6 +63,7 @@ const {
   resolveSiteBaseUrl
 } = require('./utils/canonicalHost');
 const { stripOversizedSessionCookies } = require('./utils/sessionCookie');
+const { attachBotDetection } = require('./middleware/botDetection');
 // require('./routes/leaderboardCron'); // disabled
 
 const manishaRouter = require('./subdomains/manisha');
@@ -77,6 +78,7 @@ const server = http.createServer(app);
 // ======================================================
 app.set('trust proxy', true);
 app.disable('x-powered-by');
+app.use(attachBotDetection);
 
 // Cloudflare/nginx terminate TLS upstream — Express must see HTTPS or Secure cookies are dropped.
 app.use((req, res, next) => {

@@ -27,6 +27,8 @@ const {
 const { buildFullReportItems, filterSynopsisItems, filterPredefinedReportItems } = require('./prc-build-full-report-items');
 const checkoutOrders = require('../services/checkoutOrderService');
 const checkoutFunnel = require('../services/checkoutFunnelService');
+const { resolveBotInfo } = require('../utils/botDetection');
+const { checkoutFunnelRateLimit, checkoutPageRateLimit, funnelTrackingGuard } = require('../middleware/botDetection');
 const fs = require('fs');
 const path = require('path');
 
@@ -2512,14 +2514,24 @@ function parseCheckoutFunnelBody(req, res, next) {
   });
 }
 
-router.post('/api/checkout/funnel', parseCheckoutFunnelBody, async (req, res) => {
+router.post('/api/checkout/funnel', parseCheckoutFunnelBody, funnelTrackingGuard, checkoutFunnelRateLimit, async (req, res) => {
   try {
     const body = req.body && typeof req.body === 'object' ? req.body : {};
     const eventName = String(body.event_name || '').trim();
     if (!checkoutFunnel.CLIENT_EVENTS.has(eventName)) {
       return res.status(400).json({ ok: false, error: 'invalid_event' });
     }
+    if (req.funnelSkipDbInsert) {
+      const payload = { ok: true };
+      if (req.funnelSuppressed) payload.suppressed = true;
+      else if (req.funnelDeduped) payload.deduped = true;
+      else if (req.funnelInvalid) payload.invalid = true;
+      else payload.skipped = true;
+      return res.json(payload);
+    }
     const meta = checkoutFunnel.reqMeta(req);
+    const bot = await resolveBotInfo(req);
+    req.botInfo = bot;
     await checkoutFunnel.trackEvent({
       event_name: eventName,
       funnel_id: body.funnel_id,
@@ -2539,7 +2551,9 @@ router.post('/api/checkout/funnel', parseCheckoutFunnelBody, async (req, res) =>
       page_url: body.page_url,
       referrer: body.referrer,
       ip_address: meta.ip_address,
-      user_agent: meta.user_agent
+      user_agent: meta.user_agent,
+      is_bot: bot.is_bot,
+      bot_name: bot.bot_name
     });
     res.json({ ok: true });
   } catch (err) {
@@ -2549,7 +2563,7 @@ router.post('/api/checkout/funnel', parseCheckoutFunnelBody, async (req, res) =>
 });
 
 // ── Shared checkout (source + report / synopsis) ─────────────────────────────
-router.get('/checkout', dataService.allCategory, async (req, res) => {
+router.get('/checkout', checkoutPageRateLimit, dataService.allCategory, async (req, res) => {
   try {
     const type = String(req.query.type || '').toLowerCase();
     const plan = String(req.query.plan || '').toLowerCase();
@@ -2587,6 +2601,7 @@ router.get('/checkout', dataService.allCategory, async (req, res) => {
     const addonPrice = addon ? addon.price : 0;
     const checkoutCsrf = issueCheckoutCsrf(req);
     const checkoutFunnelId = checkoutGuid();
+    checkoutFunnel.registerSessionFunnel(req.session, checkoutFunnelId);
 
     checkoutFunnel.trackFromRequest(req, 'checkout_opened', {
       funnel_id: checkoutFunnelId,

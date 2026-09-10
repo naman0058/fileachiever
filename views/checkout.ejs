@@ -1154,7 +1154,28 @@
     };
   }
 
+  const funnelSentOnce = Object.create(null);
+  const funnelLastFire = Object.create(null);
+  let funnelEventsThisMinute = 0;
+  let funnelMinuteStart = Date.now();
+  const FUNNEL_MIN_GAP_MS = 2000;
+  const FUNNEL_MAX_PER_MIN = 40;
+  const FUNNEL_ONCE_EVENTS = ['name_entered', 'email_entered', 'mobile_entered'];
+
   function trackFunnel(eventName, extra) {
+    const now = Date.now();
+    if (now - funnelMinuteStart > 60000) {
+      funnelMinuteStart = now;
+      funnelEventsThisMinute = 0;
+    }
+    if (funnelEventsThisMinute >= FUNNEL_MAX_PER_MIN) return;
+    if (FUNNEL_ONCE_EVENTS.indexOf(eventName) >= 0 && funnelSentOnce[eventName]) return;
+    const last = funnelLastFire[eventName] || 0;
+    if (now - last < FUNNEL_MIN_GAP_MS) return;
+    funnelLastFire[eventName] = now;
+    if (FUNNEL_ONCE_EVENTS.indexOf(eventName) >= 0) funnelSentOnce[eventName] = true;
+    funnelEventsThisMinute += 1;
+
     const payload = Object.assign({}, funnelSnapshot(), { event_name: eventName }, extra || {});
     const body = JSON.stringify(payload);
     fetch('/api/checkout/funnel', {
@@ -1279,6 +1300,8 @@
     }
   }
 
+  let lastPaymentPref = 'upi';
+
   function selectPayMethod(opt){
     document.querySelectorAll('.ckx-pay__opt').forEach(function(o){ o.classList.remove('is-active'); });
     opt.classList.add('is-active');
@@ -1292,7 +1315,12 @@
       const activeApp = walletPanel && walletPanel.querySelector('.ckx-pay__app.is-active');
       payAppHidden.value = (activeApp && activeApp.getAttribute('data-app')) || 'gpay';
     }
-    trackFunnel('payment_method_selected', { meta: { payment_pref: pref, payment_app: payAppHidden ? payAppHidden.value : pref } });
+    const appVal = payAppHidden ? payAppHidden.value : pref;
+    const prefKey = pref + ':' + appVal;
+    if (prefKey !== lastPaymentPref) {
+      lastPaymentPref = prefKey;
+      trackFunnel('payment_method_selected', { meta: { payment_pref: pref, payment_app: appVal } });
+    }
   }
 
   document.querySelectorAll('.ckx-pay__opt').forEach(function(opt){
