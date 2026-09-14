@@ -1623,8 +1623,35 @@ body.sc-sticky-active .fm-footer {
   display: none !important;
 }
 
-/* Mobile: clear horizontal slider for Admin / User / Other / Live Demo */
+/* Mobile: features dock always visible; pricing row on scroll (is-visible) */
 @media (max-width: 991.98px) {
+  .sc-sticky-bar.is-feats-only,
+  .sc-sticky-bar.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .sc-sticky-bar.is-feats-only:not(.is-visible) .sc-sticky-bar__row--packs {
+    display: none !important;
+  }
+  .sc-sticky-bar.is-feats-only:not(.is-visible) .sc-sticky-bar__feats {
+    margin-bottom: 0;
+  }
+  .pr-page.sc-page,
+  .sc-page {
+    padding-bottom: calc(148px + env(safe-area-inset-bottom, 0px));
+  }
+  body.sc-sticky-active .pr-page.sc-page,
+  body.sc-sticky-active .sc-page {
+    padding-bottom: calc(220px + env(safe-area-inset-bottom, 0px));
+  }
+  body:has(#StickyBuyBar.is-feats-only) .fm-footer {
+    padding-bottom: calc(148px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  body.sc-sticky-active .fm-footer {
+    padding-bottom: calc(220px + env(safe-area-inset-bottom, 0px)) !important;
+  }
   .sc-sticky-bar__feats {
     margin: 0 0 10px;
     max-width: none;
@@ -5654,7 +5681,7 @@ window.dataLayer.push({
 </div><!-- /pr-page -->
 
 <% if (showStickyBar) { %>
-<div class="sc-sticky-bar" id="StickyBuyBar" aria-hidden="true">
+<div class="sc-sticky-bar is-feats-only" id="StickyBuyBar" aria-hidden="false">
   <div class="sc-sticky-bar__feats">
     <p class="sc-sticky-bar__feats-title">Project Features and Functionality</p>
     <div class="sc-sticky-bar__feats-row" role="group" aria-label="Project feature shortcuts">
@@ -6152,21 +6179,26 @@ if (document.readyState === 'loading') {
 
   var desktopMq = window.matchMedia('(min-width: 992px)');
 
-  function shouldShowSticky() {
-    if (desktopMq.matches) return true; // laptop: always fixed visible
+  function shouldShowPricingRow() {
+    if (desktopMq.matches) return true;
     const el = sentinel || anchor;
     if (!el) return window.scrollY > 120;
     return el.getBoundingClientRect().bottom < 8;
   }
 
-  function setStickyVisible(visible) {
-    bar.classList.toggle('is-visible', visible);
-    bar.setAttribute('aria-hidden', visible ? 'false' : 'true');
-    document.body.classList.toggle('sc-sticky-active', visible);
-  }
-
   function updateSticky() {
-    setStickyVisible(shouldShowSticky());
+    if (desktopMq.matches) {
+      bar.classList.remove('is-feats-only');
+      bar.classList.add('is-visible');
+      bar.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('sc-sticky-active');
+      return;
+    }
+    bar.classList.add('is-feats-only');
+    const showPricing = shouldShowPricingRow();
+    bar.classList.toggle('is-visible', showPricing);
+    bar.setAttribute('aria-hidden', 'false');
+    document.body.classList.toggle('sc-sticky-active', showPricing);
   }
 
   updateSticky();
@@ -6185,7 +6217,7 @@ if (document.readyState === 'loading') {
   if ('IntersectionObserver' in window && (sentinel || anchor)) {
     var observer = new IntersectionObserver(function() {
       updateSticky();
-    }, { root: null, threshold: 0, rootMargin: '0px 0px 0px 0px' });
+    }, { root: null, threshold: 0, rootMargin: '0px' });
     if (sentinel) observer.observe(sentinel);
     if (anchor) observer.observe(anchor);
   }
