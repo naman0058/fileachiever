@@ -5,7 +5,6 @@
 
 
 <head>
-<%- include('Includes/canonical-head-vars') %>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <%- include('Includes/gtm-head') %>
@@ -14,6 +13,13 @@
 <meta name="abstract" content="<%=Metatags.abstract%>"/>
 <meta name="keywords" content="<%=Metatags.keywords%>"/>
 <%
+  var fmPageCanonical = (typeof buildFmPageCanonical === 'function')
+    ? buildFmPageCanonical(
+        typeof fullUrl !== 'undefined' ? fullUrl : '',
+        typeof canonicalUrl !== 'undefined' ? canonicalUrl : '',
+        typeof pageCanonicalUrl !== 'undefined' ? pageCanonicalUrl : null
+      )
+    : (typeof fullUrl !== 'undefined' && fullUrl ? fullUrl : 'https://www.filemakr.com/');
   var fmOgUrl = fmPageCanonical;
   var fmOgTitle = Metatags.title || 'FileMakr';
   var fmOgDesc = Metatags.description || '';

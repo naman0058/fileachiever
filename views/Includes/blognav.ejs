@@ -2,10 +2,16 @@
 <html lang="en">
 
 <head>
-<%- include('Includes/canonical-head-vars') %>
 <%
+  var fmPageCanonical = (typeof buildFmPageCanonical === 'function')
+    ? buildFmPageCanonical(
+        typeof fullUrl !== 'undefined' ? fullUrl : '',
+        typeof canonicalUrl !== 'undefined' ? canonicalUrl : '',
+        typeof pageCanonicalUrl !== 'undefined' ? pageCanonicalUrl : null
+      )
+    : (typeof fullUrl !== 'undefined' && fullUrl ? fullUrl : 'https://www.filemakr.com/');
   var fmBlogCanonical = (result[0].canonical_url && result[0].canonical_url.trim())
-    ? (typeof pageCanonicalUrl === 'function' ? pageCanonicalUrl(result[0].canonical_url) : result[0].canonical_url)
+    ? buildFmPageCanonical('', result[0].canonical_url.trim(), typeof pageCanonicalUrl !== 'undefined' ? pageCanonicalUrl : null)
     : fmPageCanonical;
 %>
 <%- include('Includes/gtm-head') %>

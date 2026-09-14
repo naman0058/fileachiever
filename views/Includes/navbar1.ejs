@@ -2,7 +2,15 @@
 <html lang="en">
 
 <head>
-  <%- include('Includes/canonical-head-vars') %>
+  <%
+    var fmPageCanonical = (typeof buildFmPageCanonical === 'function')
+      ? buildFmPageCanonical(
+          typeof fullUrl !== 'undefined' ? fullUrl : '',
+          typeof canonicalUrl !== 'undefined' ? canonicalUrl : '',
+          typeof pageCanonicalUrl !== 'undefined' ? pageCanonicalUrl : null
+        )
+      : (typeof fullUrl !== 'undefined' && fullUrl ? fullUrl : 'https://www.filemakr.com/');
+  %>
   <%- include('Includes/gtm-head') %>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">

@@ -3,7 +3,15 @@
 
 <!-- Mirrored from dreamslms.dreamguystech.com/html/checkout.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:05:52 GMT -->
 <head>
-<%- include('Includes/canonical-head-vars') %>
+<%
+  var fmPageCanonical = (typeof buildFmPageCanonical === 'function')
+    ? buildFmPageCanonical(
+        typeof fullUrl !== 'undefined' ? fullUrl : '',
+        typeof canonicalUrl !== 'undefined' ? canonicalUrl : '',
+        typeof pageCanonicalUrl !== 'undefined' ? pageCanonicalUrl : null
+      )
+    : (typeof fullUrl !== 'undefined' && fullUrl ? fullUrl : 'https://www.filemakr.com/');
+%>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
 

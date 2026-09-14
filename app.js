@@ -131,6 +131,12 @@ app.use(express.urlencoded({ extended: false }));
 // Redirect bare / wrong host to canonical www BEFORE session cookies are read or set.
 const canonicalHost = resolveCanonicalHost();
 const publicSiteOrigin = normalizeSiteOrigin(config.siteBaseUrl || DEFAULT_SITE_ORIGIN);
+app.locals.buildFmPageCanonical = function buildFmPageCanonical(fullUrl, canonicalUrl, pageCanonicalUrlFn) {
+  if (typeof pageCanonicalUrlFn === 'function') {
+    return pageCanonicalUrlFn(canonicalUrl || undefined);
+  }
+  return sanitizeCanonicalUrl(canonicalUrl || fullUrl, publicSiteOrigin);
+};
 app.use(canonicalHostRedirectMiddleware(canonicalHost));
 
 // Drop oversized checkout cookies before session middleware parses them.
