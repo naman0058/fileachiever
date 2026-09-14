@@ -212,17 +212,8 @@ const date_and_time = (req, res, next) => {
   }
       
 
-  const CANONICAL_HOST = 'www.filemakr.com';
-  const SITE_BASE = (function () {
-    var base = (appConfig.siteBaseUrl || 'https://www.filemakr.com').replace(/\/$/, '');
-    try {
-      var u = new URL(base);
-      if (u.hostname === 'filemakr.com') u.hostname = CANONICAL_HOST;
-      return u.origin;
-    } catch (e) {
-      return 'https://www.filemakr.com';
-    }
-  })();
+  const { buildRequestFullUrl } = require('../utils/canonicalHost');
+  const siteOrigin = appConfig.siteBaseUrl;
 
   let categoryCache = { rows: null, at: 0 };
   const CATEGORY_CACHE_MS = 10 * 60 * 1000;
@@ -235,22 +226,7 @@ const date_and_time = (req, res, next) => {
           categoryCache.at = now;
         }
         req.categories = categoryCache.rows;
-        const rawHost = (req.get('host') || '').toLowerCase();
-        const hostname = rawHost.split(':')[0];
-        const portPart = rawHost.includes(':') ? rawHost.split(':').slice(1).join(':') : '';
-        const pathOnly = req.originalUrl || req.url || '/';
-        const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
-        const isProduction = hostname === CANONICAL_HOST || hostname === 'filemakr.com';
-
-        if (isProduction || isLocalDev) {
-            req.fullUrl = SITE_BASE + pathOnly;
-        } else {
-            const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').toLowerCase();
-            const hostWithPort = portPart && portPart !== '80' && portPart !== '443'
-                ? hostname + ':' + portPart
-                : hostname;
-            req.fullUrl = (proto === 'https' ? 'https' : 'http') + '://' + hostWithPort + pathOnly;
-        }
+        req.fullUrl = buildRequestFullUrl(req, siteOrigin);
         next();
     } catch (err) {
         console.error('Error fetching categories:', err);

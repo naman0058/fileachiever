@@ -4,6 +4,8 @@
  */
 require('dotenv').config();
 
+const { normalizeSiteOrigin } = require('../utils/canonicalHost');
+
 module.exports = {
   env: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 3000,
@@ -14,7 +16,7 @@ module.exports = {
       .filter(Boolean);
     return keys.length ? keys : ['naman'];
   })(),
-  siteBaseUrl: process.env.SITE_BASE_URL || 'https://www.filemakr.com',
+  siteBaseUrl: normalizeSiteOrigin(process.env.SITE_BASE_URL || 'https://www.filemakr.com'),
   /**
    * Cloudflare Worker proxy base for all Cloudinary clouds (recommended, free).
    * Example: https://www.filemakr.com/cloudinary

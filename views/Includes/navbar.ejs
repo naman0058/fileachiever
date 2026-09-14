@@ -5,6 +5,7 @@
 
 
 <head>
+<%- include('Includes/canonical-head-vars') %>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <%- include('Includes/gtm-head') %>
@@ -13,7 +14,7 @@
 <meta name="abstract" content="<%=Metatags.abstract%>"/>
 <meta name="keywords" content="<%=Metatags.keywords%>"/>
 <%
-  var fmOgUrl = (typeof fullUrl !== 'undefined' && fullUrl) ? fullUrl : (CommonMetaTags.URL || 'https://www.filemakr.com/');
+  var fmOgUrl = fmPageCanonical;
   var fmOgTitle = Metatags.title || 'FileMakr';
   var fmOgDesc = Metatags.description || '';
   var fmIsHomeOg = (typeof active !== 'undefined' && active === 'home');
@@ -61,8 +62,8 @@
 <meta property="og:email" content="<%=CommonMetaTags.ogEmail%>"/>
 <meta property="og:country-name" content="<%=CommonMetaTags.ogCountry%>"/>
 <link rel="shortcut icon" type="image/x-icon" href="<%=CommonMetaTags.Icon%>">
-<link rel="alternate" hreflang="en" href="<%= fullUrl %>">
-<link rel="canonical" href="<%= fullUrl %>">
+<link rel="alternate" hreflang="en" href="<%= fmPageCanonical %>">
+<link rel="canonical" href="<%= fmPageCanonical %>">
 <link rel="sitemap" type="application/xml" title="Sitemap" href="https://www.filemakr.com/sitemap.xml">
 <meta name="robots" content="index, follow">
 
@@ -199,7 +200,7 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
     "@context": "https://www.schema.org",
     "@type": "Organization",
     "name": "FileMakr",
-    "url": "<%=fullUrl%>",
+    "url": "<%= fmPageCanonical %>",
     "logo": "https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
     "image": "https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
     "description": "<%=Metatags.description%>",
@@ -225,7 +226,7 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
     },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": <%- JSON.stringify(fullUrl || 'https://www.filemakr.com/') %>
+    "@id": <%- JSON.stringify(fmPageCanonical) %>
   },
   "aggregateRating": {
     "@type": "AggregateRating",
@@ -255,7 +256,7 @@ body{font-family:"Alice",serif;font-weight:400;font-style:normal;}
   "@type": "WebPage",
   "name": <%- JSON.stringify(Metatags.title || 'FileMakr') %>,
   "description": <%- JSON.stringify(Metatags.description || '') %>,
-  "url": <%- JSON.stringify(fullUrl || 'https://www.filemakr.com/') %>,
+  "url": <%- JSON.stringify(fmPageCanonical) %>,
   "publisher": {
     "@type": "Organization",
     "name": "FileMakr",

@@ -60,7 +60,11 @@ const {
   resolveCanonicalHost,
   canonicalHostRedirectMiddleware,
   resolveCookieDomain,
-  resolveSiteBaseUrl
+  resolveSiteBaseUrl,
+  normalizeSiteOrigin,
+  sanitizeCanonicalUrl,
+  buildRequestFullUrl,
+  DEFAULT_SITE_ORIGIN
 } = require('./utils/canonicalHost');
 const { stripOversizedSessionCookies } = require('./utils/sessionCookie');
 const { attachBotDetection } = require('./middleware/botDetection');
@@ -126,6 +130,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Redirect bare / wrong host to canonical www BEFORE session cookies are read or set.
 const canonicalHost = resolveCanonicalHost();
+const publicSiteOrigin = normalizeSiteOrigin(config.siteBaseUrl || DEFAULT_SITE_ORIGIN);
 app.use(canonicalHostRedirectMiddleware(canonicalHost));
 
 // Drop oversized checkout cookies before session middleware parses them.
@@ -210,6 +215,12 @@ app.use((req, res, next) => {
   res.locals.start = req.query.start || '';
   res.locals.end = req.query.end || '';
   res.locals.siteBaseUrl = resolveSiteBaseUrl(req, canonicalHost);
+  res.locals.publicSiteOrigin = publicSiteOrigin;
+  const fullUrl = sanitizeCanonicalUrl(buildRequestFullUrl(req, publicSiteOrigin), publicSiteOrigin);
+  req.fullUrl = fullUrl;
+  res.locals.fullUrl = fullUrl;
+  res.locals.pageCanonicalUrl = (override) =>
+    sanitizeCanonicalUrl(override || req.fullUrl, publicSiteOrigin);
   res.locals.gtmContainerId = config.gtmContainerId;
   res.locals.ga4MeasurementId = config.ga4MeasurementId;
   res.locals.googleAdsConversionId = config.googleAdsConversionId;
@@ -593,14 +604,10 @@ app.use(async (err, req, res, next) => {
     }
   }
 
-  let fullUrl = req.fullUrl;
-  if (!fullUrl) {
-    const host = ((req.get('host') || 'www.filemakr.com').toLowerCase().split(':')[0] === 'filemakr.com')
-      ? 'www.filemakr.com'
-      : ((req.get('host') || 'www.filemakr.com').split(':')[0]);
-    const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').toLowerCase();
-    fullUrl = (proto === 'https' ? 'https' : 'http') + '://' + host + (req.originalUrl || req.url || '');
-  }
+  const fullUrl = sanitizeCanonicalUrl(
+    req.fullUrl || buildRequestFullUrl(req, publicSiteOrigin),
+    publicSiteOrigin
+  );
 
   const is404 = status === 404;
   const Metatags = is404

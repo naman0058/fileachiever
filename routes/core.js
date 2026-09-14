@@ -4681,7 +4681,7 @@ router.get('/blog', dataService.allCategory, (req, res) => {
       pool2.query(popularSql, [], (err4, popularRows) => {
         if (err4) throw err4;
 
-          const baseUrl = req.fullUrl?.split('?')[0] || `${req.protocol}://${req.get('host')}${req.path}`;
+          const baseUrl = (req.fullUrl || '').split('?')[0] || `https://www.filemakr.com${req.path || ''}`;
           const queryNoPage = new URLSearchParams(req.query);
           queryNoPage.delete('page');
           const qStr = queryNoPage.toString();

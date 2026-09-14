@@ -3,6 +3,7 @@
 
 <!-- Mirrored from dreamslms.dreamguystech.com/html/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 17 Jan 2023 14:01:56 GMT -->
 <head>
+<%- include('Includes/canonical-head-vars') %>
 <%- include('Includes/gtm-head') %>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -34,7 +35,7 @@
     <meta name=description content="Download the detailed <%=result[0][0].name%> project report in PDF format. Ideal for <%=graduation_type_send%> final year projects, It includes comprehensive documentation and source code."/>
         <meta name="abstract" content="<%=result[0][0].name%> Project Report available for <%=graduation_type_send%> final year students. Download the detailed project report in PDF format, including comprehensive documentation and source code for easy reference and implementation."/>
         <meta name=keywords content="<%=result[0][0].name%> project report, PDF, <%=result[0][0].name%> system, <%=result[0][0].name%> software, <%=graduation_type_send%> final year project report, <%=result[0][0].name%> software project report, Filemakr"/>
-        <link rel="alternate" hreflang="en" href="<%= fullUrl %>">
+        <link rel="alternate" hreflang="en" href="<%= fmPageCanonical %>">
         <meta name=robots content="all,follow"/>
         <meta name=googlebot content="index, follow"/>
         <meta name=classification content="<%=result[0][0].name%> project report, PDF, <%=result[0][0].name%> system, <%=result[0][0].name%> software, <%=graduation_type_send%> final year project report, <%=result[0][0].name%> software project report, Filemakr"/>
@@ -50,7 +51,7 @@
         <meta name=DC.title content="<%=result[0][0].name%> Project Report | PDF for <%=graduation_type_send%> Final Year"/>
         <meta property=og:title content="<%=result[0][0].name%> Project Report | PDF for <%=graduation_type_send%> Final Year"/>
         <meta property=og:type content="website"/>
-        <meta property=og:url content="<%=fullUrl%>"/>
+        <meta property=og:url content="<%= fmPageCanonical %>"/>
         <meta property=og:image content="https://www.filemakr.com/images/ogimage.jpg"/>
         <meta property=og:site_name content="https://www.filemakr.com"/>
         <meta property=og:description content="Download the detailed <%=result[0][0].name%> project report in PDF format. Ideal for <%=graduation_type_send%> final year projects, It includes comprehensive documentation and source code."/>
@@ -61,7 +62,7 @@
         <meta property="og:phone_number" content="+91-8319339945"/>
         <meta property="og:email" content="filemakr@gmail.com"/>
         <meta property="og:country-name" content="India"/>
-       <link rel=canonical href="<%=fullUrl%>">
+       <link rel=canonical href="<%= fmPageCanonical %>">
       <title><%=result[0][0].name%> Project Report | PDF for <%=graduation_type_send%> Final Year</title>
     
     
@@ -72,7 +73,7 @@
           "@context": "https://www.schema.org",
           "@type": "Organization",
           "name": "<%=result[0][0].name%> Project Report | PDF for <%=graduation_type_send%> Final Year",
-          "url": "<%=fullUrl%>",
+          "url": "<%= fmPageCanonical %>",
           "logo": "https://res.cloudinary.com/dggf8vl9p/image/upload/f_auto,q_auto,w_64,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
           "image": "https://res.cloudinary.com/dggf8vl9p/image/upload/f_auto,q_auto,w_64,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif",
           "description": "Download the detailed <%=result[0][0].name%> project report in PDF format. Ideal for <%=graduation_type_send%> final year projects, It includes comprehensive documentation and source code.",

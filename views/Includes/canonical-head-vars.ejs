@@ -1,0 +1,7 @@
+<%
+  var fmPageCanonical = (typeof pageCanonicalUrl === 'function')
+    ? pageCanonicalUrl(typeof canonicalUrl !== 'undefined' && canonicalUrl ? canonicalUrl : undefined)
+    : ((typeof canonicalUrl !== 'undefined' && canonicalUrl)
+      ? canonicalUrl
+      : (typeof fullUrl !== 'undefined' && fullUrl ? fullUrl : 'https://www.filemakr.com/'));
+%>

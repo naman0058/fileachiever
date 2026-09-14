@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  <%- include('Includes/canonical-head-vars') %>
   <%- include('Includes/gtm-head') %>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -32,7 +33,7 @@
     <meta name=description content="<%=Metatags.description%>"/>
         <meta name="abstract" content="<%=Metatags.abstract%>"/>
         <meta name=keywords content="<%=Metatags.keywords%>"/>
-        <link rel="alternate" hreflang="en" href="<%= typeof canonicalUrl !== 'undefined' && canonicalUrl ? canonicalUrl : (fullUrl || 'https://www.filemakr.com') %>">
+        <link rel="alternate" hreflang="en" href="<%= fmPageCanonical %>">
         <meta name=robots content="all,follow"/>
         <meta name=googlebot content="index, follow"/>
         <meta name=classification content="<%=Metatags.keywords%>"/>
@@ -48,7 +49,7 @@
         <meta name=DC.title content="<%=Metatags.title%>"/>
         <meta property=og:title content="<%=Metatags.title%>"/>
         <meta property=og:type content="website"/>
-        <meta property=og:url content="<%=fullUrl%>"/>
+        <meta property=og:url content="<%= fmPageCanonical %>"/>
         <meta property=og:image content="https://www.filemakr.com/images/ogimage.jpg"/>
         <meta property=og:site_name content="https://www.filemakr.com"/>
         <meta property=og:description content="<%=Metatags.description%>"/>
@@ -59,7 +60,7 @@
         <meta property="og:phone_number" content="+91-8319339945"/>
         <meta property="og:email" content="filemakr@gmail.com"/>
         <meta property="og:country-name" content="India"/>
-       <link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' && canonicalUrl ? canonicalUrl : (fullUrl || '') %>">
+       <link rel="canonical" href="<%= fmPageCanonical %>">
        <% if (typeof prevUrl !== 'undefined' && prevUrl) { %><link rel="prev" href="<%= prevUrl %>"><% } %>
        <% if (typeof nextUrl !== 'undefined' && nextUrl) { %><link rel="next" href="<%= nextUrl %>"><% } %>
       <title><%=Metatags.title%></title>

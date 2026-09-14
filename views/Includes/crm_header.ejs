@@ -2,6 +2,12 @@
 <html lang="en">
 
 <head>
+<%- include('Includes/canonical-head-vars') %>
+<%
+  var fmBlogCanonical = (result[0].canonical_url && result[0].canonical_url.trim())
+    ? (typeof pageCanonicalUrl === 'function' ? pageCanonicalUrl(result[0].canonical_url) : result[0].canonical_url)
+    : fmPageCanonical;
+%>
 <%- include('Includes/gtm-head') %>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -33,7 +39,7 @@
     <meta name=description content="<%=result[0].meta_description%>"/>
         <meta name="abstract" content="<%=result[0].meta_abstract%>"/>
         <meta name=keywords content="<%=result[0].meta_keywords%>,<%=result[0].tags%>"/>
-        <link rel="alternate" hreflang="en" href="<%= (result[0].canonical_url && result[0].canonical_url.trim()) ? result[0].canonical_url : fullUrl %>">
+        <link rel="alternate" hreflang="en" href="<%= fmBlogCanonical %>">
         <meta name=robots content="all,follow"/>
         <meta name=googlebot content="index, follow"/>
         <meta name=classification content="<%=result[0].meta_keywaords%>"/>
@@ -49,7 +55,7 @@
         <meta name=DC.title content="<%=result[0].meta_title%>"/>
         <meta property=og:title content="<%=result[0].meta_title%>"/>
         <meta property=og:type content="website"/>
-        <meta property=og:url content="<%=fullUrl%>"/>
+        <meta property=og:url content="<%= fmBlogCanonical %>"/>
         <meta property=og:image content="<%=result[0].thumbnail_url%>"/>
         <meta property=og:site_name content="https://www.filemakr.com"/>
         <meta property=og:description content="<%=result[0].meta_description%>"/>
@@ -60,7 +66,7 @@
         <meta property="og:phone_number" content="+91-8319339945"/>
         <meta property="og:email" content="filemakr@gmail.com"/>
         <meta property="og:country-name" content="India"/>
-       <link rel="canonical" href="<%= (result[0].canonical_url && result[0].canonical_url.trim()) ? result[0].canonical_url : fullUrl %>">
+       <link rel="canonical" href="<%= fmBlogCanonical %>">
 <title><%=result[0].meta_title%></title>
     
     
