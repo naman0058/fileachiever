@@ -13,8 +13,20 @@ const fetch = (typeof globalThis.fetch === 'function') ? globalThis.fetch : requ
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 
 const PUPPETEER_ARGS = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'];
+const DEFAULT_FETCH_TIMEOUT_MS = Number(process.env.PRC_FETCH_TIMEOUT_MS) || 15000;
 let sharedBrowser = null;
 let sharedBrowserPromise = null;
+
+async function fetchWithTimeout(url, timeoutMs = DEFAULT_FETCH_TIMEOUT_MS) {
+  const ms = Math.max(3000, Number(timeoutMs) || DEFAULT_FETCH_TIMEOUT_MS);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { signal: ctrl.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 async function getSharedBrowser() {
   if (sharedBrowser && sharedBrowser.isConnected()) return sharedBrowser;
@@ -281,7 +293,7 @@ async function buildImageDataUrlMap(items, baseUrl, concurrency = 8) {
     try {
       let buf = tryReadLocalPublicImage(abs, baseUrl);
       if (!buf) {
-        const resp = await fetch(abs);
+        const resp = await fetchWithTimeout(abs);
         if (!resp.ok) return;
         buf = Buffer.from(await resp.arrayBuffer());
       }
@@ -578,6 +590,10 @@ function splitBodyTocBlocks(bodyItems) {
   return blocks;
 }
 
+function bodyTocBlockCount(bodyItems) {
+  return splitBodyTocBlocks(bodyItems).length;
+}
+
 async function waitForDocumentImages(page, timeoutMs = 20000) {
   try {
     await page.evaluate(async (ms) => {
@@ -600,11 +616,19 @@ async function waitForDocumentImages(page, timeoutMs = 20000) {
 
 async function setPageHtmlForPdf(page, html, opts = {}) {
   const inlineImages = opts.allImagesInline === true;
-  await page.setContent(html, {
-    waitUntil: inlineImages ? 'load' : 'networkidle0',
-    timeout: inlineImages ? 45000 : 120000
-  });
-  await waitForDocumentImages(page, inlineImages ? 2500 : 5000);
+  const isMeasure = opts.measure === true;
+  // TOC measure must not wait for networkidle0 (slow/hanging assets → 504 at CDN).
+  const waitUntil = inlineImages || isMeasure ? 'load' : 'networkidle0';
+  const timeout = isMeasure
+    ? (Number(opts.measureTimeoutMs) || 35000)
+    : inlineImages
+      ? 45000
+      : 120000;
+  await page.setContent(html, { waitUntil, timeout });
+  await waitForDocumentImages(
+    page,
+    isMeasure ? 3000 : inlineImages ? 2500 : 5000
+  );
 }
 
 async function pdfPageCountOnPage(page, html, opts = {}) {
@@ -640,7 +664,11 @@ async function measureBodyTocPages(bodyItems, { baseUrl = '', browser = null, co
   const b = browser || (await getSharedBrowser());
   const dataUrls = imageDataUrls || (await buildImageDataUrlMap(bodyItems, baseUrl));
   const allInline = allItemsImagesInline(bodyItems, baseUrl, dataUrls);
-  const pdfOpts = { allImagesInline: allInline };
+  const pdfOpts = {
+    allImagesInline: allInline,
+    measure: true,
+    measureTimeoutMs: Number(process.env.PRC_TOC_PDF_BLOCK_TIMEOUT_MS) || 35000
+  };
 
   const poolSize = Math.min(Math.max(1, concurrency || 1), blocks.length);
   const pages = await Promise.all(Array.from({ length: poolSize }, () => b.newPage()));
@@ -766,10 +794,28 @@ async function buildReportPdfBuffer({ title, items, baseUrl }) {
   try {
     // Accurate TOC pages from real body layout (page 1 = Introduction)
     let tocMeta = estimateBodyTocPages(bodyItems);
-    try {
-      tocMeta = await measureBodyTocPages(bodyItems, { baseUrl, browser, imageDataUrls, concurrency: 8 });
-    } catch (e) {
-      console.warn('TOC measure failed, using estimate:', e.message || e);
+    const skipTocMeasure = /^1|true|yes$/i.test(String(process.env.PRC_SKIP_TOC_MEASURE || '').trim());
+    const tocMaxBlocks = Number(process.env.PRC_TOC_MEASURE_MAX_BLOCKS) || 48;
+    const tocMeasureMs = Number(process.env.PRC_TOC_MEASURE_TIMEOUT_MS) || 45000;
+    const tocBlocks = bodyTocBlockCount(bodyItems);
+    if (!skipTocMeasure && tocBlocks > 0 && tocBlocks <= tocMaxBlocks) {
+      try {
+        tocMeta = await Promise.race([
+          measureBodyTocPages(bodyItems, {
+            baseUrl,
+            browser,
+            imageDataUrls,
+            concurrency: Math.min(6, Math.max(2, tocBlocks))
+          }),
+          new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('TOC measure timeout')), tocMeasureMs);
+          })
+        ]);
+      } catch (e) {
+        console.warn('TOC measure failed, using estimate:', e.message || e);
+      }
+    } else if (tocBlocks > tocMaxBlocks) {
+      console.warn('PDF TOC measure skipped (blocks=%s), using estimate', tocBlocks);
     }
 
     // Front matter page count (Abstract + TOC) — these stay unnumbered
@@ -810,6 +856,7 @@ async function buildReportPdfBuffer({ title, items, baseUrl }) {
 module.exports = {
   estimateBodyTocPages,
   measureBodyTocPages,
+  bodyTocBlockCount,
   expandMainChapterPageRanges,
   formatTocPageLabel,
   normalizeMainHeadingTitle,
@@ -819,5 +866,6 @@ module.exports = {
   buildImageDataUrlMap,
   bufferCacheToDataUrlMap,
   getSharedBrowser,
+  fetchWithTimeout,
   absoluteUrl
 };

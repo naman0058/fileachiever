@@ -57,11 +57,19 @@ const { buildReportItemsFromPastedToc, parsePastedTocToEntries } = require('./pr
 const {
   estimateBodyTocPages,
   measureBodyTocPages,
+  bodyTocBlockCount,
   formatTocPageLabel,
   buildReportPdfBuffer,
   bufferCacheToDataUrlMap,
-  getSharedBrowser
+  getSharedBrowser,
+  fetchWithTimeout
 } = require('./prc-report-export');
+
+function extendReportDownloadTimeouts(req, res) {
+  const ms = Number(process.env.PRC_DOWNLOAD_TIMEOUT_MS) || 300000;
+  if (req && typeof req.setTimeout === 'function') req.setTimeout(ms);
+  if (res && typeof res.setTimeout === 'function') res.setTimeout(ms);
+}
 
 /** Run async work over items with a fixed concurrency limit. */
 async function mapPool(items, concurrency, worker) {
@@ -448,6 +456,8 @@ router.post('/api/source-code/:id/toc-from-text', requirePRCOrAdmin, async (req,
 
 // API: Download Word document
 async function handleProjectReportWordDownload(req, res) {
+  extendReportDownloadTimeouts(req, res);
+  const downloadStarted = Date.now();
   try {
     const sourceCodeId = parseInt(req.body.sourceCodeId, 10);
     const items = Array.isArray(req.body.items) ? req.body.items : [];
@@ -533,7 +543,7 @@ async function handleProjectReportWordDownload(req, res) {
         return;
       }
       try {
-        const resp = await fetch(fullUrl);
+        const resp = await fetchWithTimeout(fullUrl);
         if (!resp.ok) {
           imageBufCache.set(url, null);
           imageBufCache.set(fullUrl, null);
@@ -651,7 +661,7 @@ async function handleProjectReportWordDownload(req, res) {
           if (local) {
             buf = local;
           } else {
-            const resp = await fetch(fullUrl);
+            const resp = await fetchWithTimeout(fullUrl);
             if (!resp.ok) return;
             buf = Buffer.from(await resp.arrayBuffer());
           }
@@ -868,19 +878,36 @@ async function handleProjectReportWordDownload(req, res) {
     // TOC page numbers: body starts at page 1 (Introduction). Abstract/TOC are separate unnumbered sections.
     // Prefer real A4 measurement so Word TOC matches PDF / printed pagination.
     let tocPageMeta = estimateBodyTocPages(bodyItems);
-    try {
-      const baseUrl =
-        (req.protocol || 'http') + '://' + (req.get('host') || 'localhost:5000');
-      const imageDataUrls = bufferCacheToDataUrlMap(imageBufCache);
-      const browser = await getSharedBrowser();
-      tocPageMeta = await measureBodyTocPages(bodyItems, {
-        baseUrl,
-        browser,
-        imageDataUrls,
-        concurrency: 8
-      });
-    } catch (e) {
-      console.warn('Word TOC measure failed, using estimate:', e.message || e);
+    const skipTocMeasure = /^1|true|yes$/i.test(String(process.env.PRC_SKIP_TOC_MEASURE || '').trim());
+    const tocMaxBlocks = Number(process.env.PRC_TOC_MEASURE_MAX_BLOCKS) || 48;
+    const tocMeasureMs = Number(process.env.PRC_TOC_MEASURE_TIMEOUT_MS) || 45000;
+    const tocBlocks = bodyTocBlockCount(bodyItems);
+    if (!skipTocMeasure && tocBlocks > 0 && tocBlocks <= tocMaxBlocks) {
+      try {
+        const baseUrl =
+          (req.protocol || 'http') + '://' + (req.get('host') || 'localhost:5000');
+        const imageDataUrls = bufferCacheToDataUrlMap(imageBufCache);
+        const browser = await getSharedBrowser();
+        tocPageMeta = await Promise.race([
+          measureBodyTocPages(bodyItems, {
+            baseUrl,
+            browser,
+            imageDataUrls,
+            concurrency: Math.min(6, Math.max(2, tocBlocks))
+          }),
+          new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('TOC measure timeout')), tocMeasureMs);
+          })
+        ]);
+      } catch (e) {
+        console.warn('Word TOC measure failed, using estimate:', e.message || e);
+      }
+    } else if (tocBlocks > tocMaxBlocks) {
+      console.warn(
+        'Word TOC measure skipped (blocks=%s > max=%s), using estimate',
+        tocBlocks,
+        tocMaxBlocks
+      );
     }
     const tocEntries = [];
     let tocSec = 0;
@@ -1155,9 +1182,17 @@ async function handleProjectReportWordDownload(req, res) {
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.setHeader('Content-Disposition', 'attachment; filename="' + filename + '"');
     res.send(buf);
+    if (Date.now() - downloadStarted > 60000) {
+      console.warn(
+        'PRC Word download slow: %sms sourceCodeId=%s items=%s',
+        Date.now() - downloadStarted,
+        sourceCodeId,
+        items.length
+      );
+    }
   } catch (e) {
     console.error('PRC Word download error:', e);
-    res.status(500).json({ ok: false, message: 'Server error' });
+    if (!res.headersSent) res.status(500).json({ ok: false, message: 'Server error' });
   }
 }
 
