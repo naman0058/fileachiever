@@ -1,3 +1,5 @@
+const { isPlaceholderBlogText, stripBlogText } = require('../utils/blogPublic');
+
 const homePage = {
     title : 'Final-Year Projects, Reports & Source Code | FileMakr',
     description:'Explore final-year project reports, runnable source code and live demos for B.Tech, BCA, MCA and more.',
@@ -10,8 +12,8 @@ const homePage = {
 
 
 const blogPage = {
-    title: 'FileMakr Blog — Project Tips, Guides & Tech Insights',
-    description: 'Read student-friendly guides on system design, web development, final-year projects, viva prep and more on the FileMakr Blog.',
+    title: 'FileMakr Blog — Project Guides, Tutorials & Student Resources',
+    description: 'In-depth guides on final-year projects, programming tutorials, academic report writing, and career skills for computer science and engineering students.',
     author: 'https://www.filemakr.com',
     abstract: 'FileMakr Blog — practical articles for engineering and CS students.',
     keywords: 'FileMakr blog, final year project tips, system design, web development, student guides',
@@ -24,7 +26,8 @@ function stripHtmlMeta(text) {
 
 function isGenericBlogMetaCopy(text) {
     const t = String(text || '').toLowerCase();
-    return t.includes('feeling the pressure of your final year project')
+    return isPlaceholderBlogText(text)
+        || t.includes('feeling the pressure of your final year project')
         || t.includes('navigating your final year project can be daunting')
         || t.includes('discover ready-to-submit project reports and source code for b.tech')
         || t.includes('[add your meta description here]')
@@ -42,7 +45,9 @@ function truncateSeoTitle(text, maxLen) {
 function blogPostHeading(post) {
     const title = stripHtmlMeta(post && post.title);
     const metaTitle = stripHtmlMeta(post && post.meta_title);
-    return title || metaTitle || 'Blog Article';
+    if (title && !isPlaceholderBlogText(title)) return title;
+    if (metaTitle && !isPlaceholderBlogText(metaTitle)) return metaTitle;
+    return 'Blog Article';
 }
 
 function blogPostSeoTitle(post) {
@@ -112,6 +117,7 @@ function blogListingMeta(pageUrl, options = {}) {
             abstract: truncateMetaDescription(`Search results for ${q} on FileMakr Blog.`, 200),
             keywords: `${q}, FileMakr blog, final year projects, student guides`,
             url: pageUrl || blogPage.url,
+            robots: 'noindex, follow',
         };
     }
     if (cat) {

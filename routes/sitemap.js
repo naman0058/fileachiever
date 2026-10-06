@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var pool = require('./pool');
-var pool2 = require('./pool2');
 const {
   projectReportUrl,
   resolveProjectReportSeoSlug,
@@ -26,14 +25,6 @@ const STATIC_PAGES = [
 const queryAsync = (query, params) =>
   new Promise((resolve, reject) => {
     pool.query(query, params || [], (err, results) => {
-      if (err) reject(err);
-      else resolve(results);
-    });
-  });
-
-const queryAsync2 = (query, params) =>
-  new Promise((resolve, reject) => {
-    pool2.query(query, params || [], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });
@@ -64,19 +55,6 @@ router.get('/', async (req, res) => {
       "SELECT seo_name FROM source_code WHERE seo_name IS NOT NULL AND seo_name != '' ORDER BY id DESC LIMIT 5000"
     ).catch(() => []);
 
-    let blogs = [];
-    try {
-      blogs = await queryAsync2(
-        `SELECT slug, COALESCE(updated_at, created_at) AS modified
-         FROM blogs
-         WHERE slug IS NOT NULL AND slug != ''
-         ORDER BY id DESC
-         LIMIT 1000`
-      );
-    } catch (blogErr) {
-      console.warn('[Sitemap] blog DB unavailable, skipping blog URLs');
-    }
-
     let liveDemos = [];
     try {
       liveDemos = await queryAsync(
@@ -95,8 +73,8 @@ router.get('/', async (req, res) => {
       priority: '0.85',
     }));
 
-    // sitemap.ejs: [0]=source-code categories, [1]=project source pages, [2]=reports, [3]=blogs
-    const result = [categories || [], sourceCodes || [], sourceCodes || [], blogs || []];
+    // sitemap.ejs: [0]=categories, [1]=source pages, [2]=reports (blogs → /blog-sitemap.xml)
+    const result = [categories || [], sourceCodes || [], sourceCodes || [], []];
 
     res.set('Content-Type', 'application/xml; charset=utf-8');
     res.set('Cache-Control', 'public, max-age=3600');

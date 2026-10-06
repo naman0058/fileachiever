@@ -78,18 +78,6 @@
 </url>
 <% }); %>
 
-<% for (var bi = 0; bi < result[3].length; bi++) {
-     var blogSlug = String(result[3][bi].slug || '').trim();
-     if (!blogSlug) continue;
-     var blogMod = result[3][bi].modified
-       ? new Date(result[3][bi].modified).toISOString().split('T')[0]
-       : lastupdate;
-%>
-<url>
-  <loc><%= siteBase %>/blog/<%= encodeURIComponent(blogSlug) %></loc>
-  <lastmod><%= blogMod %></lastmod>
-  <priority>0.64</priority>
-</url>
-<% } %>
+<%# Blog post URLs: https://www.filemakr.com/blog-sitemap.xml %>
 
 </urlset>

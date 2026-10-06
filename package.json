@@ -6,6 +6,9 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "purgecss": "purgecss --config purgecss.config.js",
+    "measure:blog": "node scripts/measure-blog-performance.js",
+    "test:blog-perf": "node scripts/test-blog-performance-budget.js",
+    "test:blog": "node scripts/test-blog-qa.js",
     "mern-calendar-oauth": "node scripts/mern-calendar-oauth.js"
   },
   "dependencies": {

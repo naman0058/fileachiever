@@ -73,6 +73,84 @@
               </div>
             </div>
           </div>
+
+          <div class="card blog-card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+              <i class="bi bi-chat-square-quote text-primary"></i>
+              Answer &amp; editorial metadata
+            </div>
+            <div class="card-body">
+              <p class="text-muted small">Optional. Use only for real summaries, takeaways, entities, and citations from the article. Defaults suit US English editorial targeting without changing FileMakr business details.</p>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Language (BCP 47)</label>
+                  <select name="language_code" class="form-select form-select-sm">
+                    <option value="en-US" <%= !blog || !blog.language_code || blog.language_code === 'en-US' ? 'selected' : '' %>>English (United States) — en-US</option>
+                    <option value="en-IN" <%= blog && blog.language_code === 'en-IN' ? 'selected' : '' %>>English (India) — en-IN</option>
+                    <option value="en-GB" <%= blog && blog.language_code === 'en-GB' ? 'selected' : '' %>>English (UK) — en-GB</option>
+                    <option value="en" <%= blog && blog.language_code === 'en' ? 'selected' : '' %>>English — en</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Editorial target country</label>
+                  <select name="target_country" class="form-select form-select-sm">
+                    <% const tc = blog && blog.target_country ? blog.target_country : 'US'; %>
+                    <option value="US" <%= tc === 'US' ? 'selected' : '' %>>United States (US)</option>
+                    <option value="IN" <%= tc === 'IN' ? 'selected' : '' %>>India (IN)</option>
+                    <option value="GB" <%= tc === 'GB' ? 'selected' : '' %>>United Kingdom (GB)</option>
+                    <option value="CA" <%= tc === 'CA' ? 'selected' : '' %>>Canada (CA)</option>
+                    <option value="AU" <%= tc === 'AU' ? 'selected' : '' %>>Australia (AU)</option>
+                    <option value="SG" <%= tc === 'SG' ? 'selected' : '' %>>Singapore (SG)</option>
+                    <option value="DE" <%= tc === 'DE' ? 'selected' : '' %>>Germany (DE)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-3 mt-3">
+                <label class="form-label small fw-semibold">Direct answer summary</label>
+                <textarea name="answer_summary" class="form-control form-control-sm" rows="4" placeholder="40–90 words: a standalone answer shown at the top when filled in."><%= blog && blog.answer_summary ? blog.answer_summary : '' %></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Key takeaways (3–7 lines)</label>
+                <textarea name="key_takeaways" class="form-control form-control-sm" rows="5" placeholder="One takeaway per line (shown to readers)."><%
+                  if (blog && blog.key_takeaways) {
+                    const kt = blog.key_takeaways;
+                    if (Array.isArray(kt)) { %><%= kt.join('\n') %><% }
+                    else { %><%= kt %><% }
+                  }
+                %></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Entities (JSON array)</label>
+                <textarea name="entities_json" class="form-control form-control-sm font-monospace" rows="5" placeholder='[{"name":"React","type":"SoftwareApplication","sameAs":"https://..."}]'><%
+                  if (blog && blog.entities_json) {
+                    const ej = blog.entities_json;
+                    if (typeof ej === 'string') { %><%= ej %><% }
+                    else { %><%= JSON.stringify(ej, null, 2) %><% }
+                  }
+                %></textarea>
+                <div class="form-text">Types: Thing, SoftwareApplication, Organization, EducationalOccupationalProgram, Person, DefinedTerm. Omit sameAs unless you have an authoritative URL.</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Sources (JSON array)</label>
+                <textarea name="sources_json" class="form-control form-control-sm font-monospace" rows="5" placeholder='[{"title":"...","url":"https://...","publisher":"..."}]'><%
+                  if (blog && blog.sources_json) {
+                    const sj = blog.sources_json;
+                    if (typeof sj === 'string') { %><%= sj %><% }
+                    else { %><%= JSON.stringify(sj, null, 2) %><% }
+                  }
+                %></textarea>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="mark_content_reviewed" value="1" id="markReviewed">
+                <label class="form-check-label small" for="markReviewed">
+                  Mark as reviewed / materially verified on save (sets reviewed date to now)
+                </label>
+              </div>
+              <% if (blog && blog.reviewed_at) { %>
+                <p class="small text-muted mb-0 mt-2">Current review date: <%= new Date(blog.reviewed_at).toLocaleString('en-US') %></p>
+              <% } %>
+            </div>
+          </div>
         </div>
 
         <div class="col-lg-4">

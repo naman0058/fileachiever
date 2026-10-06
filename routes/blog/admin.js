@@ -9,6 +9,7 @@ const pool2 = require('../pool2');
 const crypto = require('crypto');
 const util = require('util');
 const queryAsync = util.promisify(pool2.query).bind(pool2);
+const indexNowService = require('../../services/indexNowService');
 
 const SALT = process.env.BLOG_WRITER_SALT || 'filemakr-blog-writer-2024';
 const ITERATIONS = 100000;
@@ -80,6 +81,24 @@ router.post('/writer/:id/toggle', async (req, res) => {
   } catch (err) {
     console.error('Toggle writer:', err);
     res.redirect('/blog-admin');
+  }
+});
+
+router.post('/indexnow/submit', async (req, res) => {
+  try {
+    const slug = String(req.body.slug || req.query.slug || '').trim();
+    if (!slug) {
+      return res.status(400).json({ success: false, msg: 'slug required' });
+    }
+    const [row] = await queryAsync('SELECT slug, status FROM blogs WHERE slug = ? LIMIT 1', [slug]);
+    if (!row) {
+      return res.status(404).json({ success: false, msg: 'Blog not found.' });
+    }
+    const result = await indexNowService.submitBlogSlugNow(row.slug);
+    return res.json({ success: !!result.ok, configured: indexNowService.isConfigured(), result });
+  } catch (err) {
+    console.error('blog-admin indexnow:', err);
+    return res.status(500).json({ success: false, msg: 'IndexNow request failed.' });
   }
 });
 

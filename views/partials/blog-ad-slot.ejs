@@ -1,0 +1,21 @@
+<%
+  var _ads = (typeof fmAdsense !== 'undefined' && fmAdsense) ? fmAdsense : null;
+  var _pos = typeof adPosition !== 'undefined' ? adPosition : '';
+  var _slot = _ads && _ads.slots && _pos ? _ads.slots[_pos] : null;
+  var _show = _ads && _ads.enabled && _slot;
+  var _placements = (typeof blogAdPlacements !== 'undefined' && blogAdPlacements) ? blogAdPlacements : null;
+  if (_placements && _pos && _placements[_pos] === false) _show = false;
+%>
+<% if (_show) { %>
+<aside class="fm-blog-ad-slot fm-blog-ad-slot--<%= _pos %>" data-fm-ad-slot="<%= _pos %>" aria-label="Advertisement">
+  <span class="fm-blog-ad-label">Advertisement</span>
+  <div class="fm-blog-ad-slot__reserve">
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="<%= _ads.clientId %>"
+      data-ad-slot="<%= _slot %>"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+  </div>
+</aside>
+<% } %>

@@ -12,6 +12,9 @@ Disallow: /report-sales/
 Disallow: /report-sales-admin/
 Disallow: /blog/admin/
 Disallow: /blog/writer/
+Disallow: /blog-writer/
+Disallow: /blog-admin/
+Disallow: /api/
 Disallow: /auth/
 Disallow: /checkout
 Disallow: /download-instant-report
@@ -94,4 +97,5 @@ Allow: /
 # Sitemaps & AI discovery
 # LLMs: https://www.filemakr.com/llms.txt
 Sitemap: https://www.filemakr.com/sitemap.xml
+Sitemap: https://www.filemakr.com/blog-sitemap.xml
 Sitemap: https://www.filemakr.com/sitemap-news.xml

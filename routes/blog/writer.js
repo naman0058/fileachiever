@@ -10,6 +10,13 @@ const slugify = require('slugify');
 const crypto = require('crypto');
 const util = require('util');
 const queryAsync = util.promisify(pool2.query).bind(pool2);
+const { invalidateBlogReadCache } = require('../../services/blogReadService');
+const indexNowService = require('../../services/indexNowService');
+const {
+  validateBlogContentPayload,
+  serializeJsonColumn,
+  hydrateBlogContentFields,
+} = require('../../utils/blogContentModel');
 const queryPool = util.promisify(pool.query).bind(pool);
 
 const SALT = process.env.BLOG_WRITER_SALT || 'filemakr-blog-writer-2024';
@@ -194,7 +201,10 @@ router.get('/edit/:id', requireWriter, async (req, res) => {
     if (!blog) {
       return res.redirect('/blog-writer/dashboard');
     }
-    res.render('blog/writer/write', { blog, siteBase: SITE_BASE });
+    res.render('blog/writer/write', {
+      blog: hydrateBlogContentFields(blog),
+      siteBase: SITE_BASE,
+    });
   } catch (err) {
     console.error('blog writer edit:', err);
     res.redirect('/blog-writer/dashboard');
@@ -248,24 +258,58 @@ router.post('/save', requireWriter, async (req, res) => {
     const readingTime = Math.max(1, Math.ceil(wordCount / 200));
     const thumb = req.body.thumbnail_url || null;
 
+    const [existingRow] = id
+      ? await queryAsync(
+          'SELECT id, slug, status, reviewed_at FROM blogs WHERE id = ? AND author_id = ?',
+          [id, authorId]
+        )
+      : [null];
+    const previousSlug = existingRow && existingRow.slug ? String(existingRow.slug).trim() : null;
+    const previousStatus = existingRow && existingRow.status ? String(existingRow.status) : null;
+    if (id && !existingRow) {
+      return res.json({ success: false, msg: 'Blog not found.' });
+    }
+
+    const contentFields = validateBlogContentPayload({
+      ...req.body,
+      existing_reviewed_at: existingRow && existingRow.reviewed_at,
+      preserve_reviewed_at: id ? '1' : '0',
+    });
+    if (!contentFields.ok) {
+      return res.json({ success: false, msg: contentFields.msg });
+    }
+    const cf = contentFields.data;
+    const ktDb = serializeJsonColumn(cf.key_takeaways);
+    const entDb = serializeJsonColumn(cf.entities_json);
+    const srcDb = serializeJsonColumn(cf.sources_json);
+
     if (id) {
-      const [existing] = await queryAsync('SELECT id FROM blogs WHERE id = ? AND author_id = ?', [id, authorId]);
-      if (!existing) {
-        return res.json({ success: false, msg: 'Blog not found.' });
-      }
+      const reviewedSql = cf.mark_reviewed ? ', reviewed_at = NOW()' : '';
       await queryAsync(
         `UPDATE blogs SET
           title = ?, slug = ?, content = ?, meta_title = ?, meta_description = ?,
           focus_keyword = ?, canonical_url = ?, category = ?, meta_keywords = ?, tags = ?, meta_abstract = ?,
-          schema_markup = ?, thumbnail_url = IFNULL(?, thumbnail_url), status = ?, reading_time_minutes = ?, internal_links_count = ?, updated_at = NOW()
+          schema_markup = ?, thumbnail_url = IFNULL(?, thumbnail_url), status = ?, reading_time_minutes = ?, internal_links_count = ?,
+          language_code = ?, target_country = ?, answer_summary = ?, key_takeaways = ?, entities_json = ?, sources_json = ?,
+          updated_at = NOW()${reviewedSql}
         WHERE id = ? AND author_id = ?`,
         [
           title, finalSlug, content, meta_title || title, meta_description,
           focus_keyword || null, finalCanonical, category || 'all',
           meta_keywords || null, tags || null, meta_abstract || null,
-          validSchema, thumb || null, status || 'draft', readingTime, linkCount, id, authorId
+          validSchema, thumb || null, status || 'draft', readingTime, linkCount,
+          cf.language_code, cf.target_country, cf.answer_summary, ktDb, entDb, srcDb,
+          id, authorId,
         ]
       );
+      invalidateBlogReadCache();
+      if (status === 'published') {
+        indexNowService.notifyBlogUrlChange(finalSlug, {
+          previousSlug: previousSlug && previousSlug !== finalSlug ? previousSlug : null,
+        });
+      } else if (previousStatus === 'published' && previousSlug) {
+        indexNowService.notifyBlogUrlChange(previousSlug);
+      }
       return res.json({ success: true, msg: 'Blog updated.', id });
     }
 
@@ -274,23 +318,59 @@ router.post('/save', requireWriter, async (req, res) => {
       return res.json({ success: false, msg: 'Slug already exists. Choose another.' });
     }
 
+    const reviewedInsert = cf.mark_reviewed ? ', reviewed_at' : '';
     const [insertResult] = await queryAsync(
       `INSERT INTO blogs (
         title, slug, content, meta_title, meta_description,
         focus_keyword, canonical_url, category, meta_keywords, tags, meta_abstract,
-        schema_markup, thumbnail_url, status, author_id, reading_time_minutes, internal_links_count
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        schema_markup, thumbnail_url, status, author_id, reading_time_minutes, internal_links_count,
+        language_code, target_country, answer_summary, key_takeaways, entities_json, sources_json
+        ${reviewedInsert}
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?${cf.mark_reviewed ? ', NOW()' : ''})`,
       [
         title, finalSlug, content, meta_title || title, meta_description,
         focus_keyword || null, finalCanonical, category || 'all',
         meta_keywords || null, tags || null, meta_abstract || null,
-        validSchema, thumb, status || 'draft', authorId, readingTime, linkCount
+        validSchema, thumb, status || 'draft', authorId, readingTime, linkCount,
+        cf.language_code, cf.target_country, cf.answer_summary, ktDb, entDb, srcDb,
       ]
     );
+    invalidateBlogReadCache();
+    if ((status || 'draft') === 'published') {
+      indexNowService.notifyBlogUrlChange(finalSlug);
+    }
     res.json({ success: true, msg: 'Blog saved.', id: insertResult.insertId });
   } catch (err) {
     console.error('blog writer save:', err);
     res.json({ success: false, msg: 'Save failed.' });
+  }
+});
+
+router.post('/api/indexnow', requireWriter, async (req, res) => {
+  try {
+    const slug = String(req.body.slug || '').trim();
+    if (!slug) {
+      return res.status(400).json({ success: false, msg: 'slug required' });
+    }
+    const [row] = await queryAsync(
+      'SELECT slug, status FROM blogs WHERE slug = ? AND author_id = ? LIMIT 1',
+      [slug, req.session.blogWriter.id]
+    );
+    if (!row) {
+      return res.status(404).json({ success: false, msg: 'Blog not found.' });
+    }
+    if (row.status !== 'published') {
+      return res.status(400).json({ success: false, msg: 'Only published posts can be submitted.' });
+    }
+    const result = await indexNowService.submitBlogSlugNow(row.slug);
+    return res.json({
+      success: !!result.ok,
+      configured: indexNowService.isConfigured(),
+      result,
+    });
+  } catch (err) {
+    console.error('writer indexnow:', err);
+    return res.status(500).json({ success: false, msg: 'IndexNow request failed.' });
   }
 });
 

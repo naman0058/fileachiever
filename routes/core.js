@@ -25,6 +25,77 @@ const {
   loadPrcLibraryForExport
 } = require('./project-report-creator');
 const { buildFullReportItems, filterSynopsisItems, filterPredefinedReportItems } = require('./prc-build-full-report-items');
+const {
+  fetchBlogListing,
+  fetchBlogDetailPage,
+  fetchBlogDetailBySlug,
+  fetchBlogAuthorDisplay,
+} = require('../services/blogReadService');
+const { serializeBlogPostPublic } = require('../models/blogPost');
+const {
+  analyzeBlogListingQuery,
+  buildBlogListingCanonical,
+  buildBlogListingPageUrl,
+  buildBlogListingJsonLd,
+  blogListingMetaTags,
+} = require('../utils/blogListingSeo');
+const {
+  resolveBlogDetailCanonical,
+  blogDetailMetaTags,
+  buildBlogDetailJsonLd,
+  blogDetailHeading,
+  blogDetailDescription,
+} = require('../utils/blogDetailSeo');
+const { normalizeSiteOrigin } = require('../utils/canonicalHost');
+const { blogPublicCacheHeaders } = require('../middleware/blogPublicCache');
+const {
+  blogListingLcpPreloadUrl,
+  blogDetailLcpPreloadUrl,
+} = require('../utils/blogPagePerf');
+const { cloudinaryDisplayUrl } = require('../utils/cloudinaryDisplay');
+const { getAdsenseConfig } = require('../utils/adsenseConfig');
+const {
+  countArticleWords,
+  getBlogAdPlacements,
+  injectBlogContentAdMarkers,
+} = require('../utils/blogArticleAds');
+
+async function renderBlogDetailForVideo(req, res, blogSlug, metatagsOverride) {
+  const detail = await fetchBlogDetailPage(blogSlug);
+  if (!detail || !detail.post) {
+    return res.status(404).send('Blog post not found');
+  }
+  const post = detail.post;
+  const siteOrigin = normalizeSiteOrigin(process.env.SITE_BASE_URL || 'https://www.filemakr.com');
+  const canonicalUrl = resolveBlogDetailCanonical(post, siteOrigin);
+  const pageMetatags = metatagsOverride && metatagsOverride.title
+    ? metatagsOverride
+    : blogDetailMetaTags(post, canonicalUrl, { authorDisplay: post.author_display });
+  const blogDetailJsonLd = JSON.stringify(
+    buildBlogDetailJsonLd(post, {
+      siteOrigin,
+      canonicalUrl,
+      displayTitle: blogDetailHeading(post),
+      description: blogDetailDescription(post),
+      authorDisplay: post.author_display,
+    })
+  );
+  return res.render('blog_details', {
+    result: [post],
+    recentBlogs: detail.recentBlogs,
+    relatedPosts: detail.relatedPosts,
+    popularPosts: detail.popularPosts,
+    Metatags: pageMetatags,
+    CommonMetaTags: onPageSeo.commonMetaTags,
+    msg: '',
+    category: req.categories,
+    fullUrl: req.fullUrl,
+    canonicalUrl,
+    blogDetailJsonLd,
+    authorDisplay: post.author_display,
+    active: 'blog',
+  });
+}
 const checkoutOrders = require('../services/checkoutOrderService');
 const checkoutFunnel = require('../services/checkoutFunnelService');
 const { resolveBotInfo } = require('../utils/botDetection');
@@ -4627,104 +4698,95 @@ router.get('/add-ambassador/bulk-sample.csv', requireMernManagerToolkit, (req, r
 // })
 
 
-// routes/blog.js
-router.get('/blog', dataService.allCategory, (req, res) => {
-  const pageSize = 10;
-  const page     = Math.max(parseInt(req.query.page || 1, 10), 1);
-  const q        = (req.query.q || req.query.tag || '').trim().slice(0, 100);
-  const cat      = (req.query.category || '').trim().slice(0, 80);
-  const order    = (req.query.sort || 'new'); // 'new' | 'old' | 'alpha'
+// routes/blog.js — lean reads via services/blogReadService.js
+router.get('/blog', blogPublicCacheHeaders, dataService.allCategory, async (req, res, next) => {
+  try {
+    const pageSize = 10;
+    const page = Math.max(parseInt(req.query.page || 1, 10), 1);
+    const q = (req.query.q || req.query.tag || '').trim().slice(0, 100);
+    const cat = (req.query.category || '').trim().slice(0, 80);
+    const order = req.query.sort || 'new';
 
-  const where = [];
-  const params = [];
-
-  if (q) {
-    where.push(`(meta_title LIKE ? OR meta_description LIKE ? OR title LIKE ?)`);
-    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
-  }
-  if (cat) {
-    where.push(`category = ?`);
-    params.push(cat);
-  }
-  const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
-
-  let orderSql = 'ORDER BY created_at DESC, id DESC';
-  if (order === 'old')   orderSql = 'ORDER BY created_at ASC, id ASC';
-  if (order === 'alpha') orderSql = 'ORDER BY meta_title ASC';
-
-  const countSql = `SELECT COUNT(*) AS total FROM blogs ${whereSql}`;
-  const listSql  = `
-    SELECT id, slug, title, meta_title, meta_description, thumbnail_url, created_at, category
-    FROM blogs
-    ${whereSql}
-    ${orderSql}
-    LIMIT ? OFFSET ?
-  `;
-  const popularSql = `
-    SELECT id, slug, title, meta_title, meta_description, thumbnail_url, created_at, category
-    FROM blogs
-    ORDER BY created_at DESC
-    LIMIT 15
-  `;
-
-  pool2.query(countSql, params, (err, countRows) => {
-    if (err) throw err;
-    const total = countRows[0]?.total || 0;
-    const totalPages = Math.max(Math.ceil(total / pageSize), 1);
-    const safePage = Math.min(page, totalPages);
+    const siteOrigin = normalizeSiteOrigin(process.env.SITE_BASE_URL || 'https://www.filemakr.com');
+    const queryState = analyzeBlogListingQuery(req.query);
+    const listing = await fetchBlogListing({ q, cat, order, page, pageSize });
+    const { total, totalPages, page: safePage, rows: result, popularPosts } = listing;
     const from = total === 0 ? 0 : (safePage - 1) * pageSize + 1;
     const to = Math.min(safePage * pageSize, total);
 
-      pool2.query(listSql, [...params, pageSize, (safePage - 1) * pageSize], (err2, result) => {
-      if (err2) throw err2;
+    const canonical = buildBlogListingCanonical({
+      q: queryState.q,
+      cat: queryState.cat,
+      page: safePage,
+      siteOrigin,
+    });
+    const listingState = { ...queryState, page: safePage };
+    const prevUrl =
+      safePage > 1
+        ? buildBlogListingPageUrl(siteOrigin, listingState, safePage - 1)
+        : null;
+    const nextUrl =
+      safePage < totalPages
+        ? buildBlogListingPageUrl(siteOrigin, listingState, safePage + 1)
+        : null;
+    const blogListingJsonLd = JSON.stringify(
+      buildBlogListingJsonLd({
+        posts: result,
+        canonicalUrl: canonical,
+        page: safePage,
+        siteOrigin,
+      })
+    );
 
-      pool2.query(popularSql, [], (err4, popularRows) => {
-        if (err4) throw err4;
+    const listingMeta = blogListingMetaTags(canonical, listingState, siteOrigin);
+    listingMeta.lcpPreloadImage = blogListingLcpPreloadUrl(cloudinaryDisplayUrl);
 
-          const baseUrl = (req.fullUrl || '').split('?')[0] || `https://www.filemakr.com${req.path || ''}`;
-          const queryNoPage = new URLSearchParams(req.query);
-          queryNoPage.delete('page');
-          const qStr = queryNoPage.toString();
-          const canonical = safePage > 1 ? req.fullUrl : (qStr ? `${baseUrl}?${qStr}` : baseUrl);
+    const fmAdsense = getAdsenseConfig();
+    const blogAdPlacements = {
+      after_intro: false,
+      mid_content_1: false,
+      mid_content_2: false,
+      end_content: false,
+      listing_1: fmAdsense.enabled && result.length >= 4,
+      listing_2: fmAdsense.enabled && result.length >= 12,
+    };
 
-          const mkUrl = (p) => {
-            const sp = new URLSearchParams(req.query);
-            sp.set('page', p);
-            return `${baseUrl}?${sp.toString()}`;
-          };
-
-          res.render('blog', {
-            Metatags: onPageSeo.blogListingMeta(canonical, { q, cat, page: safePage }),
-            CommonMetaTags: onPageSeo.commonMetaTags,
-            msg: '',
-            category: req.categories,
-            fullUrl: req.fullUrl,
-            canonicalUrl: canonical,
-            prevUrl: safePage > 1 ? mkUrl(safePage - 1) : null,
-            nextUrl: safePage < totalPages ? mkUrl(safePage + 1) : null,
-            result,
-            popularPosts: popularRows || [],
-            active: 'blog',
-            graduation_type_send: '',
-            pagination: {
-              page: safePage,
-              pageSize,
-              total,
-              totalPages,
-              from,
-              to,
-              hasPrev: safePage > 1,
-              hasNext: safePage < totalPages,
-              prevUrl: safePage > 1 ? mkUrl(safePage - 1) : null,
-              nextUrl: safePage < totalPages ? mkUrl(safePage + 1) : null,
-              canonical,
-              baseUrl
-            },
-            filters: { q, cat, order }
-          });
-        });
-      });
-  });
+    res.render('blog', {
+      Metatags: listingMeta,
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      msg: '',
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      canonicalUrl: canonical,
+      prevUrl,
+      nextUrl,
+      blogListingJsonLd,
+      result,
+      popularPosts,
+      active: 'blog',
+      fmAdsense,
+      blogAdPlacements,
+      graduation_type_send: '',
+      pagination: {
+        page: safePage,
+        pageSize,
+        total,
+        totalPages,
+        from,
+        to,
+        hasPrev: safePage > 1,
+        hasNext: safePage < totalPages,
+        prevUrl,
+        nextUrl,
+        canonical,
+        baseUrl: buildBlogListingCanonical({ q: '', cat: '', page: 1, siteOrigin }),
+      },
+      filters: { q, cat, order },
+      blogIsSearch: queryState.isSearch,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 
@@ -4733,53 +4795,94 @@ router.get('/blog', dataService.allCategory, (req, res) => {
 
 
 
-router.get('/blog/:name', dataService.allCategory, (req, res) => {
+/** Public JSON for a published blog post (editorial / AEO fields included). */
+router.get('/api/blog/:slug', async (req, res, next) => {
+  try {
+    const slug = (req.params.slug || '').trim();
+    if (!slug || slug.length > 200) {
+      return res.status(404).json({ error: 'not_found' });
+    }
+    let post = await fetchBlogDetailBySlug(slug);
+    if (!post) {
+      return res.status(404).json({ error: 'not_found' });
+    }
+    if (!post.author_display) {
+      post = { ...post, author_display: await fetchBlogAuthorDisplay(post.author_id) };
+    }
+    const includeContent = req.query.full === '1' || req.query.include === 'content';
+    res.set('Cache-Control', 'public, max-age=60');
+    return res.json({ post: serializeBlogPostPublic(post, { includeContent }) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/blog/:name', blogPublicCacheHeaders, dataService.allCategory, async (req, res, next) => {
+  try {
     const blogSlug = (req.params.name || '').trim();
     if (!blogSlug || blogSlug.length > 200) {
-        return res.status(404).render('error', { message: 'Blog post not found', error: { status: 404, stack: '' } });
+      return res.status(404).render('error', {
+        message: 'Blog post not found',
+        error: { status: 404, stack: '' },
+      });
     }
 
-    const blogQuery = `SELECT * FROM blogs WHERE slug = ? LIMIT 1`;
-    const recentBlogsQuery = `
-        SELECT id, title, meta_title, slug, thumbnail_url, created_at, meta_description
-        FROM blogs ORDER BY created_at DESC LIMIT 25
-    `;
+    const detail = await fetchBlogDetailPage(blogSlug);
+    if (!detail || !detail.post) {
+      return res.status(404).render('error', {
+        message: 'Blog post not found',
+        error: { status: 404, stack: '' },
+      });
+    }
 
-    pool2.query(blogQuery, [blogSlug], (err, blogResult) => {
-        if (err) {
-            console.error('Blog fetch error:', err);
-            return res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
-        }
-        if (!blogResult || blogResult.length === 0) {
-            return res.status(404).render('error', { message: 'Blog post not found', error: { status: 404, stack: '' } });
-        }
-
-        pool2.query(recentBlogsQuery, (err2, recentBlogs) => {
-            if (err2) {
-                console.error('Recent blogs fetch error:', err2);
-                return res.status(500).render('error', { message: 'Something went wrong. Please try again.', error: { status: 500, stack: '' } });
-            }
-
-            const post = blogResult[0];
-            const pageMetatags = onPageSeo.blogDetailMeta(post, req.fullUrl);
-            const pageCommonMeta = {
-                ...onPageSeo.commonMetaTags,
-                ogImage: post.thumbnail_url || onPageSeo.commonMetaTags.ogImage
-            };
-
-            res.render('blog_details', {
-                result: blogResult,
-                recentBlogs: recentBlogs || [],
-                Metatags: pageMetatags,
-                CommonMetaTags: pageCommonMeta,
-                msg: '',
-                category: req.categories,
-                fullUrl: req.fullUrl,
-                active: 'blog',
-                graduation_type_send: ''
-            });
-        });
+    const post = detail.post;
+    const siteOrigin = normalizeSiteOrigin(process.env.SITE_BASE_URL || 'https://www.filemakr.com');
+    const canonicalUrl = resolveBlogDetailCanonical(post, siteOrigin);
+    const pageMetatags = blogDetailMetaTags(post, canonicalUrl, {
+      authorDisplay: post.author_display,
     });
+    pageMetatags.lcpPreloadImage = blogDetailLcpPreloadUrl(post, cloudinaryDisplayUrl);
+    const displayTitle = blogDetailHeading(post);
+    const description = blogDetailDescription(post);
+    const blogDetailJsonLd = JSON.stringify(
+      buildBlogDetailJsonLd(post, {
+        siteOrigin,
+        canonicalUrl,
+        displayTitle,
+        description,
+        authorDisplay: post.author_display,
+      })
+    );
+
+    const fmAdsense = getAdsenseConfig();
+    const blogArticleWordCount = countArticleWords(post.content);
+    const blogAdPlacements = getBlogAdPlacements(blogArticleWordCount);
+    const blogContentHtml = injectBlogContentAdMarkers(post.content, blogArticleWordCount);
+
+    res.render('blog_details', {
+      result: [post],
+      recentBlogs: detail.recentBlogs,
+      relatedPosts: detail.relatedPosts,
+      popularPosts: detail.popularPosts,
+      Metatags: pageMetatags,
+      CommonMetaTags: onPageSeo.commonMetaTags,
+      msg: '',
+      category: req.categories,
+      fullUrl: req.fullUrl,
+      canonicalUrl,
+      blogDetailJsonLd,
+      authorDisplay: post.author_display,
+      active: 'blog',
+      fmAdsense,
+      blogAdPlacements,
+      blogContentHtml,
+      blogArticleWordCount,
+      graduation_type_send: '',
+    });
+  } catch (err) {
+    console.error('Blog fetch error:', err);
+    next(err);
+  }
 });
 
 
@@ -4873,37 +4976,12 @@ router.get('/video/:shortCode', dataService.allCategory, async (req, res) => {
   // 🌍 For all other countries, render the blog page
   const blogSlug = 'mern-stack-in-5-minutes-become-a-full-stack-developer';
 
-  const blogQuery = `SELECT * FROM blogs WHERE slug = ?;`;
-  const recentBlogsQuery = `
-      SELECT id, meta_title, slug, thumbnail_url, created_at 
-      FROM blogs 
-      ORDER BY created_at DESC 
-      LIMIT 10;
-  `;
-
-  pool2.query(blogQuery, [blogSlug], (err, blogResult) => {
-    if (err) {
-      console.error('Blog query error:', err);
-      return res.status(500).send('Server error');
-    }
-
-    pool2.query(recentBlogsQuery, (err2, recentBlogs) => {
-      if (err2) {
-        console.error('Recent blogs query error:', err2);
-        return res.status(500).send('Server error');
-      }
-
-      return res.render('blog_details', {
-        result: blogResult,
-        recentBlogs,
-        Metatags: onPageSeo.contactPage,
-        CommonMetaTags: onPageSeo.commonMetaTags,
-        msg: '',
-        category: req.categories,
-        fullUrl: req.fullUrl,
-      });
-    });
-  });
+  try {
+    return await renderBlogDetailForVideo(req, res, blogSlug, onPageSeo.contactPage);
+  } catch (err) {
+    console.error('Blog query error:', err);
+    return res.status(500).send('Server error');
+  }
 });
 
 
@@ -4959,37 +5037,12 @@ router.get('/blogvideo/:shortCode', dataService.allCategory, async (req, res) =>
   // 🌍 For all other countries, render the blog page
   const blogSlug = 'earn-50000-thousand-per-month-top-remote-internship';
 
-  const blogQuery = `SELECT * FROM blogs WHERE slug = ?;`;
-  const recentBlogsQuery = `
-      SELECT id, meta_title, slug, thumbnail_url, created_at 
-      FROM blogs 
-      ORDER BY created_at DESC 
-      LIMIT 10;
-  `;
-
-  pool2.query(blogQuery, [blogSlug], (err, blogResult) => {
-    if (err) {
-      console.error('Blog query error:', err);
-      return res.status(500).send('Server error');
-    }
-
-    pool2.query(recentBlogsQuery, (err2, recentBlogs) => {
-      if (err2) {
-        console.error('Recent blogs query error:', err2);
-        return res.status(500).send('Server error');
-      }
-
-      return res.render('blog_details', {
-        result: blogResult,
-        recentBlogs,
-        Metatags: onPageSeo.contactPage,
-        CommonMetaTags: onPageSeo.commonMetaTags,
-        msg: '',
-        category: req.categories,
-        fullUrl: req.fullUrl,
-      });
-    });
-  });
+  try {
+    return await renderBlogDetailForVideo(req, res, blogSlug, onPageSeo.contactPage);
+  } catch (err) {
+    console.error('Blog query error:', err);
+    return res.status(500).send('Server error');
+  }
 });
 
 

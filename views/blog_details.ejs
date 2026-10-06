@@ -1,15 +1,7 @@
 <% include Includes/navbar.ejs %>
-<% include Includes/projectReport.ejs %>
 
-<link rel="stylesheet" href="/css/home-directory.css?v=57">
-<link rel="stylesheet" href="/css/blog-page.css?v=18">
-<link rel="stylesheet" href="/css/blog-detail-page.css?v=5">
-
-<script>
-  window.FM_CLOUDINARY_CDN_BASE=<%= JSON.stringify(typeof cloudinaryCdnBase !== 'undefined' ? cloudinaryCdnBase : '') %>;
-  window.FM_CLOUDINARY_CDN=<%= JSON.stringify(typeof cloudinaryCdnHost !== 'undefined' ? cloudinaryCdnHost : '') %>;
-</script>
-<script src="/js/fm-cloudinary.js?v=6"></script>
+<link rel="preload" href="/css/blog-detail-page.css?v=7" as="style">
+<link rel="stylesheet" href="/css/blog-detail-page.css?v=7">
 
 <%
   const post = (Array.isArray(result) && result[0]) ? result[0] : {};
@@ -24,10 +16,24 @@
     return String((item && (item.title || item.meta_title)) || 'Blog post').trim();
   }
   const recentList = Array.isArray(recentBlogs) ? recentBlogs : [];
-  const sidebarPosts = recentList.filter(function (b) { return b.slug !== post.slug; }).slice(0, 25);
-  const relatedPosts = sidebarPosts.slice(0, 3);
+  const sidebarPosts = recentList.filter(function (b) {
+    if (!b || !b.slug || b.slug === post.slug) return false;
+    const t = String(b.title || b.meta_title || '').trim();
+    return t.length > 0;
+  }).slice(0, 25);
+  const relatedFromServer = (typeof relatedPosts !== 'undefined' && Array.isArray(relatedPosts))
+    ? relatedPosts
+    : [];
+  const relatedPostsDisplay = relatedFromServer.length
+    ? relatedFromServer
+    : sidebarPosts.slice(0, 3);
   const pageUrl = typeof fullUrl !== 'undefined' ? fullUrl : '';
-  const canonicalHref = (post.canonical_url && String(post.canonical_url).trim()) ? post.canonical_url : pageUrl;
+  const canonicalHref = (typeof canonicalUrl !== 'undefined' && canonicalUrl)
+    ? canonicalUrl
+    : pageUrl;
+  const authorInfo = (typeof authorDisplay !== 'undefined' && authorDisplay)
+    ? authorDisplay
+    : { type: 'organization', name: 'FileMakr Team' };
 
   function bdFormatDate(value) {
     if (!value) return '—';
@@ -68,44 +74,50 @@
     return '';
   }
 
-  function bdReadMins(html) {
-    const text = String(html || post.meta_description || post.meta_title || '');
+  function bdReadMinsDisplay(article) {
+    if (typeof blogReadingMinutes === 'function') {
+      const m = blogReadingMinutes(
+        article && article.reading_time_minutes,
+        (article && article.content) || (article && article.meta_description) || (article && article.meta_abstract) || ''
+      );
+      if (m && Number(m) > 0) return Number(m);
+    }
+    const text = String((article && article.content) || (article && article.meta_description) || '');
     const words = text.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
-    return Math.max(3, Math.ceil(words / 200));
+    return Math.max(1, Math.ceil(words / 200) || 1);
   }
+  const bdReadMinsValue = bdReadMinsDisplay(post);
 
   const bdCover = String(post.thumbnail_url || '').trim();
   const bdHeroFallback = 'https://res.cloudinary.com/npuap6la/image/upload/v1787657312/Untitled_4.webp';
   const bdHeroRaw = bdCover || bdHeroFallback;
   const bdHeroSrc = bdCdnImage(bdHeroRaw, 720);
-  const bdAuthor = String(post.author_name || post.author || post.created_by_name || 'FileMakr Team').trim();
+  const bdAuthor = String(authorInfo.name || 'FileMakr Team').trim();
+  const popularList = Array.isArray(popularPosts) ? popularPosts : sidebarPosts.slice(0, 8);
   const bdTags = String(post.tags || '')
     .split(',')
     .map(function (t) { return t.trim(); })
     .filter(Boolean)
     .slice(0, 12);
+
+  const bdAnswerSummary = String(post.answer_summary || '').trim();
+  const bdTakeaways = Array.isArray(post.key_takeaways) ? post.key_takeaways : [];
+  const bdEntities = Array.isArray(post.entities_json) ? post.entities_json : [];
+  const bdSources = Array.isArray(post.sources_json) ? post.sources_json : [];
+  const bdReviewedAt = post.reviewed_at ? bdFormatDate(post.reviewed_at) : '';
+  const bdArticleLang = String(post.language_code || 'en-US');
 %>
 
 <div class="bd-page">
 
   <div class="bd-progress" id="bdProgress" aria-hidden="true" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
 
-  <nav class="bd-crumb-wrap" aria-label="Breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+  <nav class="bd-crumb-wrap" aria-label="Breadcrumb">
     <div class="bd-shell">
       <ol class="bd-crumb">
-      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <a href="/" itemprop="item"><span itemprop="name">Home</span></a>
-        <meta itemprop="position" content="1">
-      </li>
-      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <a href="/blog" itemprop="item"><span itemprop="name">Blog</span></a>
-        <meta itemprop="position" content="2">
-      </li>
-      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
-        <span itemprop="name"><%= bdPageTitle %></span>
-        <meta itemprop="item" content="<%= canonicalHref %>">
-        <meta itemprop="position" content="3">
-      </li>
+      <li><a href="/">Home</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li aria-current="page"><span><%= bdPageTitle %></span></li>
       </ol>
     </div>
   </nav>
@@ -118,12 +130,12 @@
         <div class="bl-hero__copy">
           <p class="bl-hero__eyebrow"><%= bdCategoryLabel(post.category) %></p>
 
-          <h1 id="bd-hero-title" class="bl-hero__title" itemprop="headline"><%= bdPageTitle %></h1>
+          <h1 id="bd-hero-title" class="bl-hero__title"><%= bdPageTitle %></h1>
 
           <span class="bl-hero__rule" aria-hidden="true"></span>
 
           <% if (bdPageLead) { %>
-            <p class="bl-hero__lead" itemprop="description"><%= bdPageLead %></p>
+            <p class="bl-hero__lead"><%= bdPageLead %></p>
           <% } %>
 
           <ul class="bl-hero__points" aria-label="Article details">
@@ -153,7 +165,7 @@
               </span>
               <span>
                 <strong>Reading Time</strong>
-                <small id="bdReadTime"><%= post.reading_time_minutes || bdReadMins(post.content) %> min read</small>
+                <small id="bdReadTime"><%= bdReadMinsValue %> min read</small>
               </span>
             </li>
 
@@ -166,9 +178,27 @@
               </span>
               <span>
                 <strong><%= bdAuthor %></strong>
-                <small>Published by FileMakr</small>
+                <small><%= authorInfo.type === 'person' ? 'FileMakr Blog contributor' : 'FileMakr Team' %></small>
               </span>
             </li>
+            <% if (post.updated_at) { %>
+            <li>
+              <span class="bl-hero__point-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M4 20V4h16v16H4z" stroke="currentColor" stroke-width="1.7"/>
+                  <path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>
+                <strong>Updated</strong>
+                <small>
+                  <time datetime="<%= new Date(post.updated_at).toISOString() %>">
+                    <%= bdFormatDate(post.updated_at) %>
+                  </time>
+                </small>
+              </span>
+            </li>
+            <% } %>
           </ul>
         </div>
 
@@ -183,7 +213,6 @@
             loading="eager"
             fetchpriority="high"
             decoding="async"
-            itemprop="image"
           >
         </div>
 
@@ -195,10 +224,89 @@
     <div class="bd-shell bd-layout">
 
       <div class="bd-main">
-        <article class="bd-article" id="bdArticle" itemscope itemtype="https://schema.org/Article">
-          <div class="bd-content entry-content" itemprop="articleBody">
-            <%- post.content %>
+        <article class="bd-article" id="bdArticle" lang="<%= bdArticleLang %>">
+          <% if (bdAnswerSummary) { %>
+            <section class="bd-direct-answer" aria-labelledby="bd-direct-answer-title">
+              <h2 id="bd-direct-answer-title" class="bd-direct-answer__title">Quick answer</h2>
+              <p class="bd-direct-answer__text"><%= bdAnswerSummary %></p>
+            </section>
+          <% } %>
+
+          <% if (bdTakeaways.length) { %>
+            <section class="bd-takeaways" aria-labelledby="bd-takeaways-title">
+              <h2 id="bd-takeaways-title" class="bd-takeaways__title">Key takeaways</h2>
+              <ul class="bd-takeaways__list">
+                <% bdTakeaways.forEach(function (line) { %>
+                  <li><%= String(line).trim() %></li>
+                <% }) %>
+              </ul>
+            </section>
+          <% } %>
+
+          <% var adPosition = 'after_intro'; %>
+          <%- include('partials/blog-ad-slot') %>
+
+          <div class="bd-content entry-content">
+            <%- (typeof blogContentHtml !== 'undefined' && blogContentHtml) ? blogContentHtml : post.content %>
           </div>
+
+          <% if (bdEntities.length) { %>
+            <section class="bd-entities" aria-labelledby="bd-entities-title">
+              <h2 id="bd-entities-title" class="bd-entities__title">Topics mentioned</h2>
+              <ul class="bd-entities__list">
+                <% bdEntities.forEach(function (ent) {
+                  const ename = String((ent && ent.name) || '').trim();
+                  if (!ename) return;
+                  const esame = ent && ent.sameAs ? String(ent.sameAs).trim() : '';
+                  const esameOk = esame && /^https?:\/\//i.test(esame) && !/example\.(com|org|net)/i.test(esame);
+                %>
+                  <li>
+                    <% if (esameOk) { %>
+                      <a href="<%= esame %>" rel="noopener noreferrer" target="_blank"><%= ename %></a>
+                    <% } else { %>
+                      <%= ename %>
+                    <% } %>
+                    <% if (ent && ent.type) { %>
+                      <span class="bd-entities__type"><%= ent.type %></span>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            </section>
+          <% } %>
+
+          <% if (bdSources.length) { %>
+            <section class="bd-sources" aria-labelledby="bd-sources-title">
+              <h2 id="bd-sources-title" class="bd-sources__title">Sources &amp; references</h2>
+              <ol class="bd-sources__list">
+                <% bdSources.forEach(function (src) {
+                  const st = String((src && src.title) || '').trim();
+                  const su = String((src && src.url) || '').trim();
+                  if (!st || !su) return;
+                %>
+                  <li>
+                    <a href="<%= su %>" rel="noopener noreferrer" target="_blank"><%= st %></a>
+                    <% if (src.publisher) { %>
+                      <span class="bd-sources__pub"> — <%= src.publisher %></span>
+                    <% } %>
+                    <% if (src.accessed_at) { %>
+                      <span class="bd-sources__accessed"> (accessed <%= bdFormatDate(src.accessed_at) %>)</span>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ol>
+            </section>
+          <% } %>
+
+          <section class="bd-author-box" aria-labelledby="bd-author-box-title">
+            <h2 id="bd-author-box-title" class="bd-author-box__title">About the author</h2>
+            <p class="bd-author-box__name"><%= bdAuthor %></p>
+            <% if (authorInfo.type === 'person') { %>
+              <p class="bd-author-box__bio">Contributor on the FileMakr Blog.</p>
+            <% } else { %>
+              <p class="bd-author-box__bio">Prepared by the FileMakr Team for students exploring final-year projects, reports, and source code.</p>
+            <% } %>
+          </section>
 
           <div class="bd-article__footer">
             <div class="bd-share">
@@ -231,7 +339,13 @@
             <% if (post.updated_at) { %>
               <p class="bd-updated">Last updated: <%= bdFormatDate(post.updated_at) %></p>
             <% } %>
+            <% if (bdReviewedAt) { %>
+              <p class="bd-reviewed">Editorially reviewed: <%= bdReviewedAt %></p>
+            <% } %>
           </div>
+
+          <% adPosition = 'end_content'; %>
+          <%- include('partials/blog-ad-slot') %>
 
           <section class="bd-cta" aria-label="Related resources">
             <div class="bd-cta__grid">
@@ -251,11 +365,11 @@
             </div>
           </section>
 
-          <% if (relatedPosts.length) { %>
+          <% if (relatedPostsDisplay.length) { %>
             <section class="bd-related" aria-labelledby="bd-related-title">
               <h2 id="bd-related-title" class="bd-related__title">Related Articles</h2>
               <div class="bd-related__grid">
-                <% relatedPosts.forEach(function (item) {
+                <% relatedPostsDisplay.forEach(function (item) {
                   const href = '/blog/' + encodeURIComponent(item.slug || '');
                   const cover = String(item.thumbnail_url || '').trim();
                 %>
@@ -288,10 +402,10 @@
 
       <aside class="bd-sidebar" aria-label="Blog sidebar">
         <section class="bd-side-card">
-          <h2 class="bd-side-card__title">Popular Posts</h2>
+          <h2 class="bd-side-card__title">Popular posts</h2>
           <div class="bd-popular">
-            <% if (sidebarPosts.length) { %>
-              <% sidebarPosts.forEach(function (item) {
+            <% if (popularList.length) { %>
+              <% popularList.forEach(function (item) {
                 const href = '/blog/' + encodeURIComponent(item.slug || '');
                 const cover = String(item.thumbnail_url || '').trim();
                 const title = bdItemTitle(item);
@@ -347,6 +461,19 @@
   var readEl = document.getElementById('bdReadTime');
 
   if (content) {
+    var imgs = content.querySelectorAll('img');
+    imgs.forEach(function (img, idx) {
+      if (!img.getAttribute('width')) img.setAttribute('width', '720');
+      if (!img.getAttribute('height')) img.setAttribute('height', '405');
+      if (!img.getAttribute('loading')) {
+        img.setAttribute('loading', idx === 0 ? 'eager' : 'lazy');
+      }
+      if (!img.getAttribute('decoding')) img.setAttribute('decoding', 'async');
+      if (!img.getAttribute('alt') || !String(img.getAttribute('alt')).trim()) {
+        img.setAttribute('alt', pageTitle ? (pageTitle + ' illustration') : 'Article image');
+      }
+    });
+
     content.querySelectorAll('table').forEach(function (tbl) {
       if (tbl.closest('.table-responsive')) return;
       var wrap = document.createElement('div');
@@ -354,14 +481,6 @@
       tbl.parentNode.insertBefore(wrap, tbl);
       wrap.appendChild(tbl);
     });
-
-    <% if (!post.reading_time_minutes) { %>
-    if (readEl) {
-      var words = (content.innerText || '').trim().split(/\s+/).filter(Boolean).length;
-      var mins = Math.max(1, Math.ceil(words / 200));
-      readEl.textContent = mins + ' min read';
-    }
-    <% } %>
 
     var pageTitle = (document.getElementById('bd-hero-title') || {}).textContent || '';
     var firstHeading = content.querySelector('h1, h2, h3');
@@ -425,62 +544,6 @@
 })();
 </script>
 
-<% if (post.schema_markup && String(post.schema_markup).trim()) { %>
-<script type="application/ld+json">
-<%- post.schema_markup %>
-</script>
-<% } else { %>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": <%- JSON.stringify(bdPageTitle) %>,
-  "description": <%- JSON.stringify(bdPageLead) %>,
-  "image": <%- JSON.stringify(bdCover || '') %>,
-  "author": { "@type": "Organization", "name": "FileMakr" },
-  "publisher": {
-    "@type": "Organization",
-    "name": "FileMakr",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://res.cloudinary.com/dggf8vl9p/image/upload/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif"
-    }
-  },
-  "datePublished": <%- JSON.stringify(new Date(post.created_at || Date.now()).toISOString()) %>,
-  <% if (post.updated_at) { %>
-  "dateModified": <%- JSON.stringify(new Date(post.updated_at).toISOString()) %>,
-  <% } %>
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": <%- JSON.stringify(pageUrl) %>
-  }
-}
-</script>
+<% if (typeof blogDetailJsonLd !== 'undefined' && blogDetailJsonLd) { %>
+<script type="application/ld+json"><%- blogDetailJsonLd %></script>
 <% } %>
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "<%= pageUrl ? pageUrl.split('/blog')[0].replace(/\/$/, '') || 'https://www.filemakr.com' : 'https://www.filemakr.com' %>"
-    },
-    {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "Blog",
-      "item": "<%= pageUrl ? pageUrl.split('/blog')[0].replace(/\/$/, '') + '/blog' : 'https://www.filemakr.com/blog' %>"
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "name": <%- JSON.stringify(bdPageTitle) %>,
-      "item": <%- JSON.stringify(canonicalHref) %>
-    }
-  ]
-}
-</script>

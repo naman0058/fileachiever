@@ -44,6 +44,7 @@ router.use('/user-project', require('./user_project'));
 // ========== SEO / Static ==========
 router.use('/.htaccess', require('./htaccess'));
 router.use('/robots.txt', require('./robot'));
+router.use('/', require('./blogCrawl'));
 router.use('/sitemap.xml', require('./sitemap'));
 router.use('/ads.txt', require('./ads'));
 

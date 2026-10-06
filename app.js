@@ -150,6 +150,21 @@ app.get('/llms.txt', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'llms.txt'));
 });
 
+// IndexNow key verification (public .txt on same host)
+try {
+  const indexNowService = require('./services/indexNowService');
+  if (indexNowService.isConfigured()) {
+    const indexNowKey = indexNowService.getKey();
+    app.get(`/${indexNowKey}.txt`, (req, res) => {
+      res.type('text/plain; charset=utf-8');
+      res.set('Cache-Control', 'public, max-age=86400');
+      res.send(indexNowKey);
+    });
+  }
+} catch (indexNowMountErr) {
+  console.warn('[IndexNow] key route not mounted:', indexNowMountErr.message);
+}
+
 // Skip static only for /shopkeeper root: public/shopkeeper/ exists (theme assets) and would 301 to /shopkeeper/.
 const publicDir = path.join(__dirname, 'public');
 const staticOpts = {
@@ -182,6 +197,8 @@ app.locals.imageAltLabel = imageAltLabel;
 app.locals.projectReportUrl = projectReportUrl;
 app.locals.blogPostHeading = onPageSeo.blogPostHeading;
 app.locals.blogPostExcerpt = onPageSeo.blogPostExcerpt;
+const { normalizeReadingMinutes } = require('./utils/blogPublic');
+app.locals.blogReadingMinutes = normalizeReadingMinutes;
 
 // ======================================================
 // SESSION

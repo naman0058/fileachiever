@@ -1,0 +1,70 @@
+.fm-blog-ad-slot {
+  width: 100%;
+  max-width: 100%;
+  margin: 28px 0;
+  text-align: center;
+  clear: both;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.fm-blog-ad-label {
+  display: block;
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 8px;
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+.fm-blog-ad-slot__reserve {
+  width: 100%;
+  min-height: 90px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.fm-blog-ad-slot--after_intro .fm-blog-ad-slot__reserve,
+.fm-blog-ad-slot--end_content .fm-blog-ad-slot__reserve {
+  min-height: 100px;
+}
+
+.fm-blog-ad-slot--mid_content_1 .fm-blog-ad-slot__reserve,
+.fm-blog-ad-slot--mid_content_2 .fm-blog-ad-slot__reserve {
+  min-height: 90px;
+}
+
+.fm-blog-ad-slot--listing_1 .fm-blog-ad-slot__reserve,
+.fm-blog-ad-slot--listing_2 .fm-blog-ad-slot__reserve {
+  min-height: 80px;
+  margin: 24px 0 32px;
+}
+
+@media (min-width: 768px) {
+  .fm-blog-ad-slot__reserve {
+    min-height: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fm-blog-ad-slot__reserve {
+    min-height: 110px;
+  }
+}
+
+.fm-blog-ad-mount:empty {
+  display: none;
+}
+
+.bd-content .fm-blog-ad-mount + h2,
+.bd-content .fm-blog-ad-mount + h3 {
+  margin-top: 1.5rem;
+}

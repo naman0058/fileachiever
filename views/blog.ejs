@@ -1,14 +1,4 @@
 <% include Includes/navbar.ejs %>
-<% include Includes/projectReport.ejs %>
-
-<link rel="stylesheet" href="/css/home-directory.css?v=57">
-<link rel="stylesheet" href="/css/blog-page.css?v=18">
-
-<script>
-  window.FM_CLOUDINARY_CDN_BASE=<%= JSON.stringify(typeof cloudinaryCdnBase !== 'undefined' ? cloudinaryCdnBase : '') %>;
-  window.FM_CLOUDINARY_CDN=<%= JSON.stringify(typeof cloudinaryCdnHost !== 'undefined' ? cloudinaryCdnHost : '') %>;
-</script>
-<script src="/js/fm-cloudinary.js?v=6"></script>
 
 <style>
   body { background: #fff !important; }
@@ -51,11 +41,18 @@
   }
 
   function blReadMins(blog) {
+    if (typeof blogReadingMinutes === 'function') {
+      const m = blogReadingMinutes(
+        blog && blog.reading_time_minutes,
+        (blog && blog.meta_abstract) || (blog && blog.meta_description) || (blog && blog.title) || ''
+      );
+      if (m) return m;
+    }
     const text = String(
-      (blog && (blog.content || blog.meta_description || blog.meta_title || blog.title)) || ''
+      (blog && (blog.meta_abstract || blog.meta_description || blog.meta_title || blog.title)) || ''
     );
     const words = text.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
-    return Math.max(3, Math.ceil(words / 200));
+    return Math.max(1, Math.ceil(words / 200) || 3);
   }
 
   function blThumb(blog) {
@@ -126,7 +123,16 @@
   const popularList = Array.isArray(popularPosts) ? popularPosts : blogs.slice(0, 25);
 %>
 
-<div class="bl-page">
+<main id="main-content" class="bl-page">
+
+  <nav class="bl-crumb-wrap" aria-label="Breadcrumb">
+    <div class="bl-shell">
+      <ol class="bl-crumb">
+        <li><a href="/">Home</a></li>
+        <li aria-current="page">Blog</li>
+      </ol>
+    </div>
+  </nav>
 
   <!-- Hero — same layout as 404 (copy left, illustration right) -->
   <section class="bl-hero" aria-labelledby="bl-hero-title">
@@ -217,12 +223,34 @@
   <div class="bl-page__body">
     <div class="bl-shell">
 
+      <section class="bl-toolbar" aria-label="Find blog articles">
+        <form class="bl-toolbar__form" action="/blog" method="get" role="search">
+          <label class="bl-toolbar__label" for="bl-search-q">Search blog articles</label>
+          <div class="bl-toolbar__row">
+            <input
+              id="bl-search-q"
+              class="bl-toolbar__input"
+              type="search"
+              name="q"
+              value="<%= flt.q ? flt.q.replace(/"/g, '&quot;') : '' %>"
+              placeholder="Search guides and tutorials…"
+              maxlength="100"
+              autocomplete="off"
+            />
+            <button class="bl-toolbar__btn" type="submit">Search</button>
+          </div>
+          <% if (typeof blogIsSearch !== 'undefined' && blogIsSearch && flt.q) { %>
+            <p class="bl-toolbar__hint">Showing results for “<%= flt.q %>”. <a href="/blog">View all posts</a></p>
+          <% } %>
+        </form>
+      </section>
+
       <div class="bl-layout">
 
-        <!-- LEFT: POSTS -->
-        <main id="bl-posts" class="bl-posts" aria-label="Blog posts">
+        <section id="bl-posts" class="bl-posts" aria-label="Blog posts">
           <% if (blogs.length) { %>
             <% blogs.forEach(function (blog, index) {
+              if (!blog || !blog.slug) return;
               const href = '/blog/' + encodeURIComponent(blog.slug || '');
               const cover = blThumb(blog);
               const title = blTitle(blog);
@@ -274,6 +302,12 @@
                   </div>
                 </div>
               </article>
+              <% if (index === 3) { adPosition = 'listing_1'; %>
+                <%- include('partials/blog-ad-slot') %>
+              <% } %>
+              <% if (index === 11) { adPosition = 'listing_2'; %>
+                <%- include('partials/blog-ad-slot') %>
+              <% } %>
             <% }) %>
           <% } else { %>
             <div class="bl-empty">
@@ -348,9 +382,8 @@
               </a>
             </nav>
           <% } %>
-        </main>
+        </section>
 
-        <!-- RIGHT: SIDEBAR -->
         <aside class="bl-sidebar" aria-label="Blog sidebar">
 
           <section class="bl-side-card">
@@ -358,6 +391,7 @@
             <div class="bl-popular">
               <% if (popularList.length) { %>
                 <% popularList.forEach(function (post) {
+                  if (!post || !post.slug) return;
                   const href = '/blog/' + encodeURIComponent(post.slug || '');
                   const cover = blThumb(post);
                   const title = blTitle(post);
@@ -393,40 +427,10 @@
       </div>
     </div>
   </div>
-</div>
+</main>
 
 <% include Includes/footer.ejs %>
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Blog",
-  "name": "FileMakr Blog",
-  "url": "https://www.filemakr.com/blog",
-  "description": "Ideas, guides, and documentation tips for final-year projects with runnable source code.",
-  "blogPost": [
-    <% blogs.forEach(function (b, idx) {
-      const headline = blTitle(b).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      const desc = blDesc(b).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      const img = blCdnImage(blThumb(b), 640).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    %>
-    {
-      "@type": "BlogPosting",
-      "headline": "<%- headline %>",
-      "url": "https://www.filemakr.com/blog/<%- b.slug %>",
-      "image": "<%- img %>",
-      "datePublished": "<%- b.created_at ? new Date(b.created_at).toISOString() : '' %>",
-      "description": "<%- desc %>"
-    }<%= idx < blogs.length - 1 ? ',' : '' %>
-    <% }) %>
-  ],
-  "publisher": {
-    "@type": "Organization",
-    "name": "FileMakr",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://www.filemakr.com/cloudinary/dggf8vl9p/image/upload/f_auto,q_auto:best,w_300,c_limit/v1718627756/filemakr-project-file-creator-favicon_1_dqogst.avif"
-    }
-  }
-}
-</script>
+<% if (typeof blogListingJsonLd !== 'undefined' && blogListingJsonLd) { %>
+<script type="application/ld+json"><%- blogListingJsonLd %></script>
+<% } %>

@@ -11,6 +11,7 @@ FileMakr helps students find academically structured documentation, plagiarism-r
 - [Source Code Catalog](https://www.filemakr.com/source-code): Browse projects by technology
 - [Live Demos](https://www.filemakr.com/demo): Preview runnable project demos
 - [Blog](https://www.filemakr.com/blog): Guides for reports, viva prep, and project selection
+- [Blog RSS](https://www.filemakr.com/blog/feed.xml): Latest published blog articles (optional syndication)
 
 ## Product
 
@@ -25,7 +26,8 @@ FileMakr helps students find academically structured documentation, plagiarism-r
 - [Terms and Conditions](https://www.filemakr.com/terms-and-conditions): Usage terms
 - [Privacy Policy](https://www.filemakr.com/privacy-policy): Data and privacy practices
 - [Refund Policy](https://www.filemakr.com/refund-policy): Refund and delivery policy
-- [Sitemap](https://www.filemakr.com/sitemap.xml): Full site index for crawlers
+- [Sitemap](https://www.filemakr.com/sitemap.xml): Site catalog (non-blog sections)
+- [Blog sitemap](https://www.filemakr.com/blog-sitemap.xml): Published blog post URLs
 - [News Sitemap](https://www.filemakr.com/sitemap-news.xml): Recently updated pages
 
 ## Contact
