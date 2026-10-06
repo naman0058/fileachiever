@@ -23,13 +23,25 @@
   width: 100%;
   min-height: 90px;
   margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   box-sizing: border-box;
+}
+
+.fm-blog-ad-slot__reserve ins.adsbygoogle {
+  display: block;
+  width: 100%;
+  min-width: 280px;
+  max-width: 100%;
+  min-height: 90px;
+  box-sizing: border-box;
+}
+
+.bd-main .fm-blog-ad-slot {
+  width: 100%;
+  max-width: 100%;
 }
 
 .fm-blog-ad-slot--after_intro .fm-blog-ad-slot__reserve,
