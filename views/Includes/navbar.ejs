@@ -105,11 +105,13 @@
 <% if (typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.verifySnippet) { %>
 <%- include('partials/adsense-verify-head') %>
 <% } %>
-<% if (typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.showAdUnits) { %>
+<% if (typeof fmAdsense !== 'undefined' && fmAdsense && (fmAdsense.showAdUnits || fmAdsense.debugMode)) { %>
 <link rel="stylesheet" href="/css/blog-adsense.css?v=1">
+<% if (fmAdsense.showAdUnits) { %>
 <script>
 window.__fmAdsenseConfig=<%- JSON.stringify({ enabled: fmAdsense.showAdUnits, clientId: fmAdsense.clientId, slots: fmAdsense.slots }) %>;
 </script>
+<% } %>
 <% } %>
 <% } %>
 <% if (fmHomeLite && typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.verifyHomepage) { %>

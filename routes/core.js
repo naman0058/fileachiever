@@ -58,6 +58,7 @@ const {
   countArticleWords,
   getBlogAdPlacements,
   injectBlogContentAdMarkers,
+  explainMidContentPlacements,
 } = require('../utils/blogArticleAds');
 
 async function renderBlogDetailForVideo(req, res, blogSlug, metatagsOverride) {
@@ -4858,6 +4859,22 @@ router.get('/blog/:name', blogPublicCacheHeaders, dataService.allCategory, async
     const blogArticleWordCount = countArticleWords(post.content);
     const blogAdPlacements = getBlogAdPlacements(blogArticleWordCount);
     const blogContentHtml = injectBlogContentAdMarkers(post.content, blogArticleWordCount);
+    const blogAdDebug = fmAdsense.debugMode
+      ? {
+          wordCount: blogArticleWordCount,
+          eligible: blogAdPlacements,
+          midExplain: explainMidContentPlacements(post.content, blogArticleWordCount),
+        }
+      : null;
+    if (blogAdDebug) {
+      console.info('[ADSENSE_DEBUG]', {
+        slug: post.slug,
+        wordCount: blogAdDebug.wordCount,
+        eligible: blogAdDebug.eligible,
+        mid: blogAdDebug.midExplain,
+        showAdUnits: fmAdsense.showAdUnits,
+      });
+    }
 
     res.render('blog_details', {
       result: [post],
@@ -4877,6 +4894,7 @@ router.get('/blog/:name', blogPublicCacheHeaders, dataService.allCategory, async
       blogAdPlacements,
       blogContentHtml,
       blogArticleWordCount,
+      blogAdDebug,
       graduation_type_send: '',
     });
   } catch (err) {

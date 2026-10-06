@@ -68,3 +68,40 @@
 .bd-content .fm-blog-ad-mount + h3 {
   margin-top: 1.5rem;
 }
+
+.fm-blog-ad-debug {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 2px dashed #f59e0b;
+  background: #fffbeb;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  text-align: left;
+  color: #92400e;
+}
+
+.fm-blog-ad-debug span {
+  display: block;
+  margin-top: 4px;
+}
+
+.fm-blog-ad-debug-panel {
+  margin: 32px 0;
+  padding: 16px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  font-size: 13px;
+}
+
+.fm-blog-ad-debug-panel__title {
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+
+.fm-blog-ad-debug-panel pre {
+  overflow: auto;
+  font-size: 11px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 4px;
+}

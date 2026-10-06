@@ -32,8 +32,13 @@ Served at `/ads.txt` from `routes/ads.js` using the configured publisher ID.
 
 If AdSense is also tagged in GTM, disable duplicate in-content units on blog URLs in GTM or AdSense Auto Ads to avoid overcrowding.
 
+## Debug (local only)
+
+Set `ADSENSE_DEBUG=1` with `NODE_ENV` not equal to `production`. Blog detail pages show placement labels, word count, eligible/skipped mid-content analysis. Never enable in production.
+
 ## Test
 
 ```bash
 node scripts/test-blog-adsense.js
+node -r dotenv/config scripts/verify-blog-adsense-activation.js
 ```

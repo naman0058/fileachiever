@@ -2,10 +2,27 @@
   var _ads = (typeof fmAdsense !== 'undefined' && fmAdsense) ? fmAdsense : null;
   var _pos = typeof adPosition !== 'undefined' ? adPosition : '';
   var _slot = _ads && _ads.slots && _pos ? _ads.slots[_pos] : null;
-  var _show = _ads && _ads.showAdUnits && _slot;
   var _placements = (typeof blogAdPlacements !== 'undefined' && blogAdPlacements) ? blogAdPlacements : null;
-  if (_placements && _pos && _placements[_pos] === false) _show = false;
+  var _placementOk = !_placements || !_pos || _placements[_pos] !== false;
+  var _show = _ads && _ads.showAdUnits && _slot && _placementOk;
+  var _debug = _ads && _ads.debugMode;
+  var _debugLabels = {
+    after_intro: 'MANUAL AD — AFTER INTRO',
+    mid_content_1: 'MANUAL AD — MID 1 (~40%)',
+    mid_content_2: 'MANUAL AD — MID 2 (~70%)',
+    end_content: 'MANUAL AD — END',
+    listing_1: 'MANUAL AD — LISTING 1',
+    listing_2: 'MANUAL AD — LISTING 2'
+  };
 %>
+<% if (_debug && _pos) { %>
+<div class="fm-blog-ad-debug" role="status">
+  <strong><%= _debugLabels[_pos] || ('MANUAL AD — ' + _pos) %></strong>
+  <% if (_slot) { %><span>Slot: <%= _slot %></span><% } else { %><span>Slot: (not configured)</span><% } %>
+  <% if (!_placementOk) { %><span>Skipped: word-count / placement gate</span><% } %>
+  <% if (!_show && _slot && _placementOk) { %><span>showAdUnits off — set ADSENSE_ENABLED + slots in .env</span><% } %>
+</div>
+<% } %>
 <% if (_show) { %>
 <aside class="fm-blog-ad-slot fm-blog-ad-slot--<%= _pos %>" data-fm-ad-slot="<%= _pos %>" aria-label="Advertisement">
   <span class="fm-blog-ad-label">Advertisement</span>

@@ -468,7 +468,7 @@
 								</div>
 								<% if (fmShellLiteFooter) { %>
 								<script src="/js/home-lite.js?v=4" defer></script>
-								<% if (fmBlogLiteFooter && typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.showAdUnits) { %>
+								<% if (fmBlogLiteFooter && typeof fmAdsense !== 'undefined' && fmAdsense && (fmAdsense.showAdUnits || fmAdsense.debugMode)) { %>
 								<script src="/js/blog-adsense.js?v=1" defer></script>
 								<% } %>
 								<% } else { %>

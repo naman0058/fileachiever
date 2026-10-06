@@ -1,0 +1,13 @@
+<% if (typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.debugMode && typeof blogAdDebug !== 'undefined' && blogAdDebug) { %>
+<section class="fm-blog-ad-debug-panel" aria-label="Ad placement debug (development only)">
+  <h2 class="fm-blog-ad-debug-panel__title">AdSense debug (local only)</h2>
+  <p>Article words: <strong><%= blogAdDebug.wordCount %></strong></p>
+  <p>showAdUnits: <strong><%= fmAdsense.showAdUnits ? 'true' : 'false' %></strong></p>
+  <h3>Eligible placements</h3>
+  <pre><%= JSON.stringify(blogAdDebug.eligible, null, 2) %></pre>
+  <h3>Mid-content analysis</h3>
+  <pre><%= JSON.stringify(blogAdDebug.midExplain, null, 2) %></pre>
+  <h3>Configured slots</h3>
+  <pre><%= JSON.stringify(fmAdsense.slots, null, 2) %></pre>
+</section>
+<% } %>
