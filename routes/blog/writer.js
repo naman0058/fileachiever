@@ -244,8 +244,11 @@ router.post('/save', requireWriter, async (req, res) => {
     if (schema_markup && String(schema_markup).trim()) {
       try {
         const parsed = JSON.parse(schema_markup.trim());
-        if (!parsed['@context'] || !parsed['@type']) {
-          return res.json({ success: false, msg: 'Schema markup must include @context and @type for valid JSON-LD.' });
+        if (!parsed['@context'] || (!parsed['@type'] && !Array.isArray(parsed['@graph']))) {
+          return res.json({
+            success: false,
+            msg: 'Schema markup must include @context and @type or @graph for valid JSON-LD.',
+          });
         }
         validSchema = JSON.stringify(parsed);
       } catch (parseErr) {

@@ -19,6 +19,7 @@ const {
 } = require('../utils/blogContentModel');
 const { normalizeSiteOrigin } = require('../utils/canonicalHost');
 const { resolveDetailSelect } = require('../services/blogReadService');
+const { buildSupplementalSchemaMarkup } = require('../utils/blogSupplementalSchema');
 
 const queryAsync = util.promisify(pool2.query).bind(pool2);
 
@@ -159,6 +160,21 @@ async function main() {
   const readingTime = readingMinutes(content);
   const author = await pickAuthorId();
 
+  const schemaMarkup = buildSupplementalSchemaMarkup(
+    {
+      title: TITLE,
+      meta_title: META_TITLE,
+      meta_description: META_DESCRIPTION,
+      meta_abstract: META_ABSTRACT,
+      content,
+      language_code: cf.language_code,
+      target_country: cf.target_country,
+      key_takeaways: cf.key_takeaways,
+      canonical_url: CANONICAL,
+    },
+    { canonicalUrl: CANONICAL }
+  );
+
   const dup = await findDuplicate();
   const ktDb = serializeJsonColumn(cf.key_takeaways);
   const entDb = serializeJsonColumn(cf.entities_json);
@@ -190,7 +206,7 @@ async function main() {
         META_KEYWORDS,
         TAGS,
         META_ABSTRACT,
-        null,
+        schemaMarkup,
         STATUS,
         readingTime,
         internalLinks,
@@ -228,7 +244,7 @@ async function main() {
         META_KEYWORDS,
         TAGS,
         META_ABSTRACT,
-        null,
+        schemaMarkup,
         null,
         STATUS,
         author.id,

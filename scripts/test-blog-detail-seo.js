@@ -70,12 +70,30 @@ assert.ok(posting.wordCount > 10);
 assert.ok(posting.about);
 assert.ok(posting.mentions);
 assert.strictEqual(posting.author['@type'], 'Person');
+assert.ok(posting.author.url);
 assert.ok(!JSON.stringify(ld).includes('FAQPage'));
 
 const merged = mergeCustomSchemaMarkup(ld, JSON.stringify({ '@type': 'HowTo', name: 'Extra' }));
 assert.ok(merged['@graph'].some((n) => n['@type'] === 'HowTo'));
 
 JSON.parse(JSON.stringify(ld));
+
+const faqPost = {
+  ...post,
+  slug: 'faq-sample',
+  content:
+    '<p>intro</p><h2>FAQ</h2><h3>First question?</h3><p>First answer.</p><h3>Second?</h3><p>Second answer.</p><h2>End</h2><p>done</p>',
+  schema_markup: null,
+  target_country: 'US',
+};
+const faqLd = buildBlogDetailJsonLd(faqPost, {
+  siteOrigin: origin,
+  canonicalUrl: `${origin}/blog/faq-sample`,
+});
+const faqNode = faqLd['@graph'].find((n) => n['@type'] === 'FAQPage');
+assert.ok(faqNode);
+assert.strictEqual(faqNode.mainEntity.length, 2);
+assert.ok(faqLd['@graph'].find((n) => n['@type'] === 'BlogPosting').audience);
 
 const badEntityPost = {
   ...post,
@@ -93,6 +111,7 @@ assert.ok(postingBad.about);
 const aboutStr = JSON.stringify(postingBad.about);
 assert.ok(!aboutStr.includes('example.com'));
 assert.ok(aboutStr.includes('nodejs.org') || aboutStr.includes('Node.js'));
+assert.ok(!aboutStr.includes('SoftwareApplication'), 'software entities must not use SoftwareApplication in JSON-LD');
 
 JSON.parse(JSON.stringify(ldBad));
 

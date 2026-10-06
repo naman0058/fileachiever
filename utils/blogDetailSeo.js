@@ -8,6 +8,8 @@ function stripHtmlMeta(text) {
 }
 const { isPlaceholderBlogText, stripBlogText } = require('./blogPublic');
 const { isProductionSafeHttpUrl } = require('./blogContentModel');
+const { extractFaqMainEntityFromHtml, buildFaqPageNode } = require('./blogFaqSchema');
+const { countryAudienceNode } = require('./blogSupplementalSchema');
 
 const ROBOTS_INDEX_ARTICLE =
   'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1';
@@ -100,11 +102,26 @@ function countWords(html) {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
+/** Types that trigger app/product rich-result validators without full fields. */
+const ENTITY_JSONLD_RISKY_TYPES = new Set(['SoftwareApplication', 'Product', 'MobileApplication']);
+
+function schemaEntityJsonLdType(storedType) {
+  const t = String(storedType || 'Thing').trim();
+  if (ENTITY_JSONLD_RISKY_TYPES.has(t)) return 'Thing';
+  return t || 'Thing';
+}
+
 function schemaAuthorNode(authorDisplay, origin) {
   if (authorDisplay && authorDisplay.type === 'person' && authorDisplay.name) {
     return {
       '@type': 'Person',
       name: authorDisplay.name,
+      url: `${origin}/blog`,
+      affiliation: {
+        '@type': 'Organization',
+        name: 'FileMakr',
+        url: `${origin}/`,
+      },
     };
   }
   return {
@@ -116,19 +133,24 @@ function schemaAuthorNode(authorDisplay, origin) {
 
 function entitySchemaNodes(entities) {
   if (!Array.isArray(entities) || !entities.length) return { about: null, mentions: null };
-  const nodes = entities
-    .filter((e) => e && e.name)
-    .map((e) => {
-      const node = {
-        '@type': e.type || 'Thing',
-        name: String(e.name).trim(),
-      };
-      const sameAsRaw = e.sameAs && String(e.sameAs).trim();
-      if (sameAsRaw && isProductionSafeHttpUrl(sameAsRaw)) {
-        node.sameAs = sameAsRaw;
-      }
-      return node;
-    });
+  const seen = new Set();
+  const nodes = [];
+  for (const e of entities) {
+    if (!e || !e.name) continue;
+    const name = String(e.name).trim();
+    const sameAsRaw = e.sameAs && String(e.sameAs).trim();
+    const sameAs =
+      sameAsRaw && isProductionSafeHttpUrl(sameAsRaw) ? sameAsRaw : '';
+    const dedupeKey = `${name.toLowerCase()}|${sameAs}`;
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    const node = {
+      '@type': schemaEntityJsonLdType(e.type),
+      name,
+    };
+    if (sameAs) node.sameAs = sameAs;
+    nodes.push(node);
+  }
   if (!nodes.length) return { about: null, mentions: null };
   return {
     about: nodes.length <= 5 ? nodes : nodes.slice(0, 5),
@@ -240,6 +262,9 @@ function buildBlogDetailJsonLd(post, options = {}) {
   if (about) blogPosting.about = about.length === 1 ? about[0] : about;
   if (mentions && mentions.length) blogPosting.mentions = mentions;
 
+  const audience = countryAudienceNode(post.target_country);
+  if (audience) blogPosting.audience = audience;
+
   const breadcrumbs = {
     '@type': 'BreadcrumbList',
     itemListElement: [
@@ -264,9 +289,15 @@ function buildBlogDetailJsonLd(post, options = {}) {
     ],
   };
 
+  const graphNodes = [blogPosting, breadcrumbs];
+
+  const faqMainEntity = extractFaqMainEntityFromHtml(post.content);
+  const faqNode = buildFaqPageNode(canonical, faqMainEntity);
+  if (faqNode) graphNodes.push(faqNode);
+
   let graph = {
     '@context': 'https://schema.org',
-    '@graph': [blogPosting, breadcrumbs],
+    '@graph': graphNodes,
   };
 
   graph = mergeCustomSchemaMarkup(graph, post.schema_markup);
@@ -317,4 +348,5 @@ module.exports = {
   buildBlogDetailJsonLd,
   toIso8601,
   mergeCustomSchemaMarkup,
+  schemaEntityJsonLdType,
 };
