@@ -360,7 +360,7 @@
 						<ul class="fm-footer__links">
 							<li><a href="/source-code/python">Python Projects</a></li>
 							<li><a href="/source-code/java">Java Projects</a></li>
-							<li><a href="/source-code/machine-learning">AI &amp; ML Projects</a></li>
+							<li><a href="/source-code/ai">AI Projects</a></li>
 							<li><a href="/source-code/data-analytics">DBMS Projects</a></li>
 							<li><a href="/source-code/php">PHP Projects</a></li>
 							<li><a href="/source-code/php">Web Development Projects</a></li>
@@ -473,6 +473,11 @@
 								<% } %>
 								<% } else { %>
 								<script src="/javascripts/all.js" defer></script>
+								<% if (typeof exitOfferEnabled === 'undefined' || exitOfferEnabled) { %>
+								<link rel="stylesheet" href="/css/fm-exit-offer.css?v=3">
+								<%- include('partials/exit-offer-popup') %>
+								<script src="/js/fm-exit-offer.js?v=3" defer></script>
+								<% } %>
 								<% } %>
 								<%- include('Includes/analytics-deferred') %>
 								

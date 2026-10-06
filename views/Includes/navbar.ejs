@@ -125,8 +125,8 @@ window.__fmAdsenseConfig=<%- JSON.stringify({ enabled: fmAdsense.showAdUnits, cl
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" as="style">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap"></noscript>
-<link rel="preload" href="/css/fm-header.css?v=28" as="style">
-<link rel="stylesheet" href="/css/fm-header.css?v=28">
+<link rel="preload" href="/css/fm-header.css?v=29" as="style">
+<link rel="stylesheet" href="/css/fm-header.css?v=29">
 <% if (fmHomeLite) { %>
 <link rel="preload" href="/css/home-directory.css?v=69" as="style">
 <link rel="stylesheet" href="/css/home-directory.css?v=69">
@@ -157,8 +157,8 @@ window.__fmAdsenseConfig=<%- JSON.stringify({ enabled: fmAdsense.showAdUnits, cl
 <link rel="stylesheet" href="/design/plugins/fontawesome/css/fontawesome.min.css">
 <link rel="stylesheet" href="/design/plugins/fontawesome/css/all.min.css?v=woff2">
 <link rel="stylesheet" href="/design/plugins/feather/feather.css?v=woff">
-<link rel="preload" href="/css/fm-header.css?v=28" as="style">
-<link rel="stylesheet" href="/css/fm-header.css?v=28">
+<link rel="preload" href="/css/fm-header.css?v=29" as="style">
+<link rel="stylesheet" href="/css/fm-header.css?v=29">
 <% } %>
 
 <% if (!fmShellLite) { %>
@@ -737,6 +737,16 @@ html.menu-opened header.fm-header.header-fixed{
             
               <li class="<%= (typeof active !== 'undefined' && active === 'demo') ? 'active' : '' %>">
                 <a href="/demo" title="Live Demo of Source Code | FileMakr">Live Demo</a>
+                </li>
+
+                <li class="fm-nav-ai <%= (typeof active !== 'undefined' && active === 'ai-projects') ? 'active fm-nav-ai--current' : '' %>">
+                <a href="/source-code/ai" class="fm-nav-ai__link" title="AI &amp; ML Final Year Project Source Code | FileMakr">
+                  <svg class="fm-nav-ai__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                    <path d="M12 2.5l1.35 5.4 5.4 1.35-5.4 1.35L12 16l-1.35-5.4-5.4-1.35 5.4-1.35L12 2.5z" fill="currentColor"/>
+                    <path d="M19 3.5l.65 2.6 2.6.65-2.6.65L19 9.5l-.65-2.6-2.6-.65 2.6-.65L19 3.5z" fill="currentColor" opacity="0.85"/>
+                  </svg>
+                  <span class="fm-nav-ai__label">AI Projects</span>
+                </a>
                 </li>
 
                 <li class="has-submenu <%= (typeof active !== 'undefined' && active === 'source-code') ? 'active' : '' %>">

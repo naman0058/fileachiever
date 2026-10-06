@@ -1,0 +1,113 @@
+<div id="fm-exit-offer-root" class="fm-exit-offer" hidden aria-hidden="true">
+  <div class="fm-exit-offer__overlay" data-fm-exit-dismiss="overlay" tabindex="-1"></div>
+  <div
+    id="fm-exit-offer-dialog"
+    class="fm-exit-offer__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="fm-exit-offer-title"
+    aria-describedby="fm-exit-offer-desc"
+    tabindex="-1"
+  >
+    <button type="button" class="fm-exit-offer__close" data-fm-exit-dismiss="close" aria-label="Close offer">
+      <span aria-hidden="true">&times;</span>
+    </button>
+
+    <div class="fm-exit-offer__sheet-handle" aria-hidden="true"></div>
+
+    <div class="fm-exit-offer__badge" id="fm-exit-offer-badge">
+      <svg class="fm-exit-offer__badge-ico fm-exit-offer__panel--desktop" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.75"/>
+        <path d="M12 8V5a2 2 0 012-2h0a2 2 0 012 2v3" stroke="currentColor" stroke-width="1.75"/>
+        <path d="M3 11h18" stroke="currentColor" stroke-width="1.75"/>
+      </svg>
+      <span id="fm-exit-offer-badge-text">Exclusive offer</span>
+    </div>
+
+    <h2 id="fm-exit-offer-title" class="fm-exit-offer__title">
+      <span class="fm-exit-offer__title-desktop">
+        Wait! Save <span class="fm-exit-offer__title-accent" id="fm-exit-offer-save-amt">₹10</span> Before You Leave
+      </span>
+      <span class="fm-exit-offer__title-mobile">Wait! Get <span class="fm-exit-offer__title-accent">10% Extra Off</span></span>
+    </h2>
+    <p id="fm-exit-offer-desc" class="fm-exit-offer__sub">
+      Complete your order now and save an extra 10%.
+    </p>
+    <p class="fm-exit-offer__sub fm-exit-offer__sub--desktop" id="fm-exit-offer-desc-long" hidden>
+      Your project is ready. Apply FM10 and complete your order at a lower price.
+    </p>
+
+    <div class="fm-exit-offer__price-card fm-exit-offer__panel--desktop" aria-label="Discounted price">
+      <div class="fm-exit-offer__price-main">
+        <span class="fm-exit-offer__price-was" id="fm-exit-offer-was">₹99</span>
+        <span class="fm-exit-offer__price-now" id="fm-exit-offer-now">₹89.10</span>
+      </div>
+      <div class="fm-exit-offer__save-pill" id="fm-exit-offer-save-pill">
+        <span class="fm-exit-offer__save-spark" aria-hidden="true"></span>
+        <span id="fm-exit-offer-save-pill-text">You save ₹9.90 extra</span>
+      </div>
+    </div>
+
+    <div class="fm-exit-offer__coupon fm-exit-offer__panel--desktop" aria-label="Coupon code FM10">
+      <span class="fm-exit-offer__coupon-ticket" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 010 4v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2a2 2 0 010-4V8z" stroke="currentColor" stroke-width="1.75"/>
+          <path d="M12 6v12" stroke="currentColor" stroke-width="1.75" stroke-dasharray="3 3"/>
+        </svg>
+      </span>
+      <button type="button" class="fm-exit-offer__coupon-code" id="fm-exit-offer-copy-desktop" aria-label="Copy coupon code FM10">
+        FM10
+      </button>
+      <span class="fm-exit-offer__coupon-note">
+        <svg class="fm-exit-offer__coupon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.12"/>
+          <path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Code will be applied automatically at checkout.
+      </span>
+    </div>
+
+    <div class="fm-exit-offer__coupon-mobile fm-exit-offer__panel--mobile" aria-label="Coupon code FM10">
+      <span class="fm-exit-offer__coupon-mobile-code" id="fm-exit-offer-code">FM10</span>
+      <button type="button" class="fm-exit-offer__copy-btn" id="fm-exit-offer-copy" aria-label="Copy coupon code FM10">
+        Copy
+      </button>
+    </div>
+
+    <p class="fm-exit-offer__discount-line" id="fm-exit-offer-discount-text">Flat 10% Extra Off</p>
+
+    <button type="button" class="fm-exit-offer__cta" id="fm-exit-offer-apply">
+      <span class="fm-exit-offer__cta-desktop">GET IT FOR <span id="fm-exit-offer-cta-price">₹89.10</span> →</span>
+      <span class="fm-exit-offer__cta-mobile">Apply FM10 &amp; Continue</span>
+    </button>
+
+    <ul class="fm-exit-offer__trust fm-exit-offer__panel--desktop" aria-label="Purchase benefits">
+      <li>
+        <span class="fm-exit-offer__trust-ico fm-exit-offer__trust-ico--blue" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z" stroke="currentColor" stroke-width="1.75"/></svg>
+        </span>
+        <span class="fm-exit-offer__trust-title">Secure Payment</span>
+        <span class="fm-exit-offer__trust-sub">100% Safe &amp; Encrypted</span>
+      </li>
+      <li>
+        <span class="fm-exit-offer__trust-ico fm-exit-offer__trust-ico--blue" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+        </span>
+        <span class="fm-exit-offer__trust-title">Instant Download</span>
+        <span class="fm-exit-offer__trust-sub">Get Files Immediately</span>
+      </li>
+      <li>
+        <span class="fm-exit-offer__trust-ico fm-exit-offer__trust-ico--wa" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" opacity="0.9"/></svg>
+        </span>
+        <span class="fm-exit-offer__trust-title">WhatsApp Support</span>
+        <span class="fm-exit-offer__trust-sub">Quick Help Anytime</span>
+      </li>
+    </ul>
+
+    <button type="button" class="fm-exit-offer__secondary" data-fm-exit-dismiss="decline">
+      <span class="fm-exit-offer__secondary-desktop">Continue without discount</span>
+      <span class="fm-exit-offer__secondary-mobile">No thanks, continue</span>
+    </button>
+  </div>
+</div>

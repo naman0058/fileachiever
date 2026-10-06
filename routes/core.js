@@ -20,6 +20,7 @@ const bulkAmbassadorUpload = multer({
   limits: { fileSize: 8 * 1024 * 1024 },
 });
 const projectReportShared = require('./projectReportShared');
+const { buildAiSourceCodeWhere } = require('../utils/sourceCodeAiFilter');
 const {
   handleProjectReportWordDownload,
   loadPrcLibraryForExport
@@ -99,6 +100,7 @@ async function renderBlogDetailForVideo(req, res, blogSlug, metatagsOverride) {
 }
 const checkoutOrders = require('../services/checkoutOrderService');
 const checkoutFunnel = require('../services/checkoutFunnelService');
+const marketingCoupons = require('../utils/marketingCoupons');
 const { resolveBotInfo } = require('../utils/botDetection');
 const { checkoutFunnelRateLimit, checkoutPageRateLimit, funnelTrackingGuard } = require('../middleware/botDetection');
 const fs = require('fs');
@@ -2538,18 +2540,27 @@ router.get('/:graduation_type-final-year-project-report-:name/edit', dataService
 // using this route
 router.get('/api/coupon/validate', (req, res) => {
   const code = (req.query.code || '').trim();
-  if (!code) return res.json({ valid:false });
+  if (!code) return res.json({ valid: false });
+
+  const marketing = marketingCoupons.resolveMarketingCoupon(code);
+  if (marketing) {
+    return res.json({
+      valid: true,
+      discount: marketing.discountPercent,
+      code: marketing.code,
+    });
+  }
 
   const sql = 'SELECT discount FROM shopkeeper WHERE unique_code = ? LIMIT 1';
   pool.query(sql, [code], (err, rows) => {
     if (err) {
       console.error('Coupon lookup error:', err);
-      return res.status(500).json({ valid:false });
+      return res.status(500).json({ valid: false });
     }
-    if (!rows || !rows.length) return res.json({ valid:false });
+    if (!rows || !rows.length) return res.json({ valid: false });
     const discount = Number(rows[0].discount) || 0;
-    if (discount <= 0) return res.json({ valid:false });
-    res.json({ valid:true, discount });
+    if (discount <= 0) return res.json({ valid: false });
+    res.json({ valid: true, discount, code: marketingCoupons.normalizeCouponCode(code) });
   });
 });
 
@@ -2779,11 +2790,18 @@ router.post('/checkout/submit', dataService.date_and_time, async (req, res) => {
     let finalAmount = listAmount;
     let coupon_code = String(req.body.coupon_code || '').trim().slice(0, 64);
     if (coupon_code) {
-      const couponRows = await queryAsync(
-        'SELECT discount FROM shopkeeper WHERE unique_code = ? LIMIT 1',
-        [coupon_code]
-      );
-      const discountPct = couponRows && couponRows[0] ? Number(couponRows[0].discount) || 0 : 0;
+      let discountPct = 0;
+      const marketing = marketingCoupons.resolveMarketingCoupon(coupon_code);
+      if (marketing) {
+        discountPct = marketing.discountPercent;
+        coupon_code = marketing.code;
+      } else {
+        const couponRows = await queryAsync(
+          'SELECT discount FROM shopkeeper WHERE unique_code = ? LIMIT 1',
+          [coupon_code]
+        );
+        discountPct = couponRows && couponRows[0] ? Number(couponRows[0].discount) || 0 : 0;
+      }
       if (discountPct > 0) {
         finalAmount = Math.max(0, Math.round((listAmount * (100 - discountPct)) / 100 * 100) / 100);
       } else {
@@ -3753,17 +3771,33 @@ router.get('/source-code/:category', dataService.allCategory, async (req, res) =
     return res.status(404).render('error', { message: 'Category not found', error: { status: 404, stack: '' } });
   }
 
-  const graduation_type_send = onPageSeo.resolveSourceCategoryLabel(req.categories, cat);
+  const isAiHub = cat === 'ai';
+  const graduation_type_send = isAiHub
+    ? 'Smart AI & AI-Based'
+    : onPageSeo.resolveSourceCategoryLabel(req.categories, cat);
 
   try {
-    const [rows] = await pool.promise().query(
-      `SELECT id, name, seo_name, category, image, demo_url,
-              LEFT(description, 160) AS description
-       FROM source_code
-       WHERE category = ?
-       ORDER BY id DESC`,
-      [cat]
-    );
+    let rows;
+    if (isAiHub) {
+      const { whereSql, params } = buildAiSourceCodeWhere();
+      rows = await queryAsync(
+        `SELECT id, name, seo_name, category, image, demo_url,
+                LEFT(description, 160) AS description
+         FROM source_code
+         WHERE (${whereSql})
+         ORDER BY id DESC`,
+        params
+      );
+    } else {
+      rows = await queryAsync(
+        `SELECT id, name, seo_name, category, image, demo_url,
+                LEFT(description, 160) AS description
+         FROM source_code
+         WHERE category = ?
+         ORDER BY id DESC`,
+        [cat]
+      );
+    }
 
     res.render('source_code', {
       result: rows || [],
@@ -3775,7 +3809,7 @@ router.get('/source-code/:category', dataService.allCategory, async (req, res) =
       category: req.categories,
       msg: '',
       fullUrl: req.fullUrl,
-      active: 'source-code',
+      active: isAiHub ? 'ai-projects' : 'source-code',
       listCtaLabel: 'Get Source Code'
     });
   } catch (err) {

@@ -314,6 +314,7 @@ const SOURCE_CATEGORY_SLUG_LABELS = {
     mern: 'MERN',
     react: 'React',
     'machine-learning': 'Machine Learning',
+    ai: 'Smart AI & AI-Based',
     aiml: 'AI/ML',
     'data-analytics': 'Data Analytics',
     flutter: 'Flutter',
@@ -342,9 +343,14 @@ function resolveSourceCategoryLabel(categories, categorySlug) {
 function sourceCodeCategoryMeta(categories, categorySlug, pageUrl) {
     const slug = String(categorySlug || '').trim().toLowerCase();
     const name = resolveSourceCategoryLabel(categories, slug);
-    const description = truncateMetaDescription(
-        `Download ready-to-run ${name} final year project source code with frontend, backend, database and documentation for B.Tech, BCA and MCA students.`
-    );
+    const description =
+        slug === 'ai'
+            ? truncateMetaDescription(
+                  'Browse Smart AI and AI-Based final year project source code from FileMakr — runnable projects with frontend, backend, database and setup guide for B.Tech, BCA and MCA students.'
+              )
+            : truncateMetaDescription(
+                  `Download ready-to-run ${name} final year project source code with frontend, backend, database and documentation for B.Tech, BCA and MCA students.`
+              );
     return {
         title: `${name} Source Code for Final Year Projects | FileMakr`,
         description,

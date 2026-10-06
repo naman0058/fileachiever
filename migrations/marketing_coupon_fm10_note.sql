@@ -1,0 +1,10 @@
+-- FM10 exit-offer coupon is validated in code: utils/marketingCoupons.js
+-- (and GET /api/coupon/validate + /checkout/submit).
+--
+-- You do NOT need a shopkeeper row for FM10 unless you also want promoter reporting there.
+-- To mirror FM10 in shopkeeper for legacy tools, run (adjust discount as needed):
+--
+-- INSERT INTO shopkeeper (name, unique_code, discount, ...)
+-- VALUES ('Exit Offer FM10', 'FM10', 10, ...);
+--
+-- Prefer keeping FM10 in marketingCoupons.js so exit offers stay separate from ambassador codes.
