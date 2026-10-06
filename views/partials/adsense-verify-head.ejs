@@ -1,0 +1,5 @@
+<% if (typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.verifySnippet && fmAdsense.clientId) { %>
+<meta name="google-adsense-account" content="<%= fmAdsense.clientId %>">
+<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<%= encodeURIComponent(fmAdsense.clientId) %>" crossorigin="anonymous"></script>
+<% } %>

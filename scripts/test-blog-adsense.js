@@ -15,6 +15,8 @@ process.env.ADSENSE_SLOT_BLOG_DISPLAY = '1234567890';
 
 const cfg = getAdsenseConfig();
 assert.strictEqual(cfg.clientId, 'ca-pub-7230981653683251');
+assert.ok(cfg.verifySnippet);
+assert.ok(cfg.showAdUnits);
 assert.ok(cfg.adsTxtLine.includes('pub-7230981653683251'));
 
 const short = getBlogAdPlacements(350);

@@ -2,7 +2,7 @@
   var _ads = (typeof fmAdsense !== 'undefined' && fmAdsense) ? fmAdsense : null;
   var _pos = typeof adPosition !== 'undefined' ? adPosition : '';
   var _slot = _ads && _ads.slots && _pos ? _ads.slots[_pos] : null;
-  var _show = _ads && _ads.enabled && _slot;
+  var _show = _ads && _ads.showAdUnits && _slot;
   var _placements = (typeof blogAdPlacements !== 'undefined' && blogAdPlacements) ? blogAdPlacements : null;
   if (_placements && _pos && _placements[_pos] === false) _show = false;
 %>

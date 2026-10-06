@@ -51,9 +51,23 @@ function getAdsenseConfig() {
   };
 
   const hasAnySlot = Object.values(slots).some(Boolean);
+  const clientOk = /^ca-pub-\d+$/.test(clientId);
+  /** Meta + loader script (AdSense site verification / account link) */
+  const verifySnippet = enabled && clientOk;
+  /** Manual <ins> ad units on blog only */
+  const showAdUnits = verifySnippet && hasAnySlot;
+  /**
+   * Google often verifies filemakr.com from the homepage. Default off — use ads.txt
+   * verification, or set ADSENSE_VERIFY_HOMEPAGE=1 (loader only, no ad units on home).
+   */
+  const verifyHomepage = envBool('ADSENSE_VERIFY_HOMEPAGE', false) && verifySnippet;
 
   return {
-    enabled: enabled && hasAnySlot,
+    verifySnippet,
+    showAdUnits,
+    verifyHomepage,
+    /** @deprecated use showAdUnits */
+    enabled: showAdUnits,
     clientId,
     slots,
     thresholds,

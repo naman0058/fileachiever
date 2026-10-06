@@ -102,15 +102,18 @@
 <% } %>
 <% if (fmBlogLite) { %>
 <link rel="alternate" type="application/rss+xml" title="FileMakr Blog" href="https://www.filemakr.com/blog/feed.xml">
-<% if (typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.enabled) { %>
-<meta name="google-adsense-account" content="<%= fmAdsense.clientId %>">
-<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+<% if (typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.verifySnippet) { %>
+<%- include('partials/adsense-verify-head') %>
+<% } %>
+<% if (typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.showAdUnits) { %>
 <link rel="stylesheet" href="/css/blog-adsense.css?v=1">
 <script>
-window.__fmAdsenseConfig=<%- JSON.stringify({ enabled: fmAdsense.enabled, clientId: fmAdsense.clientId, slots: fmAdsense.slots }) %>;
+window.__fmAdsenseConfig=<%- JSON.stringify({ enabled: fmAdsense.showAdUnits, clientId: fmAdsense.clientId, slots: fmAdsense.slots }) %>;
 </script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<%= encodeURIComponent(fmAdsense.clientId) %>" crossorigin="anonymous"></script>
 <% } %>
+<% } %>
+<% if (fmHomeLite && typeof fmAdsense !== 'undefined' && fmAdsense && fmAdsense.verifyHomepage) { %>
+<%- include('partials/adsense-verify-head') %>
 <% } %>
 
 <link rel="stylesheet" href="/design/css/bootstrap.min.css">

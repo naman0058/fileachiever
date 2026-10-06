@@ -4747,8 +4747,8 @@ router.get('/blog', blogPublicCacheHeaders, dataService.allCategory, async (req,
       mid_content_1: false,
       mid_content_2: false,
       end_content: false,
-      listing_1: fmAdsense.enabled && result.length >= 4,
-      listing_2: fmAdsense.enabled && result.length >= 12,
+      listing_1: fmAdsense.showAdUnits && result.length >= 4,
+      listing_2: fmAdsense.showAdUnits && result.length >= 12,
     };
 
     res.render('blog', {
