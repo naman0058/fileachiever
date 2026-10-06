@@ -21,6 +21,7 @@ const UNIT_SCRIPTS = [
   'test-blog-content-model.js',
   'test-blog-crawl.js',
   'test-blog-adsense.js',
+  'test-blog-detail-ad-render.js',
 ];
 
 const LEAK_PATTERNS = [

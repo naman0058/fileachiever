@@ -302,11 +302,11 @@
                   </div>
                 </div>
               </article>
-              <% if (index === 3) { adPosition = 'listing_1'; %>
-                <%- include('partials/blog-ad-slot') %>
+              <% if (index === 3) { %>
+                <%- include('partials/blog-ad-slot', { adPosition: 'listing_1' }) %>
               <% } %>
-              <% if (index === 11) { adPosition = 'listing_2'; %>
-                <%- include('partials/blog-ad-slot') %>
+              <% if (index === 11) { %>
+                <%- include('partials/blog-ad-slot', { adPosition: 'listing_2' }) %>
               <% } %>
             <% }) %>
           <% } else { %>

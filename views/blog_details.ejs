@@ -243,8 +243,7 @@
             </section>
           <% } %>
 
-          <% var adPosition = 'after_intro'; %>
-          <%- include('partials/blog-ad-slot') %>
+          <%- include('partials/blog-ad-slot', { adPosition: 'after_intro' }) %>
 
           <div class="bd-content entry-content">
             <%- (typeof blogContentHtml !== 'undefined' && blogContentHtml) ? blogContentHtml : post.content %>
@@ -344,8 +343,7 @@
             <% } %>
           </div>
 
-          <% adPosition = 'end_content'; %>
-          <%- include('partials/blog-ad-slot') %>
+          <%- include('partials/blog-ad-slot', { adPosition: 'end_content' }) %>
 
           <section class="bd-cta" aria-label="Related resources">
             <div class="bd-cta__grid">
