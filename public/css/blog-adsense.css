@@ -120,7 +120,7 @@
 
 /* Collapse manual slots only after Google sets data-ad-status="unfilled" (class from blog-adsense.js). */
 .fm-blog-ad-slot.fm-blog-ad-slot--unfilled {
-  margin: 10px 0;
+  margin: 8px 0;
 }
 
 .fm-blog-ad-slot.fm-blog-ad-slot--unfilled .fm-blog-ad-label {
@@ -157,7 +157,7 @@
 /* Progressive enhancement when :has() is supported (same rules as class above). */
 @supports selector(:has(*)) {
   .fm-blog-ad-slot:has(> .fm-blog-ad-slot__reserve > ins.adsbygoogle[data-ad-status="unfilled"]) {
-    margin: 10px 0;
+    margin: 8px 0;
   }
 
   .fm-blog-ad-slot:has(> .fm-blog-ad-slot__reserve > ins.adsbygoogle[data-ad-status="unfilled"]) .fm-blog-ad-label {
