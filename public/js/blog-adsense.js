@@ -4,6 +4,50 @@
   if (window.__fmBlogAdsenseInit) return;
   window.__fmBlogAdsenseInit = true;
 
+  var CLASS_UNFILLED = 'fm-blog-ad-slot--unfilled';
+  var CLASS_FILLED = 'fm-blog-ad-slot--filled';
+
+  function applyManualAdSlotStatusClass(wrapper, status) {
+    var st = String(status || '').trim().toLowerCase();
+    if (!wrapper || !wrapper.classList) return false;
+    if (st === 'unfilled') {
+      wrapper.classList.add(CLASS_UNFILLED);
+      wrapper.classList.remove(CLASS_FILLED);
+      return true;
+    }
+    if (st === 'filled') {
+      wrapper.classList.add(CLASS_FILLED);
+      wrapper.classList.remove(CLASS_UNFILLED);
+      return true;
+    }
+    return false;
+  }
+
+  function watchManualAdFillStatus(ins) {
+    var wrapper = ins.closest('.fm-blog-ad-slot');
+    if (!wrapper || ins.getAttribute('data-fm-ad-status-watch') === '1') return;
+    ins.setAttribute('data-fm-ad-status-watch', '1');
+
+    if (applyManualAdSlotStatusClass(wrapper, ins.getAttribute('data-ad-status'))) return;
+
+    if (!window.MutationObserver) return;
+
+    var mo = new MutationObserver(function (mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        if (mutations[i].attributeName !== 'data-ad-status') continue;
+        if (applyManualAdSlotStatusClass(wrapper, ins.getAttribute('data-ad-status'))) {
+          mo.disconnect();
+          return;
+        }
+      }
+    });
+    mo.observe(ins, { attributes: true, attributeFilter: ['data-ad-status'] });
+  }
+
+  function bindManualAdStatusWatchers() {
+    document.querySelectorAll('.fm-blog-ad-slot ins.adsbygoogle').forEach(watchManualAdFillStatus);
+  }
+
   function mountFromMarkers() {
     var cfg = window.__fmAdsenseConfig;
     if (!cfg || !cfg.enabled || !cfg.clientId) return;
@@ -83,6 +127,7 @@
     if (!('IntersectionObserver' in window)) {
       window.setTimeout(function () {
         pushReadyAds();
+        bindManualAdStatusWatchers();
       }, 400);
       return;
     }
@@ -105,13 +150,17 @@
 
   function initAds() {
     mountFromMarkers();
+    bindManualAdStatusWatchers();
     var pending = pushReadyAds();
+    bindManualAdStatusWatchers();
     if (pending.length) {
       requestAnimationFrame(function () {
         pending = pushReadyAds();
+        bindManualAdStatusWatchers();
         if (pending.length) {
           window.setTimeout(function () {
             pending = pushReadyAds();
+            bindManualAdStatusWatchers();
             observePending(pending);
           }, 120);
         }

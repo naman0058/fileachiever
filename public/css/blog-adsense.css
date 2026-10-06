@@ -117,3 +117,70 @@
   padding: 8px;
   border-radius: 4px;
 }
+
+/* Collapse manual slots only after Google sets data-ad-status="unfilled" (class from blog-adsense.js). */
+.fm-blog-ad-slot.fm-blog-ad-slot--unfilled {
+  margin: 10px 0;
+}
+
+.fm-blog-ad-slot.fm-blog-ad-slot--unfilled .fm-blog-ad-label {
+  display: none;
+}
+
+.fm-blog-ad-slot.fm-blog-ad-slot--unfilled .fm-blog-ad-slot__reserve {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.fm-blog-ad-slot.fm-blog-ad-slot--unfilled .fm-blog-ad-slot__reserve ins.adsbygoogle {
+  display: block;
+  min-height: 0;
+  min-width: 0;
+  height: 1px;
+  max-height: 1px;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fm-blog-ad-slot--listing_1.fm-blog-ad-slot--unfilled,
+.fm-blog-ad-slot--listing_2.fm-blog-ad-slot--unfilled {
+  margin: 12px 0 16px;
+}
+
+/* Progressive enhancement when :has() is supported (same rules as class above). */
+@supports selector(:has(*)) {
+  .fm-blog-ad-slot:has(> .fm-blog-ad-slot__reserve > ins.adsbygoogle[data-ad-status="unfilled"]) {
+    margin: 10px 0;
+  }
+
+  .fm-blog-ad-slot:has(> .fm-blog-ad-slot__reserve > ins.adsbygoogle[data-ad-status="unfilled"]) .fm-blog-ad-label {
+    display: none;
+  }
+
+  .fm-blog-ad-slot:has(> .fm-blog-ad-slot__reserve > ins.adsbygoogle[data-ad-status="unfilled"]) .fm-blog-ad-slot__reserve {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .fm-blog-ad-slot:has(> .fm-blog-ad-slot__reserve > ins.adsbygoogle[data-ad-status="unfilled"])
+    .fm-blog-ad-slot__reserve
+    ins.adsbygoogle {
+    min-height: 0;
+    min-width: 0;
+    height: 1px;
+    max-height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
