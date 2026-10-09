@@ -403,6 +403,7 @@ function reportCss() {
     line-height: 1.5;
   }
   .body li {
+    text-align: justify;
     margin: 0 0 8pt;
     padding: 0;
     line-height: 1.5;

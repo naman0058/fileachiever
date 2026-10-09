@@ -615,7 +615,7 @@ async function handleProjectReportWordDownload(req, res) {
                   parts.push(new Paragraph({
                     children: runs,
                     bullet: { level: 0 },
-                    alignment: AlignmentType.LEFT,
+                    alignment: AlignmentType.JUSTIFIED,
                     ...paraSpacing
                   }));
                 }
