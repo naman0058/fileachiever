@@ -1,0 +1,23 @@
+<%
+  const path = (typeof currentPath !== 'undefined') ? currentPath : '';
+  const b = badges || {};
+%>
+<aside class="ops-sidebar">
+  <h6>Work &amp; Delivery</h6>
+  <nav class="ops-nav">
+    <a href="/freelancing/dashboard" class="<%= path === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+    <a href="/freelancing/priority" class="<%= path === 'priority' ? 'active' : '' %>">Priority queue</a>
+    <a href="/freelancing/delivery" class="<%= path === 'delivery' ? 'active' : '' %>">Delivery pipeline</a>
+    <a href="/freelancing/client-pending" class="<%= path === 'client-pending' ? 'active' : '' %>">
+      Client pending <span class="ops-badge"><%= b.client_pending || 0 %></span>
+    </a>
+    <a href="/freelancing/team-workload" class="<%= path === 'team-workload' ? 'active' : '' %>">Team workload</a>
+    <a href="/freelancing/unassigned" class="<%= path === 'unassigned' ? 'active' : '' %>">
+      Unassigned <span class="ops-badge"><%= b.unassigned || 0 %></span>
+    </a>
+    <a href="/freelancing/deadlines" class="<%= path === 'deadlines' ? 'active' : '' %>">Deadlines</a>
+    <a href="/freelancing/finance" class="<%= path === 'finance' ? 'active' : '' %>">Finance</a>
+    <a href="/freelancing/analytics" class="<%= path === 'analytics' ? 'active' : '' %>">Analytics</a>
+    <a href="/freelancing/convertedleads/<%= new Date().getMonth() + 1 %>" class="">Converted leads (month)</a>
+  </nav>
+</aside>

@@ -1,0 +1,14 @@
+<%
+  var st = (typeof stageVal !== 'undefined' ? stageVal : '').toString().toLowerCase();
+  var label = st.split('_').join(' ');
+  var tone = 'neutral';
+  if (st === 'in_progress' || st === 'assigned') tone = 'active';
+  else if (st === 'client_review' || st === 'internal_review') tone = 'review';
+  else if (st === 'delivered' || st === 'closed' || st === 'ready_for_delivery') tone = 'success';
+  else if (st === 'revision_required') tone = 'warning';
+  else if (st === 'unassigned') tone = 'neutral';
+%>
+<span class="fa-badge fa-badge--<%= tone %>">
+  <span class="fa-badge__dot" aria-hidden="true"></span>
+  <%= label || '—' %>
+</span>

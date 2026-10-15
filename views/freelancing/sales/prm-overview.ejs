@@ -11,7 +11,7 @@
     <header class="agent-page-header">
       <div>
         <h1>Project Report Manager</h1>
-        <p>Enterprise report catalog — track heading completion (min. <%= minHeadings %> per product), filter gaps, verify content before publishing.</p>
+        <p>Standard report TOC checker (<%= typeof tocTotal !== 'undefined' ? tocTotal : 54 %> items with body content), plus min. <%= minHeadings %> main headings and admin verify.</p>
       </div>
       <div class="agent-page-header__actions">
         <span class="agent-badge agent-badge--muted" style="font-size:12px;padding:8px 14px;">
@@ -30,6 +30,7 @@
       basePath: '/sales/admin/project-report-manager',
       rows, stats, chartData, categoryList, filters, buildQuery,
       minHeadings,
+      tocTotal,
       isAdmin: true
     }) %>
   </main>

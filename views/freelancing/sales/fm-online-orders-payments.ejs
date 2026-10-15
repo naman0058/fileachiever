@@ -49,6 +49,7 @@
               <td>
                 <a href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(r.order_id) %>" class="fw-semibold text-decoration-none"><%= r.order_id %></a>
                 <div class="small text-muted"><%= r.billing_name %></div>
+                <div class="mt-1"><%- include('partials/fm-order-product-cell', { row: r, compact: true }) %></div>
               </td>
               <td><%= r.attempt_no %></td>
               <td><span class="badge bg-light text-dark border"><%= r.payment_status %></span></td>

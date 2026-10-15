@@ -1,0 +1,26 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main" id="faUnassignedPage">
+  <%
+    pageTitle = 'Unassigned work';
+    pageSubtitle = 'Active unassigned: ' + metrics.active_unassigned + ' · Urgent in page: ' + metrics.urgent_unassigned + ' · Assign with workload-aware suggestions.';
+    breadcrumbs = [{ label: 'Freelancing', href: '/freelancing/dashboard' }, { label: 'Unassigned' }];
+  %>
+  <% include ./partials/page-header.ejs %>
+  <form class="fa-filter mb-3" method="get" action="/freelancing/unassigned">
+    <div class="fa-field fa-field--search fa-field--collapse-sm">
+      <label class="fa-field__label" for="fa-filter-q">Search</label>
+      <input class="fa-input" id="fa-filter-q" type="search" name="q" value="<%= filters.q || '' %>" />
+    </div>
+    <button type="submit" class="fa-btn fa-btn--primary fa-btn--sm">Search</button>
+  </form>
+  <section class="fa-card">
+    <div class="fa-card__body fa-card__body--flush">
+      <% include ./partials/unassigned-table.ejs %>
+    </div>
+  </section>
+</main>
+<script>
+  window.__FA_ASSIGN_CANDIDATES__ = <%- JSON.stringify(assignCandidates || []) %>;
+</script>
+<script src="/freelancing/ops/ops-unassigned.js"></script>
+<% include ./partials/layout-end.ejs %>

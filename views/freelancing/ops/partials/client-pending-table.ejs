@@ -1,0 +1,51 @@
+<%
+  const rows = (list && list.items) ? list.items : [];
+%>
+<% if (!rows.length) { %>
+  <% emptyTitle = 'No records in this queue'; emptyText = 'Dependencies stay tracked until explicitly resolved — changing delivery stage does not clear them.'; %>
+  <% include ./empty-state.ejs %>
+<% } else { %>
+  <div class="fa-table-wrap fa-table-wrap--priority">
+    <table class="fa-table fa-table--priority">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Project</th>
+          <th>Dependency</th>
+          <th>Waiting since</th>
+          <th>Days waiting</th>
+          <th>Next follow-up</th>
+          <th>Owner</th>
+          <th>Status</th>
+          <th class="fa-col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(function (row) { %>
+          <tr data-work-id="<%= row.id %>">
+            <td><%= row.name || '—' %></td>
+            <td><%= row.enquiry || '—' %> <span class="fa-cell-meta">#<%= row.id %></span></td>
+            <td><%= row.client_dependency_label || row.client_dependency %></td>
+            <td><%= row.waiting_since || '—' %></td>
+            <td><%= row.days_waiting != null ? row.days_waiting : '—' %></td>
+            <td>
+              <% if (row.follow_up_due) { %>
+                <time datetime="<%= String(row.follow_up_due).slice(0,10) %>"><%= String(row.follow_up_due).slice(0,10) %></time>
+                <% if (row.follow_up_state === 'overdue') { %><span class="fa-badge fa-badge--warning">Overdue</span><% } %>
+                <% if (row.follow_up_state === 'due_today') { %><span class="fa-badge fa-badge--active">Today</span><% } %>
+              <% } else { %>—<% } %>
+            </td>
+            <td><%= row.follow_up_owner || row.assign || '—' %></td>
+            <td><%= (row.client_dependency_status_effective || 'open').split('_').join(' ') %></td>
+            <td class="fa-col-actions">
+              <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-fa-client-follow="<%= row.id %>">Follow-up</button>
+              <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-fa-client-resolve="<%= row.id %>">Resolve</button>
+              <a href="/freelancing/work/<%= row.id %>?tab=dependencies">Open</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% include ./pagination.ejs %>
+<% } %>

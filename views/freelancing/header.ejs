@@ -23,10 +23,10 @@
 	<link href="/crm/vendor/bootstrap-select/dist/css/bootstrap-select.min.css" rel="stylesheet">
 	<link href="/crm/vendor/swiper/css/swiper-bundle.min.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
-	<link rel="stylesheet" href="../../cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.css">
 	<link href="/crm/vendor/datatables/css/jquery.dataTables.min.css" rel="stylesheet">
 	<link href="/crm/vendor/jvmap/jquery-jvectormap.css" rel="stylesheet">
-	<link href="../../cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css" rel="stylesheet">
+	<link href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css" rel="stylesheet">
 	<link href="/crm/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 	
 	<!-- tagify-css -->
@@ -923,21 +923,31 @@
 		  <div class="deznav">
             <div class="deznav-scroll">
 				<ul class="metismenu" id="menu">
-					<li class="menu-title">YOUR COMPANY</li>
-				
+					<% var navActive = (typeof opsNavActive !== 'undefined' ? opsNavActive : ''); %>
+					<% var navBadges = (typeof opsNavBadges !== 'undefined' ? opsNavBadges : {}); %>
 
-                    <li><a href="/affiliate/dashboard" class="" aria-expanded="false">
-						<div class="menu-icon">
-							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M2.5 7.49999L10 1.66666L17.5 7.49999V16.6667C17.5 17.1087 17.3244 17.5326 17.0118 17.8452C16.6993 18.1577 16.2754 18.3333 15.8333 18.3333H4.16667C3.72464 18.3333 3.30072 18.1577 2.98816 17.8452C2.67559 17.5326 2.5 17.1087 2.5 16.6667V7.49999Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M7.5 18.3333V10H12.5V18.3333" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</div>
-						<span class="nav-text">Dashboard</span>
-						</a>
+					<li class="menu-title">OVERVIEW</li>
+					<li><a href="/freelancing/dashboard" class="<%= navActive === 'dashboard' ? 'mm-active' : '' %>" aria-current="<%= navActive === 'dashboard' ? 'page' : 'false' %>">
+						<span class="nav-text">Dashboard</span></a>
 					</li>
 
-               
+					<li class="menu-title">WORK OPERATIONS</li>
+					<li><a href="/freelancing/priority" class="<%= navActive === 'priority' ? 'mm-active' : '' %>"><span class="nav-text">Priority queue</span></a></li>
+					<li><a href="/freelancing/delivery" class="<%= navActive === 'delivery' ? 'mm-active' : '' %>"><span class="nav-text">Delivery pipeline</span></a></li>
+					<li><a href="/freelancing/unassigned" class="<%= navActive === 'unassigned' ? 'mm-active' : '' %>"><span class="nav-text">Unassigned work<% if (navBadges.unassigned) { %> <span class="badge badge-danger badge-xs ms-1"><%= navBadges.unassigned %></span><% } %></span></a></li>
+					<li><a href="/freelancing/deadlines" class="<%= navActive === 'deadlines' ? 'mm-active' : '' %>"><span class="nav-text">Deadlines</span></a></li>
+					<li><a href="/freelancing/convertedleads/<%= new Date().getMonth() + 1 %>"><span class="nav-text">Converted leads (month)</span></a></li>
+
+					<li class="menu-title">COLLABORATION</li>
+					<li><a href="/freelancing/client-pending" class="<%= navActive === 'client-pending' ? 'mm-active' : '' %>"><span class="nav-text">Client pending<% if (navBadges.client_pending) { %> <span class="badge badge-danger badge-xs ms-1"><%= navBadges.client_pending %></span><% } %></span></a></li>
+					<li><a href="/freelancing/team-workload" class="<%= navActive === 'team-workload' ? 'mm-active' : '' %>"><span class="nav-text">Team workload</span></a></li>
+
+					<li class="menu-title">FINANCIAL</li>
+					<li><a href="/freelancing/finance" class="<%= navActive === 'finance' ? 'mm-active' : '' %>"><span class="nav-text">Payments &amp; finance</span></a></li>
+
+					<li class="menu-title">INSIGHTS</li>
+					<li><a href="/freelancing/analytics" class="<%= navActive === 'analytics' ? 'mm-active' : '' %>"><span class="nav-text">Analytics &amp; reports</span></a></li>
+
 					<li class="menu-title">Order Managment</li>
 
 

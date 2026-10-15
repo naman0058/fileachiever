@@ -1,0 +1,34 @@
+<%
+  const rows = (list && list.items) ? list.items : [];
+%>
+<% if (!rows.length) { %>
+  <% emptyTitle = 'No agent payable rows'; emptyText = 'Adjust filters.'; %>
+  <% include ./empty-state.ejs %>
+<% } else { %>
+  <div class="fa-table-wrap">
+    <table class="fa-table fa-table--compact">
+      <thead>
+        <tr>
+          <th>Agent</th><th>Project</th><th>Agreed cost</th><th>Paid</th><th>Outstanding</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(function (r) { %>
+          <tr>
+            <td><%= r.assign || '—' %></td>
+            <td><%= r.enquiry || '—' %> <span class="fa-cell-meta">#<%= r.id %></span></td>
+            <td class="fa-num"><%= r.agreed_cost %></td>
+            <td class="fa-num"><%= r.paid_inr %></td>
+            <td class="fa-num"><%= r.outstanding_inr %></td>
+            <td><%= r.status %></td>
+            <td class="fa-col-actions">
+              <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-fin-agent-pay="<%= r.id %>">Record payment</button>
+              <a href="/freelancing/work/<%= r.id %>?tab=finance">Open</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% include ./pagination.ejs %>
+<% } %>

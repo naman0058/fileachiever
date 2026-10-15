@@ -1,0 +1,189 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main fa-dash">
+  <%
+    pageTitle = 'Executive dashboard';
+    pageSubtitle = 'Daily command center — active work, delivery risk, capacity, and cash position.';
+    breadcrumbs = [{ label: 'Freelancing', href: '/freelancing/dashboard' }, { label: 'Dashboard' }];
+    var fp = financePortfolio || {};
+    var fr = financeRange || {};
+    var fresh = freshness || {};
+    function dashQs(extra) {
+      var p = new URLSearchParams();
+      if (filters.from) p.set('from', filters.from);
+      if (filters.to) p.set('to', filters.to);
+      if (filters.agent) p.set('agent', filters.agent);
+      if (filters.q) p.set('q', filters.q);
+      if (extra) Object.keys(extra).forEach(function (k) { if (extra[k]) p.set(k, extra[k]); });
+      var s = p.toString();
+      return s ? '?' + s : '';
+    }
+    pageHeaderActions = ''
+      + '<a class="fa-btn fa-btn--primary fa-btn--sm" href="/freelancing/priority">Priority</a>'
+      + '<a class="fa-btn fa-btn--secondary fa-btn--sm" href="/freelancing/unassigned">Unassigned</a>'
+      + '<a class="fa-btn fa-btn--secondary fa-btn--sm" href="/freelancing/client-pending">Client pending</a>'
+      + '<a class="fa-btn fa-btn--ghost fa-btn--sm" href="/freelancing/analytics">Analytics</a>'
+      + '<a class="fa-btn fa-btn--ghost fa-btn--sm" href="/freelancing/sync-leads?mode=daily">Sync</a>';
+  %>
+  <% include ./partials/page-header.ejs %>
+
+  <% if (syncMessage) { %>
+    <div class="fa-banner <%= syncIsError ? 'fa-banner--danger' : 'fa-banner--info' %> mb-3" role="status"><%= syncMessage %></div>
+  <% } %>
+
+  <div class="fa-dash-meta mb-3">
+    <span class="fa-dash-meta__item">
+      <strong>Data freshness:</strong>
+      Latest lead <%= fresh.latest_lead_at ? String(fresh.latest_lead_at).slice(0, 19).replace('T', ' ') : '—' %>
+      <% if (fresh.latest_activity_at) { %> · last activity <%= String(fresh.latest_activity_at).slice(0, 19).replace('T', ' ') %><% } %>
+    </span>
+    <span class="fa-dash-meta__item fa-text-sm text-muted"><%= fresh.timezone_note || '' %></span>
+  </div>
+
+  <form class="fa-filter fa-filter--compact mb-3" method="get" action="/freelancing/dashboard">
+    <div class="fa-field"><label class="fa-field__label" for="dash-from">Range from</label><input class="fa-input" type="date" id="dash-from" name="from" value="<%= filters.from %>" /></div>
+    <div class="fa-field"><label class="fa-field__label" for="dash-to">To</label><input class="fa-input" type="date" id="dash-to" name="to" value="<%= filters.to %>" /></div>
+    <div class="fa-field"><label class="fa-field__label" for="dash-agent">Agent</label>
+      <select class="fa-select" id="dash-agent" name="agent"><option value="">All</option>
+        <% (agentsList || []).forEach(function (a) { %><option value="<%= a %>" <%= filters.agent === a ? 'selected' : '' %>><%= a %></option><% }); %>
+      </select>
+    </div>
+    <div class="fa-field"><label class="fa-field__label" for="dash-q">Search</label><input class="fa-input" type="search" id="dash-q" name="q" value="<%= filters.q || '' %>" placeholder="Project, client…" /></div>
+    <button type="submit" class="fa-btn fa-btn--primary">Apply</button>
+    <a class="fa-btn fa-btn--ghost" href="/freelancing/dashboard">Reset</a>
+  </form>
+  <p class="fa-kpi-scope fa-text-sm text-muted mb-3">
+    <strong>Operational KPIs</strong> — active work only (deadline vs today). Agent/search filters apply.
+    <strong>Financial range</strong> — leads with <code>created_at</code> between <%= filters.from %> and <%= filters.to %> (INR).
+    Portfolio outstanding is all-time for filtered agents/projects.
+  </p>
+
+  <div class="fa-kpi-grid fa-kpi-grid--6 mb-4">
+    <a class="fa-kpi" href="/freelancing/priority<%= dashQs() %>"><div class="fa-kpi__val"><%= kpis.active_work %></div><div class="fa-kpi__lbl">Active work</div></a>
+    <a class="fa-kpi fa-kpi--danger" href="/freelancing/priority?view=critical<%= filters.agent ? '&agent=' + encodeURIComponent(filters.agent) : '' %>"><div class="fa-kpi__val"><%= kpis.critical_priority %></div><div class="fa-kpi__lbl">Critical</div></a>
+    <a class="fa-kpi fa-kpi--danger" href="/freelancing/priority?view=overdue<%= filters.agent ? '&agent=' + encodeURIComponent(filters.agent) : '' %>"><div class="fa-kpi__val"><%= kpis.overdue %></div><div class="fa-kpi__lbl">Overdue</div></a>
+    <a class="fa-kpi fa-kpi--warning" href="/freelancing/priority?view=today<%= filters.agent ? '&agent=' + encodeURIComponent(filters.agent) : '' %>"><div class="fa-kpi__val"><%= kpis.due_today %></div><div class="fa-kpi__lbl">Due today</div></a>
+    <a class="fa-kpi" href="/freelancing/client-pending<%= dashQs() %>"><div class="fa-kpi__val"><%= kpis.awaiting_client %></div><div class="fa-kpi__lbl">Client pending</div></a>
+    <a class="fa-kpi" href="/freelancing/unassigned<%= dashQs() %>"><div class="fa-kpi__val"><%= kpis.unassigned_active %></div><div class="fa-kpi__lbl">Unassigned</div></a>
+  </div>
+
+  <div class="fa-exec-grid">
+    <section class="fa-card fa-card--exec">
+      <div class="fa-card__head">
+        Needs attention
+        <a class="fa-btn fa-btn--ghost fa-btn--sm ms-auto" href="/freelancing/priority?view=attention">Full queue</a>
+      </div>
+      <div class="fa-card__body fa-card__body--flush">
+        <% include ./partials/dashboard-attention-table.ejs %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--exec">
+      <div class="fa-card__head">Delivery at risk</div>
+      <div class="fa-card__body">
+        <p class="fa-text-sm text-muted mb-2"><%= deliveryRisk && deliveryRisk.note ? deliveryRisk.note : '' %></p>
+        <ul class="fa-risk-list">
+          <% ((deliveryRisk && deliveryRisk.items) || []).forEach(function (item) { if (item.id === 'on_track') return; %>
+            <li class="fa-risk-list__row">
+              <a href="<%= item.href %>" class="fa-risk-list__link">
+                <span><%= item.label %></span>
+                <span class="fa-risk-list__count"><%= item.count %></span>
+              </a>
+            </li>
+          <% }); %>
+        </ul>
+        <h3 class="fa-field__label mt-3">Pipeline snapshot</h3>
+        <ul class="fa-stack-list fa-stack-list--dense">
+          <% Object.keys(pipeline || {}).forEach(function (k) {
+            var c = pipeline[k];
+            if (!c) return;
+            var stageHref = hasOps ? '/freelancing/delivery?mode=table&stage=' + encodeURIComponent(k) : '/freelancing/delivery';
+          %>
+            <li class="fa-stack-list__row">
+              <a href="<%= stageHref %>"><%= k.split('_').join(' ') %></a>
+              <span class="fa-stack-list__val"><%= c %></span>
+            </li>
+          <% }); %>
+        </ul>
+        <a href="/freelancing/delivery" class="fa-btn fa-btn--secondary fa-btn--sm mt-2">Open delivery</a>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--exec">
+      <div class="fa-card__head">
+        Team capacity
+        <a class="fa-btn fa-btn--ghost fa-btn--sm ms-auto" href="/freelancing/team-workload">Workload</a>
+      </div>
+      <div class="fa-card__body fa-card__body--flush">
+        <div class="fa-table-wrap fa-table-wrap--dense">
+          <table class="fa-table fa-table--compact">
+            <thead><tr><th>Agent</th><th class="fa-num">Active</th><th class="fa-num">Overdue</th><th>Load</th></tr></thead>
+            <tbody>
+              <% if (!(workload || []).length) { %>
+                <tr><td colspan="4" class="text-muted text-center py-3">No assignments</td></tr>
+              <% } %>
+              <% (workload || []).forEach(function (w) { %>
+                <tr>
+                  <td><a href="/freelancing/team-workload?agent=<%= encodeURIComponent(w.agent_name) %>"><%= w.agent_name %></a></td>
+                  <td class="fa-num"><%= w.active_tasks %></td>
+                  <td class="fa-num"><%= w.overdue_tasks %></td>
+                  <td><span class="fa-badge fa-badge--muted"><%= w.load_status_label || w.load_status || '—' %></span></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--exec">
+      <div class="fa-card__head">
+        Client follow-ups
+        <a class="fa-btn fa-btn--ghost fa-btn--sm ms-auto" href="/freelancing/client-pending?view=follow_up_overdue">Queue</a>
+      </div>
+      <div class="fa-card__body">
+        <% var fu = followUps || {}; var fuRows = (fu.overdue || []).concat(fu.dueToday || []).slice(0, 6); %>
+        <% if (!fuRows.length) { %>
+          <p class="fa-text-sm text-muted mb-0">No overdue or due-today follow-ups on open dependencies.</p>
+        <% } else { %>
+          <ul class="fa-follow-list">
+            <% fuRows.forEach(function (r) { %>
+              <li>
+                <a href="/freelancing/work/<%= r.id %>?tab=dependencies"><%= r.enquiry || 'Work #' + r.id %></a>
+                <span class="fa-cell-meta"><%= r.follow_up_due ? String(r.follow_up_due).slice(0,10) : '—' %> · <%= r.follow_up_owner || 'No owner' %></span>
+              </li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--exec fa-card--span2">
+      <div class="fa-card__head">
+        Financial summary
+        <a class="fa-btn fa-btn--ghost fa-btn--sm ms-auto" href="/freelancing/finance">Finance ops</a>
+      </div>
+      <div class="fa-card__body">
+        <div class="fa-finance-split">
+          <div>
+            <h3 class="fa-field__label">Portfolio (INR)</h3>
+            <dl class="fa-dl-compact">
+              <div><dt>Client outstanding</dt><dd>₹ <%= fp.client_outstanding %></dd></div>
+              <div><dt>Payments received</dt><dd>₹ <%= fp.payments_received %></dd></div>
+              <div><dt>Agent payables</dt><dd>₹ <%= fp.agent_payables %></dd></div>
+            </dl>
+          </div>
+          <div>
+            <h3 class="fa-field__label">Intake range <%= filters.from %> – <%= filters.to %></h3>
+            <dl class="fa-dl-compact">
+              <div><dt>Contracted value</dt><dd>₹ <%= fr.total_contracted_value %></dd></div>
+              <div><dt>Gross project profit</dt><dd>₹ <%= fr.gross_project_profit %></dd></div>
+              <div><dt>Agent cost</dt><dd>₹ <%= fr.agent_cost %></dd></div>
+            </dl>
+          </div>
+        </div>
+        <p class="fa-text-sm text-muted mb-0">Gross profit = lead_price − agent_price per lead. Not net profit. PKR (<code>pakistani_price</code>) excluded from INR totals.</p>
+      </div>
+    </section>
+  </div>
+</main>
+<% include ./partials/layout-end.ejs %>

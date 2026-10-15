@@ -1,4 +1,6 @@
 <% include ./header.ejs %>
+<link rel="stylesheet" href="/freelancing/ops/tokens.css" />
+<link rel="stylesheet" href="/freelancing/ops/ops.css" />
 
 <style>
   :root {
@@ -478,6 +480,7 @@
           <thead>
             <tr>
               <th>#</th>
+              <th>Work</th>
               <th>Lead Status</th>
               <th>Name</th>
               <th>Number</th>
@@ -507,6 +510,7 @@
                 data-created-at="<%= result[i].created_at ? (function(d){ try { return new Date(d).toISOString().slice(0,19).replace('T',' '); } catch(e){ return String(d).slice(0,19); } })(result[i].created_at) : '' %>"
               >
                 <td><span class="pill primary"><%= i+1 %></span></td>
+                <td><a href="/freelancing/work/<%= result[i].id %>" target="_blank" rel="noopener">Open</a></td>
 
                 <td>
                   <span class="status-badge st-<%= result[i].status %>">

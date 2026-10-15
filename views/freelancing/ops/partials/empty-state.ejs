@@ -1,0 +1,7 @@
+<div class="fa-empty" role="status">
+  <p class="fa-empty__title"><%= typeof emptyTitle !== 'undefined' ? emptyTitle : 'No results' %></p>
+  <p class="fa-empty__text"><%= typeof emptyText !== 'undefined' ? emptyText : 'Nothing matches your filters. Try clearing search or changing the view.' %></p>
+  <% if (typeof emptyActionHref !== 'undefined' && emptyActionHref) { %>
+    <a class="fa-btn fa-btn--secondary fa-btn--sm" href="<%= emptyActionHref %>"><%= emptyActionLabel || 'Clear filters' %></a>
+  <% } %>
+</div>

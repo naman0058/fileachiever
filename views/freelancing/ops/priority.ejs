@@ -1,0 +1,106 @@
+<% include ./partials/layout-start.ejs %>
+<link rel="stylesheet" href="/freelancing/ops/ops-priority.css" />
+<main class="fa-ds ops-main fa-priority-page" data-fa-priority-page>
+  <%
+    pageTitle = 'Priority Command Center';
+    pageSubtitle = 'Advanced queue management and priority-based filtering across teams, delivery stages, and deadline urgency.';
+    breadcrumbs = [
+      { label: 'Freelancing', href: '/freelancing/dashboard' },
+      { label: 'Work Operations', href: '/freelancing/priority' },
+      { label: 'Priority Queue' },
+    ];
+    var qc = queueCounts || {};
+    var activeTab = tab || 'all';
+    var deliveryQs = '';
+    if (filters.q) deliveryQs += '&q=' + encodeURIComponent(filters.q);
+    if (filters.agent) deliveryQs += '&agent=' + encodeURIComponent(filters.agent);
+    pageHeaderActions = ''
+      + '<div class="fa-view-switch" role="group" aria-label="Delivery view mode">'
+      + '<a class="fa-view-switch__btn" href="/freelancing/delivery?mode=kanban' + deliveryQs + '">Kanban</a>'
+      + '<a class="fa-view-switch__btn is-active" href="/freelancing/priority" aria-current="page">Table</a>'
+      + '<a class="fa-view-switch__btn" href="/freelancing/delivery?mode=schedule' + deliveryQs + '">Schedule</a>'
+      + '</div>';
+  %>
+  <% include ./partials/page-header.ejs %>
+
+  <% include ./partials/priority-metric-cards.ejs %>
+
+  <% if (activeTab === 'attention') { %>
+    <section class="fa-priority-panel fa-attention">
+      <% if (!(needsAttention || []).length) { %>
+        <% emptyTitle = 'Nothing flagged right now'; emptyText = 'Deterministic rules surface only real queue conditions — no synthetic severity scores.'; %>
+        <% include ./partials/empty-state.ejs %>
+      <% } else { %>
+        <% (needsAttention || []).forEach(function (group) { %>
+          <article class="fa-card fa-attention__group">
+            <header class="fa-card__head fa-attention__header">
+              <div>
+                <h2 class="fa-card__title"><%= group.label %></h2>
+                <p class="fa-text-sm text-muted"><%= group.total %> matching · rule-based</p>
+              </div>
+              <a class="fa-btn fa-btn--secondary fa-btn--sm ms-auto" href="<%= group.actionHref %>"><%= group.actionLabel %></a>
+            </header>
+            <div class="fa-card__body fa-card__body--flush">
+              <div class="fa-table-wrap">
+                <table class="fa-table fa-table--compact">
+                  <thead>
+                    <tr>
+                      <th>Project</th><th>Client</th><th>Assign</th><th>Stage</th><th>Deadline</th><th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% (group.items || []).forEach(function (row) { %>
+                      <tr>
+                        <td><%= row.enquiry || '—' %> <span class="fa-cell-meta">#<%= row.id %></span></td>
+                        <td><%= row.name || '—' %></td>
+                        <td><%= row.assign || '—' %></td>
+                        <td><% var stageVal = row.delivery_stage_effective; %><% include ./partials/stage-badge.ejs %></td>
+                        <td><%= row.deadline ? String(row.deadline).slice(0,10) : '—' %></td>
+                        <td class="fa-col-actions">
+                          <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-fa-quick-edit="<%= row.id %>">Edit</button>
+                          <a href="/freelancing/work/<%= row.id %>?returnTo=<%= returnTo %>">Open</a>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+        <% }); %>
+      <% } %>
+    </section>
+  <% } else { %>
+    <% if (activeTab === 'mine' && !myAssign) { %>
+      <div class="fa-callout fa-callout--warn mb-3">
+        <p class="mb-0 fa-text-sm">Could not resolve your assignee name from login. Use the <strong>Agent</strong> filter, or ensure your freelancing profile <code>name</code> matches lead assignments.</p>
+      </div>
+    <% } %>
+
+    <% include ./partials/priority-filter-panel.ejs %>
+
+    <section class="fa-priority-panel fa-card fa-priority-table-card">
+      <div class="fa-priority-table-toolbar" id="faPriorityToolbar">
+        <span class="fa-priority-table-toolbar__meta" id="faPriorityTableMeta">
+          <% if (list && list.total) {
+            var from = (list.page - 1) * list.limit + 1;
+            var to = Math.min(list.page * list.limit, list.total);
+          %>
+            Showing <%= from %>–<%= to %> of <%= list.total %> items
+          <% } else { %>
+            Showing 0 items
+          <% } %>
+        </span>
+        <div class="fa-priority-table-toolbar__actions">
+          <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" id="faPriorityExport" title="Export current filter (CSV)">Export</button>
+          <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" id="faPriorityBulkTrigger" title="Focus bulk actions">Bulk actions</button>
+        </div>
+      </div>
+      <div class="fa-card__body fa-card__body--flush">
+        <% include ./partials/priority-table.ejs %>
+      </div>
+    </section>
+  <% } %>
+</main>
+<script src="/freelancing/ops/ops-priority.js"></script>
+<% include ./partials/layout-end.ejs %>

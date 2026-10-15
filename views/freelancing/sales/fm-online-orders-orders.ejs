@@ -60,10 +60,7 @@
                 <div class="fw-semibold"><%= r.billing_name %></div>
                 <div class="small text-muted"><%= r.billing_tel %> · <%= r.billing_email %></div>
               </td>
-              <td>
-                <div class="small fw-semibold"><%= r.product_type %> / <%= r.plan %></div>
-                <div class="small text-muted text-truncate" style="max-width:220px;"><%= r.plan_label || r.product_name %></div>
-              </td>
+              <td><%- include('partials/fm-order-product-cell', { row: r, compact: true }) %></td>
               <td class="fw-semibold"><%= money(r.final_amount) %></td>
               <td><span class="badge bg-light text-dark border"><%= r.order_status %></span></td>
               <td><span class="badge bg-light text-dark border"><%= r.fulfillment_status %></span></td>

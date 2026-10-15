@@ -1,0 +1,9 @@
+<%
+  var p = (typeof priorityVal !== 'undefined' ? priorityVal : 'medium').toString().toLowerCase();
+  var tone = p === 'critical' ? 'critical' : (p === 'high' ? 'high' : (p === 'low' ? 'low' : 'medium'));
+  var label = p.charAt(0).toUpperCase() + p.slice(1);
+%>
+<span class="fa-badge fa-badge--<%= tone %>" title="Priority: <%= label %>">
+  <span class="fa-badge__dot" aria-hidden="true"></span>
+  <%= label %>
+</span>

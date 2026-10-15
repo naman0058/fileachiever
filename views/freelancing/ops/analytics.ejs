@@ -1,0 +1,142 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main fa-analytics" id="faAnalyticsPage">
+  <%
+    pageTitle = 'Operational analytics';
+    pageSubtitle = 'Historical trends and performance — separate from live dashboard KPIs.';
+    breadcrumbs = [{ label: 'Freelancing', href: '/freelancing/dashboard' }, { label: 'Analytics' }];
+    var a = analytics || {};
+    var def = a.definitions || {};
+    var finDef = def.financial_range || {};
+    var dlDef = def.delivery_deadline || {};
+    pageHeaderActions = ''
+      + '<a class="fa-btn fa-btn--secondary fa-btn--sm" href="/freelancing/analytics/export?type=financial&from=' + encodeURIComponent(filters.from) + '&to=' + encodeURIComponent(filters.to) + '">Export financial CSV</a>'
+      + '<a class="fa-btn fa-btn--ghost fa-btn--sm" href="/freelancing/analytics/export?type=workload&from=' + encodeURIComponent(filters.from) + '&to=' + encodeURIComponent(filters.to) + '">Export workload CSV</a>';
+  %>
+  <% include ./partials/page-header.ejs %>
+
+  <form class="fa-filter fa-filter--compact mb-3" method="get" action="/freelancing/analytics">
+    <div class="fa-field"><label class="fa-field__label" for="an-from">From</label><input class="fa-input" type="date" id="an-from" name="from" value="<%= filters.from %>" /></div>
+    <div class="fa-field"><label class="fa-field__label" for="an-to">To</label><input class="fa-input" type="date" id="an-to" name="to" value="<%= filters.to %>" /></div>
+    <div class="fa-field"><label class="fa-field__label" for="an-agent">Agent</label>
+      <select class="fa-select" id="an-agent" name="agent"><option value="">All</option>
+        <% (agentsList || []).forEach(function (ag) { %><option value="<%= ag %>" <%= filters.agent === ag ? 'selected' : '' %>><%= ag %></option><% }); %>
+      </select>
+    </div>
+    <div class="fa-field"><label class="fa-field__label" for="an-trend">Trend days</label>
+      <input class="fa-input" type="number" min="7" max="31" id="an-trend" name="trend_days" value="<%= filters.trend_days || 14 %>" />
+    </div>
+    <button type="submit" class="fa-btn fa-btn--primary">Apply</button>
+  </form>
+
+  <aside class="fa-analytics-def fa-text-sm text-muted mb-4">
+    <p><strong>Financial & intake</strong> — date field <code>created_at</code>, range <%= finDef.from || filters.from %> to <%= finDef.to || filters.to %>. <%= finDef.scope || '' %></p>
+    <p><strong>On-time delivery</strong> — date field <code>deadline</code> in range; not the same as created_at filter.</p>
+    <p><strong>Rolling trends</strong> — last <%= (def.delivery_trend_window && def.delivery_trend_window.days) || 14 %> calendar days (deadline-based delivery trend from ops service).</p>
+  </aside>
+
+  <div class="fa-kpi-grid fa-kpi-grid--4 mb-4">
+    <div class="fa-kpi fa-kpi--static"><div class="fa-kpi__val"><%= a.conversion && a.conversion.completion_rate != null ? a.conversion.completion_rate + '%' : '—' %></div><div class="fa-kpi__lbl">Completion rate (range)</div></div>
+    <div class="fa-kpi fa-kpi--static"><div class="fa-kpi__val"><%= a.onTime && a.onTime.on_time_rate != null ? a.onTime.on_time_rate + '%' : '—' %></div><div class="fa-kpi__lbl">On-time delivery</div></div>
+    <div class="fa-kpi fa-kpi--static"><div class="fa-kpi__val"><%= a.clientWaiting && a.clientWaiting.avg_days_waiting != null ? a.clientWaiting.avg_days_waiting : '—' %></div><div class="fa-kpi__lbl">Avg client wait (days)</div></div>
+    <div class="fa-kpi fa-kpi--static"><div class="fa-kpi__val"><%= a.conversion ? a.conversion.created : '—' %></div><div class="fa-kpi__lbl">Leads created in range</div></div>
+  </div>
+
+  <div class="fa-analytics-grid">
+    <section class="fa-card fa-card--chart">
+      <div class="fa-card__head">Revenue & gross profit (by month, created_at)</div>
+      <div class="fa-card__body">
+        <% if (!(a.financialSeries || []).length) { %>
+          <% emptyTitle = 'No financial data'; emptyText = 'No leads created in this range.'; %>
+          <% include ./partials/empty-state.ejs %>
+        <% } else { %>
+          <canvas id="chartFinancial" class="fa-chart-canvas" height="120" aria-label="Revenue and profit trend"></canvas>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--chart">
+      <div class="fa-card__head">Lead intake vs completion (created_at month)</div>
+      <div class="fa-card__body">
+        <% if (!(a.financialSeries || []).length) { %>
+          <p class="fa-text-sm text-muted">No data in range.</p>
+        <% } else { %>
+          <canvas id="chartConversion" class="fa-chart-canvas" height="120" aria-label="Lead conversion"></canvas>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--chart">
+      <div class="fa-card__head">Agent cost (by month)</div>
+      <div class="fa-card__body">
+        <% if (!(a.financialSeries || []).length) { %>
+          <p class="fa-text-sm text-muted">No data in range.</p>
+        <% } else { %>
+          <canvas id="chartAgentCost" class="fa-chart-canvas" height="120" aria-label="Agent cost trend"></canvas>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--chart">
+      <div class="fa-card__head">Delivery trend (deadline window)</div>
+      <div class="fa-card__body">
+        <% if (trendEmpty) { %>
+          <% emptyTitle = 'No deadline activity'; emptyText = 'No due dates in the trend window.'; %>
+          <% include ./partials/empty-state.ejs %>
+        <% } else { %>
+          <canvas id="chartDeliveryTrend" class="fa-chart-canvas" height="120" aria-label="Delivery trend"></canvas>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--chart">
+      <div class="fa-card__head">Completions per day</div>
+      <div class="fa-card__body">
+        <canvas id="chartCompletions" class="fa-chart-canvas" height="120" aria-label="Completion trend"></canvas>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--chart">
+      <div class="fa-card__head">Overdue backlog (rolling)</div>
+      <div class="fa-card__body">
+        <% if (trendEmpty) { %>
+          <p class="fa-text-sm text-muted">No overdue series in window.</p>
+        <% } else { %>
+          <canvas id="chartOverdue" class="fa-chart-canvas" height="100" aria-label="Overdue trend"></canvas>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--chart">
+      <div class="fa-card__head">Agent workload (active now)</div>
+      <div class="fa-card__body">
+        <% if (!(a.agentWorkload || []).length) { %>
+          <p class="fa-text-sm text-muted">No active assignments.</p>
+        <% } else { %>
+          <canvas id="chartWorkload" class="fa-chart-canvas" height="140" aria-label="Workload distribution"></canvas>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--chart">
+      <div class="fa-card__head">Status distribution (created in range)</div>
+      <div class="fa-card__body">
+        <% if (!(a.statusDistribution || []).length) { %>
+          <p class="fa-text-sm text-muted">No rows.</p>
+        <% } else { %>
+          <canvas id="chartStatus" class="fa-chart-canvas" height="140" aria-label="Status distribution"></canvas>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="fa-card fa-card--chart fa-card--wide">
+      <div class="fa-card__head">Monthly work status (YTD intake)</div>
+      <div class="fa-card__body">
+        <canvas id="chartMonthlyStatus" class="fa-chart-canvas" height="140" aria-label="Monthly status"></canvas>
+      </div>
+    </section>
+  </div>
+</main>
+<script type="application/json" id="faAnalyticsPayload"><%- JSON.stringify(analytics || {}) %></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="/freelancing/ops/ops-analytics.js"></script>
+<% include ./partials/layout-end.ejs %>

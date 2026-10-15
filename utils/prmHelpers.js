@@ -1,6 +1,9 @@
 /**
  * Project Report Manager — shared filters, stats, enrichment & chart data.
  */
+const { PRM_TOC_TOTAL } = require('./prmReportToc');
+const { attachTocAuditToRows } = require('./prmReportTocLoad');
+
 const MIN_PRM_HEADINGS = 10;
 
 function sectionCountSubquery() {
@@ -110,8 +113,21 @@ function buildPrmOrderBy(sort) {
     case 'completion_asc': return 'completion_score ASC, sc.id DESC';
     case 'completion_desc': return 'completion_score DESC, sc.id DESC';
     case 'headings_asc': return 'report_section_count ASC, sc.id DESC';
+    case 'toc_asc':
+    case 'toc_desc':
+      return 'sc.id DESC';
     default: return 'sc.id DESC';
   }
+}
+
+function sortRowsByToc(rows, sort) {
+  if (sort === 'toc_asc') {
+    return [...rows].sort((a, b) => (a.tocPct || 0) - (b.tocPct || 0) || a.id - b.id);
+  }
+  if (sort === 'toc_desc') {
+    return [...rows].sort((a, b) => (b.tocPct || 0) - (a.tocPct || 0) || b.id - a.id);
+  }
+  return rows;
 }
 
 function resolvePrmActiveNav(filters) {
@@ -180,7 +196,12 @@ async function fetchPrmDashboard(queryAsync, filters, options = {}) {
     params
   );
 
-  const enriched = (rows || []).map((r) => enrichPrmRow(r, minHeadings));
+  let enriched = (rows || []).map((r) => enrichPrmRow(r, minHeadings));
+  enriched = await attachTocAuditToRows(queryAsync, enriched);
+  if (filters.missing === 'toc') {
+    enriched = enriched.filter((r) => !r.isTocComplete);
+  }
+  enriched = sortRowsByToc(enriched, filters.sort);
   const [stats, categories] = await Promise.all([
     fetchPrmStats(queryAsync, minHeadings),
     queryAsync(`SELECT category, COUNT(*) AS total FROM source_code WHERE category IS NOT NULL AND category != '' GROUP BY category ORDER BY total DESC LIMIT 12`)
@@ -204,12 +225,14 @@ async function fetchPrmDashboard(queryAsync, filters, options = {}) {
     categoryList: (categories || []).map((c) => c.category).filter(Boolean),
     filters,
     minHeadings,
+    tocTotal: PRM_TOC_TOTAL,
     buildQuery: (overrides) => buildPrmQueryString(filters, overrides)
   };
 }
 
 module.exports = {
   MIN_PRM_HEADINGS,
+  PRM_TOC_TOTAL,
   enrichPrmRow,
   parsePrmFilters,
   buildPrmQueryString,

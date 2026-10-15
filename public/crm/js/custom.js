@@ -6,8 +6,11 @@ var W3Crm = function(){
 	
 	
 	var handleSelectPicker = function(){
+		if (!jQuery.fn.selectpicker) return;
 		if(jQuery('.default-select,.table-responsive select').length > 0 ){
-			jQuery('.default-select,.table-responsive select').selectpicker();
+			jQuery('.default-select,.table-responsive select')
+				.not('#faQuickDrawer select, [data-fa-no-selectpicker]')
+				.selectpicker();
 		}
 	}
 	var handlePreloader = function(){
@@ -18,8 +21,9 @@ var W3Crm = function(){
 		
 	}
 	var handleImageSelect = function(){
-
+		if (!jQuery.fn.selectpicker) return;
 		const $_SELECT_PICKER = $('.image-select');
+		if (!$_SELECT_PICKER.length) return;
 		$_SELECT_PICKER.find('option').each((idx, elem) => {
 			const $OPTION = $(elem);
 			const IMAGE_URL = $OPTION.attr('data-thumbnail');
@@ -607,8 +611,9 @@ var W3Crm = function(){
 	} 
 	
 	var handleImageSelect = function(){
-
+		if (!jQuery.fn.selectpicker) return;
 		const $_SELECT_PICKER = $('.image-select');
+		if (!$_SELECT_PICKER.length) return;
 		$_SELECT_PICKER.find('option').each((idx, elem) => {
 			const $OPTION = $(elem);
 			const IMAGE_URL = $OPTION.attr('data-thumbnail');

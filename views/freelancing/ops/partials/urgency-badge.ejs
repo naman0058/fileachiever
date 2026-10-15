@@ -1,0 +1,16 @@
+<%
+  var u = (typeof urgencyVal !== 'undefined' ? urgencyVal : 'scheduled').toString();
+  var map = {
+    overdue: { tone: 'overdue', label: 'Overdue' },
+    due_today: { tone: 'warning', label: 'Due today' },
+    next_48h: { tone: 'warning', label: 'Next 48h' },
+    unscheduled: { tone: 'neutral', label: 'Unscheduled' },
+    scheduled: { tone: 'neutral', label: 'Scheduled' },
+    inactive: { tone: 'neutral', label: 'Inactive' }
+  };
+  var meta = map[u] || map.scheduled;
+%>
+<span class="fa-badge fa-badge--<%= meta.tone %>" title="Deadline: <%= meta.label %>">
+  <span class="fa-badge__dot" aria-hidden="true"></span>
+  <%= meta.label %>
+</span>

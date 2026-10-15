@@ -1,0 +1,134 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main" id="faTeamWorkloadPage">
+  <%
+    pageTitle = 'Team workload';
+    pageSubtitle = (effortModel || 'Workload') + ' — utilization uses effort points vs configured capacity, not raw task count alone.';
+    breadcrumbs = [{ label: 'Freelancing', href: '/freelancing/dashboard' }, { label: 'Team workload' }];
+    var agents = (dashboard && dashboard.agents) ? dashboard.agents : [];
+    var unassigned = dashboard && dashboard.unassigned_bucket;
+    var teams = (dashboard && dashboard.teams) ? dashboard.teams : [];
+    var tf = teamFilter || 'all';
+  %>
+  <% include ./partials/page-header.ejs %>
+
+  <form class="fa-filter mb-3" method="get" action="/freelancing/team-workload">
+    <div class="fa-field fa-field--collapse-sm">
+      <label class="fa-field__label" for="tw-team">Team</label>
+      <select class="fa-select fa-select--sm" name="team" id="tw-team">
+        <option value="all" <%= tf === 'all' ? 'selected' : '' %>>All teams</option>
+        <% if (scope && scope.myTeam) { %>
+          <option value="<%= scope.myTeam %>" <%= tf === scope.myTeam ? 'selected' : '' %>>My team (<%= scope.myTeam %>)</option>
+        <% } %>
+        <% teams.forEach(function (t) { %>
+          <option value="<%= t %>" <%= tf === t ? 'selected' : '' %>><%= t %></option>
+        <% }); %>
+        <option value="unassigned" <%= tf === 'unassigned' ? 'selected' : '' %>>Unassigned bucket</option>
+      </select>
+    </div>
+    <div class="fa-field fa-field--collapse-sm">
+      <label class="fa-field__label" for="tw-agent">Agent</label>
+      <select class="fa-select fa-select--sm" name="agent" id="tw-agent">
+        <option value="">All agents</option>
+        <% agents.forEach(function (a) { %>
+          <option value="<%= a.agent_name %>" <%= filters.agent === a.agent_name ? 'selected' : '' %>><%= a.agent_name %></option>
+        <% }); %>
+      </select>
+    </div>
+    <input type="hidden" name="layout" value="<%= layout || 'cards' %>" />
+    <button type="submit" class="fa-btn fa-btn--primary fa-btn--sm">Apply</button>
+    <a class="fa-btn fa-btn--ghost fa-btn--sm" href="?team=<%= encodeURIComponent(tf) %>&layout=<%= layout === 'table' ? 'cards' : 'table' %>">View: <%= layout === 'table' ? 'Cards' : 'Table' %></a>
+  </form>
+
+  <% if (scope && scope.restrictTeams) { %>
+    <p class="fa-text-sm text-muted">Team scope restricted to your team unless you are configured as a manager.</p>
+  <% } %>
+
+  <% if (layout === 'table') { %>
+    <section class="fa-card">
+      <div class="fa-card__body fa-card__body--flush">
+        <div class="fa-table-wrap">
+          <table class="fa-table fa-table--compact">
+            <thead>
+              <tr>
+                <th>Agent</th><th>Active</th><th>Critical</th><th>Overdue</th><th>Today</th><th>In progress</th><th>Blocked</th><th>Client wait</th><th>Done 7d</th><th>Effort</th><th>Util %</th><th>Status</th><th>Available</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% agents.forEach(function (w) { %>
+                <tr>
+                  <td><a href="?team=<%= encodeURIComponent(tf) %>&agent=<%= encodeURIComponent(w.agent_name) %>"><%= w.agent_name %></a></td>
+                  <td class="fa-num"><%= w.active_tasks %></td>
+                  <td class="fa-num"><%= w.critical_tasks %></td>
+                  <td class="fa-num"><%= w.overdue_tasks %></td>
+                  <td class="fa-num"><%= w.due_today %></td>
+                  <td class="fa-num"><%= w.in_progress %></td>
+                  <td class="fa-num"><%= w.blocked_tasks %></td>
+                  <td class="fa-num"><%= w.waiting_for_client %></td>
+                  <td class="fa-num"><%= w.completed_7d %></td>
+                  <td class="fa-num"><%= w.assigned_effort_points %></td>
+                  <td class="fa-num"><%= w.utilization_pct != null ? w.utilization_pct + '%' : '—' %></td>
+                  <td><span class="fa-load fa-load--<%= w.load_status %>"><%= w.load_status_label %></span></td>
+                  <td class="fa-num"><%= w.available_capacity_points %></td>
+                  <td><a class="fa-btn fa-btn--ghost fa-btn--sm" href="/freelancing/unassigned">Unassigned</a></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  <% } else { %>
+    <div class="fa-workload-cards">
+      <% agents.forEach(function (w) { %>
+        <article class="fa-workload-card fa-load-border--<%= w.load_status %>">
+          <header class="fa-workload-card__head">
+            <h2><a href="?team=<%= encodeURIComponent(tf) %>&agent=<%= encodeURIComponent(w.agent_name) %>"><%= w.agent_name %></a></h2>
+            <span class="fa-load fa-load--<%= w.load_status %>"><%= w.load_status_label %></span>
+          </header>
+          <dl class="fa-workload-card__stats">
+            <div><dt>Active</dt><dd><%= w.active_tasks %></dd></div>
+            <div><dt>Critical</dt><dd><%= w.critical_tasks %></dd></div>
+            <div><dt>Overdue</dt><dd><%= w.overdue_tasks %></dd></div>
+            <div><dt>Due today</dt><dd><%= w.due_today %></dd></div>
+            <div><dt>In progress</dt><dd><%= w.in_progress %></dd></div>
+            <div><dt>Blocked</dt><dd><%= w.blocked_tasks %></dd></div>
+            <div><dt>Client wait</dt><dd><%= w.waiting_for_client %></dd></div>
+            <div><dt>Completed 7d</dt><dd><%= w.completed_7d %></dd></div>
+            <div><dt>Utilization</dt><dd><%= w.utilization_pct != null ? w.utilization_pct + '%' : '—' %></dd></div>
+            <div><dt>Available cap.</dt><dd><%= w.available_capacity_points %> pts</dd></div>
+          </dl>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <% if (unassigned && tf === 'unassigned') { %>
+    <p class="mt-3"><a href="/freelancing/unassigned">Open unassigned queue · <%= unassigned.active_tasks %> tasks</a></p>
+  <% } %>
+
+  <% if (agentDetail) { %>
+    <section class="fa-card mt-4">
+      <div class="fa-card__head">Agent · <%= agentDetail.agent_name %></div>
+      <div class="fa-card__body">
+        <% if (agentDetail.summary) { %>
+          <p class="fa-text-sm">Load: <strong><%= agentDetail.summary.load_status_label %></strong> · Utilization <%= agentDetail.summary.utilization_pct != null ? agentDetail.summary.utilization_pct + '%' : 'n/a' %></p>
+        <% } %>
+        <h3 class="fa-field__label">Priority mix</h3>
+        <pre class="fa-text-sm"><%= JSON.stringify(agentDetail.priority_mix, null, 0) %></pre>
+        <h3 class="fa-field__label mt-3">Assigned tasks</h3>
+        <% var list = { items: agentDetail.assigned_tasks }; %>
+        <% include ./partials/work-table.ejs %>
+        <% if ((agentDetail.assignment_history || []).length) { %>
+          <h3 class="fa-field__label mt-3">Assignment history</h3>
+          <ul class="fa-text-sm">
+            <% agentDetail.assignment_history.slice(0, 15).forEach(function (h) { %>
+              <li>#<%= h.lead_id %> <%= h.old_value %> → <%= h.new_value %> · <%= h.created_at %> · <%= h.reason || '' %></li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </div>
+    </section>
+  <% } %>
+</main>
+<script src="/freelancing/ops/ops-team-workload.js"></script>
+<% include ./partials/layout-end.ejs %>

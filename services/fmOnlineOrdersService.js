@@ -185,10 +185,10 @@ async function listOrders(filters = {}) {
   const q = String(filters.q || '').trim();
   if (q) {
     where.push(
-      `(o.order_id LIKE ? OR o.billing_email LIKE ? OR o.billing_tel LIKE ? OR o.billing_name LIKE ? OR o.product_name LIKE ?)`
+      `(o.order_id LIKE ? OR o.billing_email LIKE ? OR o.billing_tel LIKE ? OR o.billing_name LIKE ? OR o.product_name LIKE ? OR o.seo_name LIKE ? OR o.plan_label LIKE ?)`
     );
     const like = `%${q.replace(/%/g, '\\%')}%`;
-    params.push(like, like, like, like, like);
+    params.push(like, like, like, like, like, like, like);
   }
 
   const limit = Math.min(100, Math.max(1, Number(filters.limit) || 100));
@@ -247,7 +247,7 @@ async function listPayments(filters = {}) {
             p.amount, p.currency, p.tracking_id, p.bank_ref_no, p.payment_mode,
             p.card_name, p.status_message, p.failure_message, p.gateway_order_status,
             p.initiated_at, p.completed_at, p.created_at,
-            o.product_type, o.plan, o.plan_label, o.product_name,
+            o.product_type, o.plan, o.plan_label, o.addon_plan, o.product_name, o.seo_name, o.source_code_id,
             o.billing_name, o.billing_email, o.billing_tel, o.order_status, o.is_test
      FROM fm_payments p
      JOIN fm_orders o ON o.id = p.order_pk
@@ -383,7 +383,8 @@ async function lookupOrders({ name, phone, orderId, trackingId, includeTest = fa
   return (
     (await queryAsync(
       `SELECT o.id, o.order_id, o.product_type, o.plan, o.plan_label, o.addon_plan,
-              o.product_name, o.billing_name, o.billing_email, o.billing_tel,
+              o.product_name, o.seo_name, o.source_code_id,
+              o.billing_name, o.billing_email, o.billing_tel,
               o.final_amount, o.currency, o.order_status, o.fulfillment_status,
               o.payment_pref, o.is_test, o.paid_at, o.created_at
        FROM fm_orders o

@@ -58,7 +58,7 @@
             <tr>
               <td><a class="fw-semibold" href="/sales/admin/fm-online-orders/order/<%= encodeURIComponent(r.order_id) %>"><%= r.order_id %></a></td>
               <td><div class="fw-semibold"><%= r.billing_name %></div><div class="small text-muted"><%= r.billing_tel %> · <%= r.billing_email %></div></td>
-              <td class="small"><%= r.plan_label || (r.product_type+'/'+r.plan) %></td>
+              <td><%- include('partials/fm-order-product-cell', { row: r, compact: true }) %></td>
               <td><%= money(r.final_amount) %></td>
               <td><%= r.order_status %> / <%= r.fulfillment_status %></td>
               <td class="small text-muted"><%= r.paid_at ? new Date(r.paid_at).toLocaleString() : '—' %></td>

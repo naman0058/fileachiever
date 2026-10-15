@@ -1,0 +1,84 @@
+<div class="fa-priority-filters">
+  <% include ./saved-views-toolbar.ejs %>
+  <form class="fa-priority-filters__form" method="get" action="/freelancing/priority" role="search">
+    <% if (typeof tab !== 'undefined' && tab && tab !== 'all') { %>
+      <input type="hidden" name="view" value="<%= tab %>" />
+    <% } %>
+    <div class="fa-priority-filters__row fa-priority-filters__row--main">
+      <div class="fa-field fa-priority-filters__search">
+        <label class="visually-hidden" for="fa-filter-q">Search projects and clients</label>
+        <input class="fa-input" id="fa-filter-q" type="search" name="q" placeholder="Search projects, clients…" value="<%= filters.q || '' %>" autocomplete="off" />
+      </div>
+      <div class="fa-field">
+        <label class="visually-hidden" for="fa-filter-agent">Agent</label>
+        <select class="fa-select" id="fa-filter-agent" name="agent" aria-label="All agents">
+          <option value="">All agents</option>
+          <% (agentsList || []).forEach(function (a) { %>
+            <option value="<%= a %>" <%= filters.agent === a ? 'selected' : '' %>><%= a %></option>
+          <% }); %>
+        </select>
+      </div>
+      <% if (typeof hasOps !== 'undefined' && hasOps) { %>
+        <div class="fa-field">
+          <label class="visually-hidden" for="fa-filter-priority">Priority</label>
+          <select class="fa-select" id="fa-filter-priority" name="priority" aria-label="Any priority">
+            <option value="">Any priority</option>
+            <% ['critical','high','medium','low'].forEach(function (p) { %>
+              <option value="<%= p %>" <%= filters.priority === p ? 'selected' : '' %>><%= p.charAt(0).toUpperCase() + p.slice(1) %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="fa-field">
+          <label class="visually-hidden" for="fa-filter-stage">Stage</label>
+          <select class="fa-select" id="fa-filter-stage" name="stage" aria-label="All stages">
+            <option value="">All stages</option>
+            <% (stages || []).forEach(function (s) { %>
+              <option value="<%= s %>" <%= filters.delivery_stage === s ? 'selected' : '' %>><%= s.split('_').join(' ') %></option>
+            <% }); %>
+          </select>
+        </div>
+      <% } %>
+    </div>
+    <div class="fa-priority-filters__row fa-priority-filters__row--secondary">
+      <div class="fa-field">
+        <label class="fa-field__label" for="fa-filter-sort">Sort by</label>
+        <select class="fa-select fa-select--sm" id="fa-filter-sort" name="sort">
+          <% 
+            var sortOpts = [
+              ['deadline', 'Deadline (soonest)'],
+              ['deadline_desc', 'Deadline (latest)'],
+              ['priority', 'Priority'],
+              ['stage', 'Stage'],
+              ['project', 'Project'],
+              ['client', 'Client'],
+              ['assign', 'Assignee'],
+              ['updated', 'Last updated'],
+            ];
+            sortOpts.forEach(function (pair) {
+          %>
+            <option value="<%= pair[0] %>" <%= (filters.sort === pair[0]) || (!filters.sort && pair[0] === 'deadline') ? 'selected' : '' %>><%= pair[1] %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="fa-field">
+        <label class="fa-field__label" for="fa-filter-limit">Show</label>
+        <select class="fa-select fa-select--sm" id="fa-filter-limit" name="limit" aria-label="Page size">
+          <% [25, 50, 100].forEach(function (n) { %>
+            <option value="<%= n %>" <%= (list && list.limit === n) || filters.limit === n || (!list && !filters.limit && n === 50) ? 'selected' : '' %>><%= n %> per page</option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="fa-field">
+        <label class="fa-field__label" for="fa-filter-density">Density</label>
+        <select class="fa-select fa-select--sm" name="density" id="fa-filter-density">
+          <option value="comfortable">Comfortable</option>
+          <option value="compact">Compact</option>
+        </select>
+      </div>
+      <div class="fa-priority-filters__actions">
+        <button type="submit" class="fa-btn fa-btn--primary">Apply filters</button>
+        <a href="<%= typeof filterClearPath !== 'undefined' ? filterClearPath : '/freelancing/priority' %>" class="fa-btn fa-btn--secondary">Reset</a>
+      </div>
+    </div>
+  </form>
+</div>

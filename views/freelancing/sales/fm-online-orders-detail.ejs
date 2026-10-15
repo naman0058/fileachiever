@@ -18,6 +18,19 @@
     <% if (msg) { %><div class="alert alert-success py-2"><%= msg %></div><% } %>
     <% if (err) { %><div class="alert alert-danger py-2"><%= err %></div><% } %>
 
+    <div class="agent-panel p-3 mb-3">
+      <h3 class="h6 fw-bold mb-2">Product purchased</h3>
+      <%- include('partials/fm-order-product-cell', { row: o, compact: false }) %>
+      <dl class="row small mb-0 mt-3 g-2">
+        <dt class="col-sm-3 text-muted">Type</dt>
+        <dd class="col-sm-9 mb-0"><%= o.product_type || '—' %> · plan <code><%= o.plan || '—' %></code><% if (o.payment_type) { %> · payment <%= o.payment_type %><% } %></dd>
+        <% if (o.addon_plan) { %>
+        <dt class="col-sm-3 text-muted">Add-on plan</dt>
+        <dd class="col-sm-9 mb-0"><%= o.addon_plan %></dd>
+        <% } %>
+      </dl>
+    </div>
+
     <div class="row g-3 mb-3">
       <div class="col-lg-6">
         <div class="agent-panel p-3">

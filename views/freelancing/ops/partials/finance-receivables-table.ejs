@@ -1,0 +1,35 @@
+<%
+  const rows = (list && list.items) ? list.items : [];
+%>
+<% if (!rows.length) { %>
+  <% emptyTitle = 'No receivable rows'; emptyText = 'Adjust filters or date range.'; %>
+  <% include ./empty-state.ejs %>
+<% } else { %>
+  <div class="fa-table-wrap">
+    <table class="fa-table fa-table--compact">
+      <thead>
+        <tr>
+          <th>Client</th><th>Project</th><th>Due (INR)</th><th>Received</th><th>Outstanding</th><th>Status</th><th>Last payment</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(function (r) { %>
+          <tr data-lead-id="<%= r.id %>">
+            <td><%= r.name || '—' %></td>
+            <td><%= r.enquiry || '—' %> <span class="fa-cell-meta">#<%= r.id %></span></td>
+            <td class="fa-num"><%= r.amount_due %></td>
+            <td class="fa-num"><%= r.received_inr %></td>
+            <td class="fa-num"><%= r.outstanding_inr %></td>
+            <td><%= r.status %></td>
+            <td><%= r.last_payment_date || '—' %></td>
+            <td class="fa-col-actions">
+              <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-fin-client-pay="<%= r.id %>">Record payment</button>
+              <a href="/freelancing/work/<%= r.id %>?tab=finance">Open</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% include ./pagination.ejs %>
+<% } %>

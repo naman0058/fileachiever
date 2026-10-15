@@ -1,0 +1,80 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main" id="faClientPendingPage">
+  <%
+    pageTitle = 'Client dependencies';
+    pageSubtitle = 'Follow-ups and client blockers — separate from delivery stage and payment status.';
+    breadcrumbs = [{ label: 'Freelancing', href: '/freelancing/dashboard' }, { label: 'Client pending' }];
+    var ck = clientKpis || {};
+    var cv = clientView || 'open';
+    var queueTabs = [
+      { id: 'open', label: 'Open' },
+      { id: 'follow_up_today', label: 'Follow-up due today' },
+      { id: 'follow_up_overdue', label: 'Overdue follow-ups' },
+      { id: 'waiting_3d', label: 'Waiting 3+ days' },
+      { id: 'waiting_7d', label: 'Waiting 7+ days' },
+      { id: 'awaiting_approval', label: 'Awaiting approval' },
+      { id: 'awaiting_information', label: 'Awaiting information' },
+      { id: 'resolved', label: 'Resolved' },
+    ];
+  %>
+  <% include ./partials/page-header.ejs %>
+
+  <% if (reminders && (reminders.overdue || []).length) { %>
+    <div class="fa-callout fa-callout--warn mb-3" role="status">
+      <strong>In-app reminder:</strong> <%= reminders.overdue.length %> overdue follow-up(s).
+      <% reminders.note ? (' ' + reminders.note) : '' %>
+      <ul class="mb-0 mt-2 fa-text-sm">
+        <% (reminders.overdue || []).slice(0, 5).forEach(function (r) { %>
+          <li><a href="/freelancing/work/<%= r.id %>?tab=dependencies">#<%= r.id %> <%= r.enquiry %></a> — due <%= r.follow_up_due ? String(r.follow_up_due).slice(0,10) : '' %></li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
+
+  <section class="fa-delivery-risk mb-3" aria-label="Client dependency KPIs">
+    <p class="fa-text-sm text-muted mb-2"><%= ck.scoped_note || '' %></p>
+    <div class="fa-delivery-risk__grid">
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= ck.open_dependencies || 0 %></span><span>Open dependencies</span></div>
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= ck.overdue_follow_ups || 0 %></span><span>Overdue follow-ups</span></div>
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= ck.avg_days_waiting != null ? ck.avg_days_waiting : '—' %></span><span>Avg days waiting</span></div>
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= ck.resolved_this_week || 0 %></span><span>Resolved this week</span></div>
+    </div>
+  </section>
+
+  <nav class="fa-queue-nav mb-3" aria-label="Client queue filters">
+    <% queueTabs.forEach(function (t) {
+      var href = '/freelancing/client-pending?view=' + t.id;
+      if (filters.q) href += '&q=' + encodeURIComponent(filters.q);
+      if (filters.agent) href += '&agent=' + encodeURIComponent(filters.agent);
+    %>
+      <a href="<%= href %>" class="fa-queue-nav__item <%= cv === t.id ? 'is-active' : '' %>"><%= t.label %></a>
+    <% }); %>
+  </nav>
+
+  <form class="fa-filter mb-3" method="get" action="/freelancing/client-pending">
+    <input type="hidden" name="view" value="<%= cv %>" />
+    <% include ./partials/saved-views-toolbar.ejs %>
+    <div class="fa-field fa-field--search fa-field--collapse-sm">
+      <label class="fa-field__label" for="fa-filter-q">Search</label>
+      <input class="fa-input" id="fa-filter-q" type="search" name="q" value="<%= filters.q || '' %>" placeholder="Client, project, agent…" />
+    </div>
+    <div class="fa-field fa-field--collapse-sm">
+      <label class="fa-field__label" for="fa-filter-agent">Agent</label>
+      <select class="fa-select" id="fa-filter-agent" name="agent">
+        <option value="">All</option>
+        <% (agentsList || []).forEach(function (a) { %>
+          <option value="<%= a %>" <%= filters.agent === a ? 'selected' : '' %>><%= a %></option>
+        <% }); %>
+      </select>
+    </div>
+    <button type="submit" class="fa-btn fa-btn--primary">Apply</button>
+  </form>
+
+  <section class="fa-card">
+    <div class="fa-card__body fa-card__body--flush">
+      <% include ./partials/client-pending-table.ejs %>
+    </div>
+  </section>
+</main>
+<script src="/freelancing/ops/client-pending.js"></script>
+<% include ./partials/layout-end.ejs %>

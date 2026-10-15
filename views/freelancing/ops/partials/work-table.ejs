@@ -1,0 +1,48 @@
+<%
+  const rows = (list && list.items) ? list.items : (items || []);
+%>
+<% if (!rows.length) { %>
+  <% include ./empty-state.ejs %>
+<% } else { %>
+  <div class="fa-table-wrap">
+    <table class="fa-table">
+      <thead>
+        <tr>
+          <th class="fa-col-id" scope="col">ID</th>
+          <th scope="col">Enquiry</th>
+          <th scope="col">Client</th>
+          <th class="fa-col-date" scope="col">Deadline</th>
+          <th scope="col">Agent</th>
+          <th scope="col">Stage</th>
+          <th scope="col">Priority</th>
+          <th class="fa-col-actions" scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(function (row) { %>
+          <tr data-fa-row tabindex="0">
+            <td class="fa-col-id"><%= row.id %></td>
+            <td><%= row.enquiry || '—' %></td>
+            <td><%= row.name || '—' %></td>
+            <td class="fa-col-date">
+              <% if (row.deadline) { %>
+                <time datetime="<%= String(row.deadline).slice(0, 10) %>"><%= String(row.deadline).slice(0, 10) %></time>
+                <div><% var urgencyVal = row.urgency; %><% include ./urgency-badge.ejs %></div>
+              <% } else { %>
+                <% var urgencyVal = 'unscheduled'; %><% include ./urgency-badge.ejs %>
+              <% } %>
+            </td>
+            <td><%= row.assign || '—' %></td>
+            <td><% var stageVal = row.delivery_stage_effective || row.status; %><% include ./stage-badge.ejs %></td>
+            <td><% var priorityVal = row.priority_effective || 'medium'; %><% include ./priority-badge.ejs %></td>
+            <td class="fa-col-actions">
+              <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-fa-quick-edit="<%= row.id %>" title="Quick edit">Edit</button>
+              <a href="/freelancing/work/<%= row.id %>">Open</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% include ./pagination.ejs %>
+<% } %>

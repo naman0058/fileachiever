@@ -204,6 +204,15 @@ function mapSheetRowToDbLead(sheetName, r, mode) {
   return { ...lead, sheet_uid };
 }
 
+/**
+ * Sheet sync authority (INSERT IGNORE only — never updates existing rows):
+ * - Authoritative from sheet: name, number, deadline, enquiry, lead_price, agent_price,
+ *   advance_amount, remarks, created_at, pakistani_price, payment flags on NEW rows only.
+ * - status column receives sheet AGENT label (legacy mapping — do not use as sole workflow truth).
+ * - assign receives sheet ASSIGN column.
+ * - Ops workflow columns (priority, delivery_stage, client_dependency, ops_version, timestamps)
+ *   are NOT written by sync and cannot be overwritten on existing leads.
+ */
 async function upsertLead(lead) {
   const sql = `
     INSERT IGNORE INTO leads
@@ -225,8 +234,8 @@ async function upsertLead(lead) {
     lead.number,
     lead.deadline,
     lead.enquiry,
-    lead.assign,
     lead.status,
+    lead.assign,
     lead.lead_price,
     lead.agent_price,
     lead.is_project_done,

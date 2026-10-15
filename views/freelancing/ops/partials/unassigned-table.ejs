@@ -1,0 +1,64 @@
+<%
+  const rows = (list && list.items) ? list.items : [];
+%>
+<% if (!rows.length) { %>
+  <% emptyTitle = 'No unassigned active work'; emptyText = 'All active tasks have an assignee.'; %>
+  <% include ./empty-state.ejs %>
+<% } else { %>
+  <div class="fa-table-wrap fa-table-wrap--priority">
+    <table class="fa-table fa-table--priority" data-fa-unassigned-table>
+      <thead>
+        <tr>
+          <th class="fa-col-check"><input type="checkbox" id="faUnassignedAll" aria-label="Select all" /></th>
+          <th>Priority</th>
+          <th>Project</th>
+          <th>Client</th>
+          <th>Deadline</th>
+          <th>Urgency</th>
+          <th>Stage</th>
+          <th>Suggested agent</th>
+          <th>Assign to</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(function (row) { %>
+          <tr data-work-id="<%= row.id %>">
+            <td><input type="checkbox" class="fa-unassigned-check" value="<%= row.id %>" /></td>
+            <td><% var priorityVal = row.priority_effective || 'medium'; %><% include ./priority-badge.ejs %></td>
+            <td><%= row.enquiry || '—' %> <span class="fa-cell-meta">#<%= row.id %></span></td>
+            <td><%= row.name || '—' %></td>
+            <td><%= row.deadline ? String(row.deadline).slice(0,10) : '—' %></td>
+            <td><% var urgencyVal = row.urgency; %><% include ./urgency-badge.ejs %></td>
+            <td><% var stageVal = row.delivery_stage_effective; %><% include ./stage-badge.ejs %></td>
+            <td class="fa-suggest-cell" data-suggest-for="<%= row.id %>"><span class="text-muted fa-text-sm">…</span></td>
+            <td>
+              <select class="fa-select fa-select--sm" data-assign-select data-id="<%= row.id %>">
+                <option value="">Choose agent…</option>
+                <% (assignCandidates || []).forEach(function (a) { %>
+                  <option value="<%= a.agent_name %>"><%= a.agent_name %> (<%= a.utilization_pct != null ? a.utilization_pct + '%' : a.active_tasks + ' tasks' %>)</option>
+                <% }); %>
+              </select>
+            </td>
+            <td class="fa-col-actions">
+              <button type="button" class="fa-btn fa-btn--primary fa-btn--sm" data-assign-go data-id="<%= row.id %>">Assign</button>
+              <a href="/freelancing/work/<%= row.id %>">Open</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <div class="fa-bulk-bar" id="faUnassignedBulk">
+    <span id="faUnassignedBulkCount">0 selected</span>
+    <select class="fa-select fa-select--sm" id="faUnassignedBulkAgent">
+      <option value="">Bulk assign to…</option>
+      <% (assignCandidates || []).forEach(function (a) { %>
+        <option value="<%= a.agent_name %>"><%= a.agent_name %></option>
+      <% }); %>
+    </select>
+    <input class="fa-input fa-input--sm" id="faUnassignedBulkNote" placeholder="Assignment note" />
+    <button type="button" class="fa-btn fa-btn--primary fa-btn--sm" id="faUnassignedBulkApply">Bulk assign</button>
+  </div>
+  <% include ./pagination.ejs %>
+<% } %>

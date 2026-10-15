@@ -9,6 +9,7 @@
     "measure:blog": "node scripts/measure-blog-performance.js",
     "test:blog-perf": "node scripts/test-blog-performance-budget.js",
     "test:blog": "node scripts/test-blog-qa.js",
+    "test:freelancing": "node scripts/run-freelancing-tests.js",
     "mern-calendar-oauth": "node scripts/mern-calendar-oauth.js"
   },
   "dependencies": {

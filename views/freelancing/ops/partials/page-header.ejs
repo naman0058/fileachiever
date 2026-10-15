@@ -1,0 +1,28 @@
+<header class="fa-page-header">
+  <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs && breadcrumbs.length) { %>
+    <nav aria-label="Breadcrumb">
+      <ol class="fa-breadcrumb">
+        <% breadcrumbs.forEach(function (crumb, i) { %>
+          <li>
+            <% if (crumb.href && i < breadcrumbs.length - 1) { %>
+              <a href="<%= crumb.href %>"><%= crumb.label %></a>
+            <% } else { %>
+              <span aria-current="page"><%= crumb.label %></span>
+            <% } %>
+          </li>
+        <% }); %>
+      </ol>
+    </nav>
+  <% } %>
+  <div class="fa-page-header__row">
+    <div>
+      <h1 class="fa-page-header__title"><%= pageTitle %></h1>
+      <% if (typeof pageSubtitle !== 'undefined' && pageSubtitle) { %>
+        <p class="fa-page-header__sub"><%= pageSubtitle %></p>
+      <% } %>
+    </div>
+    <% if (typeof pageHeaderActions !== 'undefined' && pageHeaderActions) { %>
+      <div class="fa-page-header__actions"><%- pageHeaderActions %></div>
+    <% } %>
+  </div>
+</header>

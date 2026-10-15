@@ -1,0 +1,38 @@
+<form class="fa-filter mb-3" method="get" action="/freelancing/delivery">
+  <input type="hidden" name="mode" value="<%= typeof deliveryMode !== 'undefined' ? deliveryMode : 'kanban' %>" />
+  <% include ./saved-views-toolbar.ejs %>
+  <div class="fa-field fa-field--search fa-field--collapse-sm">
+    <label class="fa-field__label" for="fa-filter-q">Search</label>
+    <input class="fa-input" id="fa-filter-q" type="search" name="q" placeholder="Enquiry, client, phone, agent…" value="<%= filters.q || '' %>" autocomplete="off" />
+  </div>
+  <div class="fa-field fa-field--collapse-sm">
+    <label class="fa-field__label" for="fa-filter-agent">Agent</label>
+    <select class="fa-select" id="fa-filter-agent" name="agent">
+      <option value="">All agents</option>
+      <% (agentsList || []).forEach(function (a) { %>
+        <option value="<%= a %>" <%= filters.agent === a ? 'selected' : '' %>><%= a %></option>
+      <% }); %>
+    </select>
+  </div>
+  <div class="fa-field fa-field--collapse-sm">
+    <label class="fa-field__label" for="fa-delivery-stage">Stage filter</label>
+    <select class="fa-select fa-select--sm" name="stage" id="fa-delivery-stage">
+      <option value="">All stages</option>
+      <% (stages || []).forEach(function (s) { %>
+        <option value="<%= s %>" <%= (typeof deliveryStageFilter !== 'undefined' && deliveryStageFilter === s) ? 'selected' : '' %>><%= s.split('_').join(' ') %></option>
+      <% }); %>
+    </select>
+  </div>
+  <div class="fa-field fa-field--collapse-sm">
+    <label class="fa-field__label" for="fa-filter-limit">Page size</label>
+    <select class="fa-select fa-select--sm" id="fa-filter-limit" name="limit">
+      <% [25, 50, 100].forEach(function (n) { %>
+        <option value="<%= n %>" <%= filters.limit === n ? 'selected' : '' %>><%= n %></option>
+      <% }); %>
+    </select>
+  </div>
+  <button type="submit" class="fa-btn fa-btn--primary">Apply</button>
+  <% if (filters.q || filters.agent || deliveryStageFilter) { %>
+    <a href="/freelancing/delivery?mode=<%= deliveryMode || 'kanban' %>" class="fa-btn fa-btn--ghost">Clear</a>
+  <% } %>
+</form>

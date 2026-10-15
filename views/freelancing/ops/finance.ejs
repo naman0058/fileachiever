@@ -1,0 +1,103 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main" id="faFinancePage" data-can-mutate="<%= canMutateFinance ? '1' : '0' %>">
+  <%
+    pageTitle = 'Finance operations';
+    pageSubtitle = 'INR totals use lead_price / advance_amount / agent_price. PKR (pakistani_price) is tracked separately — never mixed into INR outstanding.';
+    breadcrumbs = [{ label: 'Freelancing', href: '/freelancing/dashboard' }, { label: 'Finance' }];
+    var ov = overview || {};
+    var activeTab = tab || 'overview';
+    var ff = finFilters || filters || {};
+  %>
+  <% include ./partials/page-header.ejs %>
+
+  <nav class="fa-queue-nav mb-3">
+    <% ['overview','client','agent','reconcile'].forEach(function (t) {
+      var href = '/freelancing/finance?tab=' + t + '&from=' + encodeURIComponent(ff.from || '') + '&to=' + encodeURIComponent(ff.to || '');
+    %>
+      <a href="<%= href %>" class="fa-queue-nav__item <%= activeTab === t ? 'is-active' : '' %>"><%= t.charAt(0).toUpperCase() + t.slice(1) %></a>
+    <% }); %>
+  </nav>
+
+  <form class="fa-filter mb-3" method="get" action="/freelancing/finance">
+    <input type="hidden" name="tab" value="<%= activeTab %>" />
+    <div class="fa-field"><label class="fa-field__label" for="fin-from">From</label><input class="fa-input" type="date" id="fin-from" name="from" value="<%= ff.from || filters.from %>" /></div>
+    <div class="fa-field"><label class="fa-field__label" for="fin-to">To</label><input class="fa-input" type="date" id="fin-to" name="to" value="<%= ff.to || filters.to %>" /></div>
+    <div class="fa-field"><label class="fa-field__label" for="fin-q">Project</label><input class="fa-input" type="search" id="fin-q" name="q" value="<%= ff.q || '' %>" placeholder="ID, enquiry…" /></div>
+    <div class="fa-field"><label class="fa-field__label" for="fin-client">Client</label><input class="fa-input" id="fin-client" name="client" value="<%= ff.client || '' %>" /></div>
+    <div class="fa-field"><label class="fa-field__label" for="fin-agent">Agent</label><select class="fa-select" id="fin-agent" name="agent"><option value="">All</option><% (agentsList || []).forEach(function (a) { %><option value="<%= a %>" <%= ff.agent === a ? 'selected' : '' %>><%= a %></option><% }); %></select></div>
+    <div class="fa-field"><label class="fa-field__label" for="fin-ps">Payment status</label>
+      <select class="fa-select" id="fin-ps" name="payment_status">
+        <option value="">Any</option>
+        <% ['outstanding','partial','paid','unpaid'].forEach(function (s) { %>
+          <option value="<%= s %>" <%= ff.payment_status === s ? 'selected' : '' %>><%= s %></option>
+        <% }); %>
+      </select>
+    </div>
+    <button type="submit" class="fa-btn fa-btn--primary">Apply</button>
+    <a class="fa-btn fa-btn--ghost" href="/freelancing/convertedleads/<%= new Date().getMonth() + 1 %>">Legacy pricing grid</a>
+  </form>
+
+  <% if (activeTab === 'overview' || activeTab === 'client' || activeTab === 'agent') { %>
+    <div class="fa-kpi-grid mb-4">
+      <div class="fa-kpi"><div class="fa-kpi__val">₹ <%= ov.total_contracted_value %></div><div class="fa-kpi__lbl">Total contracted (INR)</div></div>
+      <div class="fa-kpi"><div class="fa-kpi__val"><%= ov.invoiced_value == null ? 'N/A' : ov.invoiced_value %></div><div class="fa-kpi__lbl">Invoiced</div></div>
+      <div class="fa-kpi"><div class="fa-kpi__val">₹ <%= ov.payments_received %></div><div class="fa-kpi__lbl">Payments received (INR)</div></div>
+      <div class="fa-kpi fa-kpi--warning"><div class="fa-kpi__val">₹ <%= ov.client_outstanding %></div><div class="fa-kpi__lbl">Client outstanding</div></div>
+      <div class="fa-kpi"><div class="fa-kpi__val">₹ <%= ov.agent_cost %></div><div class="fa-kpi__lbl">Agent cost</div></div>
+      <div class="fa-kpi"><div class="fa-kpi__val">₹ <%= ov.agent_payments_made %></div><div class="fa-kpi__lbl">Agent payments made</div></div>
+      <div class="fa-kpi"><div class="fa-kpi__val">₹ <%= ov.agent_payables %></div><div class="fa-kpi__lbl">Agent payables</div></div>
+      <div class="fa-kpi fa-kpi--success"><div class="fa-kpi__val">₹ <%= ov.gross_project_profit %></div><div class="fa-kpi__lbl">Gross project profit</div></div>
+    </div>
+    <p class="fa-text-sm text-muted mb-3"><%= ov.invoiced_note || '' %> · <%= ov.pkr_not_included_in_inr_totals ? 'PKR column excluded from INR KPIs.' : '' %></p>
+  <% } %>
+
+  <% if (activeTab === 'overview' || activeTab === 'client') { %>
+    <section class="fa-card mb-4">
+      <div class="fa-card__head">Client receivables (INR)</div>
+      <div class="fa-card__body fa-card__body--flush">
+        <% var list = receivables; var financePagination = true; %>
+        <% include ./partials/finance-receivables-table.ejs %>
+      </div>
+    </section>
+  <% } %>
+
+  <% if (activeTab === 'overview' || activeTab === 'agent') { %>
+    <section class="fa-card mb-4">
+      <div class="fa-card__head">Agent payables (INR)</div>
+      <div class="fa-card__body fa-card__body--flush">
+        <% list = agentPayables; var agentMode = true; financePagination = true; %>
+        <% include ./partials/finance-agent-table.ejs %>
+      </div>
+    </section>
+  <% } %>
+
+  <% if (activeTab === 'reconcile') { %>
+    <section class="fa-card">
+      <div class="fa-card__head">Reconciliation</div>
+      <div class="fa-card__body">
+        <p class="fa-text-sm text-muted"><%= reconcile && reconcile.note ? reconcile.note : '' %></p>
+        <% if (!(reconcile && reconcile.issues && reconcile.issues.length)) { %>
+          <% emptyTitle = 'No discrepancies in sample'; emptyText = 'Checked advance_amount vs payment ledger and legacy flags vs balances (up to 500 rows in filter).'; %>
+          <% include ./partials/empty-state.ejs %>
+        <% } else { %>
+          <div class="fa-table-wrap">
+            <table class="fa-table fa-table--compact">
+              <thead><tr><th>Work</th><th>Type</th><th>Detail</th></tr></thead>
+              <tbody>
+                <% reconcile.issues.forEach(function (iss) { %>
+                  <tr>
+                    <td><a href="/freelancing/work/<%= iss.lead_id %>?tab=finance">#<%= iss.lead_id %></a> <%= iss.enquiry || '' %></td>
+                    <td><%= iss.type %></td>
+                    <td class="fa-text-sm"><%= iss.message || JSON.stringify(iss) %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  <% } %>
+</main>
+<script src="/freelancing/ops/ops-finance.js"></script>
+<% include ./partials/layout-end.ejs %>

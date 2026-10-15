@@ -2764,6 +2764,7 @@ router.get('/admin/project-report-manager', requireLogin, requireAdmin, async (r
       filters: dashboard.filters,
       buildQuery: dashboard.buildQuery,
       minHeadings: dashboard.minHeadings,
+      tocTotal: dashboard.tocTotal,
       error: req.query.error || '',
       success: req.query.success || ''
     });
@@ -2827,6 +2828,19 @@ router.post('/api/admin/project-report-manager/:id/verify', requireLogin, requir
     return res.json({ ok: true });
   } catch (e) {
     console.error('Verify PRM error:', e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+router.get('/api/admin/project-report-manager/:id/toc-audit', requireLogin, requireAdmin, async (req, res) => {
+  try {
+    const { auditSourceCodeToc } = require('../utils/prmReportTocLoad');
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+    const audit = await auditSourceCodeToc(queryAsync, id);
+    return res.json({ ok: true, audit });
+  } catch (e) {
+    console.error('PRM toc-audit error:', e);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });

@@ -1,0 +1,52 @@
+<% if (list && list.totalPages > 1) { %>
+  <%
+    function pageHref(pg) {
+      if (typeof clientView !== 'undefined') {
+        var cq = '?view=' + encodeURIComponent(clientView) + '&page=' + pg + '&limit=' + list.limit;
+        cq += '&q=' + encodeURIComponent(filters.q || '');
+        cq += '&agent=' + encodeURIComponent(filters.agent || '');
+        return '/freelancing/client-pending' + cq;
+      }
+      if (typeof priorityQueryString === 'function') {
+        return '/freelancing/priority' + priorityQueryString(typeof tab !== 'undefined' ? tab : 'all', pg);
+      }
+      if (typeof financePagination !== 'undefined' && financePagination) {
+        var ff = typeof finFilters !== 'undefined' ? finFilters : {};
+        var fqs = '?tab=' + encodeURIComponent(typeof tab !== 'undefined' ? tab : 'overview');
+        fqs += '&page=' + pg + '&limit=' + list.limit;
+        fqs += '&from=' + encodeURIComponent(ff.from || filters.from || '');
+        fqs += '&to=' + encodeURIComponent(ff.to || filters.to || '');
+        fqs += '&q=' + encodeURIComponent(ff.q || filters.q || '');
+        fqs += '&client=' + encodeURIComponent(ff.client || '');
+        fqs += '&agent=' + encodeURIComponent(ff.agent || filters.agent || '');
+        fqs += '&payment_status=' + encodeURIComponent(ff.payment_status || '');
+        return '/freelancing/finance' + fqs;
+      }
+      var qs = '?page=' + pg + '&limit=' + list.limit;
+      qs += '&q=' + encodeURIComponent(filters.q || '');
+      qs += '&agent=' + encodeURIComponent(filters.agent || '');
+      qs += '&view=' + encodeURIComponent(typeof tab !== 'undefined' ? tab : '');
+      if (filters.sort) qs += '&sort=' + encodeURIComponent(filters.sort);
+      if (filters.priority) qs += '&priority=' + encodeURIComponent(filters.priority);
+      return qs;
+    }
+  %>
+  <nav class="fa-pagination" aria-label="Pagination">
+    <span class="fa-pagination__info">Page <%= list.page %> of <%= list.totalPages %> · <%= list.total %> items</span>
+    <% if (list.page > 1) { %>
+      <a class="fa-btn fa-btn--secondary fa-btn--sm" href="<%= pageHref(list.page - 1) %>">Previous</a>
+    <% } %>
+    <% 
+      var start = Math.max(1, list.page - 2);
+      var end = Math.min(list.totalPages, list.page + 2);
+      for (var p = start; p <= end; p++) {
+    %>
+      <a class="fa-btn fa-btn--sm <%= p === list.page ? 'fa-btn--primary' : 'fa-btn--secondary' %>"
+         href="<%= pageHref(p) %>"
+         <%= p === list.page ? 'aria-current="page"' : '' %>><%= p %></a>
+    <% } %>
+    <% if (list.page < list.totalPages) { %>
+      <a class="fa-btn fa-btn--secondary fa-btn--sm" href="<%= pageHref(list.page + 1) %>">Next</a>
+    <% } %>
+  </nav>
+<% } %>

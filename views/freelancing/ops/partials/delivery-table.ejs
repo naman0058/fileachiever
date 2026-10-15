@@ -1,0 +1,52 @@
+<%
+  const rows = (list && list.items) ? list.items : (items || []);
+%>
+<% if (!rows.length) { %>
+  <% emptyTitle = 'No delivery work'; emptyText = 'Adjust stage filter or search.'; %>
+  <% include ./empty-state.ejs %>
+<% } else { %>
+  <div class="fa-table-wrap fa-table-wrap--priority">
+    <table class="fa-table fa-table--priority">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Project</th>
+          <th>Client</th>
+          <th>Agent</th>
+          <th>Stage</th>
+          <th>Deadline</th>
+          <th>Time left</th>
+          <th>In stage</th>
+          <th>Blocker</th>
+          <th class="fa-col-actions"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(function (row) { %>
+          <tr data-fa-row>
+            <td><% var priorityVal = row.priority_effective || 'medium'; %><% include ./priority-badge.ejs %></td>
+            <td><%= row.enquiry || '—' %> <span class="fa-cell-meta">#<%= row.id %></span></td>
+            <td><%= row.name || '—' %></td>
+            <td><%= row.assign || '—' %></td>
+            <td><% var stageVal = row.delivery_stage_effective; %><% include ./stage-badge.ejs %></td>
+            <td><%= row.deadline ? String(row.deadline).slice(0,10) : '—' %></td>
+            <td><span class="fa-time-left fa-time-left--<%= (row.time_remaining && row.time_remaining.kind) || 'unknown' %>"><%= (row.time_remaining && row.time_remaining.label) || '—' %></span></td>
+            <td><%= (row.time_in_stage && row.time_in_stage.label) || '—' %></td>
+            <td class="fa-cell-truncate"><%= row.blocker_reason || '—' %></td>
+            <td class="fa-col-actions">
+              <% if (hasOps) { %>
+                <select class="fa-select fa-select--sm" data-kanban-move data-id="<%= row.id %>" data-prev="<%= row.delivery_stage_effective %>">
+                  <% (stages || []).forEach(function (s) { %>
+                    <option value="<%= s %>" <%= row.delivery_stage_effective === s ? 'selected' : '' %>><%= s %></option>
+                  <% }); %>
+                </select>
+              <% } %>
+              <a href="/freelancing/work/<%= row.id %>?returnTo=<%= typeof deliveryReturnTo !== 'undefined' ? deliveryReturnTo : '' %>">Open</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% include ./pagination.ejs %>
+<% } %>

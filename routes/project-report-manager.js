@@ -112,7 +112,8 @@ router.get('/', requirePRMOrAdmin, async (req, res) => {
       categoryList: dashboard.categoryList,
       filters: dashboard.filters,
       buildQuery: dashboard.buildQuery,
-      minHeadings: dashboard.minHeadings
+      minHeadings: dashboard.minHeadings,
+      tocTotal: dashboard.tocTotal
     });
   } catch (e) {
     console.error('Project Report Manager dashboard error:', e);
@@ -224,6 +225,19 @@ router.put('/api/:id/sections/:sid', requirePRMOrAdmin, async (req, res) => {
     if (result.affectedRows === 0) return res.status(404).json({ ok: false, message: 'Section not found' });
     return res.json({ ok: true });
   } catch (e) {
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+router.get('/api/:id/toc-audit', requirePRMOrAdmin, async (req, res) => {
+  try {
+    const { auditSourceCodeToc } = require('../utils/prmReportTocLoad');
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, message: 'Invalid id' });
+    const audit = await auditSourceCodeToc(queryAsync, id);
+    return res.json({ ok: true, audit });
+  } catch (e) {
+    console.error('PRM toc-audit error:', e);
     return res.status(500).json({ ok: false, message: 'Server error' });
   }
 });

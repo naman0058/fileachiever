@@ -1,0 +1,96 @@
+/**
+ * Freelancing CRM — enterprise design tokens
+ * Scoped under .fa-ds; primary brand aligns with existing Bootstrap primary (#0d6efd).
+ */
+.fa-ds,
+.content-body.fa-ds-root {
+  /* Brand */
+  --fa-primary: #0d6efd;
+  --fa-primary-hover: #0b5ed7;
+  --fa-primary-subtle: rgba(13, 110, 253, 0.08);
+  --fa-secondary: #475569;
+  --fa-secondary-hover: #334155;
+
+  /* Surfaces */
+  --fa-bg: #f4f6f9;
+  --fa-surface: #ffffff;
+  --fa-surface-raised: #ffffff;
+  --fa-surface-sunken: #eef1f6;
+
+  /* Text */
+  --fa-text: #0f172a;
+  --fa-text-secondary: #475569;
+  --fa-text-muted: #64748b;
+  --fa-text-inverse: #ffffff;
+
+  /* Borders */
+  --fa-border: #e2e8f0;
+  --fa-border-strong: #cbd5e1;
+  --fa-divider: #e2e8f0;
+
+  /* Semantic */
+  --fa-danger: #dc2626;
+  --fa-danger-subtle: #fef2f2;
+  --fa-warning: #d97706;
+  --fa-warning-subtle: #fffbeb;
+  --fa-success: #059669;
+  --fa-success-subtle: #ecfdf5;
+  --fa-info: #2563eb;
+  --fa-info-subtle: #eff6ff;
+  --fa-neutral: #64748b;
+  --fa-neutral-subtle: #f1f5f9;
+  --fa-review: #7c3aed;
+  --fa-review-subtle: #f5f3ff;
+
+  /* Priority */
+  --fa-priority-critical: var(--fa-danger);
+  --fa-priority-high: var(--fa-warning);
+  --fa-priority-medium: var(--fa-info);
+  --fa-priority-low: var(--fa-neutral);
+
+  /* Typography */
+  --fa-font: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --fa-font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
+  --fa-text-xs: 0.6875rem;
+  --fa-text-sm: 0.8125rem;
+  --fa-text-base: 0.875rem;
+  --fa-text-md: 1rem;
+  --fa-text-lg: 1.125rem;
+  --fa-text-xl: 1.375rem;
+  --fa-text-2xl: 1.5rem;
+  --fa-weight-normal: 400;
+  --fa-weight-medium: 500;
+  --fa-weight-semibold: 600;
+  --fa-weight-bold: 700;
+  --fa-leading-tight: 1.25;
+  --fa-leading-normal: 1.5;
+
+  /* Spacing (4px base) */
+  --fa-space-1: 4px;
+  --fa-space-2: 8px;
+  --fa-space-3: 12px;
+  --fa-space-4: 16px;
+  --fa-space-5: 20px;
+  --fa-space-6: 24px;
+  --fa-space-8: 32px;
+  --fa-space-10: 40px;
+
+  /* Components */
+  --fa-radius-sm: 6px;
+  --fa-radius-md: 8px;
+  --fa-radius-lg: 10px;
+  --fa-control-h: 36px;
+  --fa-control-h-sm: 32px;
+  --fa-control-h-lg: 40px;
+  --fa-focus-ring: 0 0 0 3px rgba(13, 110, 253, 0.35);
+
+  /* Elevation — subtle only */
+  --fa-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --fa-shadow-md: 0 2px 8px rgba(15, 23, 42, 0.06);
+
+  /* Breakpoints (for reference in media queries) */
+  --fa-bp-sm: 640px;
+  --fa-bp-md: 768px;
+  --fa-bp-lg: 1024px;
+  --fa-bp-xl: 1280px;
+}

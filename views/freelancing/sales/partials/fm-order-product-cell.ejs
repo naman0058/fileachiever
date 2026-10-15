@@ -1,0 +1,28 @@
+<%#
+  Order line item for list tables.
+  Pass: row (fm_orders row), compact (optional, default true)
+%>
+<%
+  var o = typeof row !== 'undefined' ? row : (typeof r !== 'undefined' ? r : null);
+  var compact = typeof compact === 'undefined' ? true : !!compact;
+  if (!o) { %>
+<span class="text-muted">—</span>
+<% } else {
+  var pn = String(o.product_name || '').trim();
+  var pl = String(o.plan_label || '').trim();
+  var pt = o.product_type || '';
+  var plan = o.plan || '';
+  var typePlan = pt + (plan ? ' / ' + plan : '');
+  var addon = String(o.addon_plan || '').trim();
+  var seo = String(o.seo_name || '').trim();
+  var titleCls = compact ? 'fw-semibold small' : 'fw-semibold';
+%>
+<% if (pn) { %>
+<div class="<%= titleCls %> text-truncate" style="max-width:280px;" title="<%= pn.replace(/"/g,'&quot;') %>"><%= pn %></div>
+<% } else { %>
+<div class="small text-danger">Project / report name not saved</div>
+<% } %>
+<div class="small text-muted"><%= pl || typePlan %></div>
+<% if (addon) { %><div class="small text-muted">Add-on: <%= addon %></div><% } %>
+<% if (seo) { %><div class="small text-muted font-monospace" title="SEO slug"><%= seo %></div><% } %>
+<% } %>

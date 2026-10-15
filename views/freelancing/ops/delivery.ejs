@@ -1,0 +1,108 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main" id="faDeliveryPage" data-delivery-mode="<%= mode %>">
+  <%
+    pageTitle = 'Delivery pipeline';
+    pageSubtitle = 'Validated stage transitions, delivery events, and revision history — independent of payment flags and internal “project done”.';
+    breadcrumbs = [{ label: 'Freelancing', href: '/freelancing/dashboard' }, { label: 'Delivery' }];
+    var rs = riskSummary || {};
+    var buckets = rs.buckets || {};
+    function modeHref(m) {
+      var q = '?mode=' + m;
+      if (stage) q += '&stage=' + encodeURIComponent(stage);
+      if (filters.q) q += '&q=' + encodeURIComponent(filters.q);
+      if (filters.agent) q += '&agent=' + encodeURIComponent(filters.agent);
+      return '/freelancing/delivery' + q;
+    }
+    pageHeaderActions =
+      '<a class="fa-btn fa-btn--' + (mode === 'kanban' ? 'primary' : 'secondary') + ' fa-btn--sm" data-fa-delivery-mode="kanban" href="' + modeHref('kanban') + '">Kanban</a>' +
+      '<a class="fa-btn fa-btn--' + (mode === 'table' ? 'primary' : 'secondary') + ' fa-btn--sm" data-fa-delivery-mode="table" href="' + modeHref('table') + '">Table</a>' +
+      '<a class="fa-btn fa-btn--' + (mode === 'schedule' ? 'primary' : 'secondary') + ' fa-btn--sm" data-fa-delivery-mode="schedule" href="' + modeHref('schedule') + '">Schedule</a>';
+  %>
+  <% include ./partials/page-header.ejs %>
+
+  <section class="fa-delivery-risk" aria-label="Delivery risk summary">
+    <p class="fa-text-sm text-muted mb-2"><%= rs.note || 'Risk totals use one bucket per active record.' %></p>
+    <div class="fa-delivery-risk__grid">
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= buckets.overdue_delivery || 0 %></span><span>Overdue</span></div>
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= buckets.at_risk || 0 %></span><span>At risk (48h)</span></div>
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= buckets.blocked || 0 %></span><span>Blocked</span></div>
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= buckets.pending_approval || 0 %></span><span>Pending approval</span></div>
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= buckets.revision_backlog || 0 %></span><span>Revision backlog</span></div>
+      <div class="fa-delivery-risk__item"><span class="fa-delivery-risk__val"><%= buckets.ready_not_delivered || 0 %></span><span>Ready · not delivered</span></div>
+    </div>
+  </section>
+
+  <% deliveryMode = mode; deliveryStageFilter = stage; %>
+  <% include ./partials/delivery-filter.ejs %>
+
+  <% if (!hasOps) { %>
+    <div class="fa-callout fa-callout--warn"><p class="mb-0 fa-text-sm">Run <code>migrations/freelancing_ops_workflow.sql</code> and <code>freelancing_ops_delivery.sql</code> for full pipeline, events, and revisions.</p></div>
+  <% } %>
+
+  <% if (mode === 'kanban') { %>
+    <div class="fa-kanban fa-kanban--delivery" data-fa-kanban>
+      <% (stages || []).forEach(function (stageKey) {
+        var col = (kanbanBoard && kanbanBoard.columns && kanbanBoard.columns[stageKey]) ? kanbanBoard.columns[stageKey] : { items: [], total: 0, truncated: false };
+        if (stage && stage !== stageKey) return;
+      %>
+        <div class="fa-kanban-col" data-kanban-stage="<%= stageKey %>">
+          <h2 class="fa-kanban-col__title">
+            <%= stageKey.split('_').join(' ') %>
+            <span class="fa-kanban-col__count"><%= col.total %><% if (col.truncated) { %> · showing <%= col.items.length %><% } %></span>
+          </h2>
+          <div class="fa-kanban-col__drop" data-drop-stage="<%= stageKey %>">
+            <% (col.items || []).forEach(function (card) { %>
+              <article class="fa-kanban-card" draggable="true" tabindex="0" data-work-id="<%= card.id %>" data-stage="<%= card.delivery_stage_effective %>" aria-grabbed="false">
+                <div class="fa-kanban-card__head">
+                  <strong class="fa-kanban-card__title"><%= card.enquiry || 'Untitled' %></strong>
+                  <span class="fa-cell-meta">#<%= card.id %></span>
+                </div>
+                <p class="fa-kanban-card__client"><%= card.name || '—' %></p>
+                <p class="fa-kanban-card__meta"><%= card.assign || 'Unassigned' %></p>
+                <% if (hasOps) { %>
+                  <% var priorityVal = card.priority_effective || 'medium'; %>
+                  <div class="fa-kanban-card__badges"><% include ./partials/priority-badge.ejs %></div>
+                <% } %>
+                <p class="fa-kanban-card__deadline">
+                  <% if (card.deadline) { %>
+                    <time datetime="<%= String(card.deadline).slice(0,10) %>"><%= String(card.deadline).slice(0,10) %></time>
+                    <% var urgencyVal = card.urgency; %><% include ./partials/urgency-badge.ejs %>
+                  <% } else { %>No deadline<% } %>
+                </p>
+                <% if ((card.blocker_reason || '').trim()) { %>
+                  <p class="fa-kanban-card__blocker" title="<%= card.blocker_reason %>">Blocker: <%= card.blocker_reason %></p>
+                <% } %>
+                <p class="fa-kanban-card__stage-time">In stage: <%= (card.time_in_stage && card.time_in_stage.label) || '—' %></p>
+                <div class="fa-kanban-card__actions">
+                  <label class="visually-hidden" for="mv-<%= card.id %>">Move stage</label>
+                  <select class="fa-select fa-select--sm" id="mv-<%= card.id %>" data-kanban-move data-id="<%= card.id %>" data-prev="<%= card.delivery_stage_effective %>">
+                    <% (stages || []).forEach(function (s) { %>
+                      <option value="<%= s %>" <%= card.delivery_stage_effective === s ? 'selected' : '' %>><%= s.split('_').join(' ') %></option>
+                    <% }); %>
+                  </select>
+                  <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-fa-quick-edit="<%= card.id %>">Edit</button>
+                  <a href="/freelancing/work/<%= card.id %>?returnTo=<%= deliveryReturnTo %>" class="fa-btn fa-btn--ghost fa-btn--sm">Open</a>
+                </div>
+              </article>
+            <% }); %>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else if (mode === 'schedule') { %>
+    <p class="fa-text-sm text-muted">Deadline-oriented view — same active-work query as <a href="/freelancing/deadlines">Deadlines</a>, sorted by due date.</p>
+    <section class="fa-card">
+      <div class="fa-card__body fa-card__body--flush">
+        <% include ./partials/delivery-table.ejs %>
+      </div>
+    </section>
+  <% } else { %>
+    <section class="fa-card">
+      <div class="fa-card__body fa-card__body--flush">
+        <% include ./partials/delivery-table.ejs %>
+      </div>
+    </section>
+  <% } %>
+</main>
+<script src="/freelancing/ops/ops-delivery.js"></script>
+<% include ./partials/layout-end.ejs %>

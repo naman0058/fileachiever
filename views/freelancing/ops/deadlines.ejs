@@ -1,0 +1,17 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main">
+  <%
+    pageTitle = 'Deadlines';
+    pageSubtitle = 'Active work sorted by deadline (IST labels on rows).';
+    breadcrumbs = [{ label: 'Freelancing', href: '/freelancing/dashboard' }, { label: 'Deadlines' }];
+  %>
+  <% include ./partials/page-header.ejs %>
+  <% include ./partials/filter-toolbar.ejs %>
+  <section class="fa-card">
+    <div class="fa-card__head">Upcoming &amp; overdue</div>
+    <div class="fa-card__body fa-card__body--flush">
+      <% include ./partials/work-table.ejs %>
+    </div>
+  </section>
+</main>
+<% include ./partials/layout-end.ejs %>

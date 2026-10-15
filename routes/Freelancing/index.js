@@ -1,4 +1,4 @@
-
+﻿
 var express = require('express');
 var router = express.Router();
 var upload = require('../multer');
@@ -8,9 +8,23 @@ var folder = 'freelancing'
 var table = 'freelancing'
 var table1 = 'source_code'
 var dataService = require('../dataService');
-// const { syncLeads } = require("./sheetSyncLeads"); // disabled - Google Sheets fetching removed
+const { syncLeads } = require('./sheetSyncLeads');
+const registerOpsPages = require('./ops-pages');
+const opsApiRouter = require('./ops-api');
+const freelancingOpsService = require('../../services/freelancingOpsService');
 
 router.use(dataService.freelanceAuthenticationToken);
+
+router.use(async (req, res, next) => {
+  try {
+    res.locals.opsNavBadges = await freelancingOpsService.getNavBadgeCounts();
+  } catch (_) {
+    res.locals.opsNavBadges = { overdue: 0, client_pending: 0, unassigned: 0, follow_up_overdue: 0 };
+  }
+  const seg = (req.path || '').replace(/^\//, '').split('/')[0] || '';
+  res.locals.opsNavActive = seg || 'dashboard';
+  next();
+});
 
 // import {v2 as cloudinary} from 'cloudinary';
 const cloudinary = require('cloudinary').v2
@@ -32,16 +46,27 @@ router.get('/', (req, res) => {
 })
 
 
-router.get("/sync-leads", async (req, res) => {
-  // Google Sheets sync disabled - redirect to dashboard
-  res.redirect('/freelancing/dashboard');
+router.get('/sync-leads', async (req, res) => {
+  const mode = (req.query.mode || 'daily').toLowerCase();
+  const syncMode = mode === 'backfill' ? 'backfill' : 'daily';
+  try {
+    const result = await syncLeads({ mode: syncMode });
+    const msg = encodeURIComponent(
+      result?.message || `Sync (${syncMode}) processed ${result?.processed ?? 0} row(s)`
+    );
+    return res.redirect(`/freelancing/dashboard?sync=${msg}`);
+  } catch (e) {
+    console.error('sync-leads error:', e);
+    const msg = encodeURIComponent(e.message || 'Sync failed');
+    return res.redirect(`/freelancing/dashboard?sync_error=${msg}`);
+  }
 });
+
+router.use('/api/ops', opsApiRouter);
 
 
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
-
-  console.log("Login Attempt:", email); // Avoid logging passwords
 
   const query = `SELECT id FROM ${table} WHERE email = ? AND password = ?`;
 
@@ -477,378 +502,6 @@ function safeInt(v, def = 0) {
 //     });
 //   });
 
- router.get('/dashboard', (req, res) => {
-  // -------- Filters (big-brand style) ----------
-  // defaults: current month window
-  const now = new Date();
-  const fromDefault = new Date(now.getFullYear(), now.getMonth(), 1);
-  const toDefault = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-  const from = toYMD(req.query.from || toYMD(fromDefault));
-  const to = toYMD(req.query.to || toYMD(toDefault));
-
-  // Optional filters
-  const agent = (req.query.agent || '').trim(); // exact agent name
-  const q = (req.query.q || '').trim(); // search string
-  const quick = (req.query.quick || '').trim(); // overdue|today|next48|undelivered|pay_pending|agent_pay_pending
-
-  // validate dates
-  if (!from || !to) return res.status(400).send('Invalid date range');
-
-  // Build WHERE safely
-  const whereBase = `1=1`;
-  const whereSearch = q ? ` AND (enquiry LIKE ? OR name LIKE ? OR number LIKE ?)` : '';
-  const whereAgent = agent ? ` AND assign = ?` : '';
-
-  // Quick filters mostly affect priority table, not KPIs.
-  let whereQuickPriority = '';
-  if (quick === 'overdue') whereQuickPriority = ` AND is_project_done = FALSE AND deadline < CURDATE()`;
-  else if (quick === 'today') whereQuickPriority = ` AND is_project_done = FALSE AND deadline = CURDATE()`;
-  else if (quick === 'next48')
-    whereQuickPriority = ` AND is_project_done = FALSE AND deadline BETWEEN CURDATE() + INTERVAL 1 DAY AND CURDATE() + INTERVAL 2 DAY`;
-  else if (quick === 'undelivered') whereQuickPriority = ` AND is_project_done = FALSE`;
-  else if (quick === 'pay_pending') whereQuickPriority = ` AND is_project_done = TRUE AND is_payment_received = FALSE`;
-  else if (quick === 'agent_pay_pending') whereQuickPriority = ` AND is_payment_received = TRUE AND is_agent_payment_done = FALSE`;
-
-  // Params
-  const searchParams = q ? [`%${q}%`, `%${q}%`, `%${q}%`] : [];
-  const agentParams = agent ? [agent] : [];
-
-  // -------- Queries ----------
-  // 1) KPI + Finance (date-range based for sales, operational based on deadline)
-  const queryKpis = `
-    SELECT
-      COUNT(CASE WHEN is_project_done = FALSE AND deadline < CURDATE() THEN 1 END) AS overdue,
-      COUNT(CASE WHEN is_project_done = FALSE AND deadline = CURDATE() THEN 1 END) AS today_deliveries,
-      COUNT(CASE WHEN is_project_done = FALSE AND deadline BETWEEN CURDATE() + INTERVAL 1 DAY AND CURDATE() + INTERVAL 2 DAY THEN 1 END) AS upcoming_48h,
-      COUNT(CASE WHEN is_project_done = FALSE THEN 1 END) AS undelivered_total,
-
-      COUNT(CASE WHEN status = 'in_progress' THEN 1 END) AS in_progress,
-      COUNT(CASE WHEN status = 'client_review' THEN 1 END) AS client_review,
-      COUNT(CASE WHEN status = 'in_changes' THEN 1 END) AS in_changes,
-      COUNT(CASE WHEN status = 'hold' THEN 1 END) AS hold,
-      COUNT(CASE WHEN assign IS NULL OR TRIM(assign) = '' THEN 1 END) AS not_assigned,
-
-      COUNT(CASE WHEN is_project_done = TRUE AND is_payment_received = FALSE THEN 1 END) AS client_payment_pending,
-      COUNT(CASE WHEN is_payment_received = TRUE AND is_agent_payment_done = FALSE THEN 1 END) AS agent_payment_pending
-    FROM leads
-    WHERE ${whereBase}
-    ${whereSearch}
-    ${whereAgent};
-  `;
-
-  // Finance: date-range (created_at)
-  const queryFinance = `
-    SELECT
-      COALESCE(SUM(CASE WHEN DATE(created_at) BETWEEN ? AND ? THEN lead_price ELSE 0 END), 0) AS revenue,
-      COALESCE(SUM(CASE WHEN DATE(created_at) BETWEEN ? AND ? THEN agent_price ELSE 0 END), 0) AS agent_cost,
-      COALESCE(SUM(CASE WHEN DATE(created_at) BETWEEN ? AND ? THEN (lead_price - agent_price) ELSE 0 END), 0) AS profit,
-      COALESCE(SUM(CASE WHEN DATE(created_at) BETWEEN ? AND ? THEN (lead_price - advance_amount) ELSE 0 END), 0) AS pending_amount
-    FROM leads
-    WHERE ${whereBase}
-    ${whereSearch}
-    ${whereAgent};
-  `;
-
-  // 2) Priority queue table (operational view)
-  const queryPriority = `
-    SELECT
-      id,
-      enquiry,
-      name,
-      number,
-      DATE_FORMAT(deadline, '%Y-%m-%d') AS deadline,
-      remarks,
-      assign AS agent_name,
-      status,
-      is_project_done,
-      is_payment_received,
-      is_agent_payment_done,
-      CASE
-        WHEN is_project_done = FALSE AND deadline = CURDATE() THEN 'TODAY'
-        WHEN is_project_done = FALSE AND deadline < CURDATE() THEN 'OVERDUE'
-        WHEN is_project_done = FALSE AND deadline BETWEEN CURDATE() + INTERVAL 1 DAY AND CURDATE() + INTERVAL 2 DAY THEN 'UPCOMING'
-        WHEN is_project_done = TRUE AND is_payment_received = FALSE THEN 'PAYMENT_PENDING'
-        WHEN is_payment_received = TRUE AND is_agent_payment_done = FALSE THEN 'AGENT_PAY_PENDING'
-        WHEN status = 'client_review' THEN 'CLIENT_REVIEW'
-        WHEN status = 'in_changes' THEN 'REVISION'
-        WHEN status = 'hold' THEN 'HOLD'
-        ELSE 'OTHER'
-      END AS queue_status
-    FROM leads
-    WHERE ${whereBase}
-    ${whereSearch}
-    ${whereAgent}
-    ${whereQuickPriority}
-    AND (
-      (is_project_done = FALSE AND deadline <= CURDATE() + INTERVAL 2 DAY)
-      OR (is_project_done = TRUE AND is_payment_received = FALSE)
-      OR (is_payment_received = TRUE AND is_agent_payment_done = FALSE)
-      OR status IN ('client_review','in_changes','hold')
-    )
-    ORDER BY
-      CASE
-        WHEN is_project_done = FALSE AND deadline < CURDATE() THEN 1
-        WHEN is_project_done = FALSE AND deadline = CURDATE() THEN 2
-        WHEN is_project_done = FALSE AND deadline BETWEEN CURDATE() + INTERVAL 1 DAY AND CURDATE() + INTERVAL 2 DAY THEN 3
-        WHEN is_project_done = TRUE AND is_payment_received = FALSE THEN 4
-        WHEN is_payment_received = TRUE AND is_agent_payment_done = FALSE THEN 5
-        ELSE 6
-      END,
-      deadline ASC
-    LIMIT 200;
-  `;
-
-  // 3) Workload by agent
-  const queryWorkload = `
-    SELECT
-      IF(assign IS NULL OR TRIM(assign) = '', 'Unassigned', assign) AS assign,
-      COUNT(*) AS project_count,
-      COUNT(CASE WHEN deadline < CURDATE() AND is_project_done = FALSE THEN 1 END) AS overdue_count,
-      COUNT(CASE WHEN deadline = CURDATE() AND is_project_done = FALSE THEN 1 END) AS due_today_count
-    FROM leads
-    WHERE is_project_done = FALSE
-      AND status <> 'hold'
-      ${whereSearch}
-      ${whereAgent}
-    GROUP BY IF(assign IS NULL OR TRIM(assign) = '', 'Unassigned', assign)
-    ORDER BY project_count DESC
-    LIMIT 30;
-  `;
-
-  // 4) Agent payment pending (group)
-  const queryAgentPayPending = `
-    SELECT
-      IF(assign IS NULL OR TRIM(assign) = '', 'Unassigned', assign) AS assign,
-      COUNT(*) AS project_count
-    FROM leads
-    WHERE is_agent_payment_done = FALSE AND is_payment_received = TRUE
-      ${whereSearch}
-      ${whereAgent}
-    GROUP BY IF(assign IS NULL OR TRIM(assign) = '', 'Unassigned', assign)
-    ORDER BY project_count DESC
-    LIMIT 30;
-  `;
-
-  // 5) Status distribution (for donut chart) in selected range
-  const queryStatusDist = `
-    SELECT status, COUNT(*) AS c
-    FROM leads
-    WHERE DATE(created_at) BETWEEN ? AND ?
-      ${whereSearch}
-      ${whereAgent}
-    GROUP BY status;
-  `;
-
-  // 6) Delivery trend (bar chart) - last 14 days deliveries due
-  const queryDeliveryTrend = `
-    SELECT
-      DATE(deadline) AS day,
-      COUNT(CASE WHEN is_project_done = FALSE THEN 1 END) AS due_total,
-      COUNT(CASE WHEN is_project_done = FALSE AND deadline < CURDATE() THEN 1 END) AS overdue,
-      COUNT(CASE WHEN is_project_done = TRUE THEN 1 END) AS done
-    FROM leads
-    WHERE deadline BETWEEN (CURDATE() - INTERVAL 13 DAY) AND (CURDATE() + INTERVAL 1 DAY)
-      ${whereSearch}
-      ${whereAgent}
-    GROUP BY DATE(deadline)
-    ORDER BY day ASC;
-  `;
-
-  // 7) Monthly performance (existing)
-  const queryMonthlyPerformance = `
-    SELECT
-      m.month AS month,
-      COALESCE(x.leads_count, 0) AS leads_count,
-      COALESCE(x.revenue, 0) AS revenue,
-      COALESCE(x.profit, 0) AS profit
-    FROM (
-      SELECT 1 AS month UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
-      UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
-      UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
-    ) m
-    LEFT JOIN (
-      SELECT
-        MONTH(created_at) AS month,
-        COUNT(*) AS leads_count,
-        COALESCE(SUM(lead_price), 0) AS revenue,
-        COALESCE(SUM(lead_price - agent_price), 0) AS profit
-      FROM leads
-      WHERE YEAR(created_at) = YEAR(CURDATE())
-      GROUP BY MONTH(created_at)
-    ) x ON x.month = m.month
-    ORDER BY m.month ASC;
-  `;
-
-  // 8) NEW: Monthly status counters (pending/done + all key statuses)
-  // Notes:
-  // - Uses YEAR(created_at)=current year (same as your monthly performance)
-  // - Applies q/agent filters (optional)
-  // - Adds done/pending and operational flags as separate counters
-  const queryMonthlyStatusCounters = `
-    SELECT
-      m.month AS month,
-
-      -- core delivery state
-      COALESCE(x.pending_work, 0) AS pending_work,
-      COALESCE(x.done_work, 0) AS done_work,
-
-      -- status buckets
-      COALESCE(x.in_progress, 0) AS in_progress,
-      COALESCE(x.client_review, 0) AS client_review,
-      COALESCE(x.in_changes, 0) AS in_changes,
-      COALESCE(x.hold, 0) AS hold,
-      COALESCE(x.other_status, 0) AS other_status,
-
-      -- operational/finance buckets (optional but usually useful)
-      COALESCE(x.not_assigned, 0) AS not_assigned,
-      COALESCE(x.client_payment_pending, 0) AS client_payment_pending,
-      COALESCE(x.agent_payment_pending, 0) AS agent_payment_pending
-    FROM (
-      SELECT 1 AS month UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
-      UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
-      UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
-    ) m
-    LEFT JOIN (
-      SELECT
-        MONTH(created_at) AS month,
-
-        COUNT(CASE WHEN is_project_done = FALSE THEN 1 END) AS pending_work,
-        COUNT(CASE WHEN is_project_done = TRUE THEN 1 END) AS done_work,
-
-        COUNT(CASE WHEN status = 'in_progress' THEN 1 END) AS in_progress,
-        COUNT(CASE WHEN status = 'client_review' THEN 1 END) AS client_review,
-        COUNT(CASE WHEN status = 'in_changes' THEN 1 END) AS in_changes,
-        COUNT(CASE WHEN status = 'hold' THEN 1 END) AS hold,
-        COUNT(CASE WHEN status NOT IN ('in_progress','client_review','in_changes','hold') OR status IS NULL OR TRIM(status) = '' THEN 1 END) AS other_status,
-
-        COUNT(CASE WHEN assign IS NULL OR TRIM(assign) = '' THEN 1 END) AS not_assigned,
-        COUNT(CASE WHEN is_project_done = TRUE AND is_payment_received = FALSE THEN 1 END) AS client_payment_pending,
-        COUNT(CASE WHEN is_payment_received = TRUE AND is_agent_payment_done = FALSE THEN 1 END) AS agent_payment_pending
-      FROM leads
-      WHERE YEAR(created_at) = YEAR(CURDATE())
-        ${whereSearch}
-        ${whereAgent}
-      GROUP BY MONTH(created_at)
-    ) x ON x.month = m.month
-    ORDER BY m.month ASC;
-  `;
-
-  // 9) Agents list for filter dropdown
-  const queryAgentsList = `
-    SELECT DISTINCT assign
-    FROM leads
-    WHERE assign IS NOT NULL AND TRIM(assign) <> ''
-    ORDER BY assign ASC;
-  `;
-
-  // ---------- Execute (single multiStatement) ----------
-  const multi = `
-    ${queryKpis}
-    ${queryFinance}
-    ${queryPriority}
-    ${queryWorkload}
-    ${queryAgentPayPending}
-    ${queryStatusDist}
-    ${queryDeliveryTrend}
-    ${queryMonthlyPerformance}
-    ${queryMonthlyStatusCounters}
-    ${queryAgentsList}
-  `;
-
-  // Build parameter list in exact order of placeholders
-  const params = [];
-
-  // queryKpis placeholders: search + agent
-  params.push(...searchParams, ...agentParams);
-
-  // queryFinance: 8 placeholders for range repeated, then search + agent
-  params.push(from, to, from, to, from, to, from, to);
-  params.push(...searchParams, ...agentParams);
-
-  // queryPriority: search + agent
-  params.push(...searchParams, ...agentParams);
-
-  // queryWorkload: search + agent
-  params.push(...searchParams, ...agentParams);
-
-  // queryAgentPayPending: search + agent
-  params.push(...searchParams, ...agentParams);
-
-  // queryStatusDist: from/to + search + agent
-  params.push(from, to, ...searchParams, ...agentParams);
-
-  // queryDeliveryTrend: search + agent
-  params.push(...searchParams, ...agentParams);
-
-  // queryMonthlyPerformance: none (as written)
-
-  // queryMonthlyStatusCounters: search + agent (because it includes whereSearch/whereAgent)
-  params.push(...searchParams, ...agentParams);
-
-  // queryAgentsList: none
-
-  pool.query(multi, params, (err, rs) => {
-    if (err) {
-      console.error('dashboard error:', err);
-      return res.status(500).send('Dashboard error');
-    }
-
-    const kpis = rs?.[0]?.[0] || {};
-    const finance = rs?.[1]?.[0] || {};
-    const priorityQueue = rs?.[2] || [];
-    const workload = rs?.[3] || [];
-    const agentPaymentPending = rs?.[4] || [];
-    const statusDist = rs?.[5] || [];
-    const deliveryTrend = rs?.[6] || [];
-    const monthlyPerformance = rs?.[7] || [];
-    const monthlyStatusCounters = rs?.[8] || [];
-    const agentsList = (rs?.[9] || []).map((x) => x.assign);
-
-    const dashboard = {
-      meta: {
-        today: new Date().toISOString().split('T')[0],
-        filters: { from, to, agent, q, quick },
-      },
-      kpis: {
-        overdue: safeInt(kpis.overdue),
-        today_deliveries: safeInt(kpis.today_deliveries),
-        upcoming_48h: safeInt(kpis.upcoming_48h),
-        undelivered_total: safeInt(kpis.undelivered_total),
-
-        in_progress: safeInt(kpis.in_progress),
-        client_review: safeInt(kpis.client_review),
-        in_changes: safeInt(kpis.in_changes),
-        hold: safeInt(kpis.hold),
-        not_assigned: safeInt(kpis.not_assigned),
-
-        client_payment_pending: safeInt(kpis.client_payment_pending),
-        agent_payment_pending: safeInt(kpis.agent_payment_pending),
-      },
-      finance: {
-        revenue: safeInt(finance.revenue),
-        agent_cost: safeInt(finance.agent_cost),
-        profit: safeInt(finance.profit),
-        pending_amount: safeInt(finance.pending_amount),
-      },
-      priorityQueue,
-      workload,
-      agentPaymentPending,
-      analytics: {
-        statusDist,
-        deliveryTrend,
-      },
-      monthlyPerformance,
-
-      // NEW: month-wise counters (pending/done + all status buckets)
-      monthlyStatusCounters,
-
-      agentsList,
-    };
-
-    return res.render(`${folder}/dashboard`, { dashboard });
-  });
-});
 
 
 
@@ -1320,7 +973,7 @@ router.get('/leads/:status', (req, res) => {
       return lead;
     });
 
-    // ✅ IMPORTANT: year is now passed
+    // âœ… IMPORTANT: year is now passed
     res.render(`${folder}/convertedLeads`, {
       result: results,
       month: statusType,
@@ -1567,7 +1220,7 @@ router.get('/assign/:assign', (req, res) => {
         return lead;
       });
 
-      // ✅ pass year to EJS
+      // âœ… pass year to EJS
       res.render(`${folder}/convertedLeads`, { result: results, month: assign, year });
     }
   );
@@ -1628,7 +1281,7 @@ router.get('/workload/:assign', (req, res) => {
         return lead;
       });
 
-      // ✅ pass year to EJS
+      // âœ… pass year to EJS
       res.render(`${folder}/convertedLeads`, { result: results, month: assign, year });
     }
   );
@@ -1692,26 +1345,17 @@ router.get('/profit/yearly', (req, res) => {
 
 
 
-router.post('/update-field', (req, res) => {
+router.post('/update-field', async (req, res) => {
   const { id, field, value } = req.body;
-
-  // Ensure only valid fields are updated
-  const allowedFields = ['name', 'number', 'enquiry', 'deadline', 'assign', 'lead_price', 'agent_price', 'advance_amount', 'remarks','is_project_done', 'is_payment_received', 'is_agent_payment_done','status','pakistani_price'];
-  if (!allowedFields.includes(field)) {
-      return res.json({ success: false, message: "Invalid field" });
+  const actor = req.session?.affiliation ? `user:${req.session.affiliation}` : 'ops';
+  try {
+    const result = await freelancingOpsService.updateWorkField(id, field, value, actor);
+    if (!result.success) return res.json(result);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false });
   }
-
-  pool.query(
-      `UPDATE leads SET ?? = ? WHERE id = ?`, 
-      [field, value, id], 
-      (err, result) => {
-          if (err) {
-              console.error(err);
-              return res.json({ success: false });
-          }
-          res.json({ success: true });
-      }
-  );
 });
 
 
@@ -1760,5 +1404,7 @@ router.post("/settings", async (req, res) => {
     res.render("freelancing/settings", { settings, message: null, error: e.message });
   }
 });
+
+registerOpsPages(router, folder);
 
 module.exports = router;

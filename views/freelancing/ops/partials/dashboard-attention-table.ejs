@@ -1,0 +1,39 @@
+<%
+  const attentionItems = attentionQueue || [];
+%>
+<% if (!attentionItems.length) { %>
+  <% emptyTitle = 'No exceptions flagged'; emptyText = 'Deterministic rules only — critical unassigned, overdue client waits, due-today not started, etc.'; %>
+  <% include ./empty-state.ejs %>
+<% } else { %>
+  <div class="fa-table-wrap">
+    <table class="fa-table fa-table--compact fa-table--exec">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Project</th>
+          <th>Issue</th>
+          <th>Owner</th>
+          <th>Deadline</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% attentionItems.forEach(function (row) { %>
+          <tr>
+            <td><% var priorityVal = row.priority; %><% include ./priority-badge.ejs %></td>
+            <td>
+              <a href="/freelancing/work/<%= row.id %>"><%= row.project %></a>
+              <span class="fa-cell-meta">#<%= row.id %></span>
+            </td>
+            <td class="fa-text-sm"><%= row.issue %></td>
+            <td><%= row.owner %></td>
+            <td><%= row.deadline || '—' %></td>
+            <td class="fa-col-actions">
+              <a class="fa-btn fa-btn--ghost fa-btn--sm" href="<%= row.action_href %>"><%= row.recommended_action %></a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

@@ -1,0 +1,35 @@
+<%
+  var qc = queueCounts || {};
+  var activeTab = tab || 'all';
+  function priHref(id) {
+    if (id === 'all') return '/freelancing/priority';
+    return '/freelancing/priority?view=' + encodeURIComponent(id);
+  }
+  var cards = [
+    { id: 'all', label: 'All Active', count: qc.active_all, desc: 'Active work across queues', icon: 'grid', tone: 'primary' },
+    { id: 'critical', label: 'Critical', count: qc.critical, desc: 'Highest priority items', icon: 'alert', tone: 'danger' },
+    { id: 'high', label: 'High Priority', count: qc.high_priority, desc: 'Elevated priority work', icon: 'flag', tone: 'warning' },
+    { id: 'overdue', label: 'Overdue', count: qc.overdue, desc: 'Past deadline', icon: 'clock', tone: 'danger' },
+    { id: 'today', label: 'Due Today', count: qc.due_today, desc: 'Due by end of today', icon: 'calendar', tone: 'info' },
+    { id: 'next48', label: 'Next 48 Hours', count: qc.next_48h, desc: 'Due within 2 days', icon: 'hourglass', tone: 'info' },
+    { id: 'blocked', label: 'Blocked', count: qc.blocked, desc: 'Blocker recorded', icon: 'lock', tone: 'neutral' },
+    { id: 'missing_deadline', label: 'Missing Deadline', count: qc.missing_deadline, desc: 'No deadline set', icon: 'help', tone: 'review' },
+    { id: 'mine', label: 'My Assigned', count: null, desc: 'Your assigned work', icon: 'user', tone: 'info' },
+    { id: 'attention', label: 'Needs Attention', count: null, desc: 'Rule-based exceptions', icon: 'bell', tone: 'warning' },
+  ];
+%>
+<nav class="fa-priority-metrics" aria-label="Priority queue filters">
+  <% cards.forEach(function (c) {
+    var active = activeTab === c.id;
+    var href = priHref(c.id);
+  %>
+    <a href="<%= href %>" class="fa-priority-metric fa-priority-metric--<%= c.tone %> <%= active ? 'is-active' : '' %>">
+      <span class="fa-priority-metric__icon fa-priority-metric__icon--<%= c.icon %>" aria-hidden="true"></span>
+      <span class="fa-priority-metric__body">
+        <span class="fa-priority-metric__label"><%= c.label %></span>
+        <% if (c.count != null) { %><span class="fa-priority-metric__count"><%= c.count %></span><% } %>
+        <span class="fa-priority-metric__desc"><%= c.desc %></span>
+      </span>
+    </a>
+  <% }); %>
+</nav>

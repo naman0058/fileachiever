@@ -1,0 +1,121 @@
+<%
+  const rows = (list && list.items) ? list.items : (items || []);
+  var openSuffix = typeof returnTo !== 'undefined' && returnTo ? ('?returnTo=' + returnTo) : '';
+  function agentInitials(name) {
+    if (!name || !String(name).trim()) return '?';
+    var parts = String(name).trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+%>
+<% if (!rows.length) { %>
+  <% 
+    emptyTitle = typeof emptyTitle !== 'undefined' ? emptyTitle : 'No work in this queue';
+    emptyText = typeof emptyText !== 'undefined' ? emptyText : 'Try another view or clear filters.';
+    emptyActionHref = typeof filterClearPath !== 'undefined' ? filterClearPath : '/freelancing/priority';
+    emptyActionLabel = 'Reset view';
+  %>
+  <% include ./empty-state.ejs %>
+<% } else { %>
+  <div class="fa-bulk-bar" id="faBulkBar" hidden>
+    <span class="fa-bulk-bar__count" id="faBulkCount">0 selected</span>
+    <select class="fa-select fa-select--sm" id="faBulkAction" aria-label="Bulk action">
+      <option value="">Bulk action…</option>
+      <option value="assign">Set assignee</option>
+      <option value="priority">Set priority</option>
+      <option value="deadline">Set deadline</option>
+      <option value="blocker">Set blocker</option>
+      <option value="clear_blocker">Clear blocker</option>
+    </select>
+    <input class="fa-input fa-input--sm" id="faBulkValue" type="text" placeholder="Value" hidden />
+    <select class="fa-select fa-select--sm" id="faBulkPriority" hidden>
+      <% ['critical','high','medium','low'].forEach(function (p) { %>
+        <option value="<%= p %>"><%= p %></option>
+      <% }); %>
+    </select>
+    <input class="fa-input fa-input--sm" id="faBulkDeadline" type="date" hidden />
+    <button type="button" class="fa-btn fa-btn--primary fa-btn--sm" id="faBulkApply">Apply</button>
+    <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" id="faBulkClear">Clear</button>
+  </div>
+  <div class="fa-table-wrap fa-table-wrap--priority">
+    <table class="fa-table fa-table--priority" data-fa-priority-table>
+      <thead>
+        <tr>
+          <th class="fa-col-check" scope="col">
+            <input type="checkbox" id="faSelectAll" aria-label="Select all on page" />
+          </th>
+          <th scope="col">Priority</th>
+          <th scope="col">Project</th>
+          <th scope="col">Client</th>
+          <th scope="col">Assigned to</th>
+          <th scope="col">Stage</th>
+          <th class="fa-col-date" scope="col">Deadline</th>
+          <th scope="col">Time left</th>
+          <th scope="col" class="fa-col-blocker">Blocker</th>
+          <th class="fa-col-date" scope="col">Last updated</th>
+          <th class="fa-col-actions" scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(function (row) { %>
+          <tr data-fa-row data-work-id="<%= row.id %>" tabindex="0">
+            <td class="fa-col-check">
+              <input type="checkbox" class="fa-row-check" value="<%= row.id %>" aria-label="Select work #<%= row.id %>" />
+            </td>
+            <td>
+              <% var priorityVal = row.priority_effective || 'medium'; %>
+              <% include ./priority-badge.ejs %>
+              <% if ((row.intel_flags || []).length) { %>
+                <div class="fa-intel-flags">
+                  <% (row.intel_flags || []).forEach(function (f) { %>
+                    <span class="fa-intel-flag fa-intel-flag--<%= f %>" title="<%= f.replace(/_/g,' ') %>"><%= f.replace(/_/g,' ') %></span>
+                  <% }); %>
+                </div>
+              <% } %>
+            </td>
+            <td>
+              <span class="fa-cell-primary"><%= row.enquiry || '—' %></span>
+              <span class="fa-cell-meta">#<%= row.id %></span>
+            </td>
+            <td><%= row.name || '—' %></td>
+            <td>
+              <% if (row.assign) { %>
+                <span class="fa-agent-chip">
+                  <span class="fa-agent-chip__avatar" aria-hidden="true"><%= agentInitials(row.assign) %></span>
+                  <span class="fa-agent-chip__name"><%= row.assign %></span>
+                </span>
+              <% } else { %>
+                <span class="fa-text-muted">Unassigned</span>
+              <% } %>
+            </td>
+            <td><% var stageVal = row.delivery_stage_effective || row.status; %><% include ./stage-badge.ejs %></td>
+            <td class="fa-col-date">
+              <% if (row.deadline) { %>
+                <time datetime="<%= String(row.deadline).slice(0, 10) %>"><%= String(row.deadline).slice(0, 10) %></time>
+              <% } else { %>
+                <span class="fa-text-muted">—</span>
+              <% } %>
+            </td>
+            <td>
+              <% var tr = row.time_remaining || {}; %>
+              <span class="fa-pill fa-pill--time fa-pill--<%= tr.kind || 'unknown' %>"><%= tr.label || '—' %></span>
+            </td>
+            <td class="fa-cell-truncate fa-col-blocker" title="<%= row.blocker_reason || '' %>"><%= row.blocker_reason || '—' %></td>
+            <td class="fa-col-date fa-text-sm"><%= row.last_activity_at ? String(row.last_activity_at).slice(0, 16) : (row.created_at ? String(row.created_at).slice(0, 16) : '—') %></td>
+            <td class="fa-col-actions">
+              <div class="fa-row-actions">
+                <button type="button" class="fa-icon-btn" data-fa-quick-edit="<%= row.id %>" title="Quick edit" aria-label="Quick edit work <%= row.id %>">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <a class="fa-icon-btn" href="/freelancing/work/<%= row.id %><%= openSuffix %>" title="Open record" aria-label="Open work <%= row.id %>">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% include ./pagination.ejs %>
+<% } %>

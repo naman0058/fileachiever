@@ -1,0 +1,306 @@
+<% include ./partials/layout-start.ejs %>
+<main class="fa-ds ops-main" id="faWorkDetail" data-work-id="<%= work.id %>" data-ops-version="<%= work.ops_version != null ? work.ops_version : 0 %>">
+  <%
+    pageTitle = 'Work #' + work.id;
+    pageSubtitle = (work.enquiry || '') + ' · ' + (work.name || '') + ' · ' + (work.number || '');
+    breadcrumbs = [
+      { label: 'Freelancing', href: '/freelancing/dashboard' },
+      { label: 'Priority', href: '/freelancing/priority' },
+      { label: '#' + work.id },
+    ];
+    var backHref = (typeof returnTo !== 'undefined' && returnTo) ? decodeURIComponent(returnTo) : '/freelancing/priority';
+    pageHeaderActions = '<a class="fa-btn fa-btn--secondary fa-btn--sm" href="' + backHref + '">Back to queue</a>';
+    var tabs = [
+      { id: 'overview', label: 'Overview' },
+      { id: 'execution', label: 'Execution' },
+      { id: 'delivery', label: 'Delivery' },
+      { id: 'dependencies', label: 'Client dependencies' },
+      { id: 'finance', label: 'Finance' },
+      { id: 'activity', label: 'Activity history' },
+    ];
+    var activeTab = tab || 'overview';
+    var clientOutstanding = (Number(work.lead_price) || 0) - (Number(work.advance_amount) || 0);
+    var depOpts = clientDependencies || ['none','waiting_files','waiting_info','waiting_approval','waiting_feedback','revision_clarification','other'];
+  %>
+  <% include ./partials/page-header.ejs %>
+
+  <ul class="nav nav-tabs mb-3 fa-work-detail-tabs" role="tablist">
+    <% tabs.forEach(function (t) { %>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link <%= activeTab === t.id ? 'active' : '' %>" href="?tab=<%= t.id %>" role="tab"><%= t.label %></a>
+      </li>
+    <% }); %>
+  </ul>
+
+  <section class="fa-card">
+    <div class="fa-card__body">
+      <% if (activeTab === 'overview') { %>
+        <dl class="row mb-0 fa-work-dl">
+          <dt class="col-sm-3 fa-field__label">Project / enquiry</dt>
+          <dd class="col-sm-9"><%= work.enquiry || '—' %></dd>
+          <dt class="col-sm-3 fa-field__label">Client</dt>
+          <dd class="col-sm-9"><%= work.name || '—' %> <% if (work.number) { %><span class="text-muted">· <%= work.number %></span><% } %></dd>
+          <dt class="col-sm-3 fa-field__label">Work ID</dt>
+          <dd class="col-sm-9"><code>#<%= work.id %></code></dd>
+          <% if (hasOps) { %>
+            <dt class="col-sm-3 fa-field__label">Priority</dt>
+            <dd class="col-sm-9"><%= work.priority_effective || 'medium' %></dd>
+          <% } %>
+          <dt class="col-sm-3 fa-field__label">Current stage</dt>
+          <dd class="col-sm-9"><% var stageVal = work.delivery_stage_effective; %><% include ./partials/stage-badge.ejs %></dd>
+          <dt class="col-sm-3 fa-field__label">Execution status</dt>
+          <dd class="col-sm-9"><span class="fa-text-sm"><%= work.status || '—' %></span> <span class="text-muted fa-text-sm">(legacy field; separate from delivery stage)</span></dd>
+          <dt class="col-sm-3 fa-field__label">Deadline</dt>
+          <dd class="col-sm-9">
+            <% if (work.deadline) { %>
+              <time datetime="<%= String(work.deadline).slice(0,10) %>"><%= String(work.deadline).slice(0,10) %></time>
+              <% var urgencyVal = work.urgency; %>
+              <% include ./partials/urgency-badge.ejs %>
+            <% } else { %>—<% } %>
+          </dd>
+          <dt class="col-sm-3 fa-field__label">Assigned agent</dt>
+          <dd class="col-sm-9"><%= work.assign || '—' %></dd>
+          <dt class="col-sm-3 fa-field__label">Internal completion</dt>
+          <dd class="col-sm-9"><%= work.is_project_done ? 'Yes' : 'No' %><% if (work.internal_completed_at) { %> <span class="text-muted fa-text-sm">· <%= work.internal_completed_at %></span><% } %></dd>
+        </dl>
+      <% } else if (activeTab === 'execution') { %>
+        <div class="fa-stack-list mb-4">
+          <div class="fa-stack-list__row"><span class="fa-field__label">Work description</span></div>
+          <p class="mb-0"><%= work.remarks || '—' %></p>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="fa-field__label" for="wd-assign">Assignment</label>
+            <input id="wd-assign" class="fa-input" type="text" data-wd-field="assign" value="<%= work.assign || '' %>" />
+          </div>
+          <% if (hasOps) { %>
+            <div class="col-md-6">
+              <label class="fa-field__label" for="wd-priority">Priority</label>
+              <select id="wd-priority" class="fa-select" data-wd-field="priority">
+                <% ['critical', 'high', 'medium', 'low'].forEach(function (p) { %>
+                  <option value="<%= p %>" <%= work.priority_effective === p ? 'selected' : '' %>><%= p %></option>
+                <% }); %>
+              </select>
+            </div>
+          <% } %>
+          <div class="col-md-6">
+            <label class="fa-field__label" for="wd-deadline">Deadline</label>
+            <input id="wd-deadline" class="fa-input" type="date" data-wd-field="deadline" value="<%= work.deadline ? String(work.deadline).slice(0,10) : '' %>" />
+          </div>
+          <div class="col-md-6">
+            <label class="fa-field__label" for="wd-internal-done">Internal completion</label>
+            <select id="wd-internal-done" class="fa-select" data-wd-field="is_project_done">
+              <option value="0" <%= !work.is_project_done ? 'selected' : '' %>>Not complete</option>
+              <option value="1" <%= work.is_project_done ? 'selected' : '' %>>Complete (internal)</option>
+            </select>
+            <p class="fa-text-sm text-muted mt-1">Does not mark client delivery — use Delivery tab for stage.</p>
+          </div>
+          <% if (hasOps) { %>
+            <div class="col-12">
+              <label class="fa-field__label" for="wd-blocker">Execution blockers</label>
+              <input id="wd-blocker" class="fa-input" type="text" data-wd-field="blocker_reason" value="<%= work.blocker_reason || '' %>" placeholder="Optional blocker note" />
+            </div>
+          <% } %>
+        </div>
+        <div class="mt-3">
+          <button type="button" class="fa-btn fa-btn--primary fa-btn--sm" data-wd-save="execution">Save execution</button>
+        </div>
+      <% } else if (activeTab === 'delivery') { %>
+        <% if (typeof deliveryEvents !== 'undefined' && (deliveryEvents || []).length) { %>
+          <h3 class="fa-text-sm fa-field__label mt-0">Delivery timeline</h3>
+          <ul class="fa-stack-list mb-3">
+            <% deliveryEvents.forEach(function (ev) { %>
+              <li class="fa-stack-list__row"><span><%= ev.event_type %></span><span class="fa-text-sm"><%= ev.occurred_at %></span></li>
+            <% }); %>
+          </ul>
+        <% } %>
+        <% if (typeof revisions !== 'undefined' && (revisions || []).length) { %>
+          <h3 class="fa-text-sm fa-field__label">Revision history</h3>
+          <div class="fa-table-wrap mb-3" style="max-height:240px;">
+            <table class="fa-table fa-table--compact">
+              <thead><tr><th>#</th><th>Reason</th><th>State</th><th>Requested</th><th>Completed</th></tr></thead>
+              <tbody>
+                <% revisions.forEach(function (rv) { %>
+                  <tr>
+                    <td><%= rv.revision_number %></td>
+                    <td><%= rv.reason || '—' %></td>
+                    <td><%= rv.state %></td>
+                    <td><%= rv.requested_at %></td>
+                    <td><%= rv.completed_at || '—' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+        <% if (hasOps) { %>
+          <label class="fa-field__label" for="wd-stage">Delivery stage</label>
+          <select id="wd-stage" class="fa-select" data-wd-field="delivery_stage" data-prev="<%= work.delivery_stage_effective %>" style="max-width:320px">
+            <% (stages || []).forEach(function (s) { %>
+              <option value="<%= s %>" <%= work.delivery_stage_effective === s ? 'selected' : '' %>><%= s.split('_').join(' ') %></option>
+            <% }); %>
+          </select>
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" id="wd-force-stage" />
+            <label class="form-check-label fa-text-sm" for="wd-force-stage">Force transition (requires reason — logged in activity)</label>
+          </div>
+          <label class="fa-field__label mt-2" for="wd-stage-reason">Reason (optional unless forced)</label>
+          <input id="wd-stage-reason" class="fa-input" type="text" maxlength="500" placeholder="Why this stage change?" />
+          <dl class="row mt-4 mb-0 fa-work-dl">
+            <dt class="col-sm-4 fa-field__label">Internal completed at</dt>
+            <dd class="col-sm-8"><%= work.internal_completed_at || '—' %></dd>
+            <dt class="col-sm-4 fa-field__label">Submitted to client</dt>
+            <dd class="col-sm-8"><%= work.client_submitted_at || '—' %></dd>
+            <dt class="col-sm-4 fa-field__label">Delivered at</dt>
+            <dd class="col-sm-8"><%= work.delivered_at || '—' %></dd>
+            <dt class="col-sm-4 fa-field__label">Client accepted</dt>
+            <dd class="col-sm-8"><%= work.client_accepted_at || '—' %></dd>
+          </dl>
+          <div class="mt-3">
+            <button type="button" class="fa-btn fa-btn--primary fa-btn--sm" data-wd-save="delivery">Apply stage</button>
+          </div>
+        <% } else { %>
+          <p class="text-muted">Run migrations <code>freelancing_ops_workflow.sql</code> and <code>freelancing_ops_lifecycle.sql</code> to enable delivery workflow.</p>
+        <% } %>
+      <% } else if (activeTab === 'dependencies') { %>
+        <% if (hasOps) { %>
+          <p class="fa-text-sm text-muted">Client dependency lifecycle is separate from delivery stage. Payment status is unchanged here.</p>
+          <dl class="row fa-work-dl mb-3">
+            <dt class="col-sm-3 fa-field__label">Lifecycle status</dt>
+            <dd class="col-sm-9"><%= (work.client_dependency_status_effective || work.client_dependency_status || '—').toString().split('_').join(' ') %></dd>
+            <dt class="col-sm-3 fa-field__label">Waiting since</dt>
+            <dd class="col-sm-9"><%= work.waiting_since || work.client_dependency_opened_at || '—' %></dd>
+            <dt class="col-sm-3 fa-field__label">Days waiting</dt>
+            <dd class="col-sm-9"><%= work.days_waiting != null ? work.days_waiting : '—' %></dd>
+          </dl>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="fa-field__label" for="wd-dep">Client dependency</label>
+              <select id="wd-dep" class="fa-select" data-wd-field="client_dependency">
+                <% depOpts.forEach(function (d) { %>
+                  <option value="<%= d %>" <%= (work.client_dependency_normalized || work.client_dependency || 'none') === d ? 'selected' : '' %>><%= d.split('_').join(' ') %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="fa-field__label" for="wd-dep-status">Lifecycle status</label>
+              <select id="wd-dep-status" class="fa-select" data-wd-field="client_dependency_status">
+                <% (dependencyStatuses || []).forEach(function (s) { %>
+                  <option value="<%= s %>" <%= (work.client_dependency_status || 'open') === s ? 'selected' : '' %>><%= s.split('_').join(' ') %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="fa-field__label" for="wd-owner">Follow-up owner</label>
+              <input id="wd-owner" class="fa-input" type="text" data-wd-field="follow_up_owner" value="<%= work.follow_up_owner || '' %>" />
+            </div>
+            <div class="col-md-6">
+              <label class="fa-field__label" for="wd-follow">Next follow-up</label>
+              <input id="wd-follow" class="fa-input" type="date" data-wd-field="follow_up_due" value="<%= work.follow_up_due ? String(work.follow_up_due).slice(0,10) : '' %>" />
+            </div>
+            <div class="col-md-6">
+              <label class="fa-field__label" for="wd-next">Next action date</label>
+              <input id="wd-next" class="fa-input" type="date" data-wd-field="next_action_date" value="<%= work.next_action_date ? String(work.next_action_date).slice(0,10) : '' %>" />
+            </div>
+            <div class="col-12">
+              <label class="fa-field__label" for="wd-dep-note">Internal notes</label>
+              <textarea id="wd-dep-note" class="fa-input" rows="3" data-wd-field="client_dependency_note"><%= work.client_dependency_note || '' %></textarea>
+            </div>
+          </div>
+          <div class="mt-3 d-flex flex-wrap gap-2">
+            <button type="button" class="fa-btn fa-btn--primary fa-btn--sm" data-wd-save="dependencies">Save dependency</button>
+            <button type="button" class="fa-btn fa-btn--secondary fa-btn--sm" data-wd-follow-up>Record follow-up</button>
+            <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-wd-resolve-dep>Resolve dependency</button>
+            <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" data-wd-reopen-dep>Reopen</button>
+          </div>
+          <% if ((followUpHistory || []).length) { %>
+            <h3 class="fa-field__label mt-4">Follow-up history</h3>
+            <div class="fa-table-wrap" style="max-height:280px;">
+              <table class="fa-table fa-table--compact">
+                <thead><tr><th>When</th><th>Outcome</th><th>Owner</th><th>Next</th><th>Note</th><th>Channel</th></tr></thead>
+                <tbody>
+                  <% followUpHistory.forEach(function (h) { %>
+                    <tr>
+                      <td><%= h.created_at %></td>
+                      <td><%= h.outcome || '—' %></td>
+                      <td><%= h.follow_up_owner || '—' %></td>
+                      <td><%= h.next_follow_up || '—' %></td>
+                      <td><%= h.internal_note || '—' %></td>
+                      <td><%= h.channel || 'internal_note' %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+            <p class="fa-text-sm text-muted">Channel <code>internal_note</code> means recorded in system only — not an automated client message.</p>
+          <% } %>
+        <% } else { %>
+          <p class="text-muted">Client dependency fields require the ops workflow migration.</p>
+        <% } %>
+      <% } else if (activeTab === 'finance') { %>
+        <div class="fa-stack-list">
+          <div class="fa-stack-list__row"><span>Lead price (contracted, INR)</span><span class="fa-stack-list__val"><%= work.lead_price != null ? work.lead_price : '—' %></span></div>
+          <div class="fa-stack-list__row"><span>PKR price (separate)</span><span class="fa-stack-list__val"><%= work.pakistani_price != null ? work.pakistani_price : '—' %></span></div>
+          <div class="fa-stack-list__row"><span>Payments received (INR)</span><span class="fa-stack-list__val"><%= work.advance_amount != null ? work.advance_amount : '—' %></span></div>
+          <div class="fa-stack-list__row"><span>Client outstanding (INR)</span><span class="fa-stack-list__val"><%= clientOutstanding %></span></div>
+          <div class="fa-stack-list__row"><span>Client payment flag</span><span><%= work.is_payment_received ? 'Fully received' : 'Not fully received' %></span></div>
+          <div class="fa-stack-list__row"><span>Agent cost (INR)</span><span class="fa-stack-list__val"><%= work.agent_price != null ? work.agent_price : '—' %></span></div>
+          <div class="fa-stack-list__row"><span>Gross project profit</span><span class="fa-stack-list__val"><%= (Number(work.lead_price)||0) - (Number(work.agent_price)||0) %></span></div>
+          <div class="fa-stack-list__row"><span>Agent payment flag</span><span><%= work.is_agent_payment_done ? 'Fully paid' : 'Not fully paid' %></span></div>
+        </div>
+        <% if (canMutateFinance) { %>
+          <div class="mt-3 d-flex gap-2">
+            <button type="button" class="fa-btn fa-btn--primary fa-btn--sm" data-wd-client-payment>Record client payment</button>
+            <button type="button" class="fa-btn fa-btn--secondary fa-btn--sm" data-wd-agent-payment>Record agent payment</button>
+          </div>
+        <% } %>
+        <% if ((paymentHistory && paymentHistory.client || []).length || (paymentHistory && paymentHistory.agent || []).length) { %>
+          <h3 class="fa-field__label mt-4">Payment history</h3>
+          <div class="fa-table-wrap" style="max-height:240px;">
+            <table class="fa-table fa-table--compact">
+              <thead><tr><th>Side</th><th>Amount</th><th>Currency</th><th>Date</th><th>Reference</th></tr></thead>
+              <tbody>
+                <% (paymentHistory.client || []).concat(paymentHistory.agent || []).forEach(function (p) { %>
+                  <tr>
+                    <td><%= p.side %></td>
+                    <td><%= p.amount %></td>
+                    <td><%= p.currency %></td>
+                    <td><%= p.payment_date %></td>
+                    <td><%= p.reference || '—' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+        <p class="fa-text-sm text-muted mt-3">Legacy grid pricing: <a href="/freelancing/convertedleads/<%= new Date().getMonth() + 1 %>">Converted leads</a>. Partial payments increment INR received; PKR payments stay on PKR ledger only.</p>
+      <% } else if (activeTab === 'activity') { %>
+        <% if (!(activity || []).length) { %>
+          <% emptyTitle = 'No activity logged'; emptyText = 'Assignment, priority, deadline, stage, and field changes are recorded from this point forward.'; %>
+          <% include ./partials/empty-state.ejs %>
+        <% } else { %>
+          <div class="fa-table-wrap" style="max-height:none;border:none;">
+            <table class="fa-table">
+              <thead><tr><th>When</th><th>Event</th><th>Field</th><th>Previous</th><th>New</th><th>Actor</th><th>Reason</th></tr></thead>
+              <tbody>
+                <% (activity || []).forEach(function (a) { %>
+                  <tr>
+                    <td><%= a.created_at %></td>
+                    <td><%= a.event_type %></td>
+                    <td><%= a.field_name %></td>
+                    <td><%= a.old_value != null ? a.old_value : '—' %></td>
+                    <td><%= a.new_value != null ? a.new_value : '—' %></td>
+                    <td><%= a.actor %></td>
+                    <td><%= a.reason || '—' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </section>
+</main>
+<script src="/freelancing/ops/work-detail.js"></script>
+<% include ./partials/layout-end.ejs %>

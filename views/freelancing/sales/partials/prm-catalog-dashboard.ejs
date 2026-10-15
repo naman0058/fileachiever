@@ -1,5 +1,7 @@
 <% var base = typeof basePath !== 'undefined' ? basePath : '/sales/admin/project-report-manager'; %>
 <% var mh = minHeadings || stats.minHeadings || 10; %>
+<% var tt = typeof tocTotal !== 'undefined' ? tocTotal : 54; %>
+<% var tocApiBase = (typeof isAdmin !== 'undefined' && isAdmin) ? '/sales/api/admin/project-report-manager/' : '/project-report-manager/api/'; %>
 <% var showOverview = typeof showOverview === 'undefined' ? true : showOverview; %>
 <% function prmHref(overrides) {
   var qs = buildQuery(overrides || {});
@@ -117,6 +119,7 @@
       <a class="scm-filter-pill <%= filters.missing === 'empty' ? 'is-active' : '' %>" href="<%= prmHref({ missing: 'empty' }) %>">Zero headings <span class="scm-filter-pill__count"><%= stats.gaps.empty %></span></a>
       <a class="scm-filter-pill <%= filters.missing === 'partial' ? 'is-active' : '' %>" href="<%= prmHref({ missing: 'partial' }) %>">Partial <span class="scm-filter-pill__count"><%= stats.gaps.partial %></span></a>
       <a class="scm-filter-pill <%= filters.missing === 'headings' ? 'is-active' : '' %>" href="<%= prmHref({ missing: 'headings' }) %>">Need <%= mh %>+ <span class="scm-filter-pill__count"><%= stats.pending %></span></a>
+      <a class="scm-filter-pill <%= filters.missing === 'toc' ? 'is-active is-active--warn' : '' %>" href="<%= prmHref({ missing: 'toc' }) %>">TOC content gaps</a>
     </div>
     <form method="GET" action="<%= base %>" class="scm-filter-form">
       <input type="hidden" name="tab" value="<%= filters.tab %>">
@@ -150,6 +153,8 @@
           <option value="gaps_desc" <%= filters.sort === 'gaps_desc' ? 'selected' : '' %>>Most gaps first</option>
           <option value="headings_asc" <%= filters.sort === 'headings_asc' ? 'selected' : '' %>>Fewest headings</option>
           <option value="completion_desc" <%= filters.sort === 'completion_desc' ? 'selected' : '' %>>Highest completion</option>
+          <option value="toc_desc" <%= filters.sort === 'toc_desc' ? 'selected' : '' %>>Most TOC complete</option>
+          <option value="toc_asc" <%= filters.sort === 'toc_asc' ? 'selected' : '' %>>Most TOC missing</option>
         </select>
       </div>
       <div>
@@ -164,7 +169,7 @@
   <div class="scm-table-card__head">
     <div>
       <h3 class="scm-table-card__title">Report Catalog</h3>
-      <p class="scm-table-card__sub mb-0"><%= rows.length %> shown · minimum <%= mh %> headings per product</p>
+      <p class="scm-table-card__sub mb-0"><%= rows.length %> shown · standard TOC (<%= tt %> sections/subs with content) · min <%= mh %> main headings</p>
     </div>
     <div class="scm-table-toolbar">
       <div class="scm-table-legend">
@@ -184,18 +189,21 @@
           <th class="scm-catalog-table__th scm-catalog-table__th--id">ID</th>
           <th class="scm-catalog-table__th scm-catalog-table__th--product">Product</th>
           <th class="scm-catalog-table__th">Category</th>
-          <th class="scm-catalog-table__th scm-catalog-table__th--progress">Headings</th>
+          <th class="scm-catalog-table__th scm-catalog-table__th--progress">TOC content</th>
+          <th class="scm-catalog-table__th">Headings</th>
           <th class="scm-catalog-table__th">Review</th>
           <th class="scm-catalog-table__th scm-catalog-table__th--actions">Actions</th>
         </tr>
       </thead>
       <tbody>
         <% if (!rows.length) { %>
-          <tr><td colspan="6" class="scm-catalog-empty"><i class="bi bi-file-earmark-text"></i><span>No products match your filters</span></td></tr>
+          <tr><td colspan="7" class="scm-catalog-empty"><i class="bi bi-file-earmark-text"></i><span>No products match your filters</span></td></tr>
         <% } %>
         <% (rows || []).forEach(function(r){
           var pctClass = r.completionPct >= 100 ? 'scm-ring--complete' : (r.completionPct >= 50 ? 'scm-ring--mid' : 'scm-ring--low');
-          var rowState = r.isFullyComplete ? 'scm-catalog-row--complete' : (r.isEmpty ? 'scm-catalog-row--critical' : 'scm-catalog-row--gap');
+          var tocPct = r.tocPct != null ? r.tocPct : 0;
+          var tocRingClass = tocPct >= 100 ? 'scm-ring--complete' : (tocPct >= 50 ? 'scm-ring--mid' : 'scm-ring--low');
+          var rowState = r.isTocComplete ? 'scm-catalog-row--complete' : (r.isEmpty ? 'scm-catalog-row--critical' : 'scm-catalog-row--gap');
         %>
           <tr class="scm-catalog-row <%= rowState %>">
             <td><span class="scm-id-badge">#<%= r.id %></span></td>
@@ -204,6 +212,8 @@
                 <div class="scm-product-cell__name" title="<%= (r.name || '').replace(/"/g, '&quot;') %>"><%= r.name || '—' %></div>
                 <% if (r.isEmpty) { %>
                   <div class="scm-missing-chips"><span class="scm-missing-chip">Not started</span></div>
+                <% } else if (!r.isTocComplete && r.tocMissingCount) { %>
+                  <div class="scm-missing-chips"><span class="scm-missing-chip scm-missing-chip--diagrams">−<%= r.tocMissingCount %> TOC items</span></div>
                 <% } else if (!r.hasEnoughHeadings) { %>
                   <div class="scm-missing-chips"><span class="scm-missing-chip scm-missing-chip--diagrams">−<%= r.missingCount %> headings</span></div>
                 <% } else if (!r.isVerified) { %>
@@ -214,11 +224,16 @@
             <td><span class="scm-cat-pill"><i class="bi bi-tag"></i> <%= r.category || '—' %></span></td>
             <td>
               <div class="scm-completion-cell">
-                <div class="scm-ring <%= pctClass %>" style="--pct:<%= r.completionPct %>"><span><%= r.reportSectionCount %></span></div>
+                <div class="scm-ring <%= tocRingClass %>" style="--pct:<%= tocPct %>"><span><%= r.tocCompleteCount != null ? r.tocCompleteCount : 0 %></span></div>
                 <div class="scm-completion-cell__bar">
-                  <div class="scm-progress__track"><div class="scm-progress__fill <%= r.completionPct >= 100 ? '' : (r.completionPct >= 50 ? 'scm-progress__fill--mid' : 'scm-progress__fill--low') %>" style="width:<%= r.completionPct %>%"></div></div>
-                  <span class="scm-completion-cell__label"><%= r.reportSectionCount %>/<%= mh %> headings</span>
+                  <div class="scm-progress__track"><div class="scm-progress__fill <%= tocPct >= 100 ? '' : (tocPct >= 50 ? 'scm-progress__fill--mid' : 'scm-progress__fill--low') %>" style="width:<%= tocPct %>%"></div></div>
+                  <span class="scm-completion-cell__label"><%= r.tocCompleteCount != null ? r.tocCompleteCount : 0 %>/<%= tt %> with content</span>
                 </div>
+              </div>
+            </td>
+            <td>
+              <div class="scm-completion-cell scm-completion-cell--compact">
+                <span class="scm-completion-cell__label"><%= r.reportSectionCount %>/<%= mh %> main</span>
               </div>
             </td>
             <td>
@@ -232,6 +247,7 @@
             </td>
             <td class="scm-catalog-table__actions">
               <div class="scm-action-group">
+                <button type="button" class="scm-action-btn prm-toc-btn" data-id="<%= r.id %>" data-name="<%= (r.name || '').replace(/"/g, '&quot;') %>" title="TOC missing / complete list"><i class="bi bi-list-check"></i><span>TOC</span></button>
                 <a class="scm-action-btn scm-action-btn--primary" href="/project-report-manager/edit/<%= r.id %>"><i class="bi bi-pencil-square"></i><span>Edit</span></a>
                 <% if (typeof isAdmin !== 'undefined' && isAdmin && r.hasEnoughHeadings && !r.isVerified) { %>
                   <button type="button" class="scm-action-btn scm-action-btn--verify verify-btn" data-id="<%= r.id %>" title="Verify"><i class="bi bi-check2-circle"></i></button>
@@ -246,10 +262,78 @@
   <% if (rows.length) { %>
   <div class="scm-table-card__foot">
     <span><strong><%= rows.length %></strong> products displayed</span>
-    <span class="scm-table-card__foot-hint">Minimum <%= mh %> headings required · Click Edit to write report sections</span>
+    <span class="scm-table-card__foot-hint">TOC checker requires real body text (not empty headings) · Click TOC for full missing list</span>
   </div>
   <% } %>
 </div>
+
+<div class="modal fade" id="prmTocModal" tabindex="-1" aria-labelledby="prmTocModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="prmTocModalTitle">TOC content check</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="prmTocModalBody">
+        <div class="text-muted">Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var tocApiBase = <%- JSON.stringify(tocApiBase) %>;
+  var tocTotal = <%= tt %>;
+  var modalEl = document.getElementById('prmTocModal');
+  if (!modalEl || typeof bootstrap === 'undefined') return;
+  var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  var titleEl = document.getElementById('prmTocModalTitle');
+  var bodyEl = document.getElementById('prmTocModalBody');
+
+  function reasonLabel(r) {
+    if (r === 'missing_section') return 'Section missing';
+    if (r === 'missing_subheading') return 'Subheading missing';
+    if (r === 'no_content') return 'No content';
+    return r;
+  }
+
+  document.querySelectorAll('.prm-toc-btn').forEach(function(btn){
+    btn.addEventListener('click', async function(){
+      var id = btn.dataset.id;
+      var name = btn.dataset.name || ('#' + id);
+      titleEl.textContent = 'TOC — ' + name;
+      bodyEl.innerHTML = '<div class="text-muted py-3">Checking ' + tocTotal + ' required items…</div>';
+      modal.show();
+      try {
+        var res = await fetch(tocApiBase + encodeURIComponent(id) + '/toc-audit');
+        var j = await res.json();
+        if (!j.ok || !j.audit) {
+          bodyEl.innerHTML = '<div class="text-danger">' + (j.message || 'Failed to load') + '</div>';
+          return;
+        }
+        var a = j.audit;
+        var html = '<div class="mb-3"><strong>' + a.completeCount + '</strong> / ' + a.total + ' complete (' + a.pct + '%)';
+        if (a.isTocComplete) html += ' <span class="badge bg-success">All done</span>';
+        html += '</div>';
+        if (a.missing && a.missing.length) {
+          html += '<h6 class="fw-bold text-danger">Missing (' + a.missing.length + ')</h6><ul class="list-group list-group-flush mb-3">';
+          a.missing.forEach(function(m){
+            html += '<li class="list-group-item px-0 py-2"><div class="fw-semibold small">' + (m.label || '') + '</div>';
+            html += '<div class="text-muted small">' + reasonLabel(m.reason) + (m.detail ? ' — ' + m.detail : '') + '</div></li>';
+          });
+          html += '</ul>';
+        } else {
+          html += '<p class="text-success mb-0">Every standard TOC item has content.</p>';
+        }
+        bodyEl.innerHTML = html;
+      } catch (e) {
+        bodyEl.innerHTML = '<div class="text-danger">Network error</div>';
+      }
+    });
+  });
+})();
+</script>
 
 <% if (showOverview) { %>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>

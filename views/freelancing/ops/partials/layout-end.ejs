@@ -1,0 +1,19 @@
+</div>
+<script src="/freelancing/ops/ops-ui.js"></script>
+<script src="/freelancing/ops/ops-drawer.js"></script>
+<script src="/freelancing/ops/ops-workspace.js"></script>
+<script src="/freelancing/ops/ops-common.js"></script>
+<script>
+  (function () {
+    function hidePreloader() {
+      var el = document.getElementById('preloader');
+      if (el) el.style.display = 'none';
+      var mw = document.getElementById('main-wrapper');
+      if (mw) mw.classList.add('show');
+    }
+    if (document.readyState === 'complete') hidePreloader();
+    else window.addEventListener('load', hidePreloader);
+    setTimeout(hidePreloader, 2500);
+  })();
+</script>
+<% include ../../footer-ops.ejs %>

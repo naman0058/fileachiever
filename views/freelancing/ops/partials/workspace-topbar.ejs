@@ -1,0 +1,43 @@
+<div class="fa-workspace-bar" role="banner">
+  <div class="fa-workspace-bar__brand">
+    <span class="fa-workspace-bar__label">Freelancing Ops</span>
+    <span class="fa-workspace-bar__hint">Work &amp; delivery workspace</span>
+  </div>
+  <div class="fa-workspace-bar__search">
+    <label class="visually-hidden" for="faGlobalSearchInput">Search work</label>
+    <input type="search" id="faGlobalSearchInput" class="fa-input fa-workspace-bar__input" placeholder="Search work… ( / or Ctrl+K )" autocomplete="off" aria-controls="faSearchResults" aria-expanded="false" />
+    <kbd class="fa-kbd" aria-hidden="true">/</kbd>
+  </div>
+  <div class="fa-workspace-bar__actions">
+    <button type="button" class="fa-btn fa-btn--ghost fa-btn--sm" id="faSidebarToggle" aria-pressed="false" title="Toggle sidebar">Sidebar</button>
+  </div>
+</div>
+
+<div class="fa-search-modal" id="faSearchModal" hidden role="dialog" aria-modal="true" aria-labelledby="faSearchModalTitle">
+  <div class="fa-search-modal__panel">
+    <div class="fa-search-modal__head">
+      <h2 id="faSearchModalTitle" class="fa-search-modal__title">Search work</h2>
+      <button type="button" class="fa-btn fa-btn--ghost fa-btn--icon" id="faSearchClose" aria-label="Close search">×</button>
+    </div>
+    <input type="search" id="faSearchModalInput" class="fa-input" placeholder="ID, project, client, agent, phone…" autocomplete="off" />
+    <div id="faSearchResults" class="fa-search-results" role="listbox" aria-live="polite"></div>
+    <p class="fa-search-hint">↑↓ navigate · Enter open · Esc close</p>
+  </div>
+</div>
+
+<div class="fa-drawer" id="faQuickDrawer" hidden aria-hidden="true">
+  <div class="fa-drawer__backdrop" id="faDrawerBackdrop" tabindex="-1"></div>
+  <aside class="fa-drawer__panel" role="dialog" aria-labelledby="faDrawerTitle" aria-modal="true">
+    <header class="fa-drawer__head">
+      <h2 id="faDrawerTitle">Quick edit</h2>
+      <button type="button" class="fa-btn fa-btn--ghost fa-btn--icon" id="faDrawerClose" aria-label="Close drawer">×</button>
+    </header>
+    <div class="fa-drawer__body" id="faDrawerBody">
+      <p class="text-muted">Loading…</p>
+    </div>
+    <footer class="fa-drawer__foot">
+      <a href="#" class="fa-btn fa-btn--ghost fa-btn--sm" id="faDrawerOpenFull">Open full record</a>
+      <button type="button" class="fa-btn fa-btn--primary fa-btn--sm" id="faDrawerSave" disabled>Save changes</button>
+    </footer>
+  </aside>
+</div>
