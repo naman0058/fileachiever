@@ -9,6 +9,7 @@ const mysql = require("mysql2/promise");
 
 // ===================== CONFIG =====================
 const CHECK_INTERVAL_MS = 60_000;
+const LOOKAHEAD_SIZE = 5; // fixed window: currentTempId .. currentTempId + 4
 const ROCKERSTOP_BASE = "https://www.rockerstop.com";
 const PRESENCE_TEXT = "you've got this number from Rockerstop.com";
 
@@ -68,6 +69,9 @@ const MAX_UNLOCK_FAILURES_BEFORE_SKIP = 3;
 // In-memory counters (per Node process)
 const phoneFailureCounts = new Map();
 const unlockFailureCounts = new Map();
+
+/** Prevents overlapping poll cycles on the same browser page. */
+let scanCycleInProgress = false;
 
 // ===================== UTILS =====================
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -341,26 +345,44 @@ async function clickUnlockButton(page, tempid) {
 }
 
 // ===================== CORE =====================
-async function processCurrentTempid(page) {
-  const settings = await getSettings();
-  const tempid = settings.tempid;
+function leadDetailUrl(tempid) {
+  return `${ROCKERSTOP_BASE}/admin_needDetail.php?tempid=${tempid}`;
+}
 
-  const url = `${ROCKERSTOP_BASE}/admin_needDetail.php?tempid=${tempid}`;
-  console.log(`[${new Date().toLocaleString()}] Checking tempid=${tempid}`);
+/**
+ * Probe only — never treat errors as "missing lead".
+ * @returns {Promise<{ status: 'available'|'missing'|'transient_error', url?: string, reason?: string }>}
+ */
+async function probeLeadPresence(page, tempid) {
+  const url = leadDetailUrl(tempid);
+  try {
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    const bodyText = await page.evaluate(() => document.body.innerText || "");
+    const lower = bodyText.toLowerCase();
+    const hasEnquiry = lower.includes(PRESENCE_TEXT.toLowerCase());
 
-  // 1) Check page for lead
-  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    if (
+      !hasEnquiry &&
+      (/session expired|please log in|login to continue|sign in to/i.test(bodyText) ||
+        (lower.includes("login") && lower.includes("password")))
+    ) {
+      return { status: "transient_error", reason: "session_or_login_page" };
+    }
 
-  const bodyText = await page.evaluate(() => document.body.innerText || "");
-  const hasEnquiry = bodyText
-    .toLowerCase()
-    .includes(PRESENCE_TEXT.toLowerCase());
-
-  if (!hasEnquiry) {
-    console.log(`⏳ No lead at tempid=${tempid}.`);
-    // you can decide to advance here if you want; currently we keep it.
-    return { advanced: false, hasEnquiry: false };
+    if (!hasEnquiry) {
+      return { status: "missing", url };
+    }
+    return { status: "available", url };
+  } catch (e) {
+    return { status: "transient_error", reason: e.message || "navigation_failed" };
   }
+}
+
+/**
+ * Full unlock → scrape → insert for a tempid known to have a lead (lowest in window first).
+ */
+async function processLeadAtTempid(page, tempid) {
+  const url = leadDetailUrl(tempid);
 
   notifier.notify({
     title: "New Lead on Rockerstop",
@@ -384,15 +406,11 @@ async function processCurrentTempid(page) {
       );
 
       if (nextCount >= MAX_UNLOCK_FAILURES_BEFORE_SKIP) {
-        const nextTempid = tempid + 1;
-        await updateTempid(nextTempid);
         unlockFailureCounts.delete(tempid);
-
         console.error(
-          `⏭️  Max unlock failures reached for tempid=${tempid}. Skipping to tempid=${nextTempid}.`
+          `⏭️  Max unlock failures reached for tempid=${tempid}. Cursor unchanged — will retry later.`
         );
-
-        return { advanced: true, hasEnquiry: true, skippedUnlock: true };
+        return { advanced: false, hasEnquiry: true, skippedUnlock: true };
       }
 
       // try again later
@@ -432,15 +450,11 @@ async function processCurrentTempid(page) {
     );
 
     if (nextCount >= MAX_PHONE_FAILURES_BEFORE_SKIP) {
-      const nextTempid = tempid + 1;
-      await updateTempid(nextTempid);
       phoneFailureCounts.delete(tempid);
-
       console.error(
-        `⏭️  Max phone failures reached for tempid=${tempid}. Skipping to tempid=${nextTempid}.`
+        `⏭️  Max phone failures reached for tempid=${tempid}. Cursor unchanged — will retry later.`
       );
-
-      return { advanced: true, hasEnquiry: true, skippedPhone: true };
+      return { advanced: false, hasEnquiry: true, skippedPhone: true };
     }
 
     // try this tempid again next loop
@@ -505,7 +519,47 @@ async function processCurrentTempid(page) {
   await updateTempid(nextTempid);
   console.log(`➡️ Advanced tempid in DB: ${tempid} -> ${nextTempid}`);
 
-  return { advanced: true, hasEnquiry: true };
+  return { advanced: true, hasEnquiry: true, processedTempid: tempid };
+}
+
+/**
+ * Fixed 5-ID look-ahead: scan [current, current+4], process first available lead only.
+ * Cursor advances only after durable insert/duplicate handling in processLeadAtTempid.
+ */
+async function scanLookaheadWindow(page) {
+  const settings = await getSettings();
+  const baseTempid = settings.tempid;
+  const windowEnd = baseTempid + LOOKAHEAD_SIZE - 1;
+
+  console.log(
+    `[${new Date().toLocaleString()}] Scanning tempid window ${baseTempid}–${windowEnd} (${LOOKAHEAD_SIZE}-ID look-ahead)`
+  );
+
+  for (let tempid = baseTempid; tempid <= windowEnd; tempid++) {
+    console.log(`[${new Date().toLocaleString()}] Checking tempid=${tempid}`);
+
+    const probe = await probeLeadPresence(page, tempid);
+
+    if (probe.status === "transient_error") {
+      console.error(
+        `⚠️ Transient error at tempid=${tempid} (${probe.reason || "unknown"}). Cursor stays at ${baseTempid}.`
+      );
+      return { advanced: false, transient: true };
+    }
+
+    if (probe.status === "missing") {
+      console.log(`⏳ No lead at tempid=${tempid}.`);
+      continue;
+    }
+
+    const result = await processLeadAtTempid(page, tempid);
+    return result;
+  }
+
+  console.log(
+    `⏳ No leads in window ${baseTempid}–${windowEnd}. Cursor unchanged at ${baseTempid}.`
+  );
+  return { advanced: false, hasEnquiry: false };
 }
 
 // ===================== MAIN =====================
@@ -543,23 +597,33 @@ async function processCurrentTempid(page) {
   });
 
   if (SINGLE_RUN) {
-    await processCurrentTempid(page);
+    await scanLookaheadWindow(page);
     await browser.close();
     process.exit(0);
   }
 
   async function loop() {
+    if (scanCycleInProgress) {
+      console.warn("⏭️ Previous scan still running; deferring next cycle.");
+      setTimeout(loop, CHECK_INTERVAL_MS);
+      return;
+    }
+    scanCycleInProgress = true;
     try {
-      const result = await processCurrentTempid(page);
+      const result = await scanLookaheadWindow(page);
       if (result?.skippedUnlock) {
-        console.log("ℹ️ tempid skipped due to repeated UNLOCK failures.");
+        console.log("ℹ️ tempid held due to repeated UNLOCK failures (cursor not advanced).");
       }
       if (result?.skippedPhone) {
-        console.log("ℹ️ tempid skipped due to repeated PHONE failures.");
+        console.log("ℹ️ tempid held due to repeated PHONE failures (cursor not advanced).");
+      }
+      if (result?.transient) {
+        console.log("ℹ️ Will retry the same tempid window after the poll interval.");
       }
     } catch (e) {
       console.error("❌ Loop error:", e.message);
     } finally {
+      scanCycleInProgress = false;
       setTimeout(loop, CHECK_INTERVAL_MS);
     }
   }
