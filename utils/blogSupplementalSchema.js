@@ -119,6 +119,8 @@ function buildSupplementalSchemaMarkup(post, options = {}) {
     });
   }
 
+  const aboutName =
+    String(options.aboutName || post.focus_keyword || post.title || title || 'Educational guide').trim();
   graph.push({
     '@type': 'LearningResource',
     '@id': `${canonical}#guide`,
@@ -130,7 +132,7 @@ function buildSupplementalSchemaMarkup(post, options = {}) {
     isPartOf: { '@id': `${canonical}#article` },
     about: {
       '@type': 'EducationalOccupationalProgram',
-      name: 'Data science capstone project',
+      name: aboutName,
     },
   });
 

@@ -30,13 +30,13 @@
         <div class="agent-metric__icon"><i class="bi bi-inbox"></i></div>
         <div class="agent-metric__label">Open Leads</div>
         <div class="agent-metric__value"><%= kpis.totalLeads %></div>
-        <div class="agent-metric__hint"><%= kpis.openAssignments %> active assignments</div>
+        <div class="agent-metric__hint">Unique contacts (phone-deduped)</div>
       </div>
       <div class="agent-metric" style="--metric-accent:#16a34a;--metric-bg:#f0fdf4;">
         <div class="agent-metric__icon"><i class="bi bi-trophy"></i></div>
         <div class="agent-metric__label">Deals Closed</div>
         <div class="agent-metric__value"><%= kpis.totalSales %></div>
-        <div class="agent-metric__hint">Team conversions this month</div>
+        <div class="agent-metric__hint"><% if (kpis.dealRows && kpis.dealRows !== kpis.totalSales) { %><%= kpis.dealRows %> deal records · unique buyers<% } else { %>Unique buyers this month<% } %></div>
       </div>
       <div class="agent-metric" style="--metric-accent:#2563eb;--metric-bg:#eff6ff;">
         <div class="agent-metric__icon"><i class="bi bi-currency-rupee"></i></div>
@@ -58,7 +58,7 @@
         <div class="agent-panel__body"><div class="agent-chart-wrap"><canvas id="revenueChart"></canvas></div></div>
       </div>
       <div class="agent-panel">
-        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Pipeline by Stage</h2><p class="agent-panel__sub">Open assignments across the team</p></div></div>
+        <div class="agent-panel__head"><div><h2 class="agent-panel__title">Pipeline by Stage</h2><p class="agent-panel__sub">Unique open leads by best stage (not per-agent copies)</p></div></div>
         <div class="agent-panel__body"><div class="agent-chart-wrap agent-chart-wrap--sm"><canvas id="stageChart"></canvas></div></div>
       </div>
     </div>

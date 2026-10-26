@@ -427,7 +427,7 @@
         </div>
 
         <div class="topbar-actions">
-          <div class="control" title="Search by name, number, enquiry, assign, status">
+          <div class="control" title="Search by name, number, enquiry, assign, sales agent, status">
             <span class="muted" style="font-weight:900;">Search</span>
             <input id="searchInput" type="text" placeholder="Type to filter..." oninput="applyFilters()" />
           </div>
@@ -487,6 +487,7 @@
               <th>Enquiry</th>
               <th>Deadline</th>
               <th>Assign</th>
+              <th>Sales Agent</th>
               <th>Agent Price</th>
               <th>Lead Price</th>
               <th>PKR Price</th>
@@ -507,7 +508,15 @@
                 data-number="<%= (result[i].number || '').toLowerCase() %>"
                 data-enquiry="<%= (result[i].enquiry || '').toLowerCase() %>"
                 data-assign="<%= (result[i].assign || '').toLowerCase() %>"
+                data-sales-agent="<%= (result[i].sales_person_assign || '').toLowerCase() %>"
                 data-created-at="<%= result[i].created_at ? (function(d){ try { return new Date(d).toISOString().slice(0,19).replace('T',' '); } catch(e){ return String(d).slice(0,19); } })(result[i].created_at) : '' %>"
+                data-lead-price="<%= result[i].lead_price != null ? result[i].lead_price : '' %>"
+                data-agent-price="<%= result[i].agent_price != null ? result[i].agent_price : '' %>"
+                data-pkr-price="<%= result[i].pakistani_price != null ? result[i].pakistani_price : '' %>"
+                data-advance="<%= result[i].advance_amount != null ? result[i].advance_amount : '' %>"
+                data-project-done="<%= Number(result[i].is_project_done) === 1 ? '1' : '0' %>"
+                data-payment-received="<%= Number(result[i].is_payment_received) === 1 ? '1' : '0' %>"
+                data-agent-paid="<%= Number(result[i].is_agent_payment_done) === 1 ? '1' : '0' %>"
               >
                 <td><span class="pill primary"><%= i+1 %></span></td>
                 <td><a href="/freelancing/work/<%= result[i].id %>" target="_blank" rel="noopener">Open</a></td>
@@ -524,28 +533,36 @@
                 <td class="editable" contenteditable="true" onblur="updateField('<%= result[i].id %>', 'enquiry', this.innerText)"><%= result[i].enquiry %></td>
                 <td class="editable" contenteditable="true" onblur="updateField('<%= result[i].id %>', 'deadline', this.innerText)"><%= result[i].deadline %></td>
                 <td class="editable" contenteditable="true" onblur="updateField('<%= result[i].id %>', 'assign', this.innerText)"><%= result[i].assign %></td>
-                <td class="editable" contenteditable="true" onblur="updateField('<%= result[i].id %>', 'agent_price', this.innerText)"><%= result[i].agent_price %></td>
-                <td class="editable" contenteditable="true" onblur="updateField('<%= result[i].id %>', 'lead_price', this.innerText)"><%= result[i].lead_price %></td>
-                <td class="editable" contenteditable="true" onblur="updateField('<%= result[i].id %>', 'pakistani_price', this.innerText)"><%= result[i].pakistani_price %></td>
-                <td class="editable" contenteditable="true" onblur="updateField('<%= result[i].id %>', 'advance_amount', this.innerText)"><%= result[i].advance_amount %></td>
+                <td>
+                  <select class="status-select" title="Sales agent (sales_person_assign)" onchange="updateSalesAgent('<%= result[i].id %>', this)">
+                    <option value="">— Unassigned —</option>
+                    <% (typeof agents !== 'undefined' && agents ? agents : []).forEach(function(agentName){ %>
+                      <option value="<%= agentName %>" <%= (result[i].sales_person_assign || '') === agentName ? 'selected' : '' %>><%= agentName %></option>
+                    <% }) %>
+                  </select>
+                </td>
+                <td class="editable" contenteditable="true" data-kpi="agent_price" onblur="syncKpiAttr(this, 'data-agent-price'); updateField('<%= result[i].id %>', 'agent_price', this.innerText)"><%= result[i].agent_price %></td>
+                <td class="editable" contenteditable="true" data-kpi="lead_price" onblur="syncKpiAttr(this, 'data-lead-price'); updateField('<%= result[i].id %>', 'lead_price', this.innerText)"><%= result[i].lead_price %></td>
+                <td class="editable" contenteditable="true" data-kpi="pakistani_price" onblur="syncKpiAttr(this, 'data-pkr-price'); updateField('<%= result[i].id %>', 'pakistani_price', this.innerText)"><%= result[i].pakistani_price %></td>
+                <td class="editable" contenteditable="true" data-kpi="advance_amount" onblur="syncKpiAttr(this, 'data-advance'); updateField('<%= result[i].id %>', 'advance_amount', this.innerText)"><%= result[i].advance_amount %></td>
 
                 <td>
                   <label class="switch">
-                    <input type="checkbox" onclick="toggleProjectStatus('<%= result[i].id %>', this.checked)" <%= result[i].is_project_done == 1 ? 'checked' : '' %>>
+                    <input type="checkbox" data-kpi="is_project_done" onclick="toggleProjectStatus('<%= result[i].id %>', this)" <%= result[i].is_project_done == 1 ? 'checked' : '' %>>
                     <span class="slider"></span>
                   </label>
                 </td>
 
                 <td>
                   <label class="switch">
-                    <input type="checkbox" onclick="togglePaymentStatus('<%= result[i].id %>', this.checked)" <%= result[i].is_payment_received == 1 ? 'checked' : '' %>>
+                    <input type="checkbox" data-kpi="is_payment_received" onclick="togglePaymentStatus('<%= result[i].id %>', this)" <%= result[i].is_payment_received == 1 ? 'checked' : '' %>>
                     <span class="slider"></span>
                   </label>
                 </td>
 
                 <td>
                   <label class="switch">
-                    <input type="checkbox" onclick="toggleAgentPaymentStatus('<%= result[i].id %>', this.checked)" <%= result[i].is_agent_payment_done == 1 ? 'checked' : '' %>>
+                    <input type="checkbox" data-kpi="is_agent_payment_done" onclick="toggleAgentPaymentStatus('<%= result[i].id %>', this)" <%= result[i].is_agent_payment_done == 1 ? 'checked' : '' %>>
                     <span class="slider"></span>
                   </label>
                 </td>
@@ -589,24 +606,24 @@
       alert('Table not found.');
       return;
     }
-    const headers = ['name', 'enquiry', 'created_at', 'assign', 'agent_price'];
+    const headers = ['name', 'enquiry', 'created_at', 'assign', 'sales_person_assign', 'agent_price'];
     const lines = [headers.join(',')];
     const rows = Array.from(body.querySelectorAll('tr'));
 
     rows.forEach((tr) => {
       if (tr.style.display === 'none') return;
-      const tds = tr.querySelectorAll('td');
-      if (tds.length < 8) return;
-      const name = (tds[2] && tds[2].innerText) ? tds[2].innerText.trim() : '';
-      const enquiry = (tds[4] && tds[4].innerText) ? tds[4].innerText.trim() : '';
+      const name = (tr.getAttribute('data-name') || '').trim();
+      const enquiry = (tr.getAttribute('data-enquiry') || '').trim();
       const createdAt = (tr.getAttribute('data-created-at') || '').trim();
-      const assign = (tds[6] && tds[6].innerText) ? tds[6].innerText.trim() : '';
-      const agentPrice = (tds[7] && tds[7].innerText) ? tds[7].innerText.trim() : '';
+      const assign = (tr.getAttribute('data-assign') || '').trim();
+      const salesAgent = (tr.getAttribute('data-sales-agent') || '').trim();
+      const agentPrice = (tr.getAttribute('data-agent-price') || '').trim();
       lines.push([
         csvEscapeCell(name),
         csvEscapeCell(enquiry),
         csvEscapeCell(createdAt),
         csvEscapeCell(assign),
+        csvEscapeCell(salesAgent),
         csvEscapeCell(agentPrice)
       ].join(','));
     });
@@ -632,14 +649,32 @@
   }
 
   // --- Update functions (your existing API) ---
-  function toggleProjectStatus(id, isChecked) {
-    updateToggleStatus(id, "is_project_done", isChecked);
+  function syncKpiAttr(cellEl, attrName) {
+    const tr = cellEl && cellEl.closest ? cellEl.closest("tr") : null;
+    if (!tr || !attrName) return;
+    tr.setAttribute(attrName, (cellEl.innerText || "").toString().trim());
+    applyFilters();
   }
-  function togglePaymentStatus(id, isChecked) {
-    updateToggleStatus(id, "is_payment_received", isChecked);
+
+  function syncToggleAttr(checkboxEl, attrName, isChecked) {
+    const tr = checkboxEl && checkboxEl.closest ? checkboxEl.closest("tr") : null;
+    if (tr && attrName) tr.setAttribute(attrName, isChecked ? "1" : "0");
   }
-  function toggleAgentPaymentStatus(id, isChecked) {
-    updateToggleStatus(id, "is_agent_payment_done", isChecked);
+
+  function toggleProjectStatus(id, checkboxEl) {
+    const checked = !!(checkboxEl && checkboxEl.checked);
+    syncToggleAttr(checkboxEl, "data-project-done", checked);
+    updateToggleStatus(id, "is_project_done", checked);
+  }
+  function togglePaymentStatus(id, checkboxEl) {
+    const checked = !!(checkboxEl && checkboxEl.checked);
+    syncToggleAttr(checkboxEl, "data-payment-received", checked);
+    updateToggleStatus(id, "is_payment_received", checked);
+  }
+  function toggleAgentPaymentStatus(id, checkboxEl) {
+    const checked = !!(checkboxEl && checkboxEl.checked);
+    syncToggleAttr(checkboxEl, "data-agent-paid", checked);
+    updateToggleStatus(id, "is_agent_payment_done", checked);
   }
 
   function updateToggleStatus(id, field, isChecked) {
@@ -654,6 +689,7 @@
     .then(r => r.json())
     .then(data => {
       if (!data.success) alert("Failed to update status!");
+      else applyFilters();
     })
     .catch(err => console.error(err))
     .finally(() => hideLoader());
@@ -661,6 +697,13 @@
 
   function updateStatus(id, newValue) {
     updateField(id, "status", newValue);
+  }
+
+  function updateSalesAgent(id, selectEl) {
+    const value = (selectEl && selectEl.value != null) ? String(selectEl.value) : "";
+    const tr = selectEl && selectEl.closest ? selectEl.closest("tr") : null;
+    if (tr) tr.setAttribute("data-sales-agent", value.toLowerCase());
+    updateField(id, "sales_person_assign", value);
   }
 
   function updateField(id, field, value) {
@@ -726,23 +769,31 @@
       const st = (tr.getAttribute("data-status") || "").trim();
       if (stats.status[st] !== undefined) stats.status[st]++;
 
-      // columns by index in table:
-      // lead_price: 8, agent_price: 7, pkr: 9, advance: 10
-      const tds = tr.querySelectorAll("td");
-      const agentPrice = parseMoney(tds[7]?.innerText);
-      const leadPrice  = parseMoney(tds[8]?.innerText);
-      const pkrPrice   = parseMoney(tds[9]?.innerText);
-      const advance    = parseMoney(tds[10]?.innerText);
+      // Prefer data-* attrs (column-order safe). Fallback: cells marked data-kpi / checkboxes.
+      const leadPrice = parseMoney(
+        tr.getAttribute("data-lead-price") || tr.querySelector('[data-kpi="lead_price"]')?.innerText
+      );
+      const agentPrice = parseMoney(
+        tr.getAttribute("data-agent-price") || tr.querySelector('[data-kpi="agent_price"]')?.innerText
+      );
+      const pkrPrice = parseMoney(
+        tr.getAttribute("data-pkr-price") || tr.querySelector('[data-kpi="pakistani_price"]')?.innerText
+      );
+      const advance = parseMoney(
+        tr.getAttribute("data-advance") || tr.querySelector('[data-kpi="advance_amount"]')?.innerText
+      );
 
-      stats.sums.agent_price += agentPrice;
       stats.sums.lead_price += leadPrice;
+      stats.sums.agent_price += agentPrice;
       stats.sums.pkr += pkrPrice;
       stats.sums.advance += advance;
 
-      // toggles: project done (11), payment received (12), agent paid (13)
-      const pd = tds[11]?.querySelector("input[type=checkbox]")?.checked ? 1 : 0;
-      const pr = tds[12]?.querySelector("input[type=checkbox]")?.checked ? 1 : 0;
-      const ap = tds[13]?.querySelector("input[type=checkbox]")?.checked ? 1 : 0;
+      const pdCb = tr.querySelector('input[data-kpi="is_project_done"]');
+      const prCb = tr.querySelector('input[data-kpi="is_payment_received"]');
+      const apCb = tr.querySelector('input[data-kpi="is_agent_payment_done"]');
+      const pd = pdCb ? (pdCb.checked ? 1 : 0) : (tr.getAttribute("data-project-done") === "1" ? 1 : 0);
+      const pr = prCb ? (prCb.checked ? 1 : 0) : (tr.getAttribute("data-payment-received") === "1" ? 1 : 0);
+      const ap = apCb ? (apCb.checked ? 1 : 0) : (tr.getAttribute("data-agent-paid") === "1" ? 1 : 0);
 
       stats.project_done += pd;
       stats.payment_received += pr;
@@ -808,6 +859,7 @@
         tr.getAttribute("data-number"),
         tr.getAttribute("data-enquiry"),
         tr.getAttribute("data-assign"),
+        tr.getAttribute("data-sales-agent"),
         st
       ].join(" ");
 

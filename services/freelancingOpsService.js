@@ -680,7 +680,8 @@ async function logActivity(leadId, eventType, fieldName, oldVal, newVal, actor, 
 }
 
 const LEGACY_ALLOWED = [
-  'name', 'number', 'enquiry', 'deadline', 'assign', 'lead_price', 'agent_price',
+  'name', 'number', 'enquiry', 'deadline', 'assign', 'sales_person_assign',
+  'lead_price', 'agent_price',
   'advance_amount', 'remarks', 'is_project_done', 'is_payment_received', 'is_agent_payment_done',
   'status', 'pakistani_price',
 ];
@@ -693,7 +694,7 @@ const OPS_ALLOWED = [
 
 function eventTypeForField(field, forced) {
   if (field === 'delivery_stage') return forced ? 'forced_stage_transition' : 'stage_transition';
-  if (field === 'assign') return 'assignment_change';
+  if (field === 'assign' || field === 'sales_person_assign') return 'assignment_change';
   if (field === 'priority') return 'priority_change';
   if (field === 'deadline') return 'deadline_change';
   return 'field_change';

@@ -189,6 +189,103 @@ async function fetchDailySalesForLeads(where, params) {
   );
 }
 
+/** Contact key: normalize phone so duplicate rockerstop rows for the same number count once. */
+const CONTACT_KEY_SQL = `COALESCE(NULLIF(TRIM(l.phone), ''), CONCAT('id:', l.id))`;
+
+/**
+ * Admin Command Center KPIs/funnel on unique contacts (not assignment fan-out × agents,
+ * and not duplicate phone rows in rockerstop_leads).
+ */
+async function fetchAdminOverviewLeadStats(start, end) {
+  const startDt = `${start} 00:00:00`;
+  const endDt = `${end} 00:00:00`;
+
+  const [openUniqRows, stageRows, rejectedRows, salesRows] = await Promise.all([
+    queryAsync(
+      `SELECT COUNT(DISTINCT ${CONTACT_KEY_SQL}) AS c
+       FROM rockerstop_leads l
+       WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
+         AND l.crm_status = 'open'`,
+      [start, end]
+    ),
+    queryAsync(
+      `SELECT best_stage AS stage, COUNT(*) AS c
+       FROM (
+         SELECT ${CONTACT_KEY_SQL} AS contact_key,
+           CASE
+             WHEN MAX(CASE
+               WHEN la.status = 'open' AND la.stage = 'interested' THEN 3
+               WHEN la.status = 'open' AND la.stage = 'followup' THEN 2
+               WHEN la.status = 'open' AND la.stage = 'new' THEN 1
+               ELSE 0 END) = 3 THEN 'interested'
+             WHEN MAX(CASE
+               WHEN la.status = 'open' AND la.stage = 'interested' THEN 3
+               WHEN la.status = 'open' AND la.stage = 'followup' THEN 2
+               WHEN la.status = 'open' AND la.stage = 'new' THEN 1
+               ELSE 0 END) = 2 THEN 'followup'
+             WHEN MAX(CASE
+               WHEN la.status = 'open' AND la.stage = 'interested' THEN 3
+               WHEN la.status = 'open' AND la.stage = 'followup' THEN 2
+               WHEN la.status = 'open' AND la.stage = 'new' THEN 1
+               ELSE 0 END) = 1 THEN 'new'
+             ELSE 'none'
+           END AS best_stage
+         FROM rockerstop_leads l
+         LEFT JOIN lead_assignments la ON la.lead_id = l.id
+         WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
+           AND l.crm_status = 'open'
+         GROUP BY contact_key
+       ) ranked
+       WHERE best_stage <> 'none'
+       GROUP BY best_stage`,
+      [start, end]
+    ),
+    queryAsync(
+      `SELECT COUNT(DISTINCT ${CONTACT_KEY_SQL}) AS c
+       FROM rockerstop_leads l
+       WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
+         AND l.crm_status = 'rejected'`,
+      [start, end]
+    ),
+    queryAsync(
+      `SELECT
+         COUNT(*) AS deal_rows,
+         COUNT(DISTINCT NULLIF(TRIM(number), '')) AS unique_contacts,
+         COALESCE(SUM(lead_price), 0) AS total_revenue
+       FROM leads
+       WHERE created_at >= ? AND created_at < ?`,
+      [startDt, endDt]
+    )
+  ]);
+
+  const stageOpen = { new: 0, followup: 0, interested: 0 };
+  for (const r of stageRows || []) {
+    if (Object.prototype.hasOwnProperty.call(stageOpen, r.stage)) {
+      stageOpen[r.stage] = Number(r.c) || 0;
+    }
+  }
+
+  const uniqueOpenLeads = Number(openUniqRows?.[0]?.c || 0);
+  const dealRows = Number(salesRows?.[0]?.deal_rows || 0);
+  const uniqueClosedContacts = Number(salesRows?.[0]?.unique_contacts || 0);
+  // Prefer unique closed contacts for win rate; fall back to deal rows if numbers are blank.
+  const closedForRate = uniqueClosedContacts > 0 ? uniqueClosedContacts : dealRows;
+  const conversionRate =
+    uniqueOpenLeads > 0 ? Math.round((closedForRate / uniqueOpenLeads) * 100) : 0;
+
+  return {
+    uniqueOpenLeads,
+    stageOpen,
+    rejectedUnique: Number(rejectedRows?.[0]?.c || 0),
+    dealRows,
+    uniqueClosedContacts,
+    totalRevenue: salesRows?.[0]?.total_revenue || 0,
+    // Deals Closed KPI = unique buyers (duplicate phone sales don't inflate the counter)
+    totalSales: uniqueClosedContacts > 0 ? uniqueClosedContacts : dealRows,
+    conversionRate
+  };
+}
+
 async function fetchAdminAnalytics(start, end) {
   const startDt = `${start} 00:00:00`;
   const endDt = `${end} 00:00:00`;
@@ -1129,88 +1226,57 @@ router.get('/admin/overview', requireLogin, requireAdmin, async (req, res) => {
     const selectedMonth = isValidMonth(req.query.month) ? req.query.month : ymNow();
     const { start, end } = monthRange(selectedMonth);
 
-    const [k1] = await queryAsync(
-      `SELECT COUNT(*) AS c
-       FROM rockerstop_leads
-       WHERE detected_at_utc >= ? AND detected_at_utc < ?
-         AND crm_status='open'`,
-      [start, end]
-    );
+    const [leadStats, analytics, due] = await Promise.all([
+      fetchAdminOverviewLeadStats(start, end),
+      fetchAdminAnalytics(start, end),
+      // follow-ups due: latest next_followup_date <= today (dedupe by lead phone in UI if needed)
+      queryAsync(`
+        SELECT
+          la.id AS assignment_id,
+          u.name AS user_name,
+          l.id AS lead_id,
+          l.name,
+          l.phone,
+          l.enquiry_title,
+          lg.next_followup_date,
+          lg.note,
+          lg.created_at
+        FROM lead_assignments la
+        JOIN rockerstop_leads l ON l.id=la.lead_id
+        JOIN crm_users u ON u.id=la.user_id
+        JOIN lead_assignment_logs lg
+          ON lg.id = (
+            SELECT x.id
+            FROM lead_assignment_logs x
+            WHERE x.assignment_id = la.id
+            ORDER BY x.created_at DESC
+            LIMIT 1
+          )
+        WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
+          AND l.crm_status='open'
+          AND la.status='open'
+          AND lg.next_followup_date IS NOT NULL
+          AND lg.next_followup_date <= CURDATE()
+        ORDER BY lg.next_followup_date ASC
+        LIMIT 200
+      `, [start, end])
+    ]);
 
-    const stageRows = await queryAsync(
-      `SELECT la.stage, la.status, COUNT(*) AS c
-       FROM lead_assignments la
-       JOIN rockerstop_leads l ON l.id=la.lead_id
-       WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
-         AND l.crm_status='open'
-       GROUP BY la.stage, la.status`,
-      [start, end]
-    );
+    const totalLeads = leadStats.uniqueOpenLeads;
+    const totalSales = leadStats.totalSales;
+    const conversionRate = leadStats.conversionRate;
+    const rejectedTotal = leadStats.rejectedUnique;
 
-    const [salesAgg] = await queryAsync(
-      `SELECT
-         COUNT(*) AS total_sales,
-         COALESCE(SUM(lead_price),0) AS total_revenue
-       FROM leads
-       WHERE created_at >= ? AND created_at < ?`,
-      [start + ' 00:00:00', end + ' 00:00:00']
-    );
-
-    // follow-ups due: latest next_followup_date <= today
-    const due = await queryAsync(`
-      SELECT
-        la.id AS assignment_id,
-        u.name AS user_name,
-        l.id AS lead_id,
-        l.name,
-        l.phone,
-        l.enquiry_title,
-        lg.next_followup_date,
-        lg.note,
-        lg.created_at
-      FROM lead_assignments la
-      JOIN rockerstop_leads l ON l.id=la.lead_id
-      JOIN crm_users u ON u.id=la.user_id
-      JOIN lead_assignment_logs lg
-        ON lg.id = (
-          SELECT x.id
-          FROM lead_assignment_logs x
-          WHERE x.assignment_id = la.id
-          ORDER BY x.created_at DESC
-          LIMIT 1
-        )
-      WHERE l.detected_at_utc >= ? AND l.detected_at_utc < ?
-        AND l.crm_status='open'
-        AND la.status='open'
-        AND lg.next_followup_date IS NOT NULL
-        AND lg.next_followup_date <= CURDATE()
-      ORDER BY lg.next_followup_date ASC
-      LIMIT 200
-    `, [start, end]);
-
-    // Normalize counts for UI
-    const stageCounts = {};
-    for (const r of stageRows) {
-      const key = `${r.stage}:${r.status}`;
-      stageCounts[key] = Number(r.c);
-    }
-
-    const analytics = await fetchAdminAnalytics(start, end);
-
-    const rejectedTotal =
-      (stageCounts['new:rejected'] || 0) +
-      (stageCounts['followup:rejected'] || 0) +
-      (stageCounts['interested:rejected'] || 0);
-
-    const openAssignments = stageRows.reduce((a, r) => a + (r.status === 'open' ? Number(r.c) : 0), 0);
-    const totalLeads = Number(k1?.c || 0);
-    const totalSales = Number(salesAgg?.total_sales || 0);
-    const conversionRate = totalLeads > 0 ? Math.round((totalSales / totalLeads) * 100) : 0;
+    const stageCounts = {
+      'new:open': leadStats.stageOpen.new,
+      'followup:open': leadStats.stageOpen.followup,
+      'interested:open': leadStats.stageOpen.interested
+    };
 
     const funnel = {
-      newInquiry: stageCounts['new:open'] || 0,
-      inFollowup: stageCounts['followup:open'] || 0,
-      highIntent: stageCounts['interested:open'] || 0,
+      newInquiry: leadStats.stageOpen.new,
+      inFollowup: leadStats.stageOpen.followup,
+      highIntent: leadStats.stageOpen.interested,
       closedWon: totalSales,
       disqualified: rejectedTotal
     };
@@ -1230,8 +1296,9 @@ router.get('/admin/overview', requireLogin, requireAdmin, async (req, res) => {
       kpis: {
         totalLeads,
         totalSales,
-        totalRevenue: salesAgg?.total_revenue || 0,
-        openAssignments,
+        totalRevenue: leadStats.totalRevenue,
+        dealRows: leadStats.dealRows,
+        uniqueClosedContacts: leadStats.uniqueClosedContacts,
         rejectedTotal,
         conversionRate,
         activeAgents: analytics.activeAgents,
@@ -1466,7 +1533,8 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
     const lead_price = asMoneyReq(req.body.lead_price);
 
     const deadline = req.body.deadline ? String(req.body.deadline) : null;
-    const assign = (req.body.assign || '').toString().trim() || null;
+    const sales_person_assign =
+      (req.body.sales_person_assign || req.body.assign || '').toString().trim() || null;
     const remarks = (req.body.remarks || '').toString().trim() || null;
 
     const advance_amount = (req.body.advance_amount !== '' && req.body.advance_amount != null)
@@ -1496,7 +1564,7 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
         agents,
         setupSupportEmployees: setupSupportEmployees || [],
         error: 'Name, Number, Enquiry, Lead Price are mandatory.',
-        form: { name, number: (req.body.number||''), enquiry, lead_price: (req.body.lead_price||''), assign: assign||'', remarks: remarks||'', deadline: deadline||'', advance_amount: req.body.advance_amount||'', pakistani_price: req.body.pakistani_price||'', sheet_uid: sheet_uid||'', setup_support, project_report, ppt, assign_setup_support: assign_setup_support||'' }
+        form: { name, number: (req.body.number||''), enquiry, lead_price: (req.body.lead_price||''), sales_person_assign: sales_person_assign||'', remarks: remarks||'', deadline: deadline||'', advance_amount: req.body.advance_amount||'', pakistani_price: req.body.pakistani_price||'', sheet_uid: sheet_uid||'', setup_support, project_report, ppt, assign_setup_support: assign_setup_support||'' }
       });
     }
 
@@ -1505,7 +1573,7 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
 
     const result = await queryAsync(`
       INSERT INTO leads
-        (name, number, deadline, enquiry, status, assign, lead_price, agent_price,
+        (name, number, deadline, enquiry, status, sales_person_assign, lead_price, agent_price,
          is_project_done, is_payment_received, is_agent_payment_done,
          advance_amount, remarks, pakistani_price, sheet_uid,
          need_setup_support, need_project_report, need_ppt, created_at)
@@ -1519,7 +1587,7 @@ router.post('/admin/new-sale', requireLogin, requireAdmin, async (req, res) => {
       number,
       deadline,
       enquiry,
-      assign,
+      sales_person_assign,
       lead_price,
       agent_price,
       advance_amount,

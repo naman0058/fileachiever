@@ -564,10 +564,11 @@ router.get('/convertedleads/:month', (req, res) => {
       name LIKE ? OR
       number LIKE ? OR
       enquiry LIKE ? OR
-      assign LIKE ?
+      assign LIKE ? OR
+      sales_person_assign LIKE ?
     )`);
     const like = `%${q}%`;
-    params.push(like, like, like, like);
+    params.push(like, like, like, like, like);
   }
 
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
@@ -654,21 +655,35 @@ router.get('/convertedleads/:month', (req, res) => {
         return lead;
       });
 
-      // Render with paging meta to show in UI
-      res.render(`${folder}/convertedLeads`, {
-        result: mapped,
-        month: monthName,
-        year,
-        paging: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-          hasPrev: page > 1,
-          hasNext: page * limit < total
-        },
-        filters: { status: statusFilter, q, sort }
-      });
+      // Sales agents for Sales Agent dropdown (sales_person_assign)
+      pool.query(
+        `SELECT name FROM crm_users WHERE is_active=1 AND role='agent' ORDER BY name ASC`,
+        (agentsErr, agentRows) => {
+          const agents = (agentRows || []).map((a) => a.name).filter(Boolean);
+          // Keep any existing sales names that are not in crm_users (so edits don't wipe history)
+          const extras = [];
+          mapped.forEach((lead) => {
+            const sp = (lead.sales_person_assign || '').trim();
+            if (sp && !agents.includes(sp) && !extras.includes(sp)) extras.push(sp);
+          });
+
+          res.render(`${folder}/convertedLeads`, {
+            result: mapped,
+            month: monthName,
+            year,
+            agents: agents.concat(extras),
+            paging: {
+              total,
+              page,
+              limit,
+              totalPages: Math.ceil(total / limit),
+              hasPrev: page > 1,
+              hasNext: page * limit < total
+            },
+            filters: { status: statusFilter, q, sort }
+          });
+        }
+      );
     });
   });
 });

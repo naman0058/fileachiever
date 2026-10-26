@@ -8,6 +8,18 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;');
 }
 
+function headingId(text) {
+  return String(text || '')
+    .replace(/<[^>]+>/g, '')
+    .toLowerCase()
+    .replace(/&[a-z]+;/g, ' ')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80);
+}
+
 function inlineFormat(line) {
   let s = escapeHtml(line);
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -162,13 +174,17 @@ function markdownArticleToBlogHtml(md) {
     }
 
     if (/^### /.test(trimmed)) {
-      out.push(`<h3>${inlineFormat(trimmed.slice(4))}</h3>`);
+      const h = inlineFormat(trimmed.slice(4));
+      const id = headingId(trimmed.slice(4));
+      out.push(id ? `<h3 id="${id}">${h}</h3>` : `<h3>${h}</h3>`);
       i += 1;
       continue;
     }
 
     if (/^## /.test(trimmed)) {
-      out.push(`<h2>${inlineFormat(trimmed.slice(3))}</h2>`);
+      const h = inlineFormat(trimmed.slice(3));
+      const id = headingId(trimmed.slice(3));
+      out.push(id ? `<h2 id="${id}">${h}</h2>` : `<h2>${h}</h2>`);
       i += 1;
       continue;
     }

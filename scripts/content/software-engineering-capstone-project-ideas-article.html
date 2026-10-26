@@ -1,0 +1,320 @@
+<p>Choose a capstone you can build, test and explain. These software engineering capstone project ideas cover development tools and reliable campus workflows, with suggested stacks, a manageable first release and a demonstration target for each.</p>
+<p>Compare the options, then confirm your scope and assessment requirements with your faculty guide.</p>
+<p><strong>Jump to:</strong> <a href="#compare-15-ideas-by-difficulty-stack-and-demonstration">Compare projects</a> · <a href="#project-briefs-what-to-build-and-demonstrate">Project briefs</a> · <a href="#how-to-choose-a-project-you-can-finish">Choose a topic</a> · <a href="#software-engineering-capstone-faqs">FAQs</a></p>
+<h2 id="what-is-a-software-engineering-capstone-project">What is a software engineering capstone project?</h2>
+<p>A software engineering capstone applies requirements analysis, design, implementation and testing to a defined problem. It produces working software and evidence explaining whether the intended behavior was achieved. Required deliverables, such as a software requirements specification (SRS), diagrams and a report, depend on your institution.</p>
+<p>The <strong>minimum viable product (MVP)</strong> is the smallest usable release that completes the central workflow. For an asset system, that might mean requesting, issuing and returning one equipment unit.</p>
+<p><strong>Test fixtures</strong> are prepared records, files or other inputs used to create a repeatable starting point for a test. A sample event with one remaining seat is a fixture for testing registration behavior.</p>
+<p>For broader AI, data and application domains, explore FileMakr’s <a href="https://www.filemakr.com/blog/computer-science-capstone-project-ideas">computer science capstone project ideas</a>. This guide focuses on requirements, software quality and reliable workflows.</p>
+<h2 id="compare-15-ideas-by-difficulty-stack-and-demonstration">Compare 15 ideas by difficulty, stack and demonstration</h2>
+<p>Difficulty assumes basic familiarity with the suggested technology. MERN means MongoDB, Express, React and Node.js. API means application programming interface.</p>
+<p>The stacks below are suggestions. They do not indicate that every proposed system is available as a FileMakr product.</p>
+<div class="bd-table-wrap"><table><thead><tr>
+<th>Project</th>
+<th>Difficulty</th>
+<th>Suggested stack</th>
+<th>Main demonstration</th>
+</tr></thead><tbody>
+<tr>
+<td>Bug and issue tracker</td>
+<td>Beginner–intermediate</td>
+<td>PHP, MySQL</td>
+<td>Permission-controlled status changes</td>
+</tr>
+<tr>
+<td>Requirements traceability tool</td>
+<td>Intermediate</td>
+<td>Django, PostgreSQL</td>
+<td>Requirement versions connected to test evidence</td>
+</tr>
+<tr>
+<td>Test case management system</td>
+<td>Beginner–intermediate</td>
+<td>MERN</td>
+<td>Accurate, preserved test-run summaries</td>
+</tr>
+<tr>
+<td>CI build results dashboard</td>
+<td>Intermediate</td>
+<td>React, Node.js, SQLite</td>
+<td>Duplicate-safe report imports</td>
+</tr>
+<tr>
+<td>Code review workflow portal</td>
+<td>Intermediate</td>
+<td>Django, PostgreSQL</td>
+<td>Revision-specific approvals</td>
+</tr>
+<tr>
+<td>Change impact analyzer</td>
+<td>Advanced</td>
+<td>Python, SQLite</td>
+<td>Results compared with a checked dependency graph</td>
+</tr>
+<tr>
+<td>Feature flag simulator</td>
+<td>Intermediate</td>
+<td>Node.js, PostgreSQL</td>
+<td>Repeatable feature assignments</td>
+</tr>
+<tr>
+<td>Offline campus maintenance desk</td>
+<td>Advanced</td>
+<td>React, IndexedDB, Node.js</td>
+<td>Duplicate-safe retries and conflict handling</td>
+</tr>
+<tr>
+<td>College event registration and waitlist</td>
+<td>Intermediate</td>
+<td>Django, PostgreSQL</td>
+<td>Correct allocation of the final seat</td>
+</tr>
+<tr>
+<td>Lab asset checkout system</td>
+<td>Beginner–intermediate</td>
+<td>PHP, MySQL</td>
+<td>Consistent availability of individual units</td>
+</tr>
+<tr>
+<td>Document approval system</td>
+<td>Intermediate</td>
+<td>MERN</td>
+<td>Approval tied to the reviewed version</td>
+</tr>
+<tr>
+<td>API contract regression tester</td>
+<td>Intermediate</td>
+<td>Python, pytest, Flask</td>
+<td>Deliberate interface changes detected</td>
+</tr>
+<tr>
+<td>Accessible student services portal</td>
+<td>Intermediate</td>
+<td>HTML, CSS, JavaScript, Django</td>
+<td>Keyboard access and understandable errors</td>
+</tr>
+<tr>
+<td>Legacy module refactoring study</td>
+<td>Intermediate–advanced</td>
+<td>Java, JUnit</td>
+<td>Documented behavior preserved after restructuring</td>
+</tr>
+<tr>
+<td>Flaky test analysis tool</td>
+<td>Advanced</td>
+<td>Python, pandas</td>
+<td>Instability identified within comparable test runs</td>
+</tr>
+</tbody></table></div>
+<h2 id="project-briefs-what-to-build-and-demonstrate">Project briefs: what to build and demonstrate</h2>
+<h3 id="1-bug-and-issue-tracker">1. Bug and issue tracker</h3>
+<p>Developers report issues, while a maintainer assigns them and controls transitions such as open, in progress and closed.</p>
+<p>Build one project space, issue descriptions, priorities, assignment and status history. The output is a current issue list with an attributable record of changes.</p>
+<p><strong>Demonstration:</strong> attempt to reopen a closed issue using an account without permission. The server should reject the action, even if someone bypasses the interface.</p>
+<p>Keep chat, time tracking and multiple organizations outside the first release.</p>
+<h3 id="2-requirements-traceability-tool">2. Requirements traceability tool</h3>
+<p>An analyst records requirements, developers link implementation tasks, and testers associate acceptance checks.</p>
+<p>Start with requirement versions, task links, test definitions and execution records. Display requirements without linked tests and requirements whose latest versions need evidence review.</p>
+<p>For example, requirement R-03 may state that only an assigned reviewer can approve a document version. Link R-03 version 2 to its permission tests, implementation commit and test run. If version 3 changes the approval rule, flag the earlier evidence for review.</p>
+<p><strong>Demonstration:</strong> change a requirement and verify that evidence for its previous version is not automatically treated as current.</p>
+<p>A requirement linked to a test has planned coverage; it does not establish that the test was executed or passed. Keep linked, executed, passed and reviewed states distinct.</p>
+<h3 id="3-test-case-management-system">3. Test case management system</h3>
+<p>Testers create cases, organize runs and record passed, failed, blocked or unexecuted outcomes. A release lead views totals and individual results.</p>
+<p>Build test definitions, execution records, result summaries and a basic release history.</p>
+<p><strong>Demonstration:</strong> reconcile dashboard totals with individual execution records. Updating a test definition must not silently rewrite an earlier completed run.</p>
+<p>Preserve the case version or a snapshot used during execution. Manual result recording is sufficient initially; automated test-runner integration can follow later.</p>
+<h3 id="4-ci-build-results-dashboard">4. CI build results dashboard</h3>
+<p>Continuous integration (CI) checks integrated code through automated workflows. <a href="https://docs.github.com/en/actions/get-started/understand-github-actions">GitHub Actions</a> is one platform that can automate builds, tests and deployment.</p>
+<p>Build a dashboard that imports prepared JSON or XML reports and displays run identifiers, software commits, execution times and failures.</p>
+<p><strong>Demonstration:</strong> importing the same run twice should not create duplicate records. A malformed report should produce a clear error without leaving a partially imported run.</p>
+<p>File import provides a manageable MVP without repository credentials or live integration.</p>
+<h3 id="5-code-review-workflow-portal">5. Code review workflow portal</h3>
+<p>Authors submit prepared code changes. Reviewers comment, request revisions and approve a particular revision.</p>
+<p>Build submission records, revision history, reviewer assignments and review decisions. The output is a clear review status for each submitted revision.</p>
+<p><strong>Demonstration:</strong> upload a new revision after approval. Under the application’s policy, the new revision should require fresh review.</p>
+<p>Associate comments with the revision they describe. Live repository synchronization and execution of submitted code can remain outside the initial scope.</p>
+<h3 id="6-change-impact-analyzer">6. Change impact analyzer</h3>
+<p>Accept source files in one language and analyze a documented subset of import statements. Show modules that may be affected when a selected module changes.</p>
+<p>Build file import, dependency extraction, graph traversal and a report explaining the result.</p>
+<p><strong>Demonstration:</strong> compare the analyzer’s output with a manually checked dependency graph. Count correctly identified, missed and extra modules. Include examples involving shared dependencies and cycles.</p>
+<p>State unsupported constructs, such as dynamic imports outside the analyzer’s rules. A dependency connection indicates possible impact; it does not prove that a module or its tests will fail.</p>
+<h3 id="7-feature-flag-configuration-simulator">7. Feature flag configuration simulator</h3>
+<p>An administrator defines feature rules. A tester enters a synthetic account identifier and receives an enabled or disabled result, together with the matched rule.</p>
+<p>Build configuration versions, rule precedence, percentage groups and rollback.</p>
+<p><strong>Demonstration:</strong> identical inputs and configuration should produce the same assignment. Use a stable assignment method instead of generating a fresh random result on every request.</p>
+<p>Define what happens when rules overlap or an account matches none. Keep the first release a simulator without a production traffic dependency.</p>
+<h3 id="8-offline-campus-maintenance-desk">8. Offline campus maintenance desk</h3>
+<p>Maintenance staff record ticket updates without connectivity and synchronize them later. IndexedDB, a browser database, can store pending operations locally.</p>
+<p>Begin with one ticket type, a unique identifier for each operation and a server-side record version.</p>
+<p>If the server saves an update but its response is lost, the client cannot assume the update failed. Retrying with the same operation identifier must not apply the change again. Persist the identifier and update atomically—so both are saved together or neither is—and enforce uniqueness within the identifier’s defined scope.</p>
+<p>AWS’s <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making retries safe with idempotent APIs</a> explains how request identifiers and atomic recording of changes support safe retries.</p>
+<p><strong>Demonstration:</strong> simulate a lost response after saving an update, then retry it. Verify that only one change was applied.</p>
+<p>Also test two devices editing the same ticket version. Surface a conflict and apply a documented resolution rule rather than silently discarding an update.</p>
+<h3 id="9-college-event-registration-and-waitlist">9. College event registration and waitlist</h3>
+<p>Students register for an event, while a coordinator sets capacity and manages cancellations.</p>
+<p>Build one registration per student per event, confirmed and waitlisted states, cancellations and ordered promotion. The output is a registration status and coordinator list.</p>
+<p>Define the main rule: confirmed registrations must never exceed capacity.</p>
+<p><strong>Demonstration:</strong> submit two overlapping requests when one seat remains. At most one may be confirmed; the other follows the waitlist rule. Cancel a confirmed place and verify that only one eligible waiting student is promoted.</p>
+<p>For PostgreSQL, one design locks the shared event row inside a transaction before checking and allocating capacity. Registration, cancellation and promotion must follow compatible coordination rules. The <a href="https://www.postgresql.org/docs/18/explicit-locking.html">PostgreSQL locking documentation</a> explains the mechanism.</p>
+<p>Add a database uniqueness rule for the event-and-student combination. Save request identifiers, evidence of overlapping execution and the final database state. Exclude payments and complex scheduling initially.</p>
+<h3 id="10-lab-asset-checkout-system">10. Lab asset checkout system</h3>
+<p>Students request equipment, while a lab assistant approves, issues and receives individual units.</p>
+<p>Record each unit’s identifier, condition and availability, including maintenance status. Distinguish an approved reservation from physical collection.</p>
+<p><strong>Demonstration:</strong> an asset under repair must not be issued. Two overlapping issue requests must not assign the same unit twice.</p>
+<p>Use synthetic borrower records for evaluation. Begin with one lab and a small equipment catalog; QR scanning and procurement can be later extensions.</p>
+<h3 id="11-document-approval-system">11. Document approval system</h3>
+<p>Submitters upload documents, and assigned reviewers approve or reject specific versions.</p>
+<p>Build document versions, reviewer assignments, decisions and review history.</p>
+<p><strong>Demonstration:</strong> approval of version 1 must not automatically approve version 2. An unauthorized account sending a direct approval request should be denied.</p>
+<p>Approval records should identify the document version reviewed. An earlier approval does not establish review of a later revision.</p>
+<p>A single-reviewer workflow is sufficient for the first release. Parallel committees introduce additional rules for quorum, rejection and resubmission.</p>
+<h3 id="12-api-contract-regression-tester">12. API contract regression tester</h3>
+<p>Developers define requests and expected status codes, required fields and response types for a local sample API.</p>
+<p>Run the checks against two application versions and display detected differences.</p>
+<p><strong>Demonstration:</strong> deliberately remove a required response field in the second version. The corresponding assertion should fail and identify the missing field.</p>
+<p>Preserve the request fixture, response and assertion. Prefer explicit interface expectations over comparisons that fail whenever harmless timestamps change.</p>
+<p>This project evaluates defined interface behavior; it does not establish complete application correctness or security.</p>
+<h3 id="13-accessible-student-services-portal">13. Accessible student services portal</h3>
+<p>Build a small portal containing notices and a service-request form.</p>
+<p>Test keyboard operation, visible focus, meaningful labels and understandable validation feedback. W3C provides direct explanations of <a href="https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html">Keyboard, criterion 2.1.1</a>, and <a href="https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html">Error Identification, criterion 3.3.1</a>.</p>
+<p><strong>Demonstration:</strong> complete the main form using a keyboard, submit invalid input and identify which field needs correction.</p>
+<p>Record the criteria, browsers and assistive tools actually evaluated. Successful checks on a few criteria do not establish whole-site WCAG conformance.</p>
+<p>Keep the portal small enough to evaluate its complete main workflow.</p>
+<h3 id="14-legacy-module-refactoring-study">14. Legacy module refactoring study</h3>
+<p>Choose a small module that you can legally use and understand. Add characterization tests that record its existing behavior before restructuring it.</p>
+<p>Separate mixed responsibilities or duplicated logic, then compare behavior using the same fixtures.</p>
+<p><strong>Demonstration:</strong> the documented behavior should remain consistent after refactoring. Explain whether an existing bug is deliberately preserved or changed separately.</p>
+<p>Report a defined structural measure where useful. Claim faster execution only after a controlled performance comparison. Avoid replacing an entire application when one module provides a clearer study.</p>
+<h3 id="15-flaky-test-analysis-tool">15. Flaky test analysis tool</h3>
+<p>Import repeated test results with test identifiers, application and test-code versions, input references and environment details.</p>
+<p>Compare repeated runs of the same test using the same versions and inputs under documented, sufficiently controlled conditions. Group results by version and environment so intentional changes are not automatically labeled as flaky behavior.</p>
+<p>The <a href="https://docs.pytest.org/en/stable/explanation/flaky.html">pytest documentation on flaky tests</a> discusses intermittent failures and problems involving uncontrolled state or insufficient isolation.</p>
+<p><strong>Demonstration:</strong> evaluate against deliberately stable and unstable examples. Record rerun counts and pass/fail outcomes. Investigate order-dependent failures through a separate experiment that documents the order being varied.</p>
+<p>Distinguish consistently failing tests from intermittent failures. Flag incomplete or incomparable records for review. Observed instability does not establish its cause without further investigation.</p>
+<h2 id="how-to-choose-a-project-you-can-finish">How to choose a project you can finish</h2>
+<p>Compare candidates on five criteria:</p>
+<ol>
+<li>Availability of realistic test fixtures.</li>
+<li>Familiarity with the implementation stack.</li>
+<li>Clarity of the MVP.</li>
+<li>Ability to test difficult behavior.</li>
+<li>Fit with your available time.</li>
+</ol>
+<p>Score each criterion from 0 to 2: unresolved, partly resolved or clear. Confirm mandatory college requirements before comparing totals.</p>
+<p><strong>Illustrative example:</strong> a solo student knows PHP forms and basic database operations, has synthetic inventory records and has not implemented offline storage. Their department permits individual work.</p>
+<div class="bd-table-wrap"><table><thead><tr>
+<th>Criterion</th>
+<th>Asset checkout</th>
+<th>Offline maintenance</th>
+</tr></thead><tbody>
+<tr>
+<td>Available fixtures</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Stack familiarity</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Clear MVP</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Ability to test difficult behavior</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Fit with available time</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>9/10</strong></td>
+<td><strong>5/10</strong></td>
+</tr>
+</tbody></table></div>
+<p>These are example planning judgments, not measured difficulty or a validated grading scale.</p>
+<p>Asset checkout is the stronger initial choice for this profile because offline maintenance introduces unfamiliar retry and conflict behavior. Another student’s experience could change the result.</p>
+<p>After choosing the workflow, explore relevant <a href="https://www.filemakr.com/source-code/node-js">Node.js project resources</a> or <a href="https://www.filemakr.com/source-code/python">Python project resources</a>. Check each resource’s actual features, dependencies and setup requirements.</p>
+<h2 id="a-requirement-to-test-example">A requirement-to-test example</h2>
+<p>This document-approval walkthrough describes <strong>expected behavior, not executed results</strong>.</p>
+<p><strong>Requirement R-03, version 2:</strong> only the reviewer assigned to a document version may approve it.</p>
+<p>Create reviewer accounts A and B. Assign A to document version 2. Under this application’s policy, version 3 requires a fresh decision.</p>
+<div class="bd-table-wrap"><table><thead><tr>
+<th>Test input</th>
+<th>Expected behavior</th>
+<th>Evidence to save when run</th>
+</tr></thead><tbody>
+<tr>
+<td>Reviewer A approves version 2</td>
+<td>Permit approval of version 2</td>
+<td>Request, response and version-specific decision record</td>
+</tr>
+<tr>
+<td>Reviewer B sends the same approval request</td>
+<td>Deny it and create no approval</td>
+<td>Denial response and unchanged decision records</td>
+</tr>
+<tr>
+<td>Submitter uploads version 3</td>
+<td>Version 3 remains pending</td>
+<td>Separate version records and review states</td>
+</tr>
+</tbody></table></div>
+<p>Link the requirement version, implementation commit and test-run identifier. Record actual outcomes separately, including any mismatch with expectations.</p>
+<p>A screenshot can support the explanation. Saved inputs, responses and resulting records make the behavior easier to reproduce and inspect.</p>
+<h2 id="an-illustrative-eight-week-implementation-plan">An illustrative eight-week implementation plan</h2>
+<p>Adjust this schedule to your academic calendar, skills and required deliverables. For event registration, the milestones could be:</p>
+<ol>
+<li><strong>Week 1: agree the scope.</strong> Define student and coordinator roles, capacity rules and waitlist promotion. Produce a synopsis and observable acceptance criteria.</li>
+<li><strong>Week 2: design the workflow.</strong> Model states, permissions and data relationships. Produce an SRS and diagrams matching the intended implementation. Apply <a href="https://www.filemakr.com/blog/software-design-patterns-for-final-year-projects">software design patterns for final-year projects</a> where they solve a stated problem.</li>
+<li><strong>Weeks 3–4: complete one workflow.</strong> Connect event creation, registration and status display. Produce a working interface-to-database demonstration before optional modules.</li>
+<li><strong>Weeks 5–6: exercise important failures.</strong> Test overlapping requests, repeated submissions, cancellations and unauthorized actions. Record expected and actual results. The <a href="https://owasp.org/projects/web-security-testing-guide">OWASP Web Security Testing Guide</a> provides a reference for planning relevant web-security checks; record the release used.</li>
+<li><strong>Week 7: make setup repeatable.</strong> Record dependency versions, configuration and fixture-loading instructions. Produce a README another team member can follow, with secrets kept outside shared examples.</li>
+<li><strong>Week 8: align the submission.</strong> Check the report, diagrams and screenshots against the final software. Prepare a demonstration script, limitations and individual contribution notes.</li>
+</ol>
+<h2 id="common-mistakes-and-practical-improvements">Common mistakes and practical improvements</h2>
+<ul>
+<li><strong>Adding unrelated modules:</strong> chat, payments and recommendations can delay the central workflow. Freeze the MVP acceptance criteria and keep extensions in a separate list.</li>
+</ul>
+<ul>
+<li><strong>Testing only through the interface:</strong> hiding a button does not establish authorization. Send a direct request from an account without permission and inspect the result.</li>
+</ul>
+<ul>
+<li><strong>Treating one successful run as proof:</strong> a capacity bug may require overlapping requests. Document how overlap was created and preserve the failing case for regression checks.</li>
+</ul>
+<ul>
+<li><strong>Combining incomparable test results:</strong> different code versions, inputs or environments can explain different outcomes. Separate these groups before investigating instability.</li>
+</ul>
+<ul>
+<li><strong>Claiming broad quality from narrow evidence:</strong> contract checks do not establish complete security, accessibility or scalability. State exactly what was evaluated.</li>
+</ul>
+<ul>
+<li><strong>Reusing unexplained code:</strong> record licences, attribute sources, follow college rules and explain your own implemented contribution.</li>
+</ul>
+<p><strong>Practical tips:</strong> prefer a simple deployment unless distributed components are part of the question being evaluated. Preserve historical requirement and test versions. Reset fixtures between experiments unless shared state is the specific condition under investigation.</p>
+<h2 id="software-engineering-capstone-faqs">Software engineering capstone FAQs</h2>
+<h3 id="which-software-engineering-capstone-projects-are-suitable-for-beginners">Which software engineering capstone projects are suitable for beginners?</h3>
+<p>A bug tracker or lab asset checkout system is a practical starting point if you know forms, authentication and database operations. Begin with one team or lab and one complete workflow. Add advanced features after validation and permissions work.</p>
+<h3 id="can-i-build-a-capstone-alone">Can I build a capstone alone?</h3>
+<p>Yes, if your institution permits individual projects and the scope fits your skills and time. A small issue tracker, asset checkout system or local API tester can support a solo project. Confirm required deliverables before committing.</p>
+<h3 id="does-a-software-engineering-capstone-need-ai">Does a software engineering capstone need AI?</h3>
+<p>No. Traceability, regression testing, refactoring and reliable workflows demonstrate software engineering without AI. Include AI when it solves a defined problem and you can evaluate its outputs.</p>
+<h3 id="can-i-avoid-paid-apis">Can I avoid paid APIs?</h3>
+<p>Yes. Bug tracking, asset checkout, document approval and local API testing can use synthetic records or software you control. Imported reports can support a CI dashboard. Hosting and optional development tools may still have costs.</p>
+<h3 id="how-many-students-should-work-on-the-project">How many students should work on the project?</h3>
+<p>Follow your department’s team-size rules. Allocate ownership of complete workflows, with shared integration and review checkpoints. Keep individual contribution records; a larger team does not automatically justify more modules.</p>
+<h3 id="how-should-i-test-my-final-year-project">How should I test my final-year project?</h3>
+<p>Convert acceptance criteria into repeatable checks for successful behavior, invalid input, permissions and relevant failures. Record fixtures, environment, software version, expected results and actual outcomes. Repeat affected checks after changes.</p>
+<h3 id="how-can-i-show-originality-in-a-familiar-topic">How can I show originality in a familiar topic?</h3>
+<p>Describe the problem, baseline limitation, your change and its evaluation. An event system might focus on correct final-seat allocation. Attribute reused components and separate your contribution from existing code. Agree formal research novelty requirements with your guide.</p>
+<h3 id="what-should-i-prepare-for-the-viva">What should I prepare for the viva?</h3>
+<p>Prepare the problem statement, architecture, data model, core demonstration, test evidence and limitations. Explain one design tradeoff, one bug you investigated and the code you implemented or adapted yourself.</p>
+<h2 id="choose-your-topic-and-define-the-first-demonstration">Choose your topic and define the first demonstration</h2>
+<p>Shortlist three ideas and define one complete workflow for each. Choose the option whose inputs, expected behavior and evaluation you can explain clearly, then confirm the scope with your guide.</p>
+<p>Explore <a href="https://www.filemakr.com/source-code">FileMakr’s project resources</a> for relevant implementation references. Compare features, dependencies and setup instructions, then adapt and evaluate your work according to your college’s requirements.</p>
